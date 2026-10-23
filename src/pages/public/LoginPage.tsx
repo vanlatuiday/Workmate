@@ -1,25 +1,16 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { AlertCircle, Briefcase, Building2, Eye, EyeOff, Loader2, Search, ShieldCheck } from 'lucide-react'
+import { AlertCircle, Building2, Eye, EyeOff, Loader2, Search, ShieldCheck } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { DEMO_ACCOUNTS, buildDemoUser, findDemoAccount } from '@constants/demoAccounts'
 
 /*
  * Đăng nhập — tạm dùng 3 tài khoản demo (xem constants/demoAccounts.ts).
- * Trang này nằm trong PublicLayout (nền sáng), nên tự khai báo bộ biến page-* theo
- * theme ivory ở khung ngoài để các class bg-page-* / text-page-* ra đúng màu.
+ * Trang này nằm trong PublicLayout, layout đã cấp theme ngà (.theme-ivory) nên
+ * các class bg-page-* / text-page-* ra đúng màu.
  */
-const IVORY_THEME = {
-  '--page-bg': 'var(--wm-ivory)',
-  '--page-fg': 'var(--wm-charcoal)',
-  '--page-surface': 'color-mix(in srgb, var(--page-fg) 5%, var(--page-bg))',
-  '--page-edge': 'color-mix(in srgb, var(--page-fg) 60%, var(--page-bg))',
-  '--page-muted': 'color-mix(in srgb, var(--page-fg) 82%, var(--page-bg))',
-  '--page-line': 'color-mix(in srgb, var(--page-fg) 18%, var(--page-bg))',
-} as React.CSSProperties
-
 const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
-const INPUT = `w-full rounded-control border border-page-edge bg-page-surface px-4 py-3 text-base text-page-fg placeholder:text-page-muted ${FOCUS}`
+const INPUT = `w-full rounded-control border border-page-edge bg-page-surface px-4 py-3 text-base text-page-fg placeholder:text-page-edge ${FOCUS}`
 
 const ICONS = { jobseeker: Search, recruiter: Building2, admin: ShieldCheck } as const
 
@@ -60,16 +51,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      style={IVORY_THEME}
-      className="min-h-[calc(100vh-64px)] bg-page-bg text-page-fg flex items-center justify-center px-6 py-section-sm"
-    >
+    <div className="min-h-[calc(100vh-64px)] text-page-fg flex items-start justify-center px-6 py-12 md:py-16">
       <div className="w-full max-w-md">
-        <Link to="/" className={`inline-flex items-center gap-2 font-display font-semibold text-xl tracking-tight rounded-control ${FOCUS}`}>
-          <Briefcase className="w-5 h-5" aria-hidden />
-          Workmate
-        </Link>
-        <h1 className="font-display text-display-sm font-semibold text-page-fg mt-8">Đăng nhập</h1>
+        <h1 className="font-display text-display-sm font-semibold text-page-fg">Đăng nhập</h1>
         <p className="text-base text-page-muted mt-3">
           Chưa có tài khoản?{' '}
           <Link to="/dang-ky" className={`font-medium text-page-fg underline underline-offset-4 rounded-control ${FOCUS}`}>
@@ -97,7 +81,7 @@ export default function LoginPage() {
               required
               value={form.username}
               onChange={(e) => setForm({ ...form, username: e.target.value })}
-              placeholder="admin1"
+              placeholder="Tên đăng nhập của bạn"
               className={INPUT}
             />
           </div>

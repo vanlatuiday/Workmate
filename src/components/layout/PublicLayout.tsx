@@ -23,6 +23,13 @@ const navLinks = [
   { label: 'Cẩm nang', href: '/cam-nang' },
 ]
 
+/** Vòng focus dùng chung cho link/nút ở header và footer */
+const FOCUS =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
+
+/** Link nhỏ trong footer */
+const FOOT_LINK = `link-underline rounded-control hover:text-page-fg ${FOCUS}`
+
 /** Danh sách phẳng dùng cho menu phủ toàn màn hình ở trang chủ. */
 const overlayLinks: MenuItem[] = [
   { label: 'Tìm việc', href: '/viec-lam' },
@@ -49,7 +56,10 @@ export default function PublicLayout() {
   const { user } = useAuthStore()
   const location = useLocation()
 
-  // Trang chủ dùng nền tối, các trang còn lại nền sáng
+  // Trang chủ dùng nền tối (page-* do useSectionThemes điều khiển); các trang còn lại dùng theme ngà.
+  // `dark` phải đổi ngay khi đổi route: IntroHero tìm data-brand-logo… lúc mount.
+  // Theme ngà gắn vào header, footer và khung của TỪNG trang (không gắn lên wrapper),
+  // nên trang cũ đang mờ dần vẫn giữ màu của chính nó.
   const dark = location.pathname === '/'
 
   // Đóng mọi menu khi chuyển trang
@@ -64,31 +74,32 @@ export default function PublicLayout() {
     '/tim-viec'
 
   return (
-    <div className={cn('min-h-screen flex flex-col', dark ? 'bg-page-bg' : 'bg-gray-50')}>
+    <div className="min-h-screen flex flex-col bg-page-bg">
       {/* Header. Trang chủ: cố định trên cùng, màu theo section đang xem (biến --page-*),
           và được IntroHero điều khiển qua các data-attribute bên dưới:
             data-brand-logo  — logo đi từ giữa màn hình vào header
             data-header-item — các cụm hiện dần khi logo đã về chỗ
             data-header-bg   — nền header, chỉ hiện sau intro
-          Mặc định mọi thứ ở trạng thái cuối, nên không có JS vẫn dùng được. */}
+          Mặc định mọi thứ ở trạng thái cuối, nên không có JS vẫn dùng được.
+          Trang khác: sticky, nền và viền lấy thẳng từ theme ngà. */}
       <header
         className={cn(
-          'top-0 z-40',
-          dark ? 'fixed inset-x-0 text-page-fg' : 'sticky bg-white border-b border-gray-200',
+          'top-0 z-40 text-page-fg',
+          dark ? 'fixed inset-x-0' : 'sticky theme-ivory border-b border-page-line',
         )}
       >
         {dark && (
           <div data-header-bg aria-hidden className="absolute inset-0 -z-10 bg-page-bg border-b border-page-line" />
         )}
-        <div className={dark ? 'shell' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'}>
+        <div className="shell">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link
               to="/"
               data-brand-logo={dark ? '' : undefined}
               className={cn(
-                'flex items-center gap-2 font-display font-semibold text-xl tracking-tight',
-                dark ? 'text-page-fg' : 'text-primary-600',
+                'flex items-center gap-2 font-display font-semibold text-xl tracking-tight text-page-fg rounded-control',
+                FOCUS,
               )}
             >
               {/* Hiện dần rất nhẹ lúc mở trang — chạy trên phần tử con vì transform
@@ -111,35 +122,25 @@ export default function PublicLayout() {
                   <div key={link.label} className="relative">
                     <button
                       onClick={() => setDropdownOpen(!dropdownOpen)}
+                      aria-expanded={dropdownOpen}
                       className={cn(
-                        'group flex items-center gap-1 px-3 py-2 rounded-control text-sm font-medium transition-colors',
-                        dark
-                          ? 'text-page-muted hover:text-page-fg'
-                          : 'text-gray-600 hover:bg-gray-100',
+                        'group flex items-center gap-1 px-3 py-2 rounded-control text-sm font-medium transition-colors text-page-muted hover:text-page-fg',
+                        FOCUS,
                       )}
                     >
                       <RollText>{link.label}</RollText>
                       <ChevronDown className="w-4 h-4" />
                     </button>
                     {dropdownOpen && (
-                      <div
-                        className={cn(
-                          'absolute top-full left-0 mt-1 w-52 rounded-xl border py-1 z-50',
-                          dark
-                            ? 'bg-page-bg border-page-line'
-                            : 'bg-white border-gray-200 shadow-lg',
-                        )}
-                      >
+                      <div className="absolute top-full left-0 mt-1 w-52 rounded-card border border-page-line bg-page-bg py-1 z-50">
                         {link.children.map((child) => (
                           <Link
                             key={child.href}
                             to={child.href}
                             onClick={() => setDropdownOpen(false)}
                             className={cn(
-                              'block px-4 py-2 text-sm transition-colors',
-                              dark
-                                ? 'text-page-muted hover:text-page-fg hover:bg-page-surface'
-                                : 'text-gray-700 hover:bg-gray-50',
+                              'block px-4 py-2 text-sm transition-colors text-page-muted hover:text-page-fg hover:bg-page-surface',
+                              FOCUS,
                             )}
                           >
                             {child.label}
@@ -152,15 +153,13 @@ export default function PublicLayout() {
                   <Link
                     key={link.href}
                     to={link.href!}
+                    aria-current={location.pathname === link.href ? 'page' : undefined}
                     className={cn(
                       'group px-3 py-2 rounded-control text-sm font-medium transition-colors',
-                      dark
-                        ? location.pathname === link.href
-                          ? 'text-page-fg'
-                          : 'text-page-muted hover:text-page-fg'
-                        : location.pathname === link.href
-                          ? 'bg-primary-50 text-primary-600'
-                          : 'text-gray-600 hover:bg-gray-100',
+                      location.pathname === link.href
+                        ? 'text-page-fg underline underline-offset-8 decoration-1'
+                        : 'text-page-muted hover:text-page-fg',
+                      FOCUS,
                     )}
                   >
                     <RollText>{link.label}</RollText>
@@ -175,8 +174,8 @@ export default function PublicLayout() {
                 <Link
                   to={dashboardHref}
                   className={cn(
-                    'text-sm font-medium px-5 py-2 rounded-full transition-colors',
-                    dark ? 'bg-page-fg text-page-bg hover:opacity-90' : 'btn-primary',
+                    'text-sm font-medium px-5 py-2 rounded-full transition-colors bg-page-fg text-page-bg hover:opacity-90',
+                    FOCUS,
                   )}
                 >
                   Dashboard
@@ -186,10 +185,8 @@ export default function PublicLayout() {
                   <Link
                     to="/dang-nhap"
                     className={cn(
-                      'group text-sm font-medium transition-colors',
-                      dark
-                        ? 'text-page-muted hover:text-page-fg px-3 py-2'
-                        : 'btn-secondary',
+                      'group text-sm font-medium transition-colors text-page-muted hover:text-page-fg px-3 py-2 rounded-control',
+                      FOCUS,
                     )}
                   >
                     <RollText>Đăng nhập</RollText>
@@ -199,8 +196,8 @@ export default function PublicLayout() {
                     <Link
                       to="/dang-ky"
                       className={cn(
-                        'group block text-sm font-medium px-5 py-2 rounded-full transition-colors',
-                        dark ? 'bg-page-fg text-page-bg hover:opacity-90' : 'btn-primary',
+                        'group block text-sm font-medium px-5 py-2 rounded-full transition-colors bg-page-fg text-page-bg hover:opacity-90',
+                        FOCUS,
                       )}
                     >
                       <RollText>Đăng ký</RollText>
@@ -219,8 +216,10 @@ export default function PublicLayout() {
                   onClick={() => setOverlayOpen(true)}
                   aria-expanded={overlayOpen}
                   aria-label="Mở menu"
-                  className="group flex items-center gap-2 text-sm text-page-muted hover:text-page-fg
-                             transition-colors p-2 -mr-2 rounded-control"
+                  className={cn(
+                    'group flex items-center gap-2 text-sm text-page-muted hover:text-page-fg transition-colors p-2 -mr-2 rounded-control',
+                    FOCUS,
+                  )}
                 >
                   <span className="hidden sm:inline">
                     <RollText>Menu</RollText>
@@ -231,7 +230,10 @@ export default function PublicLayout() {
               </div>
             ) : (
               <button
-                className="md:hidden p-2 rounded-control transition-colors text-gray-500 hover:bg-gray-100"
+                className={cn(
+                  'md:hidden p-2 -mr-2 rounded-control transition-colors text-page-muted hover:text-page-fg',
+                  FOCUS,
+                )}
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-expanded={mobileOpen}
                 aria-label={mobileOpen ? 'Đóng menu' : 'Mở menu'}
@@ -242,23 +244,13 @@ export default function PublicLayout() {
           </div>
         </div>
 
-        {/* Mobile nav — chỉ dùng cho các trang nền sáng */}
+        {/* Mobile nav — chỉ dùng cho các trang ngoài trang chủ */}
         {mobileOpen && !dark && (
-          <div
-            className={cn(
-              'md:hidden border-t px-4 pb-4 pt-2 space-y-1',
-              dark ? 'border-ink-700 bg-ink-900' : 'border-gray-100 bg-white',
-            )}
-          >
+          <div className="md:hidden border-t border-page-line bg-page-bg px-6 pb-4 pt-2 space-y-1">
             {navLinks.map((link) =>
               link.children ? (
                 <div key={link.label}>
-                  <p
-                    className={cn(
-                      'px-3 py-2 text-xs font-semibold uppercase tracking-wider',
-                      dark ? 'text-ink-400' : 'text-gray-400',
-                    )}
-                  >
+                  <p className="px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] text-page-muted">
                     {link.label}
                   </p>
                   {link.children.map((child) => (
@@ -267,8 +259,8 @@ export default function PublicLayout() {
                       to={child.href}
                       onClick={() => setMobileOpen(false)}
                       className={cn(
-                        'block px-3 py-2 rounded-control text-sm transition-colors',
-                        dark ? 'text-ink-200 hover:text-white' : 'text-gray-700 hover:bg-gray-50',
+                        'block px-3 py-2 rounded-control text-sm transition-colors text-page-muted hover:text-page-fg hover:bg-page-surface',
+                        FOCUS,
                       )}
                     >
                       {child.label}
@@ -280,9 +272,11 @@ export default function PublicLayout() {
                   key={link.href}
                   to={link.href!}
                   onClick={() => setMobileOpen(false)}
+                  aria-current={location.pathname === link.href ? 'page' : undefined}
                   className={cn(
-                    'block px-3 py-2 rounded-control text-sm transition-colors',
-                    dark ? 'text-ink-200 hover:text-white' : 'text-gray-700 hover:bg-gray-50',
+                    'block px-3 py-2 rounded-control text-sm transition-colors hover:bg-page-surface',
+                    location.pathname === link.href ? 'text-page-fg font-medium' : 'text-page-muted hover:text-page-fg',
+                    FOCUS,
                   )}
                 >
                   {link.label}
@@ -294,8 +288,8 @@ export default function PublicLayout() {
                 <Link
                   to={dashboardHref}
                   className={cn(
-                    'text-sm w-full text-center font-medium py-3 rounded-full transition-colors',
-                    dark ? 'bg-white text-ink-900' : 'btn-primary justify-center',
+                    'text-sm w-full text-center font-medium py-3 rounded-full transition-opacity bg-page-fg text-page-bg hover:opacity-90',
+                    FOCUS,
                   )}
                 >
                   Dashboard
@@ -305,8 +299,8 @@ export default function PublicLayout() {
                   <Link
                     to="/dang-nhap"
                     className={cn(
-                      'text-sm w-full text-center font-medium py-3 rounded-full transition-colors',
-                      dark ? 'border border-ink-600 text-white' : 'btn-secondary justify-center',
+                      'text-sm w-full text-center font-medium py-3 rounded-full transition-colors border border-page-fg text-page-fg hover:bg-page-surface',
+                      FOCUS,
                     )}
                   >
                     Đăng nhập
@@ -314,8 +308,8 @@ export default function PublicLayout() {
                   <Link
                     to="/dang-ky"
                     className={cn(
-                      'text-sm w-full text-center font-medium py-3 rounded-full transition-colors',
-                      dark ? 'bg-white text-ink-900' : 'btn-primary justify-center',
+                      'text-sm w-full text-center font-medium py-3 rounded-full transition-opacity bg-page-fg text-page-bg hover:opacity-90',
+                      FOCUS,
                     )}
                   >
                     Đăng ký
@@ -342,10 +336,13 @@ export default function PublicLayout() {
       />
 
       {/* Page content — mờ dần khi đổi route */}
-      <main className="flex-1">
+      <main className={cn('flex-1', !dark && 'flex flex-col')}>
         <AnimatePresence mode="wait">
+          {/* Trang đang mờ đi giữ nguyên className cũ (AnimatePresence giữ element cũ),
+              nên theme ngà/tối của nó không bị đổi giữa chừng */}
           <motion.div
             key={location.pathname}
+            className={dark ? undefined : 'theme-ivory flex-1'}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -359,78 +356,50 @@ export default function PublicLayout() {
       </main>
 
       {/* Footer */}
-      <footer
-        className={cn(
-          'border-t',
-          dark ? 'bg-page-bg border-page-line' : 'bg-white border-gray-200 mt-16',
-        )}
-      >
-        <div className={cn(dark ? 'shell py-section-sm' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10')}>
+      <footer className={cn('border-t bg-page-bg border-page-line', !dark && 'theme-ivory')}>
+        <div className="shell py-section-sm">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">
               <Link
                 to="/"
                 className={cn(
-                  'flex items-center gap-2 font-display font-semibold text-lg mb-3',
-                  dark ? 'text-page-fg' : 'text-primary-600',
+                  'inline-flex items-center gap-2 font-display font-semibold text-lg mb-3 text-page-fg rounded-control',
+                  FOCUS,
                 )}
               >
                 <Briefcase className="w-5 h-5" />
                 Workmate
               </Link>
-              <p className={cn('text-sm leading-relaxed', dark ? 'text-page-muted' : 'text-gray-500')}>
+              <p className="text-sm leading-relaxed text-page-muted">
                 Nền tảng kết nối việc làm linh hoạt dành cho sinh viên và người lao động.
               </p>
             </div>
             <div>
-              <h4
-                className={cn(
-                  'text-xs font-medium uppercase tracking-[0.18em] mb-4',
-                  dark ? 'text-page-muted' : 'text-gray-800',
-                )}
-              >Tìm việc</h4>
-              <ul className={cn('space-y-3 text-sm', dark ? 'text-page-muted' : 'text-gray-500')}>
-                <li><Link to="/viec-lam?type=part-time" className={cn('link-underline', dark ? 'hover:text-page-fg' : 'hover:text-primary-600')}>Part-time</Link></li>
-                <li><Link to="/viec-lam?type=full-time" className={cn('link-underline', dark ? 'hover:text-page-fg' : 'hover:text-primary-600')}>Full-time</Link></li>
-                <li><Link to="/viec-lam?nearMe=true" className={cn('link-underline', dark ? 'hover:text-page-fg' : 'hover:text-primary-600')}>Gần tôi</Link></li>
+              <h4 className="text-xs font-medium uppercase tracking-[0.18em] mb-4 text-page-muted">Tìm việc</h4>
+              <ul className="space-y-3 text-sm text-page-muted">
+                <li><Link to="/viec-lam?type=part-time" className={FOOT_LINK}>Part-time</Link></li>
+                <li><Link to="/viec-lam?type=full-time" className={FOOT_LINK}>Full-time</Link></li>
+                <li><Link to="/viec-lam?nearMe=true" className={FOOT_LINK}>Gần tôi</Link></li>
               </ul>
             </div>
             <div>
-              <h4
-                className={cn(
-                  'text-xs font-medium uppercase tracking-[0.18em] mb-4',
-                  dark ? 'text-page-muted' : 'text-gray-800',
-                )}
-              >Nhà tuyển dụng</h4>
-              <ul className={cn('space-y-3 text-sm', dark ? 'text-page-muted' : 'text-gray-500')}>
-                <li><Link to="/dang-ky" className={cn('link-underline', dark ? 'hover:text-page-fg' : 'hover:text-primary-600')}>Đăng tin miễn phí</Link></li>
-                <li><Link to="/tuyen-dung" className={cn('link-underline', dark ? 'hover:text-page-fg' : 'hover:text-primary-600')}>Quản lý tuyển dụng</Link></li>
+              <h4 className="text-xs font-medium uppercase tracking-[0.18em] mb-4 text-page-muted">Nhà tuyển dụng</h4>
+              <ul className="space-y-3 text-sm text-page-muted">
+                <li><Link to="/dang-ky" className={FOOT_LINK}>Đăng tin miễn phí</Link></li>
+                <li><Link to="/tuyen-dung" className={FOOT_LINK}>Quản lý tuyển dụng</Link></li>
               </ul>
             </div>
             <div>
-              <h4
-                className={cn(
-                  'text-xs font-medium uppercase tracking-[0.18em] mb-4',
-                  dark ? 'text-page-muted' : 'text-gray-800',
-                )}
-              >Hỗ trợ</h4>
-              <ul className={cn('space-y-3 text-sm', dark ? 'text-page-muted' : 'text-gray-500')}>
-                <li><Link to="/cam-nang" className={cn('link-underline', dark ? 'hover:text-page-fg' : 'hover:text-primary-600')}>Cẩm nang nghề nghiệp</Link></li>
-                <li><a href="mailto:support@workmate.vn" className={cn('link-underline', dark ? 'hover:text-page-fg' : 'hover:text-primary-600')}>Liên hệ</a></li>
+              <h4 className="text-xs font-medium uppercase tracking-[0.18em] mb-4 text-page-muted">Hỗ trợ</h4>
+              <ul className="space-y-3 text-sm text-page-muted">
+                <li><Link to="/cam-nang" className={FOOT_LINK}>Cẩm nang nghề nghiệp</Link></li>
+                <li><a href="mailto:support@workmate.vn" className={FOOT_LINK}>Liên hệ</a></li>
               </ul>
             </div>
           </div>
-          <div
-            className={cn(
-              'mt-16 pt-8 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-xs',
-              dark ? 'border-page-line text-page-muted' : 'border-gray-100 text-gray-400',
-            )}
-          >
+          <div className="mt-16 pt-8 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-xs border-page-line text-page-muted">
             <p>© 2026 Workmate. All rights reserved.</p>
-            <a
-              href="mailto:support@workmate.vn"
-              className={cn('link-underline', dark ? 'hover:text-page-fg' : 'hover:text-primary-600')}
-            >
+            <a href="mailto:support@workmate.vn" className={FOOT_LINK}>
               support@workmate.vn
             </a>
           </div>

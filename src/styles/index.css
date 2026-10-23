@@ -93,6 +93,20 @@
   --page-line: color-mix(in srgb, var(--page-fg) 18%, var(--page-bg));
 }
 
+/* Theme ngà (ivory) cho các trang công khai ngoài trang chủ (PublicLayout gắn lên
+   header, footer và khung từng trang). Phải khai báo lại cả 4 biến suy ra: biến CSS được tính tại phần tử
+   khai báo (:root), nên nếu chỉ đổi bg/fg thì con vẫn kế thừa giá trị đã tính theo nền tối. */
+.theme-ivory {
+  --page-bg: var(--wm-ivory);
+  --page-fg: var(--wm-charcoal);
+  --page-surface: color-mix(in srgb, var(--page-fg) 5%, var(--page-bg));
+  --page-edge: color-mix(in srgb, var(--page-fg) 60%, var(--page-bg));
+  --page-muted: color-mix(in srgb, var(--page-fg) 82%, var(--page-bg));
+  --page-line: color-mix(in srgb, var(--page-fg) 18%, var(--page-bg));
+  background-color: var(--page-bg);
+  color: var(--page-fg);
+}
+
 @layer components {
   /* Khối nội dung giới hạn bề ngang, lề theo viewport */
   .shell {

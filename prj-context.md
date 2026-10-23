@@ -51,7 +51,7 @@ Phân quyền: `ProtectedRoute` chỉ kiểm tra `user.role` trong Zustand store
 | `/` Trang chủ | **[có]** Hoàn chỉnh về trải nghiệm (xem mục 5). Nội dung là placeholder. |
 | `/viec-lam` Danh sách việc | **[có]** UI + lọc theo `keyword`, `type`, `industry` qua query string — **dữ liệu mock** (`mockJobs`), chưa gọi `jobService`. Trang chủ tìm kiếm bằng `?keyword=&city=`. |
 | `/viec-lam/:id` Chi tiết | **[có]** UI, hiển thị % phù hợp, nút “Ứng tuyển ngay” — **mock**, chưa đọc `id`, nút chưa làm gì. |
-| `/dang-nhap`, `/dang-ky` | **[có]** UI + chọn vai trò. **Đăng nhập giả**: `setUser(..., 'mock-token')` — `authService` đã viết nhưng chưa gọi (`// TODO`). Đăng ký xong: ứng viên → `/tim-viec/ho-so`, NTD → `/tuyen-dung/ho-so-cong-ty`. |
+| `/dang-nhap`, `/dang-ky` | **[có]** UI theo DESIGN.md. **Đăng nhập demo** (chưa có backend): `admin1` → ứng viên, `admin2` → NTD, `admin3` → admin, mật khẩu `123456`, có nút đăng nhập nhanh. Danh sách ở `src/constants/demoAccounts.ts` — thay bằng `authService` khi có backend. Đăng ký: không lưu gì, vào admin1/admin2 theo vai trò rồi tới `/tim-viec/ho-so` hoặc `/tuyen-dung/ho-so-cong-ty`. |
 | `/cong-ty`, `/cam-nang` | **[khung]** Trang trống (3 dòng). |
 
 ### Ứng viên `/tim-viec`
