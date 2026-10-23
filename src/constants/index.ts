@@ -67,3 +67,4 @@ export const APPLICATION_STATUS_LABELS: Record<string, string> = {
   hired:            'Đã nhận việc',
   rejected:         'Không phù hợp',
 }
+export * from './demoAccounts'

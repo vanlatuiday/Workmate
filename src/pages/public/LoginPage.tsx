@@ -1,128 +1,167 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Briefcase, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { AlertCircle, Briefcase, Building2, Eye, EyeOff, Loader2, Search, ShieldCheck } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
+import { DEMO_ACCOUNTS, buildDemoUser, findDemoAccount } from '@constants/demoAccounts'
+
+/*
+ * Đăng nhập — tạm dùng 3 tài khoản demo (xem constants/demoAccounts.ts).
+ * Trang này nằm trong PublicLayout (nền sáng), nên tự khai báo bộ biến page-* theo
+ * theme ivory ở khung ngoài để các class bg-page-* / text-page-* ra đúng màu.
+ */
+const IVORY_THEME = {
+  '--page-bg': 'var(--wm-ivory)',
+  '--page-fg': 'var(--wm-charcoal)',
+  '--page-surface': 'color-mix(in srgb, var(--page-fg) 5%, var(--page-bg))',
+  '--page-edge': 'color-mix(in srgb, var(--page-fg) 60%, var(--page-bg))',
+  '--page-muted': 'color-mix(in srgb, var(--page-fg) 82%, var(--page-bg))',
+  '--page-line': 'color-mix(in srgb, var(--page-fg) 18%, var(--page-bg))',
+} as React.CSSProperties
+
+const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
+const INPUT = `w-full rounded-control border border-page-edge bg-page-surface px-4 py-3 text-base text-page-fg placeholder:text-page-muted ${FOCUS}`
+
+const ICONS = { jobseeker: Search, recruiter: Building2, admin: ShieldCheck } as const
 
 export default function LoginPage() {
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [form, setForm] = useState({ username: '', password: '' })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const { setUser } = useAuthStore()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // TODO: thay bằng authService.login khi có backend
+  const login = async (username: string, password: string) => {
     setError('')
     setLoading(true)
-    try {
-      // TODO: call authService.login
-      // Mock: demo login
-      await new Promise((r) => setTimeout(r, 800))
-      const role = form.email.includes('recruiter') ? 'recruiter'
-        : form.email.includes('admin') ? 'admin'
-        : 'jobseeker'
-      setUser({ id: '1', email: form.email, role, createdAt: new Date().toISOString() }, 'mock-token')
-      navigate(role === 'recruiter' ? '/tuyen-dung' : role === 'admin' ? '/admin' : '/tim-viec')
-    } catch {
-      setError('Email hoặc mật khẩu không đúng.')
-    } finally {
+    await new Promise((r) => setTimeout(r, 600)) // độ trễ giả
+    const account = findDemoAccount(username, password)
+    if (!account) {
+      setError('Tên đăng nhập hoặc mật khẩu không đúng.')
       setLoading(false)
+      return
     }
+    setUser(buildDemoUser(account), 'mock-token')
+    navigate(account.redirect)
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (loading) return
+    void login(form.username, form.password)
+  }
+
+  // Đăng nhập nhanh: điền form rồi đăng nhập luôn
+  const quickLogin = (username: string, password: string) => {
+    if (loading) return
+    setForm({ username, password })
+    void login(username, password)
   }
 
   return (
-    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 text-primary-600 font-bold text-xl">
-            <Briefcase className="w-6 h-6" />
-            Workmate
+    <div
+      style={IVORY_THEME}
+      className="min-h-[calc(100vh-64px)] bg-page-bg text-page-fg flex items-center justify-center px-6 py-section-sm"
+    >
+      <div className="w-full max-w-md">
+        <Link to="/" className={`inline-flex items-center gap-2 font-display font-semibold text-xl tracking-tight rounded-control ${FOCUS}`}>
+          <Briefcase className="w-5 h-5" aria-hidden />
+          Workmate
+        </Link>
+        <h1 className="font-display text-display-sm font-semibold text-page-fg mt-8">Đăng nhập</h1>
+        <p className="text-base text-page-muted mt-3">
+          Chưa có tài khoản?{' '}
+          <Link to="/dang-ky" className={`font-medium text-page-fg underline underline-offset-4 rounded-control ${FOCUS}`}>
+            Đăng ký miễn phí
           </Link>
-          <h1 className="mt-4 text-2xl font-bold text-gray-900">Đăng nhập</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Chưa có tài khoản?{' '}
-            <Link to="/dang-ky" className="text-primary-600 font-medium hover:underline">
-              Đăng ký miễn phí
-            </Link>
-          </p>
-        </div>
+        </p>
 
-        <div className="card p-6">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+            <div
+              role="alert"
+              className="flex items-start gap-3 rounded-card border border-page-fg bg-page-surface p-4 text-sm font-medium text-page-fg"
+            >
+              <AlertCircle className="w-5 h-5 shrink-0" aria-hidden />
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <div>
+            <label htmlFor="login-username" className="block text-sm font-medium mb-2">Tên đăng nhập</label>
+            <input
+              id="login-username"
+              type="text"
+              autoComplete="username"
+              required
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              placeholder="admin1"
+              className={INPUT}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="login-password" className="block text-sm font-medium mb-2">Mật khẩu</label>
+            <div className="relative">
               <input
-                type="email"
+                id="login-password"
+                type={showPass ? 'text' : 'password'}
+                autoComplete="current-password"
                 required
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder="you@example.com"
-                className="input"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                placeholder="Nhập mật khẩu"
+                className={`${INPUT} pr-12`}
               />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-sm font-medium text-gray-700">Mật khẩu</label>
-                <Link to="/quen-mat-khau" className="text-xs text-primary-600 hover:underline">
-                  Quên mật khẩu?
-                </Link>
-              </div>
-              <div className="relative">
-                <input
-                  type={showPass ? 'text' : 'password'}
-                  required
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="••••••••"
-                  className="input pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full justify-center py-2.5"
-            >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-            </button>
-          </form>
-
-          <div className="relative my-5">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-xs text-gray-400">hoặc đăng nhập bằng</span>
+              <button
+                type="button"
+                onClick={() => setShowPass(!showPass)}
+                aria-label={showPass ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-control text-page-muted hover:text-page-fg transition-colors ${FOCUS}`}
+              >
+                {showPass ? <EyeOff className="w-4 h-4" aria-hidden /> : <Eye className="w-4 h-4" aria-hidden />}
+              </button>
             </div>
           </div>
 
-          <button className="btn-secondary w-full justify-center py-2.5 text-sm">
-            <img src="https://www.google.com/favicon.ico" alt="" className="w-4 h-4" />
-            Google
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full inline-flex items-center justify-center gap-2 rounded-full bg-page-fg text-page-bg px-8 py-4 text-sm font-medium
+                        transition-opacity duration-300 hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed ${FOCUS}`}
+          >
+            {loading && <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" aria-hidden />}
+            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
-        </div>
+        </form>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
-          Demo: dùng email chứa "recruiter" để login nhà tuyển dụng, "admin" cho admin.
-        </p>
+        {/* Đăng nhập nhanh bằng tài khoản demo */}
+        <section aria-labelledby="demo-title" className="mt-10 pt-8 border-t border-page-line">
+          <h2 id="demo-title" className="eyebrow text-page-muted">Đăng nhập nhanh — tài khoản demo</h2>
+          <div className="mt-4 grid gap-3">
+            {DEMO_ACCOUNTS.map((acc) => {
+              const Icon = ICONS[acc.role]
+              return (
+                <button
+                  key={acc.username}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => quickLogin(acc.username, acc.password)}
+                  className={`group flex items-center gap-3 rounded-card border border-page-line bg-page-surface p-4 text-left
+                              transition-colors duration-300 hover:border-page-fg disabled:opacity-60 disabled:cursor-not-allowed ${FOCUS}`}
+                >
+                  <Icon className="w-5 h-5 shrink-0" aria-hidden />
+                  <span>
+                    <span className="block text-sm font-medium">{acc.label} · {acc.username}</span>
+                    <span className="block text-xs text-page-muted mt-1">Mật khẩu: {acc.password}</span>
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </section>
       </div>
     </div>
   )
