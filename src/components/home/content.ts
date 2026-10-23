@@ -45,3 +45,45 @@ export const steps = [
 
 export const brandStatement =
   'Chúng tôi không đo thành công bằng số tin đăng, mà bằng số người thật sự đi làm.'
+
+/** Lời mở đầu trang chủ theo người đang xem. Khách: trung lập cho cả hai phía.
+    `search` = hiện ô tìm việc; `actions` = các nút thay cho ô tìm việc. */
+export type HeroCopy = {
+  title: string
+  lead: string
+  search: boolean
+  actions: { label: string; href: string }[]
+}
+
+export const heroCopy: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin', HeroCopy> = {
+  guest: {
+    title: 'Bạn đang cần gì hôm nay?',
+    lead: 'Một công việc vừa với lịch sống, hay một người làm đúng ca bạn thiếu — Workmate chỉ kết nối khi cả hai bên cùng phù hợp.',
+    search: true,
+    actions: [{ label: 'Tôi cần tuyển người', href: '/dang-ky?role=recruiter' }],
+  },
+  jobseeker: {
+    title: 'Hôm nay bạn muốn làm việc gì?',
+    lead: 'Gợi ý dựa trên lịch rảnh, vị trí và kỹ năng trong hồ sơ của bạn.',
+    search: true,
+    actions: [{ label: 'Xem việc phù hợp với tôi', href: '/tim-viec/phu-hop' }],
+  },
+  recruiter: {
+    title: 'Bạn đang thiếu vị trí nào?',
+    lead: 'Đăng tin với lịch làm và tiêu chí rõ ràng — Workmate gợi ý người rảnh đúng ca, sống gần và đủ kỹ năng.',
+    search: false,
+    actions: [
+      { label: 'Đăng tin tuyển dụng', href: '/tuyen-dung/dang-tin' },
+      { label: 'Xem ứng viên phù hợp', href: '/tuyen-dung/ung-vien-phu-hop' },
+    ],
+  },
+  admin: {
+    title: 'Hôm nay cần xử lý gì?',
+    lead: 'Hồ sơ doanh nghiệp chờ xác minh, tin cần kiểm duyệt và người dùng mới.',
+    search: false,
+    actions: [
+      { label: 'Xác minh doanh nghiệp', href: '/admin/xac-minh' },
+      { label: 'Vào khu quản trị', href: '/admin' },
+    ],
+  },
+}

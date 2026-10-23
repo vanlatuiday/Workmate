@@ -1,13 +1,14 @@
 import { forwardRef, lazy, Suspense, useImperativeHandle, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, MapPin, ArrowDown } from 'lucide-react'
+import { Search, MapPin, ArrowDown, ArrowUpRight } from 'lucide-react'
 
 import { gsap, useGSAP } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { scrollToY } from '@hooks/useSmoothScroll'
 import MaskedWords from '@components/motion/MaskedWords'
 import RollText from '@components/motion/RollText'
-import { heroTags } from './content'
+import { useAuthStore } from '@context/authStore'
+import { heroCopy, heroTags } from './content'
 
 // Tách riêng để shader không nằm trong bundle chính
 const HeroCanvas = lazy(() => import('@components/motion/HeroCanvas'))
@@ -45,6 +46,8 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
   const [keyword, setKeyword] = useState('')
   const [location, setLocation] = useState('')
   const navigate = useNavigate()
+  // Lời mở đầu đổi theo vai trò (khách: trung lập)
+  const copy = heroCopy[useAuthStore((s) => s.user?.role) ?? 'guest']
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -206,16 +209,17 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
           <div data-hero-title>
             <MaskedWords
               as="h1"
-              text="Tìm việc vừa khít với cuộc sống bạn đang sống."
+              text={copy.title}
               className="font-display text-display-lg font-semibold mt-6 md:mt-8 max-w-[18ch] text-page-fg"
             />
           </div>
 
           <p data-hero-item className="mt-6 md:mt-8 max-w-xl text-base md:text-lg text-page-muted leading-relaxed">
-            Workmate đọc lịch rảnh, vị trí và kỹ năng của bạn — rồi chỉ đề xuất
-            những công việc thật sự phù hợp.
+            {copy.lead}
           </p>
 
+          {copy.search && (
+          <>
           <div data-hero-item className="mt-8 md:mt-12 max-w-3xl">
             <form
               onSubmit={handleSearch}
@@ -271,6 +275,26 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
               </li>
             ))}
           </ul>
+          </>
+          )}
+
+          {/* Lối đi theo vai trò: bên dưới ô tìm việc, hoặc thay cho nó */}
+          <div data-hero-item className={copy.search ? 'flex flex-wrap gap-3 mt-6' : 'flex flex-wrap gap-3 mt-8 md:mt-12'}>
+            {copy.actions.map((a, i) => (
+              <Link
+                key={a.href}
+                to={a.href}
+                className={
+                  i === 0 && !copy.search
+                    ? 'group inline-flex items-center gap-2 bg-page-fg text-page-bg font-medium text-sm px-8 py-4 rounded-full transition-opacity duration-300 hover:opacity-90'
+                    : 'group inline-flex items-center gap-2 border border-page-line text-page-fg font-medium text-sm px-6 py-3 rounded-full hover:border-page-fg transition-colors duration-300'
+                }
+              >
+                <RollText>{a.label}</RollText>
+                <ArrowUpRight className="w-4 h-4" aria-hidden />
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Gợi ý cuộn — chỉ có ở trạng thái intro, mờ đi ngay khi bắt đầu cuộn */}

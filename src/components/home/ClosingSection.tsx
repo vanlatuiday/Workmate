@@ -39,6 +39,8 @@ export default function ClosingSection({ onFindJob }: Props) {
       />
 
       <Reveal delay={0.25} className="flex flex-col sm:flex-row sm:items-center gap-3 mt-14">
+        {/* Nhà tuyển dụng / quản trị không có ô tìm việc ở hero → bỏ nút này */}
+        {(!role || role === 'jobseeker') && (
         <Magnetic>
           <button
             type="button"
@@ -50,6 +52,7 @@ export default function ClosingSection({ onFindJob }: Props) {
             <ArrowUp className="w-4 h-4" />
           </button>
         </Magnetic>
+        )}
         <Magnetic>
           <Link
             to={cta.to}

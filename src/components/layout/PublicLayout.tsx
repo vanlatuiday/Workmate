@@ -1,28 +1,38 @@
 import { Link, useLocation, useOutlet } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { Menu, X, Briefcase, ChevronDown } from 'lucide-react'
+import { Menu, X, Briefcase } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAuthStore } from '@context/authStore'
 import { ROLE_AREAS } from '@constants/roles'
+import type { UserRole } from '@/types'
 import { cn } from '@utils/cn'
 import MenuOverlay, { type MenuItem } from '@components/layout/MenuOverlay'
 import RouteScroll from '@components/common/RouteScroll'
 import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
 
-const navLinks = [
-  { label: 'Tìm việc', href: '/viec-lam' },
-  {
-    label: 'Loại việc',
-    children: [
-      { label: 'Việc làm Part-time', href: '/viec-lam?type=part-time' },
-      { label: 'Việc làm Full-time', href: '/viec-lam?type=full-time' },
-      { label: 'Việc làm gần tôi', href: '/viec-lam?nearMe=true' },
-    ],
-  },
-  { label: 'Công ty', href: '/cong-ty' },
-  { label: 'Cẩm nang', href: '/cam-nang' },
-]
+/** Mục điều hướng theo người đang xem. Khách thấy lời mời trung lập cho cả hai phía;
+    đã đăng nhập thì chỉ thấy lối tắt tới việc của vai trò mình. */
+const NAV: Record<UserRole | 'guest', MenuItem[]> = {
+  guest: [
+    { label: 'Việc làm', href: '/viec-lam' },
+    { label: 'Dành cho nhà tuyển dụng', href: '/dang-ky?role=recruiter' },
+  ],
+  jobseeker: [
+    { label: 'Việc làm', href: '/viec-lam' },
+    { label: 'Việc phù hợp', href: '/tim-viec/phu-hop' },
+    { label: 'MATCH', href: '/tim-viec/match' },
+  ],
+  recruiter: [
+    { label: 'Đăng tin', href: '/tuyen-dung/dang-tin' },
+    { label: 'Ứng viên phù hợp', href: '/tuyen-dung/ung-vien-phu-hop' },
+    { label: 'Tin của tôi', href: '/tuyen-dung/tin-dang' },
+  ],
+  admin: [
+    { label: 'Xác minh', href: '/admin/xac-minh' },
+    { label: 'Người dùng', href: '/admin/nguoi-dung' },
+  ],
+}
 
 /** Vòng focus dùng chung cho link/nút ở header và footer */
 const FOCUS =
@@ -31,13 +41,6 @@ const FOCUS =
 /** Link nhỏ trong footer */
 const FOOT_LINK = `link-underline rounded-control hover:text-page-fg ${FOCUS}`
 
-/** Danh sách phẳng dùng cho menu phủ toàn màn hình ở trang chủ. */
-const overlayLinks: MenuItem[] = [
-  { label: 'Tìm việc', href: '/viec-lam' },
-  { label: 'Công ty', href: '/cong-ty' },
-  { label: 'Cẩm nang', href: '/cam-nang' },
-  { label: 'Việc làm gần tôi', href: '/viec-lam?nearMe=true' },
-]
 
 /**
  * Giữ nguyên trang đã render lúc mount. Khi AnimatePresence giữ trang cũ lại
@@ -53,7 +56,6 @@ function FrozenOutlet() {
 export default function PublicLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [overlayOpen, setOverlayOpen] = useState(false)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
   const { user, logout } = useAuthStore()
   const location = useLocation()
 
@@ -72,6 +74,7 @@ export default function PublicLayout() {
   // Đã đăng nhập: nút dẫn vào đúng khu làm việc của vai trò
   const area = user ? ROLE_AREAS[user.role] : null
   const dashboardHref = area?.home ?? '/tim-viec'
+  const navLinks = NAV[user?.role ?? 'guest']
 
   return (
     <div className="min-h-screen flex flex-col bg-page-bg">
@@ -117,55 +120,22 @@ export default function PublicLayout() {
               data-header-item={dark ? '' : undefined}
               className={cn('hidden items-center gap-1 whitespace-nowrap', dark ? 'lg:flex' : 'md:flex')}
             >
-              {navLinks.map((link) =>
-                link.children ? (
-                  <div key={link.label} className="relative">
-                    <button
-                      onClick={() => setDropdownOpen(!dropdownOpen)}
-                      aria-expanded={dropdownOpen}
-                      className={cn(
-                        'group flex items-center gap-1 px-3 py-2 rounded-control text-sm font-medium transition-colors text-page-muted hover:text-page-fg',
-                        FOCUS,
-                      )}
-                    >
-                      <RollText>{link.label}</RollText>
-                      <ChevronDown className="w-4 h-4" />
-                    </button>
-                    {dropdownOpen && (
-                      <div className="absolute top-full left-0 mt-1 w-52 rounded-card border border-page-line bg-page-bg py-1 z-50">
-                        {link.children.map((child) => (
-                          <Link
-                            key={child.href}
-                            to={child.href}
-                            onClick={() => setDropdownOpen(false)}
-                            className={cn(
-                              'block px-4 py-2 text-sm transition-colors text-page-muted hover:text-page-fg hover:bg-page-surface',
-                              FOCUS,
-                            )}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    key={link.href}
-                    to={link.href!}
-                    aria-current={location.pathname === link.href ? 'page' : undefined}
-                    className={cn(
-                      'group px-3 py-2 rounded-control text-sm font-medium transition-colors',
-                      location.pathname === link.href
-                        ? 'text-page-fg underline underline-offset-8 decoration-1'
-                        : 'text-page-muted hover:text-page-fg',
-                      FOCUS,
-                    )}
-                  >
-                    <RollText>{link.label}</RollText>
-                  </Link>
-                ),
-              )}
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  aria-current={location.pathname === link.href ? 'page' : undefined}
+                  className={cn(
+                    'group px-3 py-2 rounded-control text-sm font-medium transition-colors',
+                    location.pathname === link.href
+                      ? 'text-page-fg underline underline-offset-8 decoration-1'
+                      : 'text-page-muted hover:text-page-fg',
+                    FOCUS,
+                  )}
+                >
+                  <RollText>{link.label}</RollText>
+                </Link>
+              ))}
             </nav>
 
             {/* Auth buttons */}
@@ -256,42 +226,21 @@ export default function PublicLayout() {
         {/* Mobile nav — chỉ dùng cho các trang ngoài trang chủ */}
         {mobileOpen && !dark && (
           <div className="md:hidden border-t border-page-line bg-page-bg px-6 pb-4 pt-2 space-y-1">
-            {navLinks.map((link) =>
-              link.children ? (
-                <div key={link.label}>
-                  <p className="px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] text-page-muted">
-                    {link.label}
-                  </p>
-                  {link.children.map((child) => (
-                    <Link
-                      key={child.href}
-                      to={child.href}
-                      onClick={() => setMobileOpen(false)}
-                      className={cn(
-                        'block px-3 py-2 rounded-control text-sm transition-colors text-page-muted hover:text-page-fg hover:bg-page-surface',
-                        FOCUS,
-                      )}
-                    >
-                      {child.label}
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <Link
-                  key={link.href}
-                  to={link.href!}
-                  onClick={() => setMobileOpen(false)}
-                  aria-current={location.pathname === link.href ? 'page' : undefined}
-                  className={cn(
-                    'block px-3 py-2 rounded-control text-sm transition-colors hover:bg-page-surface',
-                    location.pathname === link.href ? 'text-page-fg font-medium' : 'text-page-muted hover:text-page-fg',
-                    FOCUS,
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ),
-            )}
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                onClick={() => setMobileOpen(false)}
+                aria-current={location.pathname === link.href ? 'page' : undefined}
+                className={cn(
+                  'block px-3 py-2 rounded-control text-sm transition-colors hover:bg-page-surface',
+                  location.pathname === link.href ? 'text-page-fg font-medium' : 'text-page-muted hover:text-page-fg',
+                  FOCUS,
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
             <div className="pt-2 flex flex-col gap-2">
               {user ? (
                 <>
@@ -345,7 +294,7 @@ export default function PublicLayout() {
       <MenuOverlay
         open={overlayOpen}
         onClose={() => setOverlayOpen(false)}
-        items={overlayLinks}
+        items={navLinks}
         actions={
           user
             ? [{ label: area?.label ?? '', href: dashboardHref }]
