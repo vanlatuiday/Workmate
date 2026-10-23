@@ -57,21 +57,21 @@ Phân quyền: `ProtectedRoute` chỉ kiểm tra `user.role` trong Zustand store
 ### Ứng viên `/tim-viec`
 | Route | Trạng thái |
 |---|---|
-| `/tim-viec` Dashboard | **[có]** UI với số liệu mock |
-| `/phu-hop` Việc phù hợp · `/da-luu` Đã lưu · `/ung-tuyen` Đơn ứng tuyển · `/match` · `/tin-nhan` · `/lich-phong-van` · `/cv` Quản lý CV · `/ho-so` · `/cai-dat` | **[khung]** Trang trống |
+| `/tim-viec` Dashboard · `/phu-hop` Việc phù hợp (lọc, sắp xếp, phân rã 7 tiêu chí) · `/ho-so` Hồ sơ (lịch rảnh T2–CN × buổi, kỹ năng) | **[có]** UI theo DESIGN.md, dữ liệu mẫu `pages/jobseeker/mockData.ts`, state cục bộ |
+| `/da-luu` Đã lưu · `/ung-tuyen` Đơn ứng tuyển · `/match` · `/tin-nhan` · `/lich-phong-van` · `/cv` Quản lý CV · `/cai-dat` | **[khung]** Trang trống |
 
 ### Nhà tuyển dụng `/tuyen-dung`
 | Route | Trạng thái |
 |---|---|
-| `/tuyen-dung` Dashboard | **[có]** UI với số liệu mock |
+| `/tuyen-dung` Dashboard · `/tin-dang` Tin tuyển dụng · `/ung-vien-phu-hop` Ứng viên phù hợp (Quan tâm → MATCH, bỏ qua/hoàn tác) | **[có]** UI theo DESIGN.md, dữ liệu mẫu `pages/recruiter/mockData.ts`, state cục bộ |
 | `/dang-tin` Đăng tin | **[có]** Form 4 bước: Thông tin vị trí → Yêu cầu → Lịch & Lương (lịch theo từng ngày) → Tiêu chí. Chưa gửi lên API. |
-| `/tin-dang` · `/ung-vien-phu-hop` · `/tim-ung-vien` · `/ung-vien-da-luu` · `/match` · `/tin-nhan` · `/lich-phong-van` · `/ho-so-cong-ty` · `/cai-dat` | **[khung]** Trang trống |
+| `/tim-ung-vien` · `/ung-vien-da-luu` · `/match` · `/tin-nhan` · `/lich-phong-van` · `/ho-so-cong-ty` · `/cai-dat` | **[khung]** Trang trống |
 
 ### Quản trị `/admin`
 | Route | Trạng thái |
 |---|---|
-| `/admin` Dashboard | **[có]** UI với số liệu mock |
-| `/nguoi-dung` · `/nha-tuyen-dung` · `/tin-tuyen-dung` · `/ung-vien` · `/bao-cao` · `/xac-minh` · `/kiem-duyet` · `/thong-ke` · `/cau-hinh` | **[khung]** Trang trống |
+| `/admin` Dashboard · `/nguoi-dung` Người dùng (lọc, khóa/mở khóa) · `/xac-minh` Xác minh doanh nghiệp (duyệt/từ chối có lý do) | **[có]** UI theo DESIGN.md, dữ liệu mẫu `pages/admin/mockData.ts`, state cục bộ |
+| `/nha-tuyen-dung` · `/tin-tuyen-dung` · `/ung-vien` · `/bao-cao` · `/kiem-duyet` · `/thong-ke` · `/cau-hinh` | **[khung]** Trang trống |
 
 ### Tính năng sẽ có (suy ra từ types/service/nội dung trang chủ, chưa có UI)
 - **Matching**: `MatchResult` gồm điểm 0–100, mức (`high ≥80`, `medium ≥60`, `possible ≥40`,

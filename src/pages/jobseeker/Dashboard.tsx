@@ -1,147 +1,119 @@
 import { Link } from 'react-router-dom'
-import { Sparkles, ClipboardList, Bookmark, Zap, ArrowRight, MapPin, TrendingUp } from 'lucide-react'
+import { ArrowRight, Bookmark, ClipboardList, Eye, MapPin, Zap } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
-import { cn } from '@utils/cn'
+import { JOB_TYPES, APPLICATION_STATUS_LABELS } from '@constants/index'
+import { EmptyState, MatchScore, MockNotice, PageHeader, Panel, StatCard, StatusBadge } from '@components/dashboard'
+import type { ApplicationStatus } from '@/types'
+import { DASHBOARD_STATS, RECENT_APPLICATIONS, RECOMMENDED_JOBS } from './mockData'
 
-const stats = [
-  { label: 'Đã ứng tuyển', value: 12, icon: ClipboardList, color: 'text-blue-600 bg-blue-50', href: '/tim-viec/ung-tuyen' },
-  { label: 'NTD đã xem', value: 7,  icon: TrendingUp,   color: 'text-purple-600 bg-purple-50', href: '/tim-viec/ung-tuyen' },
-  { label: 'Việc đã lưu',  value: 5,  icon: Bookmark,     color: 'text-yellow-600 bg-yellow-50', href: '/tim-viec/da-luu' },
-  { label: 'MATCH',        value: 3,  icon: Zap,          color: 'text-green-600 bg-green-50',  href: '/tim-viec/match' },
-]
+const FOCUS =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
+const LINK = `underline underline-offset-4 text-page-fg hover:text-page-muted transition-colors duration-300 rounded-control ${FOCUS}`
 
-const recommendedJobs = [
-  { id: '1', title: 'Nhân viên bán hàng', company: 'ABC Shop', location: 'Hải Châu, Đà Nẵng', salary: '25k–30k/giờ', type: 'Part-time', match: 92, logo: '🛍️' },
-  { id: '2', title: 'Pha chế Barista', company: 'The Coffee House', location: 'Thanh Khê', salary: '4–5tr/tháng', type: 'Part-time', match: 87, logo: '☕' },
-  { id: '3', title: 'Marketing Intern', company: 'Startup XYZ', location: 'Sơn Trà', salary: 'Thỏa thuận', type: 'Full-time', match: 84, logo: '📣' },
-]
+const STATUS_TONE: Partial<Record<ApplicationStatus, 'strong' | 'default' | 'muted'>> = {
+  interview_invited: 'strong',
+  considering: 'default',
+  viewed: 'muted',
+}
 
-const recentApplications = [
-  { id: '1', title: 'Nhân viên bán hàng', company: 'ABC Shop', status: 'interview_invited', statusLabel: 'Mời phỏng vấn', statusColor: 'badge-green' },
-  { id: '2', title: 'Content Creator', company: 'Media Co.', status: 'considering', statusLabel: 'Đang xem xét', statusColor: 'badge-yellow' },
-  { id: '3', title: 'Pha chế Barista', company: 'Cafe 88', status: 'viewed', statusLabel: 'NTD đã xem', statusColor: 'badge-blue' },
-]
+// Mức hoàn thiện hồ sơ mẫu
+const PROFILE_PERCENT = 80
 
 export default function JobseekerDashboard() {
   const { user } = useAuthStore()
   const name = user?.email?.split('@')[0] ?? 'bạn'
+  const jobs = RECOMMENDED_JOBS.slice(0, 3)
 
   return (
-    <div className="space-y-6">
-      {/* Greeting */}
-      <div className="bg-gradient-to-r from-primary-500 to-primary-700 rounded-2xl p-6 text-white">
-        <h1 className="text-xl font-bold mb-1">Xin chào, {name}! 👋</h1>
-        <p className="text-primary-100 text-sm">Hôm nay có 5 công việc mới phù hợp trên 80% với hồ sơ của bạn.</p>
-        <Link to="/tim-viec/phu-hop" className="inline-flex items-center gap-1 mt-4 bg-white text-primary-600 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-primary-50 transition-colors">
-          <Sparkles className="w-4 h-4" />
-          Xem việc phù hợp
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+    <div>
+      <PageHeader
+        title={`Xin chào, ${name}`}
+        description="Hôm nay có 3 việc phù hợp trên 80% với hồ sơ và lịch rảnh của bạn."
+      />
+
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard label="Đã ứng tuyển" value={DASHBOARD_STATS.applied} icon={ClipboardList} href="/tim-viec/ung-tuyen" />
+        <StatCard label="NTD đã xem" value={DASHBOARD_STATS.viewed} icon={Eye} href="/tim-viec/ung-tuyen" />
+        <StatCard label="Việc đã lưu" value={DASHBOARD_STATS.saved} icon={Bookmark} href="/tim-viec/da-luu" />
+        <StatCard label="MATCH" value={DASHBOARD_STATS.match} icon={Zap} href="/tim-viec/match" />
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((s) => {
-          const Icon = s.icon
-          return (
-            <Link key={s.label} to={s.href} className="card p-4 hover:shadow-md transition-shadow">
-              <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center mb-3', s.color)}>
-                <Icon className="w-5 h-5" />
-              </div>
-              <p className="text-2xl font-bold text-gray-900">{s.value}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
-            </Link>
-          )
-        })}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recommended jobs */}
-        <div className="lg:col-span-2 card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-primary-500" />
-              Việc phù hợp với bạn
-            </h2>
-            <Link to="/tim-viec/phu-hop" className="text-xs text-primary-600 hover:underline flex items-center gap-1">
-              Xem tất cả <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {recommendedJobs.map((job) => (
-              <Link key={job.id} to={`/viec-lam/${job.id}`} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group">
-                <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-xl flex-shrink-0">
-                  {job.logo}
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        <Panel
+          title="Việc phù hợp với bạn"
+          className="lg:col-span-2"
+          action={<Link to="/tim-viec/phu-hop" className={LINK}>Xem tất cả</Link>}
+        >
+          <ul className="divide-y divide-page-line">
+            {jobs.map((job) => (
+              <li key={job.id} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <Link to={`/viec-lam/${job.id}`} className={`font-medium text-page-fg hover:underline underline-offset-4 rounded-control ${FOCUS}`}>
+                    {job.title}
+                  </Link>
+                  <p className="mt-1 text-sm text-page-muted">{job.company}</p>
+                  <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-page-muted">
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                      {job.district}, Đà Nẵng
+                    </span>
+                    <span>{job.salaryLabel}</span>
+                    <span>{JOB_TYPES.find((t) => t.value === job.jobType)?.label}</span>
+                  </p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 group-hover:text-primary-600 truncate">{job.title}</p>
-                  <p className="text-xs text-gray-500 truncate">{job.company}</p>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
-                    <span className="flex items-center gap-0.5"><MapPin className="w-3 h-3" />{job.location}</span>
-                    <span>·</span>
-                    <span>{job.salary}</span>
-                  </div>
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <span className={cn(
-                    'text-xs font-bold px-2 py-0.5 rounded-full',
-                    job.match >= 80 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700',
-                  )}>
-                    {job.match}%
-                  </span>
-                  <p className="text-xs text-gray-400 mt-1">{job.type}</p>
-                </div>
-              </Link>
+                <MatchScore score={job.score} size="sm" />
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        </Panel>
 
-        {/* Recent applications */}
-        <div className="card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-              <ClipboardList className="w-4 h-4 text-gray-500" />
-              Ứng tuyển gần đây
-            </h2>
-            <Link to="/tim-viec/ung-tuyen" className="text-xs text-primary-600 hover:underline">
-              Xem tất cả
-            </Link>
+        <Panel title="Hồ sơ của bạn" action={<Link to="/tim-viec/ho-so" className={LINK}>Hoàn thiện</Link>}>
+          <p className="tnum font-display text-3xl font-medium text-page-fg">{PROFILE_PERCENT}%</p>
+          <div
+            role="progressbar"
+            aria-label="Mức hoàn thiện hồ sơ"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={PROFILE_PERCENT}
+            className="mt-3 h-1 overflow-hidden rounded-full bg-page-line"
+          >
+            <div className="h-full rounded-full bg-page-fg" style={{ width: `${PROFILE_PERCENT}%` }} />
           </div>
-          <div className="space-y-3">
-            {recentApplications.map((app) => (
-              <div key={app.id} className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <ClipboardList className="w-4 h-4 text-gray-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">{app.title}</p>
-                  <p className="text-xs text-gray-500">{app.company}</p>
-                  <span className={cn('badge mt-1', app.statusColor)}>{app.statusLabel}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Profile completion nudge */}
-      <div className="card p-5 border-dashed border-2 border-primary-200 bg-primary-50/30">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="font-semibold text-gray-800">Hoàn thiện hồ sơ của bạn</p>
-            <p className="text-sm text-gray-500 mt-0.5">Hồ sơ đầy đủ giúp tăng tỷ lệ match lên đến 3x.</p>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex-1 bg-gray-200 rounded-full h-1.5 max-w-xs">
-                <div className="bg-primary-500 h-1.5 rounded-full" style={{ width: '60%' }} />
-              </div>
-              <span className="text-xs font-medium text-gray-600">60%</span>
-            </div>
-          </div>
-          <Link to="/tim-viec/ho-so" className="btn-primary text-sm flex-shrink-0">
-            Cập nhật
+          <p className="mt-4 text-sm leading-relaxed text-page-muted">
+            Còn thiếu lịch rảnh cho vài buổi trong tuần. Lịch rảnh càng đầy đủ, việc gợi ý càng sát với bạn.
+          </p>
+          <Link
+            to="/tim-viec/ho-so"
+            className={`mt-5 inline-flex items-center gap-2 rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`}
+          >
+            Cập nhật hồ sơ <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
-        </div>
+        </Panel>
       </div>
+
+      <Panel
+        title="Đơn ứng tuyển gần đây"
+        className="mt-6"
+        action={<Link to="/tim-viec/ung-tuyen" className={LINK}>Xem tất cả</Link>}
+      >
+        {RECENT_APPLICATIONS.length === 0 ? (
+          <EmptyState icon={ClipboardList} title="Chưa có đơn ứng tuyển" description="Hãy ứng tuyển việc đầu tiên." />
+        ) : (
+          <ul className="divide-y divide-page-line">
+            {RECENT_APPLICATIONS.map((a) => (
+              <li key={a.id} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="font-medium text-page-fg">{a.title}</p>
+                  <p className="text-sm text-page-muted">{a.company} · nộp ngày {a.appliedAt}</p>
+                </div>
+                <StatusBadge tone={STATUS_TONE[a.status] ?? 'muted'}>{APPLICATION_STATUS_LABELS[a.status]}</StatusBadge>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+
+      <div className="mt-6"><MockNotice /></div>
     </div>
   )
 }

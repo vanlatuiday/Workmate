@@ -16,7 +16,7 @@ const TONES = {
 /** Nhãn trạng thái dạng pill. Mức độ thể hiện bằng độ đậm, không bằng màu — nên luôn kèm chữ. */
 export default function StatusBadge({ children, tone = 'default' }: Props) {
   return (
-    <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium', TONES[tone])}>
+    <span className={cn('inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium', TONES[tone])}>
       {children}
     </span>
   )

@@ -168,13 +168,13 @@ export default function DashboardShell({ navItems, roleLabel, homeHref }: ShellP
       </a>
 
       {/* Thanh bên desktop */}
-      <div className="hidden w-64 flex-shrink-0 md:block">
+      <div className="hidden w-64 flex-shrink-0 lg:block">
         <Sidebar {...sidebarProps} />
       </div>
 
       {/* Drawer mobile: luôn có trong DOM để trượt mượt; lúc đóng thì ẩn khỏi bàn phím/trình đọc màn hình */}
       <div
-        className={cn('fixed inset-0 z-50 md:hidden', !drawerOpen && 'pointer-events-none')}
+        className={cn('fixed inset-0 z-50 lg:hidden', !drawerOpen && 'pointer-events-none')}
         aria-hidden={!drawerOpen}
       >
         <div
@@ -202,7 +202,7 @@ export default function DashboardShell({ navItems, roleLabel, homeHref }: ShellP
             onClick={() => setDrawerOpen(true)}
             aria-label="Mở menu"
             aria-expanded={drawerOpen}
-            className={cn('rounded-control p-2 transition-colors duration-300 hover:bg-page-surface md:hidden', FOCUS)}
+            className={cn('rounded-control p-2 transition-colors duration-300 hover:bg-page-surface lg:hidden', FOCUS)}
           >
             <Menu className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -218,7 +218,7 @@ export default function DashboardShell({ navItems, roleLabel, homeHref }: ShellP
         </header>
 
         {/* Nội dung */}
-        <main id="dashboard-main" ref={mainRef} className="flex-1 overflow-y-auto p-4 md:p-8">
+        <main id="dashboard-main" ref={mainRef} className="relative flex-1 overflow-y-auto p-4 md:p-8">
           <div className="mx-auto max-w-6xl">
             <Outlet />
           </div>

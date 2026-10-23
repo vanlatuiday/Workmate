@@ -8,7 +8,14 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+    @apply bg-wm-ivory text-wm-charcoal font-sans antialiased;
+  }
+
+  /* Placeholder theo theme (mặc định của Tailwind là xám lạnh); nhạt hơn chữ thật để không trông như đã nhập */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--page-edge);
+    opacity: 1;
   }
 
   h1 { @apply text-3xl font-bold; }
