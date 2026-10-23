@@ -200,7 +200,7 @@ Mọi hiệu ứng phải có phương án cho mobile và `prefers-reduced-motio
 | Trang mới | `src/pages/<khu>/Ten.tsx` + `<Route>` trong `src/App.tsx` (đặt trong `ProtectedRoute role=…` nếu cần đăng nhập) |
 | Mục menu khu làm việc | `navItems` trong `components/layout/{Jobseeker,Recruiter,Admin}Layout.tsx` (khung chung: `DashboardShell`) |
 | Mục header trang công khai | `NAV` trong `components/layout/PublicLayout.tsx` (theo vai trò; khách = trung lập) |
-| Lời trang chủ theo vai trò | `heroCopy` trong `components/home/content.ts`; nút cuối trang: `SECOND_CTA` trong `ClosingSection.tsx` |
+| Lời trang chủ theo vai trò | `heroCopy` (đầu trang) và `homeCopy` (các phần giữa, đọc qua `useHomeCopy`) trong `components/home/content.ts`; nút cuối trang: `SECOND_CTA` trong `ClosingSection.tsx` |
 | Khu/nhãn của vai trò, kiểm tra quyền vào trang | `constants/roles.ts` (`ROLE_AREAS`, `canVisit`) |
 | Tài khoản demo | `constants/demoAccounts.ts` — xóa khi có backend, thay bằng `services/authService` |
 | UI dashboard dùng lại | `components/dashboard/*` (PageHeader, Panel, StatCard, StatusBadge, MatchScore, EmptyState, MockNotice) — dùng trước khi viết mới |

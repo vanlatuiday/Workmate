@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { gsap, useGSAP } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import MaskedWords from '@components/motion/MaskedWords'
-import { steps } from './content'
+import { useHomeCopy } from './useAudience'
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
@@ -13,6 +13,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
 export default function HowItWorksSection() {
   const ref = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
+  const { how } = useHomeCopy()
 
   useGSAP(
     () => {
@@ -66,7 +67,7 @@ export default function HowItWorksSection() {
 
       <div data-title>
         <MaskedWords
-          text="Ba bước, không cần CV dài."
+          text={how.title}
           className="font-display text-display-md font-semibold text-page-fg mt-8 max-w-[14ch]"
         />
       </div>
@@ -78,7 +79,7 @@ export default function HowItWorksSection() {
         </div>
 
         <ol>
-          {steps.map((step, i) => (
+          {how.steps.map((step, i) => (
             <li
               key={step.title}
               data-step

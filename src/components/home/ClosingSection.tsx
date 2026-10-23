@@ -5,6 +5,7 @@ import TextReveal from '@components/motion/TextReveal'
 import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
 import { useAuthStore } from '@context/authStore'
+import { useHomeCopy } from './useAudience'
 import type { UserRole } from '@/types'
 
 /** Nút thứ hai đổi theo người đang xem: khách được mời đăng ký tuyển dụng, người đã đăng nhập đi thẳng vào việc của mình */
@@ -24,6 +25,7 @@ type Props = {
 export default function ClosingSection({ onFindJob }: Props) {
   const role = useAuthStore((s) => s.user?.role)
   const cta = SECOND_CTA[role ?? 'guest']
+  const { closing } = useHomeCopy()
   return (
     <section data-theme="charcoal" className="shell py-section">
       <Reveal y={16}>
@@ -34,7 +36,7 @@ export default function ClosingSection({ onFindJob }: Props) {
       </Reveal>
 
       <TextReveal
-        text="Việc tiếp theo của bạn bắt đầu từ đây."
+        text={closing.title}
         className="font-display text-display-lg font-semibold text-page-fg mt-8 max-w-[15ch]"
       />
 
