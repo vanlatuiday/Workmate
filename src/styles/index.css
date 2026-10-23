@@ -107,6 +107,19 @@
   color: var(--page-fg);
 }
 
+/* Theme than chì (charcoal) cho sidebar dashboard: nền tối, chữ ngà. Khai báo lại
+   đủ 6 biến vì lý do giống .theme-ivory ở trên. */
+.theme-charcoal {
+  --page-bg: var(--wm-charcoal);
+  --page-fg: var(--wm-ivory);
+  --page-surface: color-mix(in srgb, var(--page-fg) 5%, var(--page-bg));
+  --page-edge: color-mix(in srgb, var(--page-fg) 60%, var(--page-bg));
+  --page-muted: color-mix(in srgb, var(--page-fg) 82%, var(--page-bg));
+  --page-line: color-mix(in srgb, var(--page-fg) 18%, var(--page-bg));
+  background-color: var(--page-bg);
+  color: var(--page-fg);
+}
+
 @layer components {
   /* Khối nội dung giới hạn bề ngang, lề theo viewport */
   .shell {
