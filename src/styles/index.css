@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+  }
+
+  h1 { @apply text-3xl font-bold; }
+  h2 { @apply text-2xl font-semibold; }
+  h3 { @apply text-xl font-semibold; }
+  h4 { @apply text-lg font-medium; }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800;
+  }
+  .btn-secondary {
+    @apply btn bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 active:bg-gray-100;
+  }
+  .btn-ghost {
+    @apply btn text-gray-600 hover:bg-gray-100 active:bg-gray-200;
+  }
+
+  .card {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm;
+  }
+
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none
+           focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
+           placeholder:text-gray-400 transition-colors;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-green  { @apply badge bg-green-100 text-green-700; }
+  .badge-yellow { @apply badge bg-yellow-100 text-yellow-700; }
+  .badge-red    { @apply badge bg-red-100 text-red-700; }
+  .badge-blue   { @apply badge bg-blue-100 text-blue-700; }
+  .badge-gray   { @apply badge bg-gray-100 text-gray-600; }
+
+  .match-score-high   { @apply text-match-high font-semibold; }
+  .match-score-medium { @apply text-match-medium font-semibold; }
+  .match-score-low    { @apply text-match-low font-semibold; }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ── Trang chủ kiểu editorial ─────────────────────────────── */
+
+/* Màu chữ trang chủ chuyển mượt khi đổi giữa nền sáng/tối (xem useSectionThemes).
+   Phải đăng ký kiểu <color> thì trình duyệt mới nội suy được biến CSS; trình
+   duyệt cũ không hỗ trợ @property thì chỉ đổi tức thì, vẫn đúng màu. */
+@property --page-fg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f3f0e9;
+}
+:root {
+  transition: --page-fg 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Bảng màu trang chủ. --page-bg / --page-fg được useSectionThemes ghi đè và nội
+   suy theo vị trí cuộn; muted/line tự suy ra nên luôn khớp với màu nền hiện tại.
+   muted 82% giữ tương phản ≥ 4.5:1 trên mọi nền (sage là nền khó nhất).
+   --page-surface: mặt ô nhập liệu / thẻ, nhỉnh hơn nền một chút.
+   --page-edge: viền ô nhập liệu, đạt ≥ 3:1 trên nền sáng (WCAG 1.4.11) để nhận ra được ô. */
+:root {
+  --page-bg: #242522;
+  --page-fg: #f3f0e9;
+  --page-surface: color-mix(in srgb, var(--page-fg) 5%, var(--page-bg));
+  --page-edge: color-mix(in srgb, var(--page-fg) 60%, var(--page-bg));
+  --page-muted: color-mix(in srgb, var(--page-fg) 82%, var(--page-bg));
+  --page-line: color-mix(in srgb, var(--page-fg) 18%, var(--page-bg));
+}
+
+@layer components {
+  /* Khối nội dung giới hạn bề ngang, lề theo viewport */
+  .shell {
+    @apply max-w-[1440px] mx-auto px-6 md:px-10 lg:px-16;
+  }
+
+  /* Nhãn nhỏ in hoa đứng trên mỗi section */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em];
+  }
+
+  /* Gạch chân chạy từ trái khi hover */
+  .link-underline {
+    @apply relative inline-block;
+  }
+  .link-underline::after {
+    content: '';
+    @apply absolute left-0 -bottom-0.5 h-px w-full origin-right scale-x-0 bg-current
+           transition-transform duration-500 ease-editorial;
+  }
+  .link-underline:hover::after {
+    @apply origin-left scale-x-100;
+  }
+}
+
+@layer utilities {
+  /* Chữ số canh cột đều nhau — dùng cho bảng số liệu và danh sách đánh số */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Người dùng bật "giảm chuyển động" → tắt mọi animation */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Con trỏ tùy biến ở trang chủ (CustomCursor) — ẩn con trỏ hệ thống,
+   trừ ô nhập liệu vẫn cần con trỏ chữ I */
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none;
+}
+.has-custom-cursor :is(input, textarea, select) {
+  cursor: auto;
+}
+
+/* Trong lúc intro (logo còn ở giữa màn hình), các phần chưa hiện không nhận
+   click — tránh bấm nhầm vào nút vô hình. Bàn phím vẫn tab tới được: khi focus
+   vào, IntroHero tự cuộn qua intro để phần đó hiện ra. */
+html[data-intro] [data-header-item],
+html[data-intro] [data-hero-item] {
+  pointer-events: none;
+}
+
+/* Hạt nhiễu rất mờ màu than chì phủ trang chủ — cảm giác giấy in trên các nền
+   sáng thay cho màu nhấn. Ảnh tĩnh, lớp cố định: cuộn không phải vẽ lại. */
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.14 0 0 0 0 0.145 0 0 0 0 0.133 0 0 0 0.7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.07;
+}
+
+/* Viền focus bàn phím ở trang chủ: theo màu chữ (ngà trên nền tối, than chì trên
+   nền sáng) thay cho viền xanh mặc định của trình duyệt — vẫn rõ, không lạc màu. */
+html[data-page='home'] :focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
