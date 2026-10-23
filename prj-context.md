@@ -1,7 +1,7 @@
 # Workmate — Bối cảnh dự án
 
 > Tài liệu cho phiên Claude / người mới vào dự án. Đọc file này trước khi sửa code.
-> Cập nhật lần cuối: 2026-10-23 (sau khi setup skills/agents/design system). Khi trạng thái tính năng thay đổi, sửa lại mục 3 và 6.
+> Cập nhật lần cuối: 2026-10-23 (dashboard 3 vai trò, liên kết theo vai trò, dọn component cũ). Khi trạng thái tính năng thay đổi, sửa lại mục 3, 6, 7, 8.
 >
 > Quy ước trong file: **[có]** = đã có trong code · **[khung]** = có route/type/service
 > nhưng UI chưa làm · **[chưa rõ]** = chưa có quyết định, đừng tự giả định.
@@ -137,9 +137,8 @@ Cơ chế quan trọng (đọc comment trong từng file trước khi sửa):
 - `RouteScroll` (`components/common`) xử lý vị trí cuộn khi chuyển trang / Back-Forward
   cho mọi layout; `PublicLayout` dùng `FrozenOutlet` để trang cũ giữ nguyên khi fade-out.
 
-Component trang chủ **cũ, hiện không dùng**: `home/PinnedStatements`, `home/HorizontalJobs`,
-`home/Recognition`, `home/ContactSection`, `motion/Preloader`, `motion/Counter`. Đã có git nên
-xóa an toàn được — chờ chủ dự án quyết định.
+Component trang chủ cũ (`PinnedStatements`, `HorizontalJobs`, `Recognition`, `ContactSection`,
+`motion/Preloader`, `motion/Counter`) đã xóa ngày 2026-10-23 theo đồng ý của chủ dự án — lấy lại từ git nếu cần.
 
 ## 6. Định hướng thiết kế & sản phẩm
 
@@ -192,3 +191,23 @@ Mọi hiệu ứng phải có phương án cho mobile và `prefers-reduced-motio
 - **Tầng 1 — điều hướng theo vai trò [có]:** `constants/roles.ts` (`ROLE_AREAS`, `canVisit`). Header công khai hiện tên khu ("Khu tìm việc"…) và nút Đăng xuất. `ProtectedRoute` nhớ trang cũ (`state.from`) để đăng nhập xong quay lại. Vào nhầm khu thì hiện trang giải thích. Nút thứ hai ở `ClosingSection` đổi theo vai trò. Nav header theo vai trò (`NAV` trong `PublicLayout`, đã bỏ "Loại việc", "Công ty", "Cẩm nang" khỏi header). Lời mở đầu trang chủ theo vai trò: `heroCopy` trong `components/home/content.ts` (khách trung lập; NTD/admin không có ô tìm việc).
 - **Tầng 3 — kho dữ liệu demo dùng chung [chưa làm, ưu tiên tiếp theo]:** gộp mock của trang công khai và 3 khu vào một store Zustand persist (jobs, companies, candidates, applications, interests/matches, verification). Mọi trang đọc/ghi chung để diễn trọn vòng admin2 đăng tin → admin1 ứng tuyển/quan tâm → MATCH hai phía → admin3 duyệt/khóa. Sau này thay ruột store bằng `src/services`.
 - **Tầng 2 — nối luồng nghiệp vụ [chưa làm, sau tầng 3]:** "Ứng tuyển"/"Lưu" ở `/viec-lam/:id` theo vai trò, tìm kiếm trang chủ kèm điểm phù hợp khi là ứng viên, nhãn "Đã xác minh" trên thẻ việc công khai.
+
+
+## 8. Thêm tính năng mới — làm ở đâu (cập nhật 2026-10-23)
+
+| Muốn làm | Sửa ở đây |
+|---|---|
+| Trang mới | `src/pages/<khu>/Ten.tsx` + `<Route>` trong `src/App.tsx` (đặt trong `ProtectedRoute role=…` nếu cần đăng nhập) |
+| Mục menu khu làm việc | `navItems` trong `components/layout/{Jobseeker,Recruiter,Admin}Layout.tsx` (khung chung: `DashboardShell`) |
+| Mục header trang công khai | `NAV` trong `components/layout/PublicLayout.tsx` (theo vai trò; khách = trung lập) |
+| Lời trang chủ theo vai trò | `heroCopy` trong `components/home/content.ts`; nút cuối trang: `SECOND_CTA` trong `ClosingSection.tsx` |
+| Khu/nhãn của vai trò, kiểm tra quyền vào trang | `constants/roles.ts` (`ROLE_AREAS`, `canVisit`) |
+| Tài khoản demo | `constants/demoAccounts.ts` — xóa khi có backend, thay bằng `services/authService` |
+| UI dashboard dùng lại | `components/dashboard/*` (PageHeader, Panel, StatCard, StatusBadge, MatchScore, EmptyState, MockNotice) — dùng trước khi viết mới |
+| Dữ liệu mẫu | hiện tách theo khu `pages/<khu>/mockData.ts` → sẽ gộp vào kho chung (mục 7, Tầng 3) |
+| Gọi API thật | `src/services/*` (đã có khung `api.ts` + axios, chưa trang nào gọi) |
+| Màu | chỉ `src/styles/tokens.json`; theme vùng: `.theme-ivory` / `.theme-charcoal` trong `index.css` |
+
+Còn giữ có chủ đích (chưa dùng nhưng cần cho sau): `services/*`, `utils/matchScore.ts` (nhãn mức phù hợp — nên dùng chung với `MatchScore`), `utils/format.ts` (định dạng lương/ngày).
+
+**Nợ còn lại** (chưa dọn vì còn trang dùng): class cũ `.btn-*`, `.card`, `.input`, `.badge-*` trong `index.css` và màu `primary/secondary/match/ink` trong `tailwind.config.js` — chỉ còn `recruiter/PostJob.tsx` và `public/JobDetailPage.tsx` dùng. Làm lại 2 trang này theo DESIGN.md rồi mới xóa (đổi `tailwind.config.js` cần hỏi chủ dự án).
