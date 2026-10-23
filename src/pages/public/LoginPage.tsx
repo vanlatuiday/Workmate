@@ -37,8 +37,8 @@ export default function LoginPage() {
       return
     }
     setUser(buildDemoUser(account), 'mock-token')
-    // Quay lại trang cũ nếu vai trò này được vào, không thì về khu của mình
-    navigate(from && canVisit(account.role, from) ? from : account.redirect, { replace: true })
+    // Quay lại trang đang xem dở nếu vai trò này được vào; còn lại về trang chủ (khu làm việc chỉ là nơi tổng hợp)
+    navigate(from && canVisit(account.role, from) ? from : '/', { replace: true })
   }
 
   const handleSubmit = (e: React.FormEvent) => {

@@ -10,14 +10,12 @@ export interface DemoAccount {
   role: UserRole
   /** Nhãn hiển thị cho người dùng */
   label: string
-  /** Trang chuyển tới sau khi đăng nhập */
-  redirect: string
 }
 
 export const DEMO_ACCOUNTS: readonly DemoAccount[] = [
-  { username: 'admin1', password: '123456', role: 'jobseeker', label: 'Người tìm việc', redirect: '/tim-viec' },
-  { username: 'admin2', password: '123456', role: 'recruiter', label: 'Nhà tuyển dụng', redirect: '/tuyen-dung' },
-  { username: 'admin3', password: '123456', role: 'admin', label: 'Quản trị viên', redirect: '/admin' },
+  { username: 'admin1', password: '123456', role: 'jobseeker', label: 'Người tìm việc' },
+  { username: 'admin2', password: '123456', role: 'recruiter', label: 'Nhà tuyển dụng' },
+  { username: 'admin3', password: '123456', role: 'admin', label: 'Quản trị viên' },
 ]
 
 /** Tìm tài khoản demo khớp tên đăng nhập + mật khẩu; không có thì trả về undefined. */

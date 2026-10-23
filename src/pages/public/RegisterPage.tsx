@@ -13,9 +13,9 @@ type Role = 'jobseeker' | 'recruiter'
 const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 const INPUT = `w-full rounded-control border border-page-edge bg-page-surface px-4 py-3 text-base text-page-fg placeholder:text-page-edge ${FOCUS}`
 
-const ROLES: { value: Role; label: string; icon: typeof Search; home: string }[] = [
-  { value: 'jobseeker', label: 'Tìm việc', icon: Search, home: '/tim-viec/ho-so' },
-  { value: 'recruiter', label: 'Tuyển dụng', icon: Building2, home: '/tuyen-dung/ho-so-cong-ty' },
+const ROLES: { value: Role; label: string; icon: typeof Search }[] = [
+  { value: 'jobseeker', label: 'Tìm việc', icon: Search },
+  { value: 'recruiter', label: 'Tuyển dụng', icon: Building2 },
 ]
 
 export default function RegisterPage() {
@@ -31,7 +31,6 @@ export default function RegisterPage() {
   const navigate = useNavigate()
   const { setUser } = useAuthStore()
 
-  const current = ROLES.find((r) => r.value === role)!
   const demo = getDemoAccountByRole(role)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,7 +45,7 @@ export default function RegisterPage() {
     // TODO: thay bằng authService.register khi có backend. Tạm thời vào tài khoản demo.
     await new Promise((r) => setTimeout(r, 600))
     setUser(buildDemoUser(demo), 'mock-token')
-    navigate(current.home)
+    navigate('/')
   }
 
   return (
