@@ -1,4 +1,4 @@
-import type { MatchLevel } from '@types/index'
+import type { MatchLevel } from '@/types'
 
 export function getMatchLevel(score: number): MatchLevel {
   if (score >= 80) return 'high'

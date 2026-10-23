@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, X, ChevronDown, Loader2, CheckCircle } from 'lucide-react'
+import { Plus, X, Loader2, CheckCircle } from 'lucide-react'
 import { JOB_TYPES, SALARY_UNITS, INDUSTRIES, DAYS_OF_WEEK } from '@constants/index'
 import { cn } from '@utils/cn'
 

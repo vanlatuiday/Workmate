@@ -220,7 +220,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
             <form
               onSubmit={handleSearch}
               role="search"
-              className="flex flex-col sm:flex-row gap-px bg-page-edge rounded-2xl overflow-hidden border border-page-edge"
+              className="flex flex-col sm:flex-row gap-px bg-page-edge rounded-card overflow-hidden border border-page-edge"
             >
               <label className="flex-1 flex items-center gap-3 bg-page-surface px-5 py-4 focus-within:bg-page-bg focus-within:ring-2 focus-within:ring-inset focus-within:ring-page-fg transition-colors">
                 <Search className="w-4 h-4 text-page-muted shrink-0" />

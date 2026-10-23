@@ -1,544 +1,224 @@
 ---
 version: alpha
-name: Framer-design-analysis
-description: "A confident dark-canvas builder marketing site that treats the page like a working artboard — pure black surfaces, white display type set in GT Walsheim Medium with aggressive negative tracking, and a single confident blue (#0099ff) reserved for hyperlinks and selection states. The page rhythm is broken by oversized vibrant gradient atmosphere panels — magenta, violet, orange spotlights — that act as living showcase tiles, not decoration. Every CTA is a white pill on dark; every card is a translucent or charcoal surface; every section title pulls letter-spacing tight enough to feel like a poster."
+name: workmate
+description: "Nền tảng việc làm linh hoạt. Trang công khai là một hành trình cuộn biên tập (editorial): bảng màu trung tính ấm đơn sắc, chữ display lớn, nhiều khoảng trắng, chuyển cảnh theo tiến trình cuộn. Không có màu nhấn bão hòa — tương phản đến từ việc xen kẽ nền sáng/tối, kích thước chữ và chuyển động có chủ đích."
 
+# Nguồn sự thật cho màu là src/styles/tokens.json. Bảng dưới phải khớp với file đó.
 colors:
-  primary: "#ffffff"
-  on-primary: "#000000"
-  accent-blue: "#0099ff"
-  ink: "#ffffff"
-  ink-muted: "#999999"
-  canvas: "#090909"
-  surface-1: "#141414"
-  surface-2: "#1c1c1c"
-  hairline: "#262626"
-  hairline-soft: "#1a1a1a"
-  inverse-canvas: "#ffffff"
-  inverse-ink: "#000000"
-  gradient-magenta: "#d44df0"
-  gradient-violet: "#6a4cf5"
-  gradient-orange: "#ff7a3d"
-  gradient-coral: "#ff5577"
-  semantic-success: "#22c55e"
+  charcoal: "#242522"   # nền tối chính, chữ trên nền sáng, nút chính
+  graphite: "#454640"   # nền tối phụ (nhịp tối giữa trang)
+  sage: "#A6A69A"       # nền tuyên ngôn / brand story
+  stone: "#D9D3C8"      # nền khu việc làm
+  mist: "#E1DED5"       # bề mặt phụ (chỉ dùng có chủ đích)
+  ivory: "#F3F0E9"      # nền sáng chính, chữ trên nền tối
+
+# Màu theo ngữ cảnh — biến CSS, đổi theo section đang xem (Tailwind: *-page-*)
+semantic:
+  page-bg: "var(--page-bg)"           # nền section hiện tại
+  page-fg: "var(--page-fg)"           # chữ chính
+  page-muted: "fg 82% trộn bg"        # chữ phụ, ≥ 4.5:1 trên mọi theme
+  page-line: "fg 18% trộn bg"         # đường kẻ trang trí, viền thẻ
+  page-surface: "fg 5% trộn bg"       # mặt ô nhập liệu, thẻ
+  page-edge: "fg 60% trộn bg"         # viền ô nhập liệu, ≥ 3:1 trên nền sáng
+
+themes:          # tên theme dùng trong data-theme="…"
+  charcoal: { bg: charcoal, fg: ivory }
+  ivory:    { bg: ivory,    fg: charcoal }
+  stone:    { bg: stone,    fg: charcoal }
+  sage:     { bg: sage,     fg: charcoal }
+  graphite: { bg: graphite, fg: ivory }
 
 typography:
-  display-xxl:
-    fontFamily: GT Walsheim Framer Medium
-    fontSize: 110px
-    fontWeight: 500
-    lineHeight: 0.85
-    letterSpacing: -5.5px
-  display-xl:
-    fontFamily: GT Walsheim Medium
-    fontSize: 85px
-    fontWeight: 500
-    lineHeight: 0.95
-    letterSpacing: -4.25px
-    fontFeature: ss02
-  display-lg:
-    fontFamily: GT Walsheim Medium
-    fontSize: 62px
-    fontWeight: 500
-    lineHeight: 1.00
-    letterSpacing: -3.1px
-    fontFeature: ss02
-  display-md:
-    fontFamily: GT Walsheim Medium
-    fontSize: 32px
-    fontWeight: 500
-    lineHeight: 1.13
-    letterSpacing: -1.0px
-  headline:
-    fontFamily: Inter
-    fontSize: 22px
-    fontWeight: 700
-    lineHeight: 1.20
-    letterSpacing: -0.8px
-    fontFeature: cv05
-  subhead:
-    fontFamily: Inter Variable
-    fontSize: 24px
-    fontWeight: 400
-    lineHeight: 1.30
-    letterSpacing: -0.01px
-    fontFeature: cv11
-  body-lg:
-    fontFamily: Inter Variable
-    fontSize: 18px
-    fontWeight: 400
-    lineHeight: 1.30
-    letterSpacing: -0.18px
-    fontFeature: cv11
-  body:
-    fontFamily: Inter Variable
-    fontSize: 15px
-    fontWeight: 400
-    lineHeight: 1.30
-    letterSpacing: -0.15px
-    fontFeature: cv11
-  body-sm:
-    fontFamily: Inter Variable
-    fontSize: 14px
-    fontWeight: 500
-    lineHeight: 1.40
-    letterSpacing: -0.14px
-    fontFeature: cv11
-  caption:
-    fontFamily: Inter Variable
-    fontSize: 13px
-    fontWeight: 500
-    lineHeight: 1.20
-    letterSpacing: -0.13px
-    fontFeature: cv11
-  micro:
-    fontFamily: Inter Variable
-    fontSize: 12px
-    fontWeight: 400
-    lineHeight: 1.20
-    letterSpacing: -0.12px
-    fontFeature: cv11
-  button:
-    fontFamily: Inter Variable
-    fontSize: 14px
-    fontWeight: 500
-    lineHeight: 1.0
-    letterSpacing: -0.14px
-    fontFeature: cv11
+  font-display: "Instrument Sans (500–600)"
+  font-body: "Inter (400–500)"
+  display-lg: { size: "clamp(2.75rem, 7vw, 5.5rem)", lineHeight: 1.06, letterSpacing: "-0.03em", class: text-display-lg }
+  display-md: { size: "clamp(2.5rem, 6vw, 4.5rem)",  lineHeight: 1.08, letterSpacing: "-0.03em", class: text-display-md }
+  display-sm: { size: "clamp(2rem, 4.5vw, 3.25rem)", lineHeight: 1.12, letterSpacing: "-0.025em", class: text-display-sm }
+  title:      { size: "1.5rem–1.875rem", weight: 500, class: "font-display text-2xl md:text-3xl" }
+  body-lg:    { size: "1.125rem", lineHeight: 1.625, class: "text-lg leading-relaxed" }
+  body:       { size: "1rem",     lineHeight: 1.625, class: "text-base leading-relaxed" }
+  body-sm:    { size: "0.875rem", class: text-sm }
+  eyebrow:    { size: "0.75rem", weight: 500, tracking: "0.18em", case: upper, class: eyebrow }
 
 rounded:
-  xs: 4px
-  sm: 6px
-  md: 10px
-  lg: 15px
-  xl: 20px
-  xxl: 30px
-  pill: 100px
-  full: 9999px
+  control: 0.5rem   # rounded-control — link/nút nhỏ trong header, menu
+  card: 1rem        # rounded-card — thẻ việc làm, thanh tìm kiếm
+  cell: 0.375rem    # rounded-md — ô lịch trong hình minh họa
+  panel: 2rem       # chỉ trong clip-path chuyển cảnh (StatementSection)
+  pill: 9999px      # rounded-full — mọi nút hành động, tag
 
 spacing:
-  hair: 1px
-  xxs: 4px
-  xs: 8px
-  sm: 12px
-  md: 15px
-  lg: 20px
-  xl: 30px
-  xxl: 40px
-  section: 96px
+  gutter: "24px / 40px / 64px"           # .shell: px-6 md:px-10 lg:px-16, max-w 1440px
+  section: "clamp(5rem, 12vw, 11rem)"    # py-section
+  section-sm: "clamp(3.5rem, 8vw, 7rem)" # py-section-sm
+
+motion:
+  ease-editorial: "cubic-bezier(0.22, 1, 0.36, 1)"  # ease-editorial
+  duration-fast: 300ms     # đổi màu khi hover
+  duration-base: 500ms     # dịch chuyển khi hover, chữ cuộn (RollText)
+  duration-reveal: 700–800ms  # xuất hiện khi cuộn tới
+  fg-swap: 450ms           # đổi màu chữ giữa nền sáng/tối
 
 components:
-  button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.button}"
-    rounded: "{rounded.pill}"
-    padding: 10px 15px
-  button-primary-pressed:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.button}"
-    rounded: "{rounded.pill}"
-  button-secondary:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink}"
-    typography: "{typography.button}"
-    rounded: "{rounded.pill}"
-    padding: 10px 15px
-  button-translucent:
-    backgroundColor: "{colors.surface-2}"
-    textColor: "{colors.ink}"
-    typography: "{typography.button}"
-    rounded: "{rounded.xxl}"
-    padding: 8px 14px
-  button-icon-circular:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink}"
-    typography: "{typography.button}"
-    rounded: "{rounded.full}"
-    size: 40px
-  pricing-tab-default:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink-muted}"
-    typography: "{typography.button}"
-    rounded: "{rounded.pill}"
-    padding: 8px 14px
-  pricing-tab-selected:
-    backgroundColor: "{colors.surface-2}"
-    textColor: "{colors.ink}"
-    typography: "{typography.button}"
-    rounded: "{rounded.pill}"
-    padding: 8px 14px
-  text-input:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.md}"
-    padding: 10px 14px
-  text-input-focused:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.md}"
-    padding: 10px 14px
-  pricing-card:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.xl}"
-    padding: 24px
-  pricing-card-featured:
-    backgroundColor: "{colors.surface-2}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.xl}"
-    padding: 24px
-  template-card:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.lg}"
-    padding: 12px
-  gradient-spotlight-card:
-    backgroundColor: "{colors.gradient-violet}"
-    textColor: "{colors.ink}"
-    typography: "{typography.subhead}"
-    rounded: "{rounded.xl}"
-    padding: 32px
-  gradient-spotlight-card-magenta:
-    backgroundColor: "{colors.gradient-magenta}"
-    textColor: "{colors.ink}"
-    typography: "{typography.subhead}"
-    rounded: "{rounded.xl}"
-    padding: 32px
-  gradient-spotlight-card-orange:
-    backgroundColor: "{colors.gradient-orange}"
-    textColor: "{colors.ink}"
-    typography: "{typography.subhead}"
-    rounded: "{rounded.xl}"
-    padding: 32px
-  product-mockup-tile:
-    backgroundColor: "{colors.surface-1}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.xl}"
-    padding: 16px
-  feature-row:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.xs}"
-  comparison-row:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink-muted}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.xs}"
-  top-nav:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.xs}"
-    height: 56px
-  faq-row:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.md}"
-    padding: 24px
-  footer:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink-muted}"
-    typography: "{typography.caption}"
-    rounded: "{rounded.xs}"
-    padding: 64px 32px
+  button-primary:   { bg: page-fg, text: page-bg, rounded: pill, padding: "16px 32px", type: "text-sm font-medium" }
+  button-secondary: { bg: transparent, border: page-line, text: page-fg, rounded: pill, padding: "16px 32px", hoverBorder: page-fg }
+  search-bar:       { bg: page-edge (khe 1px), field: page-surface, border: page-edge, rounded: card, submit: button-primary (vuông góc) }
+  tag:              { border: page-line, text: page-muted, rounded: pill, padding: "6px 12px", type: text-xs }
+  job-card:         { bg: page-surface, border: page-line, hoverBorder: page-fg, rounded: card, padding: "24px–28px" }
+  header:           { height: 64px, bg: page-bg (hiện sau intro), border: page-line, fixed on home }
+  menu-overlay:     { bg: charcoal, text: ivory/mist, numbers: sage }
+  footer:           { bg: page-bg (charcoal), text: page-muted, border: page-line }
 ---
+
+# Workmate — Design System
+
+> Tài liệu này mô tả hệ thống **đang chạy trong code**. Khi sửa token, sửa ở
+> `src/styles/tokens.json` (màu) hoặc `tailwind.config.js` (còn lại), rồi cập nhật file này.
+> `references/framer-DESIGN.md` chỉ là tài liệu tham khảo cách trình bày — **không** áp màu
+> hay phong cách của nó.
 
 ## Overview
 
-Framer's marketing canvas is a near-pure black artboard. The dominant surface is `{colors.canvas}` — almost pure black with a faint warmth — and on top of it sits oversized white display type set in **GT Walsheim Medium** with letter-spacing pulled to extreme negative values (-5.5px on the 110px display, -4.25px on the 85px hero). The page reads like a poster: one assertive statement per band, generous breathing room above and below.
+Workmate nói về việc làm vừa với nhịp sống, nên giao diện cũng điềm tĩnh: nền trung tính
+ấm như giấy, chữ than chì, không màu nhấn rực. Trang chủ được dựng như một chuỗi “màn”
+— mỗi section một thông điệp, chữ lớn, nhiều khoảng thở — và các màn nối với nhau bằng
+chuyển màu nền theo tiến trình cuộn.
 
-The single accent is `{colors.accent-blue}` — used scarcely, mostly for hyperlinks, selection halos, and a subtle blue-tinted shadow ring on focused inputs. The brand chrome itself is monochrome: white pill buttons, charcoal cards, gray secondary text. What makes Framer distinctive is the rhythm break — every few sections the page drops in a **vibrant gradient atmosphere card**: a magenta-violet spotlight, a sunset-orange wash, a coral-pink panel. These aren't section backgrounds; they're individual cards arranged in a card grid, each one a small living poster that shows what Framer can produce.
-
-Body type is **Inter Variable**, with Framer leaning hard into Inter's character variants (`cv01`, `cv05`, `cv09`, `cv11`, `ss03`, `ss07`, `dlig`) — the result is a body voice that feels custom-tuned, with single-storey "a", straight-leg "l", and tabular figures. There's no light mode on the marketing site; the brand IS dark.
-
-**Key Characteristics:**
-- Black-canvas marketing system: `{colors.canvas}` is the surface for hero, body, pricing, FAQ, and footer alike — no light interludes.
-- Massive negative letter-spacing on display sizes (-5.5px / -4.25px / -3.1px) creates a poster-grade headline cadence.
-- White pill (`{components.button-primary}`) is the only primary CTA shape across the site; secondary actions live as charcoal pills (`{components.button-secondary}`) or text links.
-- Oversized **gradient spotlight cards** (violet, magenta, orange, coral) act as showcase tiles inside the dark grid; they are individual cards, not section backgrounds.
-- Inter Variable with bespoke OpenType character variants (`cv01/05/09/11`, `ss03/ss07`, `dlig`) used everywhere body type appears — the typographic voice is unmistakable.
-- Border radius scale runs from 4px utility chips up to 100px pills and full circles, with 15–20px the default for cards and 30px for atmospheric gradient cards.
-- A single chromatic accent `{colors.accent-blue}` reserved for hyperlinks, focus, and selection — never decorative.
+**Đặc điểm nhận diện**
+- Đơn sắc ấm: 6 màu, không màu nhấn bão hòa, không gradient màu, không trắng/đen tuyệt đối.
+- Tương phản bằng **xen kẽ sáng/tối** giữa các section, không bằng màu nhấn.
+- Chữ display Instrument Sans, tracking âm vừa phải; line-height nới rộng để dấu tiếng Việt không bị cắt.
+- Chuyển động phản hồi theo cuộn và đảo ngược được; một khoảnh khắc chính là logo bay từ giữa màn hình vào header.
+- Mọi nút hành động là viên thuốc (pill).
 
 ## Colors
 
-> Source pages: framer.com (home), /ai/, /startups/, /marketplace/templates/nudge/, /gallery/a16z-speedrun-×-tonik, /pricing.
+### Bảng màu
+| Token | Hex | Vai trò |
+|---|---|---|
+| `wm-charcoal` | `#242522` | Nền intro/kết, chữ trên nền sáng, nút chính trên nền sáng |
+| `wm-graphite` | `#454640` | Nền tối giữa trang |
+| `wm-sage` | `#A6A69A` | Nền tuyên ngôn |
+| `wm-stone` | `#D9D3C8` | Nền khu việc làm |
+| `wm-mist` | `#E1DED5` | Bề mặt phụ, chữ phụ trong menu |
+| `wm-ivory` | `#F3F0E9` | Nền sáng chính, chữ trên nền tối |
 
-### Brand & Accent
-- **Pure White** ({colors.primary}): The brand primary surface. Every primary CTA pill, every display headline, every body line on canvas.
-- **Sky Blue** ({colors.accent-blue}): The single chromatic accent. Hyperlinks, focused-input rings, and a few selection states. Never used for backgrounds or as a brand fill.
+Có sẵn dưới 3 dạng, cùng một nguồn `tokens.json`: class Tailwind `bg-wm-*`/`text-wm-*`,
+biến CSS `--wm-*`, và `THEMES` trong `useSectionThemes.ts`.
 
-### Surface
-- **Canvas** ({colors.canvas}): Default page background — near-black with a faint warmth. Footer, pricing, hero, and FAQ all sit on it.
-- **Surface 1** ({colors.surface-1}): One step above canvas — pricing cards, secondary buttons, mockup tiles.
-- **Surface 2** ({colors.surface-2}): Two steps above — featured pricing card, hero pill backdrop, selected pricing tab.
-- **Hairline** ({colors.hairline}): 1px borders on input groups, comparison-table dividers.
-- **Hairline Soft** ({colors.hairline-soft}): Subtler dividers — between FAQ rows and footer column rules.
-- **Inverse Canvas** ({colors.inverse-canvas}): Pure white — used as the surface of light-on-dark pill CTAs and a small set of light-mode template thumbnails embedded in the showcase grid.
+### Màu theo ngữ cảnh (khuyến dùng cho component trang chủ)
+Component trên trang chủ **không** dùng `wm-*` trực tiếp mà dùng `*-page-*`
+(`bg-page-bg`, `text-page-fg`, `text-page-muted`, `border-page-line`, `bg-page-surface`,
+`border-page-edge`). Các màu này tự đổi theo section đang xem nên một component đặt ở
+nền nào cũng đúng. Ngoại lệ: phần luôn cố định một màu (menu phủ, tấm sage ở tuyên ngôn)
+dùng `wm-*` hoặc `THEMES`.
 
-### Text
-- **Ink** ({colors.ink}): All headline and emphasized body type — pure white.
-- **Ink Muted** ({colors.ink-muted}): Secondary type — gray (#999999) used for meta info, footer columns, comparison-row labels, deselected pricing tabs. Hierarchy on the dark canvas is carried by ink → ink-muted contrast, not by weight changes.
+Không dùng modifier độ trong suốt (`/50`) với `page-*` — đó là biến CSS, không có kênh alpha.
 
-### Semantic
-- **Success Green** ({colors.semantic-success}): Pricing comparison-table checkmarks. Glyph fill, not surface.
+### Tương phản (đã đo)
+| Theme | Chữ chính | Chữ phụ (82%) |
+|---|---|---|
+| charcoal | 13.5 : 1 | 9.5 : 1 |
+| ivory | 13.5 : 1 | 7.9 : 1 |
+| stone | 10.4 : 1 | 6.6 : 1 |
+| graphite | 8.4 : 1 | 6.3 : 1 |
+| sage | 6.3 : 1 | **4.52 : 1** (sát ngưỡng — không giảm thêm) |
 
-### Brand Gradient (signature)
-- **Gradient Magenta** ({colors.gradient-magenta}): Spotlight card variant.
-- **Gradient Violet** ({colors.gradient-violet}): Spotlight card variant — most common.
-- **Gradient Orange** ({colors.gradient-orange}): Spotlight card variant — sunset wash.
-- **Gradient Coral** ({colors.gradient-coral}): Spotlight card variant — coral/pink.
+Viền ô nhập liệu (`page-edge`, 60%): 3.65 : 1 trên ivory, 3.28 : 1 trên stone (≥ 3:1 theo WCAG 1.4.11).
 
-These four sit as oversized atmospheric tiles inside otherwise monochrome card grids — a dark canvas with one or two glowing spotlight cards is a recurring page signature.
+### Màu cũ (legacy)
+- `primary` (xanh dương), `secondary` (xanh lá), `match-*`: đang dùng ở dashboard, trang
+  đăng nhập/đăng ký, `/viec-lam`. **[giả định]** Sẽ được chuyển sang bảng màu trên khi
+  làm lại các trang đó — chưa có quyết định, hỏi chủ dự án trước.
+- `ink-*`: chỉ còn trong component trang chủ cũ không dùng. Không dùng cho code mới.
 
 ## Typography
 
-### Font Family
-
-- **GT Walsheim Framer Medium** / **GT Walsheim Medium** — Framer's display typeface. Geometric, slightly humanist, very confident at large sizes with extreme negative tracking. Fallbacks: `GT Walsheim Medium Placeholder` system font.
-- **Inter Variable** — System body typeface. Used with extensive OpenType character variants: `cv01` (alternate "1"), `cv05` (alternate "g"), `cv09` (alternate "i" / "l"), `cv11` (alternate "0"), `ss03` / `ss07` stylistic sets, `dlig` discretionary ligatures, and `tnum` for numerics in tabular contexts. The result is a body voice that feels bespoke without commissioning a custom face.
-- **Inter** — Used selectively for `{typography.headline}` (the 22px / 20px tier). The non-variable cut catches small tracking targets that the variable file rounds.
-
-### Hierarchy
-
-| Token | Size | Weight | Line Height | Letter Spacing | Use |
-|---|---|---|---|---|---|
-| `{typography.display-xxl}` | 110px | 500 | 0.85 | -5.5px | Largest hero headline (home, AI page) |
-| `{typography.display-xl}` | 85px | 500 | 0.95 | -4.25px | Section opener headlines |
-| `{typography.display-lg}` | 62px | 500 | 1.00 | -3.1px | Sub-section openers |
-| `{typography.display-md}` | 32px | 500 | 1.13 | -1.0px | Card titles, smaller display |
-| `{typography.headline}` | 22px | 700 | 1.20 | -0.8px | Pricing tier headlines, FAQ category titles |
-| `{typography.subhead}` | 24px | 400 | 1.30 | -0.01px | Lead body next to display headlines |
-| `{typography.body-lg}` | 18px | 400 | 1.30 | -0.18px | Hero subhead, lead paragraphs |
-| `{typography.body}` | 15px | 400 | 1.30 | -0.15px | Default body, card descriptions |
-| `{typography.body-sm}` | 14px | 500 | 1.40 | -0.14px | Pricing comparison rows, dense data |
-| `{typography.caption}` | 13px | 500 | 1.20 | -0.13px | Eyebrows, footer columns, meta |
-| `{typography.micro}` | 12px | 400 | 1.20 | -0.12px | Disclaimer, footnote |
-| `{typography.button}` | 14px | 500 | 1.0 | -0.14px | Pill buttons |
-
-### Principles
-
-- **Letter-spacing scales with size, hard.** Display-xxl pulls -5.5px (5% of size); body sticks to about -1% (-0.15px on 15px). The result: posters at the top, comfortable reading at body.
-- **OpenType character variants are the brand voice.** Switching off `cv11`, `ss03`, etc. visibly changes the body voice — the brand depends on them.
-- **Weight stays in a narrow band.** Display sits at 500, body at 400, body-sm/caption at 500. Hierarchy is carried by size + tracking, not by 700/900 ramps.
-- **Tight line-heights everywhere.** Even body runs at 1.30 — Framer's editorial tone is denser than typical SaaS marketing.
-
-### Note on Font Substitutes
-
-If implementing without GT Walsheim Medium, suitable open-source substitutes include **Mona Sans**, **Geist**, or **Inter** at weight 600–700 with manually tightened tracking. Mona Sans's hairline weights at 100–300 are particularly close to Framer's cleaner section openers. Inter Variable is open-source — keep it as-is and preserve the documented OpenType variants.
+- **Instrument Sans** cho display và tiêu đề thẻ; **Inter** cho nội dung. Tải từ Google Fonts trong `index.html`.
+- Thang chữ display co giãn theo viewport (`clamp`), nên **không** cần đổi class theo breakpoint.
+- Line-height display 1.06–1.12 — nới hơn thông lệ vì dấu chồng tiếng Việt (ấ, ỗ, ặ). Không hạ xuống dưới 1.05.
+- Đặt `max-w-[14ch]–[22ch]` cho tiêu đề lớn để xuống dòng có chủ đích.
+- Đoạn văn ngắn, `max-w-xl`, `leading-relaxed`; chữ phụ dùng `text-page-muted`.
+- Số thứ tự / số liệu dùng `.tnum`.
+- Nhãn nhỏ phía trên tiêu đề dùng `.eyebrow` (in hoa, tracking 0.18em) kèm vạch ngắn.
 
 ## Layout
 
-### Spacing System
+- Khối nội dung: `.shell` (max 1440px, lề 24/40/64px).
+- Nhịp dọc: `py-section` giữa các section, `py-section-sm` cho khối phụ.
+- Lưới 12 cột từ `md` cho bố cục tiêu đề + nội dung; bento cho thẻ việc làm (`lg:grid-cols-12`).
+- Khoảng trắng là thành phần thiết kế: mỗi section một thông điệp chính.
 
-- **Base unit**: 5px (Framer uses non-standard 5/10/15/20/30 increments rather than the more common 4/8/16/24).
-- **Tokens (front matter)**: `{spacing.hair}` 1px · `{spacing.xxs}` 4px · `{spacing.xs}` 8px · `{spacing.sm}` 12px · `{spacing.md}` 15px · `{spacing.lg}` 20px · `{spacing.xl}` 30px · `{spacing.xxl}` 40px · `{spacing.section}` 96px.
-- Card interior padding: `{spacing.lg}` 20px on pricing cards; `{spacing.xl}` 30px on gradient spotlight cards.
-- Pill button padding: 10px vertical · 15px horizontal — `{components.button-primary}`.
-- Section padding (vertical): roughly `{spacing.section}` 96px on home; tighter (~64px) on pricing comparison.
-
-### Grid & Container
-
-- Max content width sits around the 1199px breakpoint, with side gutters that scale toward `{spacing.xl}` on desktop.
-- Card grids on the home gallery use 2-up at desktop, collapsing to 1-up below 810px.
-- Pricing tier grid is 4-up across the documented breakpoints; comparison table beneath it uses fixed-width left column with horizontally scrolling tier columns at narrow widths.
-
-### Whitespace Philosophy
-
-The dark canvas IS the whitespace. Where lighter brands lean on white air to separate sections, Framer leans on long stretches of black with a single oversized statement floating in the middle. Sections separate by mode change: a band of charcoal cards, then a band of black with a gradient spotlight, then back to charcoal — like cuts in a dark film.
+### Breakpoints (mặc định Tailwind + `xs`)
+| Tên | Rộng | Thay đổi chính ở trang chủ |
+|---|---|---|
+| `xs` | 475px | — |
+| `sm` | 640px | Thanh tìm kiếm chuyển từ dọc sang ngang; logo intro rộng 50% thay vì 62% |
+| `md` | 768px | Hiện Đăng nhập/Đăng ký trên header; lưới 12 cột |
+| `lg` | 1024px | Hiện nav chính trên header; bento 12 cột |
 
 ## Elevation & Depth
 
-| Level | Treatment | Use |
-|---|---|---|
-| 0 (flat) | No shadow, no border | Default for canvas-mounted display type, FAQ rows, footer |
-| 1 (charcoal) | `{colors.surface-1}` lift on canvas | Pricing cards, mockup tiles, secondary buttons |
-| 2 (light-edge) | `rgba(255,255,255,0.10)` 0.5px top edge + `rgba(0,0,0,0.25)` 0px 10px 30px drop | Floating product cards, modal cards |
-| 3 (selected) | `rgba(0,153,255,0.15)` 0px 0px 0px 1px ring | Focused inputs, selected option |
-
-Four shadow signatures recur across the homepage: a 1px subtle drop, a translucent blue ring, a thick near-black 2px outline (used as the active-element marker on sub-nav), and the layered light-edge + drop-shadow used for floating cards.
-
-### Decorative Depth
-
-- **Gradient spotlight cards** are the dominant depth device — color saturation against black canvas substitutes for shadow-driven elevation.
-- **Layered product mockups** (browser frames containing live Framer-built sites) sit inside `{colors.surface-1}` cards with the level-2 light-edge treatment.
-- **Subtle blue ring (focus / selected)** is the only chromatic depth signal — used to mark the active state of input groups and pricing tier toggles without changing the underlying surface.
+Không dùng bóng đổ trên trang công khai. Chiều sâu đến từ:
+1. Đổi nền giữa các section (sáng ↔ tối).
+2. Bề mặt `page-surface` nhỉnh hơn nền + viền `page-line`.
+3. Lớp nhiễu hạt `.grain` rất mờ (7%) phủ toàn trang.
+4. Tấm nền nở ra bằng `clip-path` ở chuyển cảnh lớn.
 
 ## Shapes
 
-### Border Radius Scale
-
-Framer's extracted radius set is unusually granular (1px, 4px, 5px, 6px, 8px, 10px, 12px, 15px, 20px, 30px, 40px, 100px). The named scale below picks the levels the marketing surface actually consumes.
-
-| Token | Value | Use |
+| Vai trò | Class | Giá trị |
 |---|---|---|
-| `{rounded.xs}` | 4px | Small chip / utility radius |
-| `{rounded.sm}` | 6px | Inline tag, badge |
-| `{rounded.md}` | 10px | Form input, list item |
-| `{rounded.lg}` | 15px | Template card thumbnails |
-| `{rounded.xl}` | 20px | Pricing cards, mockup tiles |
-| `{rounded.xxl}` | 30px | Gradient spotlight cards, oversized panels |
-| `{rounded.pill}` | 100px | All primary text CTAs |
-| `{rounded.full}` | 9999px | Circular icon buttons, avatar circles |
-
-### Photography & Illustration Geometry
-
-- Embedded site mockups (browser-chromed previews of Framer-built sites) sit in `{rounded.xl}` 20px tiles with `{spacing.md}` 15px interior padding.
-- Gradient spotlight cards use `{rounded.xxl}` 30px corners — softer than the 20px content cards by design, to make them feel like atmospheric panels rather than tighter UI.
-- Icon glyphs and sub-nav glyphs render in `{rounded.full}` circles at 32–40px sizes.
+| Nút hành động, tag | `rounded-full` | viên thuốc |
+| Thẻ, thanh tìm kiếm | `rounded-card` | 1rem |
+| Link/nút nhỏ trong header, menu | `rounded-control` | 0.5rem |
+| Ô nhỏ trong hình minh họa | `rounded-md` | 0.375rem |
+| Tấm chuyển cảnh | trong `clip-path` | 2rem → 0 khi phủ kín |
 
 ## Components
 
-### Buttons
+Component dùng lại được (xem code trước khi viết mới):
+- **Chuyển động**: `Reveal` (hiện khi cuộn tới, một lần), `TextReveal` (chữ trồi theo từ, một lần), `MaskedWords` (chữ trong mặt nạ cho GSAP điều khiển theo cuộn, đảo ngược được), `RollText` (chữ cuộn khi hover — cha phải có class `group`), `Magnetic` (nút hút theo chuột), `CustomCursor`.
+- **Bố cục**: `PublicLayout` (header + footer), `MenuOverlay`, `RouteScroll`.
 
-**`button-primary`** — White pill on dark canvas. The primary CTA across home, pricing, AI, and gallery pages.
-- Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.button}`, padding 10px 15px, rounded `{rounded.pill}`.
-- Pressed state lives in `button-primary-pressed` (the live site uses a transform-scale shrink rather than a darkened fill).
+**Nút chính** — `bg-page-fg text-page-bg rounded-full px-8 py-4 text-sm font-medium`, chữ bọc `RollText`, có thể bọc `Magnetic`. Trên nền tối tự đảo thành nút ngà.
+**Nút phụ** — `border border-page-line text-page-fg rounded-full px-8 py-4`, hover `border-page-fg`.
+**Thanh tìm kiếm** — khung `rounded-card` viền `page-edge`, ô `bg-page-surface`, focus có vòng `ring-2 ring-inset ring-page-fg`, nút submit là nút chính.
+**Tag** — `border-page-line text-page-muted rounded-full px-3 py-1.5 text-xs`, hover lên `page-fg`.
+**Thẻ việc làm** — `bg-page-surface border-page-line rounded-card p-6 md:p-7`, hover viền `page-fg` + mũi tên dịch nhẹ; ghi rõ “Tin mẫu” khi là dữ liệu giả.
+**Header (trang chủ)** — cố định, cao 64px, nền `page-bg` + viền `page-line` (chỉ hiện sau intro).
+**Focus bàn phím** — trên trang chủ viền 2px `currentColor`, cách 3px; không dùng viền xanh mặc định.
 
-**`button-secondary`** — Charcoal pill. Used for secondary navigation actions ("Sign in", "Talk to sales") and as the visual counterpart to the primary pill.
-- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.button}`, padding 10px 15px, rounded `{rounded.pill}`.
+## Motion
 
-**`button-translucent`** — Translucent / lifted secondary used on top of busy backgrounds (gallery hero, gradient cards).
-- Background `{colors.surface-2}`, text `{colors.ink}`, type `{typography.button}`, rounded `{rounded.xxl}`, padding 8px 14px.
+Nguyên tắc:
+1. **Một khoảnh khắc chính**: logo bay từ giữa màn hình vào header. Các hiệu ứng khác phụ trợ, không tranh.
+2. **Theo cuộn và đảo ngược được** cho chuyển cảnh (GSAP ScrollTrigger, `scrub`). Hiệu ứng “xuất hiện một lần” chỉ cho nội dung phụ.
+3. **Chỉ transform và opacity**; màu nền đổi qua biến CSS, một listener duy nhất (`useSectionThemes`).
+4. Mọi chuyển động có phương án `prefers-reduced-motion` (tắt hẳn hoặc hiện ngay trạng thái cuối) và không phụ thuộc hover cho chức năng chính.
+5. Không animation lặp vô hạn không có lý do, không âm thanh.
+6. **Phạm vi**: chuyển động nặng chỉ ở trang công khai. Dashboard (ứng viên/NTD/admin) yên tĩnh — chỉ transition màu/hover ngắn.
 
-**`button-icon-circular`** — 40px circle for inline icon actions (carousel arrows, social links).
-- Background `{colors.surface-1}`, text `{colors.ink}`, rounded `{rounded.full}`, size 40px.
-
-### Pricing Tabs
-
-**`pricing-tab-default`** + **`pricing-tab-selected`** — The pill-toggle that switches between Basic / Pro / Business / Enterprise on `/pricing`.
-- Default: `{colors.canvas}` background, `{colors.ink-muted}` text, rounded `{rounded.pill}`.
-- Selected: `{colors.surface-2}` background, `{colors.ink}` text — selected = lift, not color. Surface depth communicates "active" without needing a chromatic fill.
-
-### Inputs & Forms
-
-**`text-input`** + **`text-input-focused`** — Form fields on `/pricing` (seat-count, currency switcher) and the in-product preview surfaces.
-- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.md}`, padding 10px 14px.
-- Focused state retains the same surface; the focus ring is the level-3 blue-tinted shadow `rgba(0,153,255,0.15)` 0 0 0 1px.
-
-### Cards & Containers
-
-**`pricing-card`** — Each tier on `/pricing`.
-- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.xl}`, padding 24px.
-
-**`pricing-card-featured`** — The Pro tier (visually emphasized).
-- Background `{colors.surface-2}`, otherwise identical structure. The lift is one surface step up — no chromatic outline.
-
-**`template-card`** — Thumbnail tile in the home "Built with Framer" gallery and `/marketplace`.
-- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.body-sm}`, rounded `{rounded.lg}`, padding 12px.
-
-**`product-mockup-tile`** — Larger tile that frames a live product UI mock (Framer canvas, Workshop video, AI translate panel).
-- Background `{colors.surface-1}`, text `{colors.ink}`, type `{typography.body-sm}`, rounded `{rounded.xl}`, padding 16px.
-
-### Gradient Spotlight Cards (signature)
-
-The defining decorative surface of Framer's marketing — oversized atmospheric tiles dropped into otherwise monochrome card grids. Variants:
-
-**`gradient-spotlight-card`** — violet ground (most common).
-- Background `{colors.gradient-violet}`, text `{colors.ink}`, type `{typography.subhead}`, rounded `{rounded.xl}`, padding 32px. (The on-site card often pushes to `{rounded.xxl}` 30px when it spans a wider tile.)
-
-**`gradient-spotlight-card-magenta`** — magenta-pink ground.
-- Background `{colors.gradient-magenta}`, otherwise identical.
-
-**`gradient-spotlight-card-orange`** — sunset-orange wash.
-- Background `{colors.gradient-orange}`, otherwise identical.
-
-(Coral pink follows the same shape with `{colors.gradient-coral}`.)
-
-### Comparison & FAQ
-
-**`feature-row`** + **`comparison-row`** — Single rows inside the pricing comparison table.
-- `feature-row`: `{colors.canvas}` background, `{colors.ink}` text. Header rows.
-- `comparison-row`: `{colors.canvas}` background, `{colors.ink-muted}` text. Data rows with `{typography.body-sm}` and 1px `{colors.hairline-soft}` underlines.
-
-**`faq-row`** — Each accordion line in the pricing-page FAQ.
-- Background `{colors.canvas}`, text `{colors.ink}`, type `{typography.body}`, rounded `{rounded.md}`, padding 24px.
-
-### Navigation
-
-**`top-nav`** — Sticky bar on `{colors.canvas}` with the Framer wordmark left, primary nav links centered, and a `button-secondary` ("Sign in") + `button-primary` ("Get started for free") pair right.
-- Background `{colors.canvas}`, text `{colors.ink}`, type `{typography.body-sm}`, height 56px.
-- Mobile: collapses primary links into a hamburger; the two pill CTAs collapse into a single primary pill on the bar.
-
-### Footer
-
-**`footer`** — Dense link grid on `{colors.canvas}` with the Framer wordmark left and 5–6 columns of caption-sized links.
-- Background `{colors.canvas}`, text `{colors.ink-muted}`, type `{typography.caption}`, padding 64px 32px.
+Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components/home/*`.
 
 ## Do's and Don'ts
 
-### Do
+**Nên**
+- Dùng `*-page-*` cho component trang chủ để tự khớp mọi nền.
+- Xen kẽ nền sáng/tối để tạo nhịp; để một số section đổi màu đơn giản làm nhịp nghỉ.
+- Kiểm tra tương phản khi thêm theme mới (chữ ≥ 4.5:1, viền ô nhập ≥ 3:1).
+- Viết nội dung tiếng Việt, ngắn, có quan điểm; dữ liệu giả phải ghi rõ là mẫu.
 
-- Reserve `{colors.primary}` (white) and `{colors.canvas}` (near-black) as the system's two anchor surfaces. Every band of the page chooses one or the other.
-- Push display-size letter-spacing aggressively negative — `{typography.display-xxl}` at -5.5px is the brand signature, not a stylistic accident.
-- Use `{colors.accent-blue}` only for hyperlinks, focus rings, and selected indicators. Never as a background or button fill.
-- Drop one or two `gradient-spotlight-card` variants into a card grid; they are the brand's atmosphere device. Don't overdo it — three or more in the same viewport reads as a moodboard, not a system.
-- Compose every CTA as a pill (`{rounded.pill}`); secondary actions live as charcoal pills, never as bordered ghost buttons.
-- Keep body type Inter Variable with character variants `cv01`, `cv05`, `cv09`, `cv11`, `ss03`, `ss07` enabled — the brand voice depends on them.
-- Use surface lift (canvas → surface-1 → surface-2) to mark hierarchy on dark, not opacity changes on white type.
+**Không nên**
+- Thêm màu nhấn bão hòa (cam, đỏ, xanh lá, tím…), gradient màu, glow, glassmorphism, bóng đổ nặng.
+- Dùng `#000` / `#fff` tuyệt đối.
+- Viết hex trực tiếp trong component — thêm vào `tokens.json` nếu thật sự cần màu mới.
+- Đánh số 01/02/03 cho nội dung không phải trình tự thật.
+- Đưa hiệu ứng cuộn/con trỏ tùy biến vào dashboard.
 
-### Don't
+## Known gaps & assumptions
 
-- Don't ship a light-mode marketing page. Framer's identity is dark.
-- Don't introduce mid-tone gray text outside `{colors.ink-muted}`. The hierarchy is binary: `ink` or `ink-muted`.
-- Don't use `{colors.accent-blue}` as a brand fill (e.g., a blue CTA pill). The blue is a signal color, not a surface.
-- Don't square off CTAs. Pill (`{rounded.pill}`) or full circle is the brand vocabulary.
-- Don't reduce the negative letter-spacing on display sizes "for accessibility". The compression is intrinsic to the brand voice; reduce the SIZE if needed, but keep the percentage.
-- Don't apply gradient backgrounds to whole sections. Gradients are CARDS, not section grounds.
-- Don't combine more than one chromatic accent. The palette is monochrome plus one blue plus the gradient family — not "blue, green, and red".
-
-## Responsive Behavior
-
-### Breakpoints
-
-| Name | Width | Key Changes |
-|---|---|---|
-| Desktop | 1199px | Default desktop layout |
-| Tablet | 810px | Card grids collapse 4-up → 2-up; nav becomes hamburger |
-| Mobile-Lg | 809px | Pricing comparison table becomes per-tier accordion |
-| Mobile-XS | 98px | Smallest documented breakpoint — single-column everything |
-
-### Touch Targets
-
-- Pill buttons (`button-primary`, `button-secondary`) maintain a minimum 44px tap height across all viewports — combine `{typography.button}` 14px line-height with the documented 10px vertical padding.
-- Circular icon buttons (`button-icon-circular`) are 40px on desktop and grow to 44px on touch viewports.
-- Pricing-tab pills hold ≥40px tap height; below 810px they may collapse into a horizontal-scroll row instead of stacking.
-
-### Collapsing Strategy
-
-- **Nav**: horizontal nav with a centered link group + right-anchored pill pair collapses to a hamburger overlay below 810px. The `button-primary` stays visible on the bar.
-- **Card grids**: the gallery and template-card grids go 2-up on desktop → 1-up on mobile. Gradient spotlight cards retain `{rounded.xxl}` corners at every viewport — they don't bleed.
-- **Pricing comparison table**: collapses into per-tier accordions below 810px to avoid horizontal scroll.
-- **Display type**: `{typography.display-xxl}` 110px scales down toward `{typography.display-lg}` 62px on tablet and `{typography.display-md}` 32px on mobile, preserving the percentage-negative letter-spacing.
-
-### Image Behavior
-
-- Embedded product mockups (browser frames containing live Framer-built sites) maintain their aspect ratio and never crop.
-- Gradient spotlight cards keep their gradient orientations across breakpoints — the gradient direction is part of the brand spec.
-
-## Iteration Guide
-
-1. Focus on ONE component at a time and reference it by its `components:` token name (e.g., `{components.button-primary}`, `{components.gradient-spotlight-card}`).
-2. When introducing a new section on the dark canvas, decide first which surface lift it lives on — `{colors.canvas}` for hero/FAQ, `{colors.surface-1}` for cards, `{colors.surface-2}` for featured cards. The depth choice is the most consequential decision.
-3. Default body to `{typography.body}` with all the documented OpenType variants; reach for `{typography.subhead}` only inside spotlight cards.
-4. Run `npx @google/design.md lint DESIGN.md` after edits — `broken-ref`, `contrast-ratio`, and `orphaned-tokens` warnings flag issues automatically.
-5. Add new variants as separate component entries (`-pressed`, `-featured`, `-selected`) — do not bury them in prose.
-6. Treat `{colors.accent-blue}` as a single-shot signal color: hyperlinks, focus, and selection — that's it. If you find yourself reaching for a second blue, the brand is drifting.
-7. Gradient spotlight cards are scarce by design. One or two per long page is the spec; three is a moodboard.
-
-## Known Gaps
-
-- The exact gradient stops for the spotlight cards are derived from screenshot pixels rather than from CSS variables — the production gradients are likely defined as `linear-gradient` strings on individual elements rather than as design tokens. Treat the documented `{colors.gradient-*}` hex values as base anchors, not as exact gradient specs.
-- Form-field validation / error styling is not visible on the inspected pages because no error states render in the static screenshots.
-- Dark mode is the only mode — no light-mode adaptation is documented because the marketing site does not ship one.
-- The marketplace template detail page returned sparser CSS variable data than the other pages; surface tokens for that page were inferred from the matching home / gallery treatment rather than extracted directly.
+- **[giả định]** Thang `title/body/body-sm` ghi theo cách code đang dùng class Tailwind mặc định; chưa có token riêng.
+- **[giả định]** Trạng thái lỗi/thành công của form chưa được thiết kế cho bảng màu này (không có đỏ/xanh). Khi cần, ưu tiên biểu tượng + chữ thay vì chỉ màu, và hỏi chủ dự án trước khi thêm màu ngữ nghĩa.
+- Màu trong shader nền intro (`HeroCanvas.tsx`) ghi trực tiếp dưới dạng số thực theo charcoal/graphite/ivory — đổi bảng màu thì sửa cả ở đó.
+- Skill `frontend-design` liệt kê “nền kem gần #F4F1EA” và “nhãn in hoa phía trên mọi tiêu đề” là dấu hiệu giao diện do AI tạo. Ivory `#F3F0E9` và `.eyebrow` là lựa chọn có chủ đích của chủ dự án — giữ nguyên, nhưng dùng eyebrow tiết chế ở trang mới.

@@ -1,7 +1,7 @@
 # Workmate — Bối cảnh dự án
 
 > Tài liệu cho phiên Claude / người mới vào dự án. Đọc file này trước khi sửa code.
-> Cập nhật lần cuối: 2026-10-23. Khi trạng thái tính năng thay đổi, sửa lại mục 3 và 6.
+> Cập nhật lần cuối: 2026-10-23 (sau khi setup skills/agents/design system). Khi trạng thái tính năng thay đổi, sửa lại mục 3 và 6.
 >
 > Quy ước trong file: **[có]** = đã có trong code · **[khung]** = có route/type/service
 > nhưng UI chưa làm · **[chưa rõ]** = chưa có quyết định, đừng tự giả định.
@@ -100,8 +100,12 @@ Phân quyền: `ProtectedRoute` chỉ kiểm tra `user.role` trong Zustand store
   (`VITE_API_URL`), JWT Bearer, 401 → logout + về `/dang-nhap`.
   **[chưa rõ]** Ngôn ngữ/stack backend, hợp đồng API thực tế — các endpoint trong
   `src/services/*` là phía frontend tự định nghĩa.
-- **Alias import**: `@components`, `@pages`, `@hooks`, `@context`, `@services`, `@utils`,
-  `@styles`, `@constants`, `@types` (khai báo ở cả `tsconfig.json` và `vite.config.ts`).
+- **Alias import**: `@/`, `@components`, `@pages`, `@hooks`, `@context`, `@services`, `@utils`,
+  `@styles`, `@constants`, `@assets` (khai báo ở cả `tsconfig.json` và `vite.config.ts`).
+  Kiểu dữ liệu import từ `@/types` — alias `@types` cũ đã bỏ vì trùng tên dành riêng của TypeScript.
+- **Công cụ AI**: `CLAUDE.md` (quy tắc làm việc), `.claude/skills/` (workmate-ui, frontend-design,
+  ui-ux-pro-max, web-design-guidelines, vercel-react-best-practices), `.claude/agents/`
+  (frontend-builder, visual-qa, code-reviewer — đều chạy Sonnet).
 - **Ngôn ngữ**: toàn bộ UI và comment trong code bằng **tiếng Việt**. Route path tiếng Việt không dấu.
 
 ## 5. Trang chủ — kiến trúc trải nghiệm cuộn
@@ -133,11 +137,14 @@ Cơ chế quan trọng (đọc comment trong từng file trước khi sửa):
 - `RouteScroll` (`components/common`) xử lý vị trí cuộn khi chuyển trang / Back-Forward
   cho mọi layout; `PublicLayout` dùng `FrozenOutlet` để trang cũ giữ nguyên khi fade-out.
 
-Component trang chủ **cũ, hiện không dùng** (giữ lại vì repo chưa có git):
-`home/PinnedStatements`, `home/HorizontalJobs`, `home/Recognition`, `home/ContactSection`,
-`motion/Preloader`, `motion/Counter`. Có thể tái sử dụng hoặc xóa khi đã có version control.
+Component trang chủ **cũ, hiện không dùng**: `home/PinnedStatements`, `home/HorizontalJobs`,
+`home/Recognition`, `home/ContactSection`, `motion/Preloader`, `motion/Counter`. Đã có git nên
+xóa an toàn được — chờ chủ dự án quyết định.
 
 ## 6. Định hướng thiết kế & sản phẩm
+
+Chi tiết đầy đủ ở **`DESIGN.md`** (nguồn chuẩn cho design system). Màu nằm duy nhất ở
+`src/styles/tokens.json`; Tailwind, biến CSS `--wm-*` và `THEMES` đều đọc từ đó.
 
 **Bảng màu (trang chủ)** — trung tính ấm, đơn sắc, **không** dùng màu nhấn bão hòa
 (đã bỏ hẳn cam/đỏ/terracotta theo yêu cầu chủ dự án):
@@ -168,10 +175,9 @@ Mọi hiệu ứng phải có phương án cho mobile và `prefers-reduced-motio
 
 ## 7. Lưu ý khi làm việc với repo
 
-- **Không có git.** Trước khi ghi đè/xóa file lớn, sao lưu ra chỗ khác.
-- `npm run build` **đang fail** vì 12 lỗi TypeScript có sẵn từ trước (import `@types/index`,
-  biến không dùng, `import.meta.env`…). Dùng `npx tsc --noEmit -p .` để kiểm tra lỗi mới
-  (so với mốc 12) và `npx vite build` để build.
+- Có git (nhánh `main`). Commit checkpoint trước thay đổi lớn; không force push.
+- Kiểm tra: `npx tsc --noEmit -p .` (0 lỗi), `npm run lint` (ESLint 9, `eslint.config.mjs`),
+  `npm run build`. Chưa có test tự động.
 - Sửa `tailwind.config.js` thì **khởi động lại dev server** — Vite không tự nhận config mới.
 - Dev server: `npx vite --port 5173`. Console còn 2 cảnh báo React Router v7 có sẵn (vô hại).
 - Thử trang chủ bằng trình duyệt: Lenis giữ đích cuộn riêng nên `window.scrollTo` có thể

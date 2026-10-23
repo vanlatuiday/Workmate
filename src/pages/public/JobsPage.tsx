@@ -34,14 +34,16 @@ export default function JobsPage() {
   const toggleSave = (id: string) => {
     setSavedIds((prev) => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
   }
 
   const setFilter = (key: string, val: string) => {
     const p = new URLSearchParams(searchParams)
-    val ? p.set(key, val) : p.delete(key)
+    if (val) p.set(key, val)
+    else p.delete(key)
     setSearchParams(p)
   }
 

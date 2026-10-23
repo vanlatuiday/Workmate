@@ -1,4 +1,4 @@
-import type { SalaryRange } from '@types/index'
+import type { SalaryRange } from '@/types'
 
 export function formatSalary(salary: SalaryRange): string {
   const unitLabel: Record<string, string> = {

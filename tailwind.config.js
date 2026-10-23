@@ -1,3 +1,7 @@
+import plugin from 'tailwindcss/plugin'
+// Bảng màu Workmate — nguồn duy nhất, xem src/styles/tokens.json và DESIGN.md
+import tokens from './src/styles/tokens.json'
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -33,16 +37,8 @@ export default {
           medium: '#f59e0b',
           low:    '#ef4444',
         },
-        // Bảng màu trung tính ấm của Workmate (trang chủ). Giữ khớp với THEMES
-        // trong components/home/useSectionThemes.ts.
-        wm: {
-          charcoal: '#242522',
-          graphite: '#454640',
-          sage:     '#A6A69A',
-          stone:    '#D9D3C8',
-          mist:     '#E1DED5',
-          ivory:    '#F3F0E9',
-        },
+        // Bảng màu trung tính ấm của Workmate (wm-charcoal, wm-ivory…)
+        wm: tokens.palette,
         // Màu trang chủ theo section đang xem — giá trị do useSectionThemes nội suy
         // khi cuộn (xem index.css). Không dùng được modifier /opacity với các màu này.
         page: {
@@ -53,7 +49,7 @@ export default {
           surface: 'var(--page-surface)',
           edge:  'var(--page-edge)',
         },
-        // Nền tối cho các section kiểu editorial trên trang chủ
+        // CŨ — chỉ còn trong các component trang chủ không dùng nữa. Không dùng cho code mới.
         ink: {
           900: '#08090a',
           800: '#121315',
@@ -80,6 +76,11 @@ export default {
         section:    'clamp(5rem, 12vw, 11rem)',
         'section-sm': 'clamp(3.5rem, 8vw, 7rem)',
       },
+      // Bo góc theo vai trò — xem DESIGN.md mục Shapes. Viên thuốc dùng rounded-full.
+      borderRadius: {
+        control: '0.5rem', // link/nút nhỏ trong header, menu
+        card: '1rem',      // thẻ, thanh tìm kiếm
+      },
       screens: {
         xs: '475px',
       },
@@ -97,5 +98,14 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Xuất bảng màu thành biến CSS (--wm-charcoal…) để CSS thuần dùng chung một nguồn
+    plugin(({ addBase }) => {
+      addBase({
+        ':root': Object.fromEntries(
+          Object.entries(tokens.palette).map(([name, hex]) => [`--wm-${name}`, hex]),
+        ),
+      })
+    }),
+  ],
 }

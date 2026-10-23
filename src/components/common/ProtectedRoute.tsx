@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAuthStore } from '@context/authStore'
-import type { UserRole } from '@types/index'
+import type { UserRole } from '@/types'
 
 interface Props {
   role: UserRole

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Sparkles, ClipboardList, Bookmark, Zap, ArrowRight, MapPin, Clock, TrendingUp } from 'lucide-react'
+import { Sparkles, ClipboardList, Bookmark, Zap, ArrowRight, MapPin, TrendingUp } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { cn } from '@utils/cn'
 

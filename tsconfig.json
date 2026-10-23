@@ -26,7 +26,6 @@
       "@utils/*": ["src/utils/*"],
       "@styles/*": ["src/styles/*"],
       "@constants/*": ["src/constants/*"],
-      "@types/*": ["src/types/*"],
       "@assets/*": ["src/assets/*"]
     }
   },

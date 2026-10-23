@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { MapPin, Clock, Briefcase, DollarSign, Users, Bookmark, Share2, ArrowLeft, CheckCircle, XCircle, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@utils/cn'
@@ -37,7 +37,7 @@ Công việc bao gồm: tư vấn và hỗ trợ khách hàng lựa chọn sản
 }
 
 export default function JobDetailPage() {
-  const { id } = useParams()
+  // TODO: đọc id từ useParams khi nối API (hiện dùng dữ liệu mẫu)
   const [saved, setSaved] = useState(false)
   const job = mockJob
 

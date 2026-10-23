@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useAuthStore } from '@context/authStore'
 
 // Layouts
 import PublicLayout from '@components/layout/PublicLayout'
@@ -57,8 +56,6 @@ import AdminConfig from '@pages/admin/Config'
 import ProtectedRoute from '@components/common/ProtectedRoute'
 
 export default function App() {
-  const { user } = useAuthStore()
-
   return (
     <Routes>
       {/* Public routes */}

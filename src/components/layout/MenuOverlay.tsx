@@ -88,7 +88,7 @@ export default function MenuOverlay({ open, onClose, items, actions }: Props) {
               ref={closeRef}
               onClick={onClose}
               aria-label="Đóng menu"
-              className="p-2 -mr-2 text-wm-stone hover:text-wm-ivory transition-colors rounded-lg"
+              className="p-2 -mr-2 text-wm-stone hover:text-wm-ivory transition-colors rounded-control"
             >
               <X className="w-5 h-5" />
             </button>

@@ -112,7 +112,7 @@ export default function PublicLayout() {
                     <button
                       onClick={() => setDropdownOpen(!dropdownOpen)}
                       className={cn(
-                        'group flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                        'group flex items-center gap-1 px-3 py-2 rounded-control text-sm font-medium transition-colors',
                         dark
                           ? 'text-page-muted hover:text-page-fg'
                           : 'text-gray-600 hover:bg-gray-100',
@@ -153,7 +153,7 @@ export default function PublicLayout() {
                     key={link.href}
                     to={link.href!}
                     className={cn(
-                      'group px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                      'group px-3 py-2 rounded-control text-sm font-medium transition-colors',
                       dark
                         ? location.pathname === link.href
                           ? 'text-page-fg'
@@ -220,7 +220,7 @@ export default function PublicLayout() {
                   aria-expanded={overlayOpen}
                   aria-label="Mở menu"
                   className="group flex items-center gap-2 text-sm text-page-muted hover:text-page-fg
-                             transition-colors p-2 -mr-2 rounded-lg"
+                             transition-colors p-2 -mr-2 rounded-control"
                 >
                   <span className="hidden sm:inline">
                     <RollText>Menu</RollText>
@@ -231,7 +231,7 @@ export default function PublicLayout() {
               </div>
             ) : (
               <button
-                className="md:hidden p-2 rounded-lg transition-colors text-gray-500 hover:bg-gray-100"
+                className="md:hidden p-2 rounded-control transition-colors text-gray-500 hover:bg-gray-100"
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-expanded={mobileOpen}
                 aria-label={mobileOpen ? 'Đóng menu' : 'Mở menu'}
@@ -267,7 +267,7 @@ export default function PublicLayout() {
                       to={child.href}
                       onClick={() => setMobileOpen(false)}
                       className={cn(
-                        'block px-3 py-2 rounded-lg text-sm transition-colors',
+                        'block px-3 py-2 rounded-control text-sm transition-colors',
                         dark ? 'text-ink-200 hover:text-white' : 'text-gray-700 hover:bg-gray-50',
                       )}
                     >
@@ -281,7 +281,7 @@ export default function PublicLayout() {
                   to={link.href!}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
-                    'block px-3 py-2 rounded-lg text-sm transition-colors',
+                    'block px-3 py-2 rounded-control text-sm transition-colors',
                     dark ? 'text-ink-200 hover:text-white' : 'text-gray-700 hover:bg-gray-50',
                   )}
                 >

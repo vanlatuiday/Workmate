@@ -1,5 +1,5 @@
 import api from './api'
-import type { JobListing, PaginatedResponse } from '@types/index'
+import type { JobListing, PaginatedResponse } from '@/types'
 
 export interface JobFilter {
   keyword?: string

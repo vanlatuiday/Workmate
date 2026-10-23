@@ -1,5 +1,5 @@
 import api from './api'
-import type { MatchResult } from '@types/index'
+import type { MatchResult } from '@/types'
 
 export const matchService = {
   getMyMatches: () =>

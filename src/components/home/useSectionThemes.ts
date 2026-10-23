@@ -1,18 +1,21 @@
 import type { RefObject } from 'react'
 import { gsap, ScrollTrigger, useGSAP } from '@utils/gsap'
+import tokens from '@/styles/tokens.json'
+
+type PaletteName = keyof typeof tokens.palette
+type ThemeSpec = { bg: PaletteName; fg: PaletteName }
 
 /**
- * Bảng màu trung tính ấm, đơn sắc — không dùng màu nhấn bão hòa.
+ * Theme theo section, đọc từ src/styles/tokens.json (nguồn duy nhất — xem DESIGN.md).
  * Tương phản đã kiểm tra: chữ chính ≥ 6.2:1, chữ phụ (--page-muted, 82%) ≥ 4.5:1
- * trên mọi nền; sage là nền khó nhất (4.52:1). Giữ khớp với `wm` trong tailwind.config.js.
+ * trên mọi nền; sage là nền khó nhất (4.52:1).
  */
-export const THEMES = {
-  charcoal: { bg: '#242522', fg: '#F3F0E9' },
-  ivory:    { bg: '#F3F0E9', fg: '#242522' },
-  stone:    { bg: '#D9D3C8', fg: '#242522' },
-  sage:     { bg: '#A6A69A', fg: '#242522' },
-  graphite: { bg: '#454640', fg: '#F3F0E9' },
-} as const
+export const THEMES = Object.fromEntries(
+  Object.entries(tokens.themes as Record<string, ThemeSpec>).map(([name, t]) => [
+    name,
+    { bg: tokens.palette[t.bg], fg: tokens.palette[t.fg] },
+  ]),
+) as Record<keyof typeof tokens.themes, { bg: string; fg: string }>
 
 export type ThemeName = keyof typeof THEMES
 

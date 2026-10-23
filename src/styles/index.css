@@ -73,7 +73,7 @@
 @property --page-fg {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f3f0e9;
+  initial-value: #f3f0e9; /* = wm-ivory; @property không nhận var() nên phải ghi thẳng */
 }
 :root {
   transition: --page-fg 0.45s cubic-bezier(0.22, 1, 0.36, 1);
@@ -85,8 +85,8 @@
    --page-surface: mặt ô nhập liệu / thẻ, nhỉnh hơn nền một chút.
    --page-edge: viền ô nhập liệu, đạt ≥ 3:1 trên nền sáng (WCAG 1.4.11) để nhận ra được ô. */
 :root {
-  --page-bg: #242522;
-  --page-fg: #f3f0e9;
+  --page-bg: var(--wm-charcoal);
+  --page-fg: var(--wm-ivory);
   --page-surface: color-mix(in srgb, var(--page-fg) 5%, var(--page-bg));
   --page-edge: color-mix(in srgb, var(--page-fg) 60%, var(--page-bg));
   --page-muted: color-mix(in srgb, var(--page-fg) 82%, var(--page-bg));

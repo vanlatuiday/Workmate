@@ -4,3 +4,12 @@ dist
 .env.local
 .DS_Store
 *.log
+
+# Repo skill tải về để tham khảo — không thuộc source code.
+# Các skill thực sự dùng được copy vào .claude/skills/ (có commit).
+/skills/
+/agent-skills/
+/ui-ux-pro-max-skill/
+
+# Python cache của skill ui-ux-pro-max
+__pycache__/

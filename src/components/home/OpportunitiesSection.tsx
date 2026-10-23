@@ -94,7 +94,7 @@ function JobCard({ job, featured }: { job: SampleJob; featured: boolean }) {
       to={`/viec-lam?keyword=${encodeURIComponent(job.title)}`}
       data-cursor="Tìm"
       className={cn(
-        'group relative flex flex-col h-full overflow-hidden rounded-2xl border border-page-line p-6 md:p-7',
+        'group relative flex flex-col h-full overflow-hidden rounded-card border border-page-line p-6 md:p-7',
         // Nền thẻ nhỉnh hơn nền trang một chút, tự khớp khi nền đổi màu
         'bg-page-surface',
         'hover:border-page-fg focus-visible:border-page-fg outline-none transition-colors duration-500 ease-editorial',
