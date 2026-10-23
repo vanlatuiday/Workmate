@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AlertCircle, Building2, Eye, EyeOff, Loader2, Search, ShieldCheck } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { DEMO_ACCOUNTS, buildDemoUser, findDemoAccount } from '@constants/demoAccounts'
+import { canVisit } from '@constants/roles'
 
 /*
  * Đăng nhập — tạm dùng 3 tài khoản demo (xem constants/demoAccounts.ts).
@@ -21,6 +22,8 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const { setUser } = useAuthStore()
+  // Trang đang xem trước khi bị yêu cầu đăng nhập (ProtectedRoute gửi sang)
+  const from = (useLocation().state as { from?: string } | null)?.from
 
   // TODO: thay bằng authService.login khi có backend
   const login = async (username: string, password: string) => {
@@ -34,7 +37,8 @@ export default function LoginPage() {
       return
     }
     setUser(buildDemoUser(account), 'mock-token')
-    navigate(account.redirect)
+    // Quay lại trang cũ nếu vai trò này được vào, không thì về khu của mình
+    navigate(from && canVisit(account.role, from) ? from : account.redirect, { replace: true })
   }
 
   const handleSubmit = (e: React.FormEvent) => {

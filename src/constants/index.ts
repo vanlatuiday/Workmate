@@ -68,3 +68,4 @@ export const APPLICATION_STATUS_LABELS: Record<string, string> = {
   rejected:         'Không phù hợp',
 }
 export * from './demoAccounts'
+export * from './roles'

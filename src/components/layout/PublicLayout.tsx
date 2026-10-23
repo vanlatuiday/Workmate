@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Menu, X, Briefcase, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAuthStore } from '@context/authStore'
+import { ROLE_AREAS } from '@constants/roles'
 import { cn } from '@utils/cn'
 import MenuOverlay, { type MenuItem } from '@components/layout/MenuOverlay'
 import RouteScroll from '@components/common/RouteScroll'
@@ -53,7 +54,7 @@ export default function PublicLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [overlayOpen, setOverlayOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const { user } = useAuthStore()
+  const { user, logout } = useAuthStore()
   const location = useLocation()
 
   // Trang chủ dùng nền tối (page-* do useSectionThemes điều khiển); các trang còn lại dùng theme ngà.
@@ -68,10 +69,9 @@ export default function PublicLayout() {
     setOverlayOpen(false)
   }, [location.pathname])
 
-  const dashboardHref =
-    user?.role === 'recruiter' ? '/tuyen-dung' :
-    user?.role === 'admin'     ? '/admin' :
-    '/tim-viec'
+  // Đã đăng nhập: nút dẫn vào đúng khu làm việc của vai trò
+  const area = user ? ROLE_AREAS[user.role] : null
+  const dashboardHref = area?.home ?? '/tim-viec'
 
   return (
     <div className="min-h-screen flex flex-col bg-page-bg">
@@ -171,15 +171,24 @@ export default function PublicLayout() {
             {/* Auth buttons */}
             <div data-header-item={dark ? '' : undefined} className="hidden md:flex items-center gap-2 whitespace-nowrap">
               {user ? (
-                <Link
-                  to={dashboardHref}
-                  className={cn(
-                    'text-sm font-medium px-5 py-2 rounded-full transition-colors bg-page-fg text-page-bg hover:opacity-90',
-                    FOCUS,
-                  )}
-                >
-                  Dashboard
-                </Link>
+                <>
+                  <button
+                    type="button"
+                    onClick={logout}
+                    className={cn('group text-sm font-medium transition-colors text-page-muted hover:text-page-fg px-3 py-2 rounded-control', FOCUS)}
+                  >
+                    <RollText>Đăng xuất</RollText>
+                  </button>
+                  <Link
+                    to={dashboardHref}
+                    className={cn(
+                      'text-sm font-medium px-5 py-2 rounded-full transition-colors bg-page-fg text-page-bg hover:opacity-90',
+                      FOCUS,
+                    )}
+                  >
+                    {area?.label}
+                  </Link>
+                </>
               ) : (
                 <>
                   <Link
@@ -285,15 +294,27 @@ export default function PublicLayout() {
             )}
             <div className="pt-2 flex flex-col gap-2">
               {user ? (
-                <Link
-                  to={dashboardHref}
-                  className={cn(
-                    'text-sm w-full text-center font-medium py-3 rounded-full transition-opacity bg-page-fg text-page-bg hover:opacity-90',
-                    FOCUS,
-                  )}
-                >
-                  Dashboard
-                </Link>
+                <>
+                  <Link
+                    to={dashboardHref}
+                    className={cn(
+                      'text-sm w-full text-center font-medium py-3 rounded-full transition-opacity bg-page-fg text-page-bg hover:opacity-90',
+                      FOCUS,
+                    )}
+                  >
+                    {area?.label}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={logout}
+                    className={cn(
+                      'text-sm w-full text-center font-medium py-3 rounded-full transition-colors border border-page-fg text-page-fg hover:bg-page-surface',
+                      FOCUS,
+                    )}
+                  >
+                    Đăng xuất
+                  </button>
+                </>
               ) : (
                 <>
                   <Link
@@ -327,7 +348,7 @@ export default function PublicLayout() {
         items={overlayLinks}
         actions={
           user
-            ? [{ label: 'Dashboard', href: dashboardHref }]
+            ? [{ label: area?.label ?? '', href: dashboardHref }]
             : [
                 { label: 'Đăng nhập', href: '/dang-nhap' },
                 { label: 'Đăng ký', href: '/dang-ky' },

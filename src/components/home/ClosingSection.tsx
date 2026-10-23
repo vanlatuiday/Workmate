@@ -4,6 +4,16 @@ import Reveal from '@components/motion/Reveal'
 import TextReveal from '@components/motion/TextReveal'
 import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
+import { useAuthStore } from '@context/authStore'
+import type { UserRole } from '@/types'
+
+/** Nút thứ hai đổi theo người đang xem: khách được mời đăng ký tuyển dụng, người đã đăng nhập đi thẳng vào việc của mình */
+const SECOND_CTA: Record<UserRole | 'guest', { to: string; label: string }> = {
+  guest: { to: '/dang-ky?role=recruiter', label: 'Tôi cần tuyển người' },
+  jobseeker: { to: '/tim-viec/phu-hop', label: 'Xem việc phù hợp với tôi' },
+  recruiter: { to: '/tuyen-dung/dang-tin', label: 'Đăng tin tuyển dụng' },
+  admin: { to: '/admin', label: 'Vào khu quản trị' },
+}
 
 type Props = {
   /** Đưa người dùng về thanh tìm kiếm ở hero. */
@@ -12,6 +22,8 @@ type Props = {
 
 /** Section F — lời kết và lối quay lại tính năng tìm việc. Footer nằm ngay sau. */
 export default function ClosingSection({ onFindJob }: Props) {
+  const role = useAuthStore((s) => s.user?.role)
+  const cta = SECOND_CTA[role ?? 'guest']
   return (
     <section data-theme="charcoal" className="shell py-section">
       <Reveal y={16}>
@@ -40,11 +52,11 @@ export default function ClosingSection({ onFindJob }: Props) {
         </Magnetic>
         <Magnetic>
           <Link
-            to="/dang-ky?role=recruiter"
+            to={cta.to}
             className="group inline-flex items-center gap-2 border border-page-line text-page-fg font-medium text-sm
                        px-8 py-4 rounded-full hover:border-page-fg transition-colors duration-300"
           >
-            <RollText>Tôi cần tuyển người</RollText>
+            <RollText>{cta.label}</RollText>
             <ArrowUpRight className="w-4 h-4" />
           </Link>
         </Magnetic>
