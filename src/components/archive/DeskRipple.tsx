@@ -1,9 +1,12 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import { gsap } from '@utils/gsap'
 
+/** 'out' = lan từ tâm ra ngoài; 'in' = từ mép màn hình co vào, hội tụ tại tâm */
+export type RippleDirection = 'out' | 'in'
+
 export type DeskRippleHandle = {
-  /** Phát một vòng sóng từ điểm (x, y) theo toạ độ màn hình */
-  play: (x: number, y: number) => void
+  /** Phát một vòng sóng quanh điểm (x, y) theo toạ độ màn hình; `duration` (giây) mặc định DURATION */
+  play: (x: number, y: number, direction?: RippleDirection, duration?: number) => void
 }
 
 /** Số hạt trên vòng, độ dày vòng (px), thời gian lan (giây) */
@@ -43,7 +46,7 @@ const DeskRipple = forwardRef<DeskRippleHandle>(function DeskRipple(_, ref) {
   }, [])
 
   useImperativeHandle(ref, () => ({
-    play(x, y) {
+    play(x, y, direction = 'out', duration = DURATION) {
       const canvas = canvasRef.current
       const ctx = canvas?.getContext('2d')
       if (!canvas || !ctx) return
@@ -60,7 +63,9 @@ const DeskRipple = forwardRef<DeskRippleHandle>(function DeskRipple(_, ref) {
       // Lan tới góc xa nhất để vòng đi hết màn hình
       const maxR = Math.max(Math.hypot(x, y), Math.hypot(w - x, y), Math.hypot(x, h - y), Math.hypot(w - x, h - y))
       const particles = makeParticles()
-      const state = { r: 0, fade: 1 }
+      // Co vào là bản đảo ngược của lan ra: bắt đầu ở mép (mờ), về tới tâm (rõ nhất) thì tắt
+      const inward = direction === 'in'
+      const state = { r: inward ? maxR : 0, fade: inward ? 0 : 1 }
 
       const draw = () => {
         ctx.clearRect(0, 0, w, h)
@@ -75,11 +80,11 @@ const DeskRipple = forwardRef<DeskRippleHandle>(function DeskRipple(_, ref) {
       tweenRef.current?.kill()
       ctxRef.current?.add(() => {
         tweenRef.current = gsap.to(state, {
-          r: maxR,
-          duration: DURATION,
-          ease: 'power2.out',
+          r: inward ? 0 : maxR,
+          duration,
+          ease: inward ? 'power2.in' : 'power2.out',
           onUpdate: () => {
-            // Rõ ở đầu, tan dần khi lan xa
+            // Càng xa tâm càng mờ — lan ra thì tan dần, co vào thì rõ dần
             state.fade = 1 - Math.pow(state.r / maxR, 2.2)
             draw()
           },

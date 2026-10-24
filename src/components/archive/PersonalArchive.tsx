@@ -136,16 +136,27 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
     if (id) requestAnimationFrame(() => itemRefs.current.get(id)?.focus({ preventScroll: true }))
   }, [activeId])
 
-  /**
-   * Vòng sóng hạt lan ra từ tâm tấm ảnh đang mở (như video tham khảo p3) —
-   * phát hai lần: lúc tấm ảnh nhấc khỏi bàn và lúc nó chạm lại bàn.
-   */
-  const rippleFromActive = useCallback(() => {
+  /** Tâm tấm ảnh đang mở trên màn hình (tấm ảnh đang ẩn nhưng vẫn giữ chỗ) */
+  const activeCenter = useCallback(() => {
     const item = activeId ? itemRefs.current.get(activeId) : null
-    if (!item || reduced) return
+    if (!item) return null
     const r = (item.querySelector('[data-print]') ?? item).getBoundingClientRect()
-    rippleRef.current?.play(r.left + r.width / 2, r.top + r.height / 2)
-  }, [activeId, reduced])
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
+  }, [activeId])
+
+  // Vòng sóng hạt trên mặt bàn (như video tham khảo p3):
+  // mở → lan từ tấm ảnh ra ngoài; đóng → từ mép co vào, hội tụ đúng lúc tấm ảnh chạm bàn.
+  const rippleOut = useCallback(() => {
+    const c = activeCenter()
+    if (c && !reduced) rippleRef.current?.play(c.x, c.y, 'out')
+  }, [activeCenter, reduced])
+  const rippleIn = useCallback(
+    (landIn: number) => {
+      const c = activeCenter()
+      if (c && !reduced) rippleRef.current?.play(c.x, c.y, 'in', landIn)
+    },
+    [activeCenter, reduced],
+  )
 
   return (
     <section ref={rootRef} aria-label={label} className="shell relative pb-section">
@@ -204,8 +215,8 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
           closing={closing}
           onRequestClose={requestClose}
           onClosed={onClosed}
-          onLifted={rippleFromActive}
-          onLanded={rippleFromActive}
+          onLifted={rippleOut}
+          onLanding={rippleIn}
           eyebrow={eyebrow}
           themeClass={themeClass}
         />
