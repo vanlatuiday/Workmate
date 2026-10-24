@@ -214,3 +214,8 @@ Mọi hiệu ứng phải có phương án cho mobile và `prefers-reduced-motio
 Còn giữ có chủ đích (chưa dùng nhưng cần cho sau): `services/*`, `utils/matchScore.ts` (nhãn mức phù hợp — nên dùng chung với `MatchScore`), `utils/format.ts` (định dạng lương/ngày).
 
 **Nợ còn lại** (chưa dọn vì còn trang dùng): class cũ `.btn-*`, `.card`, `.input`, `.badge-*` trong `index.css` và màu `primary/secondary/match/ink` trong `tailwind.config.js` — chỉ còn `recruiter/PostJob.tsx` và `public/JobDetailPage.tsx` dùng. Làm lại 2 trang này theo DESIGN.md rồi mới xóa (đổi `tailwind.config.js` cần hỏi chủ dự án).
+
+## 9. Việc dọn dẹp để sau (chủ dự án hoãn, 2026-10-25)
+- Gỡ 7 thư viện đã cài nhưng chưa dùng: `react-hook-form`, `@hookform/resolvers`, `zod`, `react-query`, `socket.io-client`, `date-fns`, `split-type` (vài cái có thể cần khi nối backend — hỏi trước khi gỡ).
+- Gỡ bảng màu `ink-*` khỏi `tailwind.config.js` (không còn chỗ nào dùng; sửa cấu hình → hỏi trước).
+- Thêm `references/*.mp4` vào `.gitignore` (video tham khảo, đang để ngoài git).
