@@ -17,6 +17,8 @@ type Props = {
   onRequestClose: () => void
   /** Hiệu ứng đóng chạy xong → gỡ khỏi cây */
   onClosed: () => void
+  /** Tấm ảnh vừa nhấc khỏi mặt bàn (đầu hiệu ứng mở) */
+  onLifted?: () => void
   /** Tấm ảnh vừa chạm lại mặt bàn (gần cuối hiệu ứng đóng) — để nền phản hồi ngay, không chờ gỡ */
   onLanded?: () => void
   /** Nhãn nhỏ trên tiêu đề, vd. "Hồ sơ" */
@@ -72,6 +74,7 @@ export default function ArchiveDetail({
   closing,
   onRequestClose,
   onClosed,
+  onLifted,
   onLanded,
   eyebrow,
   themeClass,
@@ -98,6 +101,8 @@ export default function ArchiveDetail({
       gsap
         .timeline()
         .from(panel, { ...start.current, duration: 0.7, ease: 'power3.inOut', onUpdate: fit, onStart: fit })
+        // Vừa nhấc lên khỏi bàn → sóng lan ra từ chỗ tấm ảnh vừa rời đi
+        .call(() => onLifted?.(), [], 0.05)
         .to('[data-cover]', { opacity: 0, duration: 0.4, ease: 'power2.out' }, 0.62)
         .from('[data-body]', { opacity: 0, y: 12, duration: 0.35, ease: 'power2.out' }, 0.62)
     },

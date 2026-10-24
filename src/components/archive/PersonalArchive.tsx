@@ -136,8 +136,11 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
     if (id) requestAnimationFrame(() => itemRefs.current.get(id)?.focus({ preventScroll: true }))
   }, [activeId])
 
-  /** Tấm ảnh vừa chạm lại mặt bàn → vòng sóng hạt lan ra từ tâm nó (như video tham khảo p3) */
-  const onLanded = useCallback(() => {
+  /**
+   * Vòng sóng hạt lan ra từ tâm tấm ảnh đang mở (như video tham khảo p3) —
+   * phát hai lần: lúc tấm ảnh nhấc khỏi bàn và lúc nó chạm lại bàn.
+   */
+  const rippleFromActive = useCallback(() => {
     const item = activeId ? itemRefs.current.get(activeId) : null
     if (!item || reduced) return
     const r = (item.querySelector('[data-print]') ?? item).getBoundingClientRect()
@@ -201,7 +204,8 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
           closing={closing}
           onRequestClose={requestClose}
           onClosed={onClosed}
-          onLanded={onLanded}
+          onLifted={rippleFromActive}
+          onLanded={rippleFromActive}
           eyebrow={eyebrow}
           themeClass={themeClass}
         />
