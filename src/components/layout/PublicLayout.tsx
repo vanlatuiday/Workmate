@@ -1,4 +1,4 @@
-import { Link, useLocation, useOutlet } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useOutlet } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { Menu, X, Briefcase, UserRound } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
@@ -9,9 +9,8 @@ import { cn } from '@utils/cn'
 import MenuOverlay, { type MenuItem } from '@components/layout/MenuOverlay'
 import RouteScroll from '@components/common/RouteScroll'
 import PageCurtain, { useCurtainNavigate } from '@components/motion/PageCurtain'
-import { profileHref } from '@pages/public/profile/store'
+import { PERSONAL_HREF } from '@pages/public/personal/links'
 import Magnetic from '@components/motion/Magnetic'
-import { useMediaQuery } from '@hooks/useMediaQuery'
 import RollText from '@components/motion/RollText'
 
 /** Mục điều hướng theo người đang xem. Khách thấy lời mời trung lập cho cả hai phía;
@@ -68,9 +67,6 @@ export default function PublicLayout() {
   // Theme ngà gắn vào header, footer và khung của TỪNG trang (không gắn lên wrapper),
   // nên trang cũ đang mờ dần vẫn giữ màu của chính nó.
   const dark = location.pathname === '/'
-  // Trang cá nhân theo chế độ sáng/tối của hệ thống (yêu cầu riêng của trang này) → header/footer đổi theo cho liền mạch
-  const systemDark = useMediaQuery('(prefers-color-scheme: dark)')
-  const chromeTheme = location.pathname === '/trang-ca-nhan' && systemDark ? 'theme-charcoal' : 'theme-ivory'
 
   // Đóng mọi menu khi chuyển trang
   useEffect(() => {
@@ -83,14 +79,16 @@ export default function PublicLayout() {
   const dashboardHref = area?.home ?? '/tim-viec'
   const navLinks = NAV[user?.role ?? 'guest']
 
-  // Trang cá nhân: mở bằng màn phủ từ trên xuống (cùng hướng với menu phủ cũ).
-  // Nhà tuyển dụng mặc định là trang doanh nghiệp, còn lại là hồ sơ ứng viên.
+  // Trang cá nhân: đã đăng nhập → mở bằng màn phủ từ trên xuống (cùng hướng menu phủ cũ);
+  // khách → sang đăng nhập, xong quay lại trang cá nhân.
   const curtainGo = useCurtainNavigate()
-  const profileTo = profileHref(user?.role === 'recruiter' ? 'company' : 'seeker', 'own')
+  const navigate = useNavigate()
+  const profileTo = user ? PERSONAL_HREF : '/dang-nhap'
   const openProfile = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
     e.preventDefault()
-    curtainGo(profileTo, 'Trang cá nhân', undefined, 'down')
+    if (user) curtainGo(PERSONAL_HREF, 'Trang cá nhân', undefined, 'down')
+    else navigate('/dang-nhap', { state: { from: PERSONAL_HREF } })
   }
 
   return (
@@ -105,7 +103,7 @@ export default function PublicLayout() {
       <header
         className={cn(
           'top-0 z-40 text-page-fg',
-          dark ? 'fixed inset-x-0' : `sticky ${chromeTheme} border-b border-page-line`,
+          dark ? 'fixed inset-x-0' : 'sticky theme-ivory border-b border-page-line',
         )}
       >
         {dark && (
@@ -367,7 +365,7 @@ export default function PublicLayout() {
       <PageCurtain />
 
       {/* Footer */}
-      <footer className={cn('border-t bg-page-bg border-page-line', !dark && chromeTheme)}>
+      <footer className={cn('border-t bg-page-bg border-page-line', !dark && 'theme-ivory')}>
         <div className="shell py-section-sm">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">

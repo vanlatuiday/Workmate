@@ -1,7 +1,7 @@
 import DiscoverGallery from '@components/discover/DiscoverGallery'
 import { ProfileTag, ClosingBand, DetailHead, Facts, GalleryIntro, PrimaryLink, SampleNote, TextLink } from '@components/discover/parts'
 import type { GalleryItem } from '@components/discover/types'
-import { COMPANY_PROFILE_HREF } from '@pages/public/profile/store'
+import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
 import { COMPANIES, jobsOf, type DiscoverCompany } from './data'
 
 type Item = GalleryItem & { company: DiscoverCompany }
@@ -34,7 +34,7 @@ export default function GuestJobs() {
           <>
             <DetailHead kicker={`${c.industry} · ${c.district}`} title={c.name} />
             <div className="mt-3">
-              <ProfileTag to={COMPANY_PROFILE_HREF}>Trang doanh nghiệp</ProfileTag>
+              <ProfileTag to={COMPANY_PUBLIC_HREF}>Trang doanh nghiệp</ProfileTag>
             </div>
             <p className="mt-4 leading-relaxed">{c.why}</p>
             <p className="mt-2 text-sm leading-relaxed text-page-muted">{c.tagline}</p>
