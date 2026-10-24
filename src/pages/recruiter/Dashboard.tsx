@@ -2,9 +2,8 @@ import { Link } from 'react-router-dom'
 import { Briefcase, UserCheck, Handshake, CalendarClock, Plus, Video, MapPin } from 'lucide-react'
 import { PageHeader, Panel, StatCard, StatusBadge, MatchScore, MockNotice } from '@components/dashboard'
 import { MOCK_JOBS, MOCK_CANDIDATES, MOCK_INTERVIEWS, JOB_STATUS_LABELS } from './mockData'
+import { FOCUS } from '@utils/focus'
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 const LINK = `underline-offset-4 hover:underline text-page-fg rounded-control ${FOCUS}`
 
 const STATUS_TONE = { open: 'strong', paused: 'default', closed: 'muted', draft: 'muted' } as const

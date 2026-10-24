@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@utils/cn'
+import { FOCUS } from '@utils/focus'
 
 type Props = {
   label: string
@@ -12,8 +13,6 @@ type Props = {
   hint?: string
 }
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 
 /** Ô số liệu tổng quan (số lớn + nhãn). Dùng trong lưới ở trang Tổng quan. */
 export default function StatCard({ label, value, icon: Icon, href, hint }: Props) {

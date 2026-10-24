@@ -4,13 +4,13 @@ import { AlertCircle, Building2, Eye, EyeOff, Loader2, Search, ShieldCheck } fro
 import { useAuthStore } from '@context/authStore'
 import { DEMO_ACCOUNTS, buildDemoUser, findDemoAccount } from '@constants/demoAccounts'
 import { canVisit } from '@constants/roles'
+import { FOCUS } from '@utils/focus'
 
 /*
  * Đăng nhập — tạm dùng 3 tài khoản demo (xem constants/demoAccounts.ts).
  * Trang này nằm trong PublicLayout, layout đã cấp theme ngà (.theme-ivory) nên
  * các class bg-page-* / text-page-* ra đúng màu.
  */
-const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 const INPUT = `w-full rounded-control border border-page-edge bg-page-surface px-4 py-3 text-base text-page-fg placeholder:text-page-edge ${FOCUS}`
 
 const ICONS = { jobseeker: Search, recruiter: Building2, admin: ShieldCheck } as const

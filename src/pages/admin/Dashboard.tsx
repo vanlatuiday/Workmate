@@ -2,9 +2,8 @@ import { Link } from 'react-router-dom'
 import { Users, Building2, FileText, Handshake, ChevronRight } from 'lucide-react'
 import { PageHeader, Panel, StatCard, StatusBadge, MockNotice } from '@components/dashboard'
 import { mockUsers, newUsersPerDay, overviewStats, ROLE_LABELS, todoItems } from './mockData'
+import { FOCUS } from '@utils/focus'
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 
 const maxNew = Math.max(...newUsersPerDay.map((d) => d.count))
 const totalNew = newUsersPerDay.reduce((s, d) => s + d.count, 0)

@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { AlertCircle, Building2, Eye, EyeOff, Loader2, Search } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { buildDemoUser, getDemoAccountByRole } from '@constants/demoAccounts'
+import { FOCUS } from '@utils/focus'
 
 /*
  * Đăng ký — chưa có backend nên sau khi gửi form sẽ đăng nhập vào tài khoản demo
@@ -10,7 +11,6 @@ import { buildDemoUser, getDemoAccountByRole } from '@constants/demoAccounts'
  */
 type Role = 'jobseeker' | 'recruiter'
 
-const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 const INPUT = `w-full rounded-control border border-page-edge bg-page-surface px-4 py-3 text-base text-page-fg placeholder:text-page-edge ${FOCUS}`
 
 const ROLES: { value: Role; label: string; icon: typeof Search }[] = [

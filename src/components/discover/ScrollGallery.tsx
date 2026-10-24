@@ -10,6 +10,7 @@ import { cn } from '@utils/cn'
 import TiltFrame from './TiltFrame'
 import { pad, type GalleryItem } from './types'
 import type { GalleryProps } from './DiscoverGallery'
+import { FOCUS_FAR } from '@utils/focus'
 
 /** Quãng cuộn cho mỗi ảnh (vh) */
 const STEP_VH = 80
@@ -19,8 +20,6 @@ const HOLD = 0.18
 const SNAP_IDLE = 160
 const EASE = [0.22, 1, 0.36, 1] as const
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-4 focus-visible:ring-offset-page-bg'
 
 /** Tiến trình thô → tiến trình có đoạn nghỉ quanh mỗi số nguyên (smoothstep ở giữa). */
 function settle(p: number) {
@@ -229,7 +228,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                   className={cn(
                     'col-start-1 row-start-1 block aspect-[4/3] rounded-control will-change-transform',
                     'w-[min(38vw,calc((100svh_-_14rem)*4/3))]',
-                    FOCUS,
+                    FOCUS_FAR,
                   )}
                 >
                   <TiltFrame photo={item.photo} active={i === active} eager={i < 3} sizes="38vw" />
@@ -277,7 +276,7 @@ function StepButton({
       className={cn(
         'grid h-10 w-10 place-items-center rounded-full border border-page-line transition-colors duration-300',
         'hover:border-page-fg disabled:pointer-events-none disabled:opacity-30',
-        FOCUS,
+        FOCUS_FAR,
       )}
     >
       {children}

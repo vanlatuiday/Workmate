@@ -4,6 +4,7 @@ import { Briefcase, Bell, LogOut, Menu, X, ChevronRight, type LucideIcon } from 
 import { useAuthStore } from '@context/authStore'
 import { cn } from '@utils/cn'
 import RouteScroll from '@components/common/RouteScroll'
+import { FOCUS } from '@utils/focus'
 
 export type DashboardNavItem = {
   label: string
@@ -21,9 +22,6 @@ type ShellProps = {
   homeHref: string
 }
 
-/** Vòng focus dùng chung (giống PublicLayout) */
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 
 const ITEM = 'flex w-full items-center gap-3 rounded-control px-3 py-2.5 text-sm transition-colors duration-300'
 

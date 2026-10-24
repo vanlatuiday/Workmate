@@ -6,6 +6,7 @@ import { cn } from '@utils/cn'
 import ArchiveItem from './ArchiveItem'
 import ArchiveDetail from './ArchiveDetail'
 import type { ArchiveEntry } from './types'
+import { FOCUS } from '@utils/focus'
 
 /**
  * Vị trí từng tấm ảnh trên "mặt bàn" (desktop lg+: lưới 12 cột, lệch có chủ đích;
@@ -143,7 +144,7 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
             <button
               type="button"
               onClick={tidy}
-              className="link-underline rounded-control text-page-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg"
+              className={`link-underline rounded-control text-page-fg ${FOCUS}`}
             >
               Xếp lại mặt bàn
             </button>

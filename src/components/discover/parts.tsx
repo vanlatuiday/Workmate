@@ -4,11 +4,10 @@ import type { ReactNode } from 'react'
 import RollText from '@components/motion/RollText'
 import { cn } from '@utils/cn'
 import { CurtainLink } from '@components/motion/PageCurtain'
+import { FOCUS } from '@utils/focus'
 
 /** Mảnh giao diện nhỏ cho phần chữ của bộ sưu tập — giữ ba vai trò cùng một nhịp chữ. */
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 
 export function GalleryIntro({ eyebrow, title, text }: { eyebrow: string; title: string; text: string }) {
   return (

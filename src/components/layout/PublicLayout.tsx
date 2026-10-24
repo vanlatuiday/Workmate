@@ -12,6 +12,7 @@ import PageCurtain, { useCurtainNavigate } from '@components/motion/PageCurtain'
 import { PERSONAL_HREF } from '@pages/public/personal/links'
 import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
+import { FOCUS } from '@utils/focus'
 
 /** Mục điều hướng theo người đang xem. Khách thấy lời mời trung lập cho cả hai phía;
     đã đăng nhập thì chỉ thấy lối tắt tới việc của vai trò mình. */
@@ -37,9 +38,6 @@ const NAV: Record<UserRole | 'guest', MenuItem[]> = {
   ],
 }
 
-/** Vòng focus dùng chung cho link/nút ở header và footer */
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 
 /** Link nhỏ trong footer */
 const FOOT_LINK = `link-underline rounded-control hover:text-page-fg ${FOCUS}`

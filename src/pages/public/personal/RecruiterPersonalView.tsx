@@ -7,6 +7,7 @@ import PersonalIntro from './PersonalIntro'
 import { COMPANY as C } from './companyData'
 import { ActionNote, ActionPrimary, ActionText, Actions, PlainList, Section, TagList } from './parts'
 import { Link } from 'react-router-dom'
+import { FOCUS } from '@utils/focus'
 
 type Opts = { owner: boolean }
 
@@ -37,7 +38,7 @@ function MessageDemo() {
       <button
         type="button"
         onClick={() => setShown(true)}
-        className="rounded-full border border-page-fg px-5 py-2.5 text-sm font-medium transition-colors duration-300 hover:bg-page-fg hover:text-page-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg"
+        className={`rounded-full border border-page-fg px-5 py-2.5 text-sm font-medium transition-colors duration-300 hover:bg-page-fg hover:text-page-bg ${FOCUS}`}
       >
         Gửi lời nhắn
       </button>
@@ -49,7 +50,7 @@ function MessageDemo() {
 }
 
 /** Dựng 6 tấm doanh nghiệp; `owner` chỉ đổi hành động và đích của link vị trí. */
-export function buildCompanyEntries({ owner }: Opts): ArchiveEntry[] {
+function buildCompanyEntries({ owner }: Opts): ArchiveEntry[] {
   const actions = <CompanyActions owner={owner} />
   return [
     {
@@ -128,7 +129,7 @@ export function buildCompanyEntries({ owner }: Opts): ArchiveEntry[] {
             <li key={j.id} className="py-3">
               <Link
                 to={owner ? `/vi-tri/${j.id}` : '/viec-lam'}
-                className="link-underline rounded-control font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg"
+                className={`link-underline rounded-control font-medium ${FOCUS}`}
               >
                 {j.title}
               </Link>

@@ -33,7 +33,7 @@ function SeekerActions({ owner }: Opts) {
 }
 
 /** Dựng 6 tấm hồ sơ người tìm việc; `owner` chỉ đổi hành động và thông tin nhạy cảm. */
-export function buildSeekerEntries({ owner }: Opts): ArchiveEntry[] {
+function buildSeekerEntries({ owner }: Opts): ArchiveEntry[] {
   const actions = <SeekerActions owner={owner} />
   const inv = invite(owner)
   return [

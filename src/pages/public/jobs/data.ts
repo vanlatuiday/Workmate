@@ -194,7 +194,7 @@ export interface PublicApplicant {
   wants: string
 }
 
-export const APPLICANTS: PublicApplicant[] = [
+const APPLICANTS: PublicApplicant[] = [
   { id: 'a1', companyId: 'gio-song-han', initials: 'MA', alias: 'Minh A.', summary: 'Sinh viên năm 3, Kinh tế.', availability: 'Tối T2–T6, cả ngày T7', skills: ['Pha chế cơ bản', 'Giao tiếp', 'Chăm chỉ'], wants: 'Muốn làm ca tối gần nhà để vẫn kịp giờ học ban ngày.' },
   { id: 'a2', companyId: 'gio-song-han', initials: 'TL', alias: 'Thu L.', summary: 'Đã làm phục vụ quán nước hai mùa hè.', availability: 'Chiều và tối cuối tuần', skills: ['Phục vụ', 'Thu ngân', 'Nhớ order'], wants: 'Muốn học thêm pha chế để đứng quầy.' },
   { id: 'a3', companyId: 'bien-xanh', initials: 'HN', alias: 'Hạnh N.', summary: 'Sinh viên năm 2, Ngôn ngữ Anh.', availability: 'Thứ 7 và Chủ nhật', skills: ['Tiếng Anh giao tiếp', 'Thân thiện', 'Gấp xếp hàng'], wants: 'Muốn việc cuối tuần, có thể nói chuyện với khách du lịch.' },

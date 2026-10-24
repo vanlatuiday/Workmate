@@ -2,6 +2,7 @@ import { CurtainLink } from '@components/motion/PageCurtain'
 import Reveal from '@components/motion/Reveal'
 import { pad, photoSrcSet, photoUrl, type GalleryItem } from './types'
 import type { GalleryProps } from './DiscoverGallery'
+import { FOCUS_FAR } from '@utils/focus'
 
 /**
  * Bản xếp dọc của bộ sưu tập: màn hình nhỏ, cảm ứng, hoặc khi bật "giảm chuyển động".
@@ -20,7 +21,7 @@ export default function StaticGallery<T extends GalleryItem>({ items, label, int
                 title={item.title}
                 state={{ from: '/viec-lam' }}
                 aria-label={item.linkLabel}
-                className="group block overflow-hidden rounded-control bg-page-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-4 focus-visible:ring-offset-page-bg"
+                className={`group block overflow-hidden rounded-control bg-page-surface ${FOCUS_FAR}`}
               >
                 <img
                   src={photoUrl(item.photo.id, 960)}

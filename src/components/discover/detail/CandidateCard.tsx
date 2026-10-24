@@ -4,9 +4,8 @@ import { Link } from 'react-router-dom'
 import Reveal from '@components/motion/Reveal'
 import type { MockCandidate } from '@pages/recruiter/mockData'
 import { Initials, TagList } from './DetailBlocks'
+import { FOCUS } from '@utils/focus'
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 
 /** Thẻ ứng viên gợi ý của một tin (dữ liệu mẫu, tên viết tắt như khu tuyển dụng). */
 export default function CandidateCard({ c, jobId }: { c: MockCandidate; jobId: string }) {

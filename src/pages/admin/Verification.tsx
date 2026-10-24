@@ -4,9 +4,8 @@ import { PageHeader, StatusBadge, EmptyState, MockNotice } from '@components/das
 import { COMPANY_SIZES } from '@/constants'
 import { cn } from '@utils/cn'
 import { mockVerifications, type VerificationRequest, type VerificationStatus } from './mockData'
+import { FOCUS } from '@utils/focus'
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 const BTN_PRIMARY = `rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`
 const BTN_SECONDARY = `rounded-full border border-page-line px-5 py-2.5 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg ${FOCUS}`
 

@@ -6,9 +6,8 @@ import {
   mockUsers, ROLE_LABELS, USER_STATUS_LABELS,
   type AdminUser, type UserStatus,
 } from './mockData'
+import { FOCUS } from '@utils/focus'
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 const FIELD =
   `rounded-card border border-page-edge bg-page-surface px-4 py-2.5 text-sm text-page-fg ${FOCUS}`
 const BTN_SECONDARY =

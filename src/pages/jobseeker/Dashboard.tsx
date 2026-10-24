@@ -5,9 +5,8 @@ import { JOB_TYPES, APPLICATION_STATUS_LABELS } from '@constants/index'
 import { EmptyState, MatchScore, MockNotice, PageHeader, Panel, StatCard, StatusBadge } from '@components/dashboard'
 import type { ApplicationStatus } from '@/types'
 import { DASHBOARD_STATS, RECENT_APPLICATIONS, RECOMMENDED_JOBS } from './mockData'
+import { FOCUS } from '@utils/focus'
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 const LINK = `underline underline-offset-4 text-page-fg hover:text-page-muted transition-colors duration-300 rounded-control ${FOCUS}`
 
 const STATUS_TONE: Partial<Record<ApplicationStatus, 'strong' | 'default' | 'muted'>> = {

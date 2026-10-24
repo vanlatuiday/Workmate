@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
+import { FOCUS } from '@utils/focus'
 
 type Props = {
   eyebrow: string
@@ -21,7 +22,7 @@ export default function PersonalIntro({ eyebrow, title, text, mode, back }: Prop
           {back && (
             <Link
               to={back.to}
-              className="link-underline inline-flex items-center gap-1.5 rounded-control text-page-muted hover:text-page-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg"
+              className={`link-underline inline-flex items-center gap-1.5 rounded-control text-page-muted hover:text-page-fg ${FOCUS}`}
             >
               <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
               {back.label}

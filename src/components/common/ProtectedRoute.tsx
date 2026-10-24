@@ -2,6 +2,7 @@ import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@context/authStore'
 import { ROLE_AREAS } from '@constants/roles'
 import type { UserRole } from '@/types'
+import { FOCUS } from '@utils/focus'
 
 interface Props {
   role: UserRole
@@ -29,13 +30,13 @@ export default function ProtectedRoute({ role }: Props) {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to={own.home}
-              className="rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg"
+              className={`rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`}
             >
               Về {own.label.toLowerCase()}
             </Link>
             <Link
               to="/"
-              className="rounded-full border border-page-line px-5 py-2.5 text-sm font-medium transition-colors duration-300 hover:border-page-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg"
+              className={`rounded-full border border-page-line px-5 py-2.5 text-sm font-medium transition-colors duration-300 hover:border-page-fg ${FOCUS}`}
             >
               Trang chủ
             </Link>

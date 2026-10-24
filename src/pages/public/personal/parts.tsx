@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
+import { FOCUS } from '@utils/focus'
 
 /** Mảnh giao diện dùng chung cho nội dung các tấm hồ sơ ở trang Cá nhân. */
 
@@ -35,7 +36,7 @@ export function EmptyNote({ children, invite }: { children: ReactNode; invite?: 
       {invite && (
         <Link
           to={invite.to}
-          className="link-underline mt-1.5 inline-block rounded-control text-page-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg"
+          className={`link-underline mt-1.5 inline-block rounded-control text-page-fg ${FOCUS}`}
         >
           {invite.label}
         </Link>

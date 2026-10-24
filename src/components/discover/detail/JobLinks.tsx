@@ -2,9 +2,8 @@ import { Link } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
 import Reveal from '@components/motion/Reveal'
 import type { MockJob } from '@pages/jobseeker/mockData'
+import { FOCUS } from '@utils/focus'
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 
 /** Danh sách việc đang tuyển, mỗi dòng là link tới /viec-lam/:id. */
 export default function JobLinks({ jobs }: { jobs: MockJob[] }) {

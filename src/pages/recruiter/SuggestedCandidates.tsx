@@ -4,9 +4,8 @@ import { Check, X, ChevronDown, Heart, Bookmark, EyeOff, Undo2, MapPin, Calendar
 import { PageHeader, Panel, StatusBadge, MatchScore, EmptyState, MockNotice } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import { MOCK_JOBS, MOCK_CANDIDATES, CRITERIA, type MockCandidate } from './mockData'
+import { FOCUS } from '@utils/focus'
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 const BTN = `inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition-colors duration-300 ${FOCUS}`
 const BTN_OUTLINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 const BTN_ON = `${BTN} border-page-fg bg-page-fg text-page-bg`

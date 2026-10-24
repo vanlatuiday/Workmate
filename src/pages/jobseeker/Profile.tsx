@@ -5,9 +5,8 @@ import { MockNotice, PageHeader, Panel } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import type { JobType } from '@/types'
 import { AVAILABILITY_DEFAULT, DAY_SHORT, PROFILE_DEFAULT, SESSIONS } from './mockData'
+import { FOCUS } from '@utils/focus'
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 const LEGEND = 'mb-4 font-display text-lg font-medium text-page-fg'
 const DAY_FULL = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật']

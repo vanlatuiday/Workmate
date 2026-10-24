@@ -4,6 +4,7 @@ import { useMediaQuery, FINE_POINTER } from '@hooks/useMediaQuery'
 import { cn } from '@utils/cn'
 import { photoSrcSet, photoUrl } from '@components/discover/types'
 import type { ArchiveEntry } from './types'
+import { FOCUS_FAR } from '@utils/focus'
 
 type Props = {
   entry: ArchiveEntry
@@ -115,7 +116,7 @@ const ArchiveItem = forwardRef<HTMLButtonElement, Props>(function ArchiveItem(
         className={cn(
           'group block w-full touch-manipulation select-none rounded-card text-left',
           draggable && 'cursor-grab active:cursor-grabbing',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-4 focus-visible:ring-offset-page-bg',
+          FOCUS_FAR,
           lifted && 'invisible',
         )}
       >

@@ -23,7 +23,7 @@ const useCurtain = create<{
 /** Giữ màn sau khi đổi trang (giây) — đủ cho trang cũ mờ đi (0.25s) và trang mới dựng xong */
 const HOLD = 0.55
 /** Từ lúc trang mới mount tới khi màn bắt đầu kéo lên (≈ HOLD − 0.25s mờ trang cũ) */
-export const CURTAIN_REVEAL_DELAY = 0.35
+const CURTAIN_REVEAL_DELAY = 0.35
 
 /** Trang đích gọi khi mount: đang có màn che → trả về độ trễ để hiệu ứng vào chạy đúng lúc màn mở. */
 export function useCurtainDelay() {

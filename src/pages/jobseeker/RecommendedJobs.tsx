@@ -6,9 +6,8 @@ import { EmptyState, MatchScore, MockNotice, PageHeader } from '@components/dash
 import { cn } from '@utils/cn'
 import type { JobType } from '@/types'
 import { MATCH_CRITERIA, RECOMMENDED_JOBS, type MockJob } from './mockData'
+import { FOCUS } from '@utils/focus'
 
-const FOCUS =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg'
 const FIELD = `rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 const BTN_SECONDARY = `inline-flex items-center gap-2 rounded-full border border-page-line px-4 py-2 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg ${FOCUS}`
 
