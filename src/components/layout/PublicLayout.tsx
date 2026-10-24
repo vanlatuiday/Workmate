@@ -1,6 +1,6 @@
 import { Link, useLocation, useOutlet } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { Menu, X, Briefcase } from 'lucide-react'
+import { Menu, X, Briefcase, UserRound } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAuthStore } from '@context/authStore'
 import { ROLE_AREAS } from '@constants/roles'
@@ -8,7 +8,8 @@ import type { UserRole } from '@/types'
 import { cn } from '@utils/cn'
 import MenuOverlay, { type MenuItem } from '@components/layout/MenuOverlay'
 import RouteScroll from '@components/common/RouteScroll'
-import PageCurtain from '@components/motion/PageCurtain'
+import PageCurtain, { useCurtainNavigate } from '@components/motion/PageCurtain'
+import { profileHref } from '@pages/public/profile/store'
 import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
 
@@ -77,6 +78,16 @@ export default function PublicLayout() {
   const area = user ? ROLE_AREAS[user.role] : null
   const dashboardHref = area?.home ?? '/tim-viec'
   const navLinks = NAV[user?.role ?? 'guest']
+
+  // Trang cá nhân: mở bằng màn phủ từ trên xuống (cùng hướng với menu phủ cũ).
+  // Nhà tuyển dụng mặc định là trang doanh nghiệp, còn lại là hồ sơ ứng viên.
+  const curtainGo = useCurtainNavigate()
+  const profileTo = profileHref(user?.role === 'recruiter' ? 'company' : 'seeker', 'own')
+  const openProfile = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+    e.preventDefault()
+    curtainGo(profileTo, 'Trang cá nhân', undefined, 'down')
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-page-bg">
@@ -188,26 +199,38 @@ export default function PublicLayout() {
               )}
             </div>
 
-            {/* Trang chủ dùng menu phủ toàn màn hình; trang khác giữ dropdown mobile */}
+            {/* Trang cá nhân — thay chữ "Menu" cũ; mở bằng màn phủ từ trên xuống */}
+            <div data-header-item={dark ? '' : undefined} className="hidden sm:block">
+              <Magnetic strength={dark ? 0.3 : 0}>
+                <Link
+                  to={profileTo}
+                  onClick={openProfile}
+                  className={cn(
+                    'group flex items-center gap-2 text-sm text-page-muted hover:text-page-fg transition-colors px-3 py-2 rounded-control whitespace-nowrap',
+                    FOCUS,
+                  )}
+                >
+                  <RollText>Trang cá nhân</RollText>
+                  <UserRound className="w-4 h-4" />
+                </Link>
+              </Magnetic>
+            </div>
+
+            {/* Trang chủ: menu phủ toàn màn hình cho màn nhỏ (nav chính chỉ hiện từ lg); trang khác giữ dropdown mobile */}
             {dark ? (
               // Bọc ngoài để GSAP (intro) và Magnetic không tranh nhau transform của cùng một phần tử
-              <div data-header-item>
-              <Magnetic>
+              <div data-header-item className="lg:hidden">
                 <button
                   onClick={() => setOverlayOpen(true)}
                   aria-expanded={overlayOpen}
                   aria-label="Mở menu"
                   className={cn(
-                    'group flex items-center gap-2 text-sm text-page-muted hover:text-page-fg transition-colors p-2 -mr-2 rounded-control',
+                    'flex items-center p-2 -mr-2 text-page-muted hover:text-page-fg transition-colors rounded-control',
                     FOCUS,
                   )}
                 >
-                  <span className="hidden sm:inline">
-                    <RollText>Menu</RollText>
-                  </span>
                   <Menu className="w-5 h-5" />
                 </button>
-              </Magnetic>
               </div>
             ) : (
               <button
@@ -243,6 +266,16 @@ export default function PublicLayout() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              to={profileTo}
+              onClick={(e) => {
+                setMobileOpen(false)
+                openProfile(e)
+              }}
+              className={cn('block px-3 py-2 rounded-control text-sm text-page-muted transition-colors hover:bg-page-surface hover:text-page-fg', FOCUS)}
+            >
+              Trang cá nhân
+            </Link>
             <div className="pt-2 flex flex-col gap-2">
               {user ? (
                 <>
@@ -296,7 +329,7 @@ export default function PublicLayout() {
       <MenuOverlay
         open={overlayOpen}
         onClose={() => setOverlayOpen(false)}
-        items={navLinks}
+        items={[...navLinks, { label: 'Trang cá nhân', href: profileTo }]}
         actions={
           user
             ? [{ label: area?.label ?? '', href: dashboardHref }]

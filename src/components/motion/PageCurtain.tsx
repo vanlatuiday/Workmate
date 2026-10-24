@@ -4,15 +4,19 @@ import { create } from 'zustand'
 import { gsap, useGSAP } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 
-type Request = { id: number; title: string; onCovered: () => void }
+/** Hướng màn: 'up' = trượt từ dưới lên (mở trang chi tiết), 'down' = phủ từ trên xuống (trang cá nhân, như menu) */
+export type CurtainDirection = 'up' | 'down'
+
+type Request = { id: number; title: string; direction: CurtainDirection; onCovered: () => void }
 
 const useCurtain = create<{
   req: Request | null
-  play: (title: string, onCovered: () => void) => void
+  play: (title: string, direction: CurtainDirection, onCovered: () => void) => void
   finish: () => void
 }>()((set) => ({
   req: null,
-  play: (title, onCovered) => set((s) => ({ req: { id: (s.req?.id ?? 0) + 1, title, onCovered } })),
+  play: (title, direction, onCovered) =>
+    set((s) => ({ req: { id: (s.req?.id ?? 0) + 1, title, direction, onCovered } })),
   finish: () => set({ req: null }),
 }))
 
@@ -37,9 +41,9 @@ export function useCurtainNavigate() {
   const navigate = useNavigate()
   const play = useCurtain((s) => s.play)
   const reduced = useReducedMotion()
-  return (to: string, title: string, state?: unknown) => {
+  return (to: string, title: string, state?: unknown, direction: CurtainDirection = 'up') => {
     if (reduced) navigate(to, { state })
-    else play(title, () => navigate(to, { state }))
+    else play(title, direction, () => navigate(to, { state }))
   }
 }
 
@@ -85,16 +89,18 @@ export default function PageCurtain() {
       if (!req) return
       const panel = panelRef.current
       const title = titleRef.current
+      // Màn đi một chiều: vào từ một mép, ra ở mép đối diện
+      const from = req.direction === 'down' ? -100 : 100
       gsap
         .timeline({ onComplete: finish })
-        .set(panel, { yPercent: 100, visibility: 'visible' })
+        .set(panel, { yPercent: from, visibility: 'visible' })
         .set(title, { yPercent: 60, opacity: 0 })
         .to(panel, { yPercent: 0, duration: 0.55, ease: 'power3.inOut' })
         .to(title, { yPercent: 0, opacity: 1, duration: 0.4, ease: 'power3.out' }, '-=0.15')
         // Màn đã phủ kín → đổi trang phía sau
         .call(req.onCovered)
         .to(title, { yPercent: -40, opacity: 0, duration: 0.3, ease: 'power2.in' }, `+=${HOLD - 0.3}`)
-        .to(panel, { yPercent: -100, duration: 0.65, ease: 'power3.inOut' }, '-=0.05')
+        .to(panel, { yPercent: -from, duration: 0.65, ease: 'power3.inOut' }, '-=0.05')
         .set(panel, { visibility: 'hidden' })
     },
     { dependencies: [req?.id] },
