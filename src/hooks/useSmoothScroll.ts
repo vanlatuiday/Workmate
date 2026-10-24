@@ -5,9 +5,9 @@ import { gsap, ScrollTrigger } from '@utils/gsap'
 /** Instance đang chạy — để các section cuộn tới vị trí cụ thể mà không giật. */
 let current: Lenis | null = null
 
-/** Cuộn tức thì tới vị trí `y`, đi qua Lenis nếu đang bật. */
-export function scrollToY(y: number) {
-  if (current) current.scrollTo(y, { immediate: true })
+/** Cuộn tới vị trí `y`, đi qua Lenis nếu đang bật. Mặc định tức thì; `smooth` để trôi tới. */
+export function scrollToY(y: number, smooth = false) {
+  if (current) current.scrollTo(y, smooth ? { duration: 1 } : { immediate: true })
   else window.scrollTo(0, y)
 }
 

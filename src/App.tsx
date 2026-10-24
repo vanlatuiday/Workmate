@@ -11,6 +11,7 @@ import HomePage from '@pages/public/HomePage'
 import JobsPage from '@pages/public/JobsPage'
 import JobDetailPage from '@pages/public/JobDetailPage'
 import CompaniesPage from '@pages/public/CompaniesPage'
+import CompanyDetailPage from '@pages/public/CompanyDetailPage'
 import BlogPage from '@pages/public/BlogPage'
 import LoginPage from '@pages/public/LoginPage'
 import RegisterPage from '@pages/public/RegisterPage'
@@ -64,6 +65,7 @@ export default function App() {
         <Route path="/viec-lam" element={<JobsPage />} />
         <Route path="/viec-lam/:id" element={<JobDetailPage />} />
         <Route path="/cong-ty" element={<CompaniesPage />} />
+        <Route path="/cong-ty/:id" element={<CompanyDetailPage />} />
         <Route path="/cam-nang" element={<BlogPage />} />
         <Route path="/dang-nhap" element={<LoginPage />} />
         <Route path="/dang-ky" element={<RegisterPage />} />

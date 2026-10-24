@@ -24,6 +24,7 @@ const NAV: Record<UserRole | 'guest', MenuItem[]> = {
     { label: 'MATCH', href: '/tim-viec/match' },
   ],
   recruiter: [
+    { label: 'Việc làm', href: '/viec-lam' },
     { label: 'Đăng tin', href: '/tuyen-dung/dang-tin' },
     { label: 'Ứng viên phù hợp', href: '/tuyen-dung/ung-vien-phu-hop' },
     { label: 'Tin của tôi', href: '/tuyen-dung/tin-dang' },

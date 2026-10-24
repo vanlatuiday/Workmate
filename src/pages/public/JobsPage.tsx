@@ -1,13 +1,32 @@
+import { useEffect } from 'react'
+import { useSmoothScroll } from '@hooks/useSmoothScroll'
+import { ScrollTrigger } from '@utils/gsap'
+import { useAuthStore } from '@context/authStore'
+import CustomCursor from '@components/motion/CustomCursor'
+import GuestJobs from './jobs/GuestJobs'
+import JobseekerJobs from './jobs/JobseekerJobs'
+import RecruiterJobs from './jobs/RecruiterJobs'
+
 /**
- * /viec-lam — sau này là trang giới thiệu dành cho người tìm việc.
- * Nội dung cũ (danh sách việc mẫu + bộ lọc) đã bỏ theo yêu cầu chủ dự án (2026-10-23);
- * xem lại trong git history nếu cần (trước commit này).
+ * /viec-lam — bộ sưu tập ảnh khám phá, khác nhau theo người xem:
+ *   khách / quản trị  → các nơi đang tuyển (GuestJobs)
+ *   người tìm việc    → công ty đang tuyển + việc tiêu biểu (JobseekerJobs)
+ *   nhà tuyển dụng    → các vị trí của chính mình (RecruiterJobs)
+ * Hệ thống ảnh + cuộn dùng chung ở components/discover; dữ liệu mẫu ở ./jobs/data.ts.
  */
 export default function JobsPage() {
+  useSmoothScroll()
+  const role = useAuthStore((s) => s.user?.role)
+
+  // Font display tải xong làm đổi chiều cao chữ → đo lại vị trí trigger
+  useEffect(() => {
+    document.fonts?.ready.then(() => ScrollTrigger.refresh())
+  }, [])
+
   return (
-    <section className="shell min-h-[60vh] py-section-sm">
-      <h1 className="font-display text-display-sm font-semibold">Việc làm</h1>
-      <p className="mt-4 max-w-xl text-page-muted">Trang giới thiệu dành cho người tìm việc đang được chuẩn bị.</p>
-    </section>
+    <>
+      <CustomCursor />
+      {role === 'jobseeker' ? <JobseekerJobs /> : role === 'recruiter' ? <RecruiterJobs /> : <GuestJobs />}
+    </>
   )
 }
