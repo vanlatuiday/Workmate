@@ -47,7 +47,8 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
   const [location, setLocation] = useState('')
   const navigate = useNavigate()
   // Lời mở đầu đổi theo vai trò (khách: trung lập)
-  const copy = heroCopy[useAuthStore((s) => s.user?.role) ?? 'guest']
+  const audience = useAuthStore((s) => s.user?.role) ?? 'guest'
+  const copy = heroCopy[audience]
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -168,7 +169,9 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
         html.removeAttribute('data-intro')
       }
     },
-    { scope: wrapRef, dependencies: [reduced] },
+    // Đổi vai trò ngay trên trang chủ (đăng nhập/đăng xuất) → chữ hero được render lại thành
+    // phần tử mới chưa bị giấu; dựng lại timeline để chúng cũng ẩn trong intro như lúc tải trang
+    { scope: wrapRef, dependencies: [reduced, audience], revertOnUpdate: true },
   )
 
   return (
