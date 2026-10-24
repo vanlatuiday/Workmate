@@ -11,7 +11,7 @@ type Props = {
   tilt: number
   /** Tỉ lệ khung ảnh, class Tailwind, vd. "aspect-[4/5]" */
   aspect: string
-  /** Đang mở → ẩn tại chỗ (bản sao của nó nằm trên lớp phủ) */
+  /** Đang mở → ẩn tại chỗ (chính nó đang được phóng to ở giữa màn hình) */
   lifted: boolean
   /** Cho kéo thả trên mặt bàn (desktop có chuột) */
   draggable: boolean
@@ -120,11 +120,11 @@ const ArchiveItem = forwardRef<HTMLButtonElement, Props>(function ArchiveItem(
         )}
       >
         <div ref={magnetRef} className="will-change-transform">
-          {/* Ảnh in trên giấy sáng — luôn sáng trên mặt bàn tối, nên dùng màu cố định wm-* */}
+          {/* Tấm ảnh như con tem: giấy ngà viền răng cưa — luôn sáng trên mặt bàn tối, nên dùng màu cố định wm-* */}
           <figure
             data-print
             data-tilt={tilt}
-            className="rounded-control bg-wm-mist p-2.5 pb-4 text-wm-charcoal md:p-3 md:pb-5"
+            className="stamp-edge bg-wm-ivory p-3.5 pb-5 text-wm-charcoal md:p-4 md:pb-6"
             style={{ transform: `rotate(${tilt}deg)` }}
           >
             <div className={cn('overflow-hidden rounded-control bg-wm-stone', aspect)}>

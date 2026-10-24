@@ -202,3 +202,26 @@ html[data-page='home'] :focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 3px;
 }
+
+/* ─── Trang Cá nhân: mặt bàn và tấm ảnh kiểu con tem ───────────────────────── */
+
+/* Vệt kẻ chéo mảnh trên mặt bàn — hai lớp đường thưa, cùng màu đường kẻ của theme */
+.desk-lines {
+  background-image:
+    repeating-linear-gradient(32deg, transparent 0 180px, var(--page-line) 180px 181px, transparent 181px 420px),
+    repeating-linear-gradient(-58deg, transparent 0 300px, var(--page-line) 300px 301px, transparent 301px 640px);
+  opacity: 0.55;
+}
+
+/* Viền răng cưa như con tem: khoét nửa vòng tròn đều quanh mép.
+   Lớp 1 = lưới lỗ tròn có tâm nằm đúng trên mép; lớp 2 = phần giữa đặc, che các lỗ bên trong. */
+.stamp-edge {
+  --hole: 4px;
+  --gap: 14px;
+  -webkit-mask:
+    radial-gradient(circle, transparent var(--hole), black calc(var(--hole) + 0.5px)) calc(var(--gap) / -2) calc(var(--gap) / -2) / var(--gap) var(--gap) round,
+    linear-gradient(black, black) center / calc(100% - var(--gap)) calc(100% - var(--gap)) no-repeat;
+  mask:
+    radial-gradient(circle, transparent var(--hole), black calc(var(--hole) + 0.5px)) calc(var(--gap) / -2) calc(var(--gap) / -2) / var(--gap) var(--gap) round,
+    linear-gradient(black, black) center / calc(100% - var(--gap)) calc(100% - var(--gap)) no-repeat;
+}

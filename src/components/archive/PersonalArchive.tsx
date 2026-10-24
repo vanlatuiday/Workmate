@@ -81,6 +81,26 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
 
   const active = entries.find((e) => e.id === activeId) ?? null
 
+  // Đang mở một tấm → các tấm khác lùi về sau (nhỏ lại, mờ đi); đóng → trở lại.
+  // Nền trang giữ nguyên màu — chiều sâu đến từ chuyển động của chính các tấm ảnh.
+  useGSAP(
+    () => {
+      const items = gsap.utils.toArray<HTMLElement>('[data-archive-item]')
+      const back = activeId !== null && !closing
+      items.forEach((li) => {
+        if (li.dataset.id === activeId) return
+        gsap.to(li.querySelector('[data-recede]'), {
+          scale: back ? 0.9 : 1,
+          opacity: back ? 0.35 : 1,
+          duration: reduced ? 0 : back ? 0.7 : 0.6,
+          ease: 'power3.inOut',
+          overwrite: 'auto',
+        })
+      })
+    },
+    { scope: rootRef, dependencies: [activeId, closing, reduced] },
+  )
+
   /** Tấm đang kéo nằm trên cùng, như nhặt lên khỏi mặt bàn */
   const lift = (li: HTMLElement | null) => {
     if (li) li.style.zIndex = String(++topZ.current)
@@ -137,10 +157,12 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
             <li
               key={entry.id}
               data-archive-item
+              data-id={entry.id}
               data-speed={slot.speed}
               className={cn('relative', slot.cls, i % 2 === 1 && 'md:mt-24')}
             >
               <div data-parallax>
+                <div data-recede>
                 <ArchiveItem
                   ref={(el) => {
                     if (el) itemRefs.current.set(entry.id, el)
@@ -154,6 +176,7 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
                   onLift={() => lift(itemRefs.current.get(entry.id)?.closest('li') ?? null)}
                   onOpen={() => open(entry.id)}
                 />
+                </div>
               </div>
             </li>
           )

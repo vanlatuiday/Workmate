@@ -24,7 +24,9 @@ export default function PersonalPage() {
   // Mặt bàn tối (than chì) với các tấm ảnh in giấy sáng — theo tinh thần trang tham khảo,
   // vẫn trong bảng màu Workmate. Header/footer đổi theo ở PublicLayout.
   return (
-    <div className="theme-charcoal min-h-full bg-page-bg text-page-fg">
+    <div className="theme-charcoal relative isolate min-h-full bg-page-bg text-page-fg">
+      {/* Vệt kẻ chéo mảnh trên mặt bàn (dưới nội dung) + hạt nhiễu (trên nội dung, dưới header) */}
+      <div aria-hidden className="desk-lines pointer-events-none fixed inset-0 -z-10" />
       <div aria-hidden className="grain pointer-events-none fixed inset-0 z-30" />
       {view}
     </div>
