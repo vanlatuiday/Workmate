@@ -34,7 +34,13 @@ const DeskRipple = forwardRef<DeskRippleHandle>(function DeskRipple(_, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const tweenRef = useRef<gsap.core.Tween | null>(null)
 
-  useEffect(() => () => void tweenRef.current?.kill(), [])
+  // Context riêng: play() có thể được gọi từ callback timeline của component khác —
+  // tween tạo ra phải thuộc về đây, không bị huỷ khi component kia gỡ khỏi cây
+  const ctxRef = useRef<gsap.Context | null>(null)
+  useEffect(() => {
+    ctxRef.current = gsap.context(() => {})
+    return () => ctxRef.current?.revert()
+  }, [])
 
   useImperativeHandle(ref, () => ({
     play(x, y) {
@@ -67,16 +73,18 @@ const DeskRipple = forwardRef<DeskRippleHandle>(function DeskRipple(_, ref) {
       }
 
       tweenRef.current?.kill()
-      tweenRef.current = gsap.to(state, {
-        r: maxR,
-        duration: DURATION,
-        ease: 'power2.out',
-        onUpdate: () => {
-          // Rõ ở đầu, tan dần khi lan xa
-          state.fade = 1 - Math.pow(state.r / maxR, 2.2)
-          draw()
-        },
-        onComplete: () => ctx.clearRect(0, 0, w, h),
+      ctxRef.current?.add(() => {
+        tweenRef.current = gsap.to(state, {
+          r: maxR,
+          duration: DURATION,
+          ease: 'power2.out',
+          onUpdate: () => {
+            // Rõ ở đầu, tan dần khi lan xa
+            state.fade = 1 - Math.pow(state.r / maxR, 2.2)
+            draw()
+          },
+          onComplete: () => ctx.clearRect(0, 0, w, h),
+        })
       })
     },
   }))

@@ -132,19 +132,16 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
     const id = activeId
     setActiveId(null)
     setClosing(false)
-    if (!id) return
-    const item = itemRefs.current.get(id)
-    // Tấm ảnh vừa đặt lại xuống bàn → một vòng sóng hạt lan ra từ tâm nó (như video tham khảo p3)
-    // Đợi sang khung hình sau: hàm này chạy trong callback của timeline đóng — tween tạo ở đây
-    // sẽ thuộc context của ArchiveDetail và bị huỷ ngay khi nó gỡ khỏi cây.
-    // Cũng chờ tấm ảnh hiện lại (đang `invisible` thì không nhận focus) rồi mới trả focus.
-    requestAnimationFrame(() => {
-      if (item && !reduced) {
-        const r = (item.querySelector('[data-print]') ?? item).getBoundingClientRect()
-        rippleRef.current?.play(r.left + r.width / 2, r.top + r.height / 2)
-      }
-      item?.focus({ preventScroll: true })
-    })
+    // Chờ tấm ảnh hiện lại (đang `invisible` thì không nhận focus) rồi mới trả focus
+    if (id) requestAnimationFrame(() => itemRefs.current.get(id)?.focus({ preventScroll: true }))
+  }, [activeId])
+
+  /** Tấm ảnh vừa chạm lại mặt bàn → vòng sóng hạt lan ra từ tâm nó (như video tham khảo p3) */
+  const onLanded = useCallback(() => {
+    const item = activeId ? itemRefs.current.get(activeId) : null
+    if (!item || reduced) return
+    const r = (item.querySelector('[data-print]') ?? item).getBoundingClientRect()
+    rippleRef.current?.play(r.left + r.width / 2, r.top + r.height / 2)
   }, [activeId, reduced])
 
   return (
@@ -204,6 +201,7 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
           closing={closing}
           onRequestClose={requestClose}
           onClosed={onClosed}
+          onLanded={onLanded}
           eyebrow={eyebrow}
           themeClass={themeClass}
         />

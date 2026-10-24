@@ -17,6 +17,8 @@ type Props = {
   onRequestClose: () => void
   /** Hiệu ứng đóng chạy xong → gỡ khỏi cây */
   onClosed: () => void
+  /** Tấm ảnh vừa chạm lại mặt bàn (gần cuối hiệu ứng đóng) — để nền phản hồi ngay, không chờ gỡ */
+  onLanded?: () => void
   /** Nhãn nhỏ trên tiêu đề, vd. "Hồ sơ" */
   eyebrow: string
   /** Class theme cho chữ bên trong tờ hồ sơ (portal ra body nên phải mang theo). Chỉ gắn vào tờ hồ sơ — gắn vào lớp ngoài sẽ phủ màu nền lên cả màn hình */
@@ -70,6 +72,7 @@ export default function ArchiveDetail({
   closing,
   onRequestClose,
   onClosed,
+  onLanded,
   eyebrow,
   themeClass,
 }: Props) {
@@ -120,6 +123,9 @@ export default function ArchiveDetail({
           ease: 'power3.inOut',
           onUpdate: () => keepPhotoRatio(panel, coverImgRef.current),
         }, 0.2)
+        // Phát sóng khi tấm ảnh đi được ~75% quãng thu về — lúc này nó đã sát chỗ cũ và đang chậm dần,
+        // sóng bắt đầu ngay khi "chạm" nên hai chuyển động gối lên nhau, không có nhịp chờ
+        .call(() => onLanded?.(), [], 0.2 + 0.6 * 0.75)
     },
     { scope: rootRef, dependencies: [closing] },
   )
