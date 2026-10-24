@@ -67,6 +67,8 @@ export default function PublicLayout() {
   // Theme ngà gắn vào header, footer và khung của TỪNG trang (không gắn lên wrapper),
   // nên trang cũ đang mờ dần vẫn giữ màu của chính nó.
   const dark = location.pathname === '/'
+  // Trang Cá nhân là "mặt bàn" tối → header/footer tối theo cho liền mạch
+  const chrome = location.pathname === '/ca-nhan' ? 'theme-charcoal' : 'theme-ivory'
 
   // Đóng mọi menu khi chuyển trang
   useEffect(() => {
@@ -103,7 +105,7 @@ export default function PublicLayout() {
       <header
         className={cn(
           'top-0 z-40 text-page-fg',
-          dark ? 'fixed inset-x-0' : 'sticky theme-ivory border-b border-page-line',
+          dark ? 'fixed inset-x-0' : `sticky ${chrome} border-b border-page-line`,
         )}
       >
         {dark && (
@@ -365,7 +367,7 @@ export default function PublicLayout() {
       <PageCurtain />
 
       {/* Footer */}
-      <footer className={cn('border-t bg-page-bg border-page-line', !dark && 'theme-ivory')}>
+      <footer className={cn('border-t bg-page-bg border-page-line', !dark && chrome)}>
         <div className="shell py-section-sm">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">

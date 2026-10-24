@@ -22,23 +22,48 @@ type Props = {
   themeClass: string
 }
 
-/** Vị trí + tỉ lệ để đặt `panel` chồng khít lên `origin` */
-function flipFrom(panel: HTMLElement, origin: HTMLElement) {
+/** Tấm ảnh in bên trong nút (phần sẽ được nhân bản lên lớp phủ) */
+const printOf = (origin: HTMLElement) => origin.querySelector<HTMLElement>('[data-print]') ?? origin
+
+/**
+ * Dời/thu `panel` về "nằm dưới tấm ảnh": tâm trùng tâm ảnh (lệch xuống `drop` × chiều cao ảnh),
+ * thu nhỏ đều để rộng ~86% tấm ảnh — như tờ thư còn nằm trong phong bì.
+ */
+function tucked(panel: HTMLElement, origin: HTMLElement, drop = 0) {
   const p = panel.getBoundingClientRect()
-  const o = origin.getBoundingClientRect()
+  const o = printOf(origin).getBoundingClientRect()
+  const scale = (o.width * 0.86) / p.width
   return {
     x: o.left + o.width / 2 - (p.left + p.width / 2),
-    y: o.top + o.height / 2 - (p.top + p.height / 2),
-    scaleX: o.width / p.width,
-    scaleY: o.height / p.height,
+    y: o.top + o.height / 2 - (p.top + p.height / 2) + o.height * drop,
+    scale,
   }
 }
 
+/** Nhân bản tấm ảnh in, đặt khít lên vị trí thật của nó trên lớp phủ */
+function placeGhost(ghost: HTMLElement, origin: HTMLElement) {
+  const print = printOf(origin)
+  const r = print.getBoundingClientRect()
+  const w = print.offsetWidth
+  const h = print.offsetHeight
+  ghost.replaceChildren(print.cloneNode(true))
+  Object.assign(ghost.style, {
+    width: `${w}px`,
+    height: `${h}px`,
+    left: `${r.left + r.width / 2 - w / 2}px`,
+    top: `${r.top + r.height / 2 - h / 2}px`,
+  })
+}
+
+/** Tờ thư trượt ra khỏi tấm ảnh bao xa (theo chiều cao ảnh) trước khi bay lên giữa */
+const DROP = 0.62
+
 /**
- * Tấm hồ sơ mở ra trên trang (không đổi URL).
- * Mở: nền tối dần, tấm hồ sơ nở từ đúng vị trí tấm ảnh vừa bấm ra giữa màn hình, chữ hiện sau.
- * Đóng: chữ mờ trước, tấm hồ sơ thu về vị trí ảnh — liền mạch với lúc mở.
- * Trên điện thoại tấm hồ sơ là bottom sheet cuộn được bên trong.
+ * Tờ hồ sơ mở ra trên trang (không đổi URL) — như rút lá thư khỏi phong bì:
+ * 1. tờ giấy nằm sẵn dưới tấm ảnh, trượt xuống lộ ra;
+ * 2. bay lên giữa màn hình và mở ra cỡ thật, tấm ảnh mờ dần phía sau; chữ hiện sau cùng.
+ * Đóng: chữ mờ, tờ giấy thu nhỏ về dưới tấm ảnh, tấm ảnh hiện lại, tờ giấy trượt vào trong.
+ * Trên điện thoại tờ hồ sơ là bottom sheet cuộn được bên trong.
  */
 export default function ArchiveDetail({
   entry,
@@ -51,6 +76,7 @@ export default function ArchiveDetail({
 }: Props) {
   const rootRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const ghostRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const reduced = useReducedMotion()
 
@@ -58,17 +84,24 @@ export default function ArchiveDetail({
   useGSAP(
     () => {
       const panel = panelRef.current!
-      const backdrop = '[data-backdrop]'
-      const body = '[data-body]'
+      const ghost = ghostRef.current!
       if (reduced || !origin) {
-        gsap.fromTo([backdrop, panel], { opacity: 0 }, { opacity: 1, duration: reduced ? 0 : 0.25 })
+        gsap.fromTo(['[data-backdrop]', panel], { opacity: 0 }, { opacity: 1, duration: reduced ? 0 : 0.25 })
         return
       }
+      placeGhost(ghost, origin)
+      // Đo cả hai vị trí khi tờ giấy còn ở kích thước thật — đo sau khi đã thu nhỏ sẽ sai tỉ lệ
+      const inside = tucked(panel, origin)
+      const out = tucked(panel, origin, DROP)
+      gsap.set(panel, inside)
+      gsap.set('[data-body]', { opacity: 0 })
       gsap
         .timeline()
-        .fromTo(backdrop, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0)
-        .from(panel, { ...flipFrom(panel, origin), duration: 0.6, ease: 'power3.inOut' }, 0)
-        .from(body, { opacity: 0, y: 16, duration: 0.4, ease: 'power3.out' }, 0.38)
+        .fromTo('[data-backdrop]', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0)
+        .to(panel, { ...out, duration: 0.45, ease: 'power2.out' }, 0.1)
+        .to(panel, { x: 0, y: 0, scale: 1, duration: 0.65, ease: 'power3.inOut' }, 0.55)
+        .to(ghost, { opacity: 0, y: -24, scale: 0.94, duration: 0.5, ease: 'power2.in' }, 0.6)
+        .to('[data-body]', { opacity: 1, duration: 0.35, ease: 'power2.out' }, 1.05)
     },
     { scope: rootRef },
   )
@@ -78,6 +111,7 @@ export default function ArchiveDetail({
     () => {
       if (!closing) return
       const panel = panelRef.current!
+      const ghost = ghostRef.current!
       if (reduced || !origin) {
         gsap.to(rootRef.current, { opacity: 0, duration: reduced ? 0 : 0.2, onComplete: onClosed })
         return
@@ -85,8 +119,10 @@ export default function ArchiveDetail({
       gsap
         .timeline({ onComplete: onClosed })
         .to('[data-body]', { opacity: 0, duration: 0.15, ease: 'power2.in' }, 0)
-        .to(panel, { ...flipFrom(panel, origin), duration: 0.5, ease: 'power3.inOut' }, 0.1)
-        .to('[data-backdrop]', { opacity: 0, duration: 0.4, ease: 'power2.in' }, 0.15)
+        .to(panel, { ...tucked(panel, origin, DROP), duration: 0.55, ease: 'power3.inOut' }, 0.1)
+        .to(ghost, { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: 'power2.out' }, 0.25)
+        .to(panel, { ...tucked(panel, origin), duration: 0.35, ease: 'power2.in' }, 0.65)
+        .to('[data-backdrop]', { opacity: 0, duration: 0.35, ease: 'power2.in' }, 0.7)
     },
     { scope: rootRef, dependencies: [closing] },
   )
@@ -192,6 +228,9 @@ export default function ArchiveDetail({
           </div>
         </div>
       </div>
+
+      {/* Bản sao tấm ảnh — nằm trên tờ giấy để tờ giấy như được rút ra từ bên dưới */}
+      <div ref={ghostRef} aria-hidden className="pointer-events-none fixed" />
     </div>,
     document.body,
   )

@@ -14,9 +14,19 @@ export default function PersonalPage() {
   const role = useAuthStore((s) => s.user?.role)
   const xem = params.get('xem')
 
-  if (xem === 'doanh-nghiep') return <RecruiterPersonalView owner={false} />
-  if (xem === 'ung-vien') return <JobseekerPersonalView owner={false} />
-  if (role === 'jobseeker') return <JobseekerPersonalView owner />
-  if (role === 'recruiter') return <RecruiterPersonalView owner />
-  return <GuestPersonalView admin={role === 'admin'} />
+  const view =
+    xem === 'doanh-nghiep' ? <RecruiterPersonalView owner={false} />
+    : xem === 'ung-vien' ? <JobseekerPersonalView owner={false} />
+    : role === 'jobseeker' ? <JobseekerPersonalView owner />
+    : role === 'recruiter' ? <RecruiterPersonalView owner />
+    : <GuestPersonalView admin={role === 'admin'} />
+
+  // Mặt bàn tối (than chì) với các tấm ảnh in giấy sáng — theo tinh thần trang tham khảo,
+  // vẫn trong bảng màu Workmate. Header/footer đổi theo ở PublicLayout.
+  return (
+    <div className="theme-charcoal min-h-full bg-page-bg text-page-fg">
+      <div aria-hidden className="grain pointer-events-none fixed inset-0 z-30" />
+      {view}
+    </div>
+  )
 }

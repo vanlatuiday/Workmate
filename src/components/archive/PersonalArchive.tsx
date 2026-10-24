@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState, type ReactNode } from 'react'
 import { gsap, useGSAP } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
+import { useMediaQuery, FINE_POINTER } from '@hooks/useMediaQuery'
 import { cn } from '@utils/cn'
 import ArchiveItem from './ArchiveItem'
 import ArchiveDetail from './ArchiveDetail'
@@ -41,6 +42,12 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
   const [activeId, setActiveId] = useState<string | null>(null)
   const [closing, setClosing] = useState(false)
   const reduced = useReducedMotion()
+  // Kéo thả chỉ trên màn hình lớn có chuột: cảm ứng cần cuộn tự nhiên, màn nhỏ không đủ chỗ bày
+  const wide = useMediaQuery('(min-width: 1024px)')
+  const finePointer = useMediaQuery(FINE_POINTER)
+  const canDrag = wide && finePointer
+  const topZ = useRef(1)
+  const [moved, setMoved] = useState(false)
 
   // Hiện dần khi cuộn tới + parallax nhẹ (desktop). Tắt hẳn khi "giảm chuyển động".
   useGSAP(
@@ -74,6 +81,24 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
 
   const active = entries.find((e) => e.id === activeId) ?? null
 
+  /** Tấm đang kéo nằm trên cùng, như nhặt lên khỏi mặt bàn */
+  const lift = (li: HTMLElement | null) => {
+    if (li) li.style.zIndex = String(++topZ.current)
+    setMoved(true)
+  }
+
+  /** Đưa mọi tấm về chỗ ban đầu */
+  const tidy = () => {
+    gsap.to(rootRef.current?.querySelectorAll('[data-drag]') ?? [], {
+      x: 0,
+      y: 0,
+      duration: 0.8,
+      ease: 'power3.inOut',
+      stagger: 0.04,
+    })
+    setMoved(false)
+  }
+
   const open = (id: string) => {
     if (activeId) return // đang mở/đóng một tấm khác — không chồng tấm
     setClosing(false)
@@ -84,12 +109,27 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
     const id = activeId
     setActiveId(null)
     setClosing(false)
-    if (id) itemRefs.current.get(id)?.focus({ preventScroll: true })
+    // Chờ tấm ảnh hiện lại (đang `invisible` thì không nhận focus) rồi mới trả focus
+    if (id) requestAnimationFrame(() => itemRefs.current.get(id)?.focus({ preventScroll: true }))
   }, [activeId])
 
   return (
     <section ref={rootRef} aria-label={label} className="shell pb-section">
       {intro}
+      {canDrag && (
+        <div className="mt-10 flex items-center gap-5 text-sm text-page-muted">
+          <p>Kéo các tấm ảnh để bày lại mặt bàn, bấm vào một tấm để mở.</p>
+          {moved && (
+            <button
+              type="button"
+              onClick={tidy}
+              className="link-underline rounded-control text-page-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-bg"
+            >
+              Xếp lại mặt bàn
+            </button>
+          )}
+        </div>
+      )}
       <ul className="mt-16 grid gap-14 md:mt-20 md:grid-cols-2 md:gap-x-10 md:gap-y-12 lg:grid-cols-12 lg:gap-x-8 lg:gap-y-0">
         {entries.map((entry, i) => {
           const slot = SLOTS[i % SLOTS.length]
@@ -98,7 +138,7 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
               key={entry.id}
               data-archive-item
               data-speed={slot.speed}
-              className={cn(slot.cls, i % 2 === 1 && 'md:mt-24')}
+              className={cn('relative', slot.cls, i % 2 === 1 && 'md:mt-24')}
             >
               <div data-parallax>
                 <ArchiveItem
@@ -110,6 +150,8 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
                   tilt={slot.tilt}
                   aspect={slot.aspect}
                   lifted={activeId === entry.id}
+                  draggable={canDrag && !reduced}
+                  onLift={() => lift(itemRefs.current.get(entry.id)?.closest('li') ?? null)}
                   onOpen={() => open(entry.id)}
                 />
               </div>
