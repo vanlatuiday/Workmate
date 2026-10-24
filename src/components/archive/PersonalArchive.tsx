@@ -135,23 +135,21 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
   }, [activeId])
 
   return (
-    <section ref={rootRef} aria-label={label} className="shell pb-section">
+    <section ref={rootRef} aria-label={label} className="shell relative pb-section">
       {intro}
-      {canDrag && (
-        <div className="mt-10 flex items-center gap-5 text-sm text-page-muted">
-          <p>Kéo các tấm ảnh để bày lại mặt bàn, bấm vào một tấm để mở.</p>
-          {moved && (
-            <button
-              type="button"
-              onClick={tidy}
-              className={`link-underline rounded-control text-page-fg ${FOCUS}`}
-            >
-              Xếp lại mặt bàn
-            </button>
-          )}
+      {/* Chỉ hiện sau khi đã kéo — đưa các tấm về chỗ cũ. Nổi ở góc, không đẩy lưới ảnh */}
+      {canDrag && moved && (
+        <div className="absolute right-6 top-6 z-20 md:right-10 lg:right-16">
+          <button
+            type="button"
+            onClick={tidy}
+            className={`link-underline rounded-control text-sm text-page-muted hover:text-page-fg ${FOCUS}`}
+          >
+            Xếp lại mặt bàn
+          </button>
         </div>
       )}
-      <ul className="mt-16 grid gap-14 md:mt-20 md:grid-cols-2 md:gap-x-10 md:gap-y-12 lg:grid-cols-12 lg:gap-x-8 lg:gap-y-0">
+      <ul className="mt-6 grid gap-14 md:mt-8 md:grid-cols-2 md:gap-x-10 md:gap-y-12 lg:grid-cols-12 lg:gap-x-8 lg:gap-y-0">
         {entries.map((entry, i) => {
           const slot = SLOTS[i % SLOTS.length]
           return (
