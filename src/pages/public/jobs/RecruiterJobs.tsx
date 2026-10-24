@@ -6,17 +6,16 @@ import { POSITIONS, type Position } from './data'
 
 type Item = GalleryItem & { position: Position }
 
-/** Tin nháp chưa có ứng viên gợi ý → dẫn về danh sách tin để hoàn thiện */
-const targetOf = (p: Position) =>
-  p.status === 'draft' ? '/tuyen-dung/tin-dang' : `/tuyen-dung/ung-vien-phu-hop?job=${p.id}`
+/** Mọi trạng thái đều mở trang chi tiết vị trí; việc quản lý/sửa nằm ở "Quản lý tin" */
+const targetOf = (p: Position) => `/vi-tri/${p.id}`
 
 const ITEMS: Item[] = POSITIONS.map((p) => ({
   id: p.id,
   title: p.title,
   href: targetOf(p),
   photo: p.photo,
-  cursor: p.status === 'draft' ? 'Sửa' : 'Ứng viên',
-  linkLabel: p.status === 'draft' ? `Hoàn thiện tin ${p.title}` : `Xem ứng viên phù hợp cho ${p.title}`,
+  cursor: 'Xem',
+  linkLabel: `Xem chi tiết vị trí ${p.title}`,
   position: p,
 }))
 
@@ -34,7 +33,7 @@ export default function RecruiterJobs() {
           <GalleryIntro
             eyebrow="Tin của bạn"
             title="Những vị trí bạn đang cần người"
-            text="Mỗi ảnh là một tin tuyển dụng. Bấm vào ảnh để xem ứng viên phù hợp với tin đó."
+            text="Mỗi ảnh là một tin tuyển dụng. Bấm vào ảnh để xem chi tiết tin và ứng viên phù hợp."
           />
         }
         renderDetail={({ position: p }) => (
@@ -50,7 +49,9 @@ export default function RecruiterJobs() {
               ]}
             />
             <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
-              <PrimaryLink to={targetOf(p)}>{p.status === 'draft' ? 'Hoàn thiện tin' : 'Ứng viên phù hợp'}</PrimaryLink>
+              <PrimaryLink to={targetOf(p)} curtain={p.title} state={{ from: '/viec-lam' }}>
+                Xem vị trí
+              </PrimaryLink>
               <TextLink to="/tuyen-dung/tin-dang">Quản lý tin</TextLink>
             </div>
           </>

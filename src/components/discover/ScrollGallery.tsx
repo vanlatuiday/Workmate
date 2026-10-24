@@ -1,10 +1,11 @@
 import { useRef, useState, type MouseEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { ArrowDown, ArrowUp } from 'lucide-react'
 import { gsap, useGSAP } from '@utils/gsap'
 import type { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { scrollToY } from '@hooks/useSmoothScroll'
+import { useCurtainNavigate } from '@components/motion/PageCurtain'
 import { cn } from '@utils/cn'
 import TiltFrame from './TiltFrame'
 import { pad, type GalleryItem } from './types'
@@ -44,7 +45,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
   const stRef = useRef<ScrollTrigger | null>(null)
   const activeRef = useRef(0)
   const [active, setActive] = useState(0)
-  const navigate = useNavigate()
+  const go = useCurtainNavigate()
 
   const { contextSafe } = useGSAP(
     () => {
@@ -142,7 +143,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
     const others = frames.current.filter((f, k) => f && k !== i)
     gsap.to(others, { opacity: 0, duration: 0.3, ease: 'power2.out' })
     gsap.to(el?.querySelector('img') ?? [], { scale: 1.12, duration: 0.5, ease: 'power3.out', overwrite: true })
-    gsap.delayedCall(0.28, () => navigate(items[i].href, { state: { from: '/viec-lam' } }))
+    go(items[i].href, items[i].title, { from: '/viec-lam' })
   })
 
   const current = items[active]

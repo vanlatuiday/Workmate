@@ -74,7 +74,7 @@ function CompanyDetail({ company: c }: { company: DiscoverCompany }) {
       )}
 
       <div className="mt-6">
-        <PrimaryLink to={`/cong-ty/${c.id}`} state={{ from: '/viec-lam' }}>
+        <PrimaryLink to={`/cong-ty/${c.id}`} state={{ from: '/viec-lam' }} curtain={c.name}>
           Xem công ty
         </PrimaryLink>
       </div>

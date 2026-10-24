@@ -8,6 +8,7 @@ import type { UserRole } from '@/types'
 import { cn } from '@utils/cn'
 import MenuOverlay, { type MenuItem } from '@components/layout/MenuOverlay'
 import RouteScroll from '@components/common/RouteScroll'
+import PageCurtain from '@components/motion/PageCurtain'
 import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
 
@@ -325,6 +326,8 @@ export default function PublicLayout() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      <PageCurtain />
 
       {/* Footer */}
       <footer className={cn('border-t bg-page-bg border-page-line', !dark && 'theme-ivory')}>

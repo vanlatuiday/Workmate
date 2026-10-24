@@ -41,7 +41,7 @@ export default function GuestJobs() {
               ]}
             />
             <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
-              <PrimaryLink to={`/cong-ty/${c.id}`} state={{ from: '/viec-lam' }}>
+              <PrimaryLink to={`/cong-ty/${c.id}`} state={{ from: '/viec-lam' }} curtain={c.name}>
                 Xem công ty
               </PrimaryLink>
               <TextLink to="/dang-ky?role=jobseeker">Đăng ký để ứng tuyển</TextLink>

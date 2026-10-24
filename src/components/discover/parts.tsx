@@ -3,6 +3,7 @@ import { ArrowUpRight } from 'lucide-react'
 import type { ReactNode } from 'react'
 import RollText from '@components/motion/RollText'
 import { cn } from '@utils/cn'
+import { CurtainLink } from '@components/motion/PageCurtain'
 
 /** Mảnh giao diện nhỏ cho phần chữ của bộ sưu tập — giữ ba vai trò cùng một nhịp chữ. */
 
@@ -47,10 +48,23 @@ export function Facts({ rows }: { rows: [string, ReactNode][] }) {
   )
 }
 
-export function PrimaryLink({ to, children, state }: { to: string; children: string; state?: unknown }) {
+/** Nút chính. Có `curtain` → đi qua màn chuyển cảnh, chữ trên màn là `curtain`. */
+export function PrimaryLink({
+  to,
+  children,
+  state,
+  curtain,
+}: {
+  to: string
+  children: string
+  state?: unknown
+  curtain?: string
+}) {
+  const Comp = curtain ? CurtainLink : Link
   return (
-    <Link
+    <Comp
       to={to}
+      title={curtain ?? ''}
       state={state}
       className={cn(
         'group inline-flex items-center gap-2 rounded-full bg-page-fg px-6 py-3 text-sm font-medium text-page-bg transition-opacity duration-300 hover:opacity-90',
@@ -59,7 +73,7 @@ export function PrimaryLink({ to, children, state }: { to: string; children: str
     >
       <RollText>{children}</RollText>
       <ArrowUpRight className="h-4 w-4" />
-    </Link>
+    </Comp>
   )
 }
 

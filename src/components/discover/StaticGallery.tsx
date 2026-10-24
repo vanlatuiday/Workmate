@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { CurtainLink } from '@components/motion/PageCurtain'
 import Reveal from '@components/motion/Reveal'
 import { pad, photoSrcSet, photoUrl, type GalleryItem } from './types'
 import type { GalleryProps } from './DiscoverGallery'
@@ -15,8 +15,9 @@ export default function StaticGallery<T extends GalleryItem>({ items, label, int
         {items.map((item, i) => (
           <li key={item.id} className="grid gap-6 lg:grid-cols-12 lg:items-center lg:gap-12">
             <Reveal y={24} className="lg:col-span-7">
-              <Link
+              <CurtainLink
                 to={item.href}
+                title={item.title}
                 state={{ from: '/viec-lam' }}
                 aria-label={item.linkLabel}
                 className="group block overflow-hidden rounded-control bg-page-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-4 focus-visible:ring-offset-page-bg"
@@ -30,7 +31,7 @@ export default function StaticGallery<T extends GalleryItem>({ items, label, int
                   decoding="async"
                   className="aspect-[4/3] w-full object-cover transition-transform duration-500 ease-editorial group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                 />
-              </Link>
+              </CurtainLink>
             </Reveal>
             <div className="lg:col-span-5">
               <p className="mb-4 text-sm text-page-muted tnum">

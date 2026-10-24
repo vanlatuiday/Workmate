@@ -1,0 +1,117 @@
+import { useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { create } from 'zustand'
+import { gsap, useGSAP } from '@utils/gsap'
+import { useReducedMotion } from '@hooks/useReducedMotion'
+
+type Request = { id: number; title: string; onCovered: () => void }
+
+const useCurtain = create<{
+  req: Request | null
+  play: (title: string, onCovered: () => void) => void
+  finish: () => void
+}>()((set) => ({
+  req: null,
+  play: (title, onCovered) => set((s) => ({ req: { id: (s.req?.id ?? 0) + 1, title, onCovered } })),
+  finish: () => set({ req: null }),
+}))
+
+/** Giữ màn sau khi đổi trang (giây) — đủ cho trang cũ mờ đi (0.25s) và trang mới dựng xong */
+const HOLD = 0.55
+/** Từ lúc trang mới mount tới khi màn bắt đầu kéo lên (≈ HOLD − 0.25s mờ trang cũ) */
+export const CURTAIN_REVEAL_DELAY = 0.35
+
+/** Trang đích gọi khi mount: đang có màn che → trả về độ trễ để hiệu ứng vào chạy đúng lúc màn mở. */
+export function useCurtainDelay() {
+  // Đọc một lần lúc mount, không cần theo dõi
+  const [delay] = useState(() => (useCurtain.getState().req ? CURTAIN_REVEAL_DELAY : 0))
+  return delay
+}
+
+/**
+ * Điều hướng có màn chuyển cảnh: tấm than chì trượt từ dưới lên phủ màn hình, tên
+ * nơi sắp tới hiện giữa, đổi trang phía sau, rồi tấm màn kéo tiếp lên để lộ trang mới.
+ * "Giảm chuyển động" → điều hướng thẳng.
+ */
+export function useCurtainNavigate() {
+  const navigate = useNavigate()
+  const play = useCurtain((s) => s.play)
+  const reduced = useReducedMotion()
+  return (to: string, title: string, state?: unknown) => {
+    if (reduced) navigate(to, { state })
+    else play(title, () => navigate(to, { state }))
+  }
+}
+
+/** Link đi qua màn chuyển cảnh. Ctrl/Cmd/Shift + bấm vẫn mở tab mới như link thường. */
+export function CurtainLink({
+  to,
+  title,
+  state,
+  className,
+  children,
+  ...rest
+}: {
+  to: string
+  /** Chữ hiện giữa màn */
+  title: string
+  state?: unknown
+  className?: string
+  children: ReactNode
+  'aria-label'?: string
+}) {
+  const go = useCurtainNavigate()
+  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+    e.preventDefault()
+    go(to, title, state)
+  }
+  return (
+    <Link to={to} state={state} onClick={onClick} className={className} {...rest}>
+      {children}
+    </Link>
+  )
+}
+
+/** Tấm màn — đặt một lần trong PublicLayout. */
+export default function PageCurtain() {
+  const req = useCurtain((s) => s.req)
+  const finish = useCurtain((s) => s.finish)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const titleRef = useRef<HTMLParagraphElement>(null)
+
+  useGSAP(
+    () => {
+      if (!req) return
+      const panel = panelRef.current
+      const title = titleRef.current
+      gsap
+        .timeline({ onComplete: finish })
+        .set(panel, { yPercent: 100, visibility: 'visible' })
+        .set(title, { yPercent: 60, opacity: 0 })
+        .to(panel, { yPercent: 0, duration: 0.55, ease: 'power3.inOut' })
+        .to(title, { yPercent: 0, opacity: 1, duration: 0.4, ease: 'power3.out' }, '-=0.15')
+        // Màn đã phủ kín → đổi trang phía sau
+        .call(req.onCovered)
+        .to(title, { yPercent: -40, opacity: 0, duration: 0.3, ease: 'power2.in' }, `+=${HOLD - 0.3}`)
+        .to(panel, { yPercent: -100, duration: 0.65, ease: 'power3.inOut' }, '-=0.05')
+        .set(panel, { visibility: 'hidden' })
+    },
+    { dependencies: [req?.id] },
+  )
+
+  return (
+    <div
+      ref={panelRef}
+      aria-hidden
+      className="invisible fixed inset-0 z-[90] grid place-items-center bg-wm-charcoal text-wm-ivory"
+    >
+      <p
+        ref={titleRef}
+        className="max-w-[18ch] px-6 text-center font-display text-display-md font-semibold"
+      >
+        {req?.title}
+      </p>
+    </div>
+  )
+}
