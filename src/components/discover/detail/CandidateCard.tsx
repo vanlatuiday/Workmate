@@ -1,3 +1,5 @@
+import { ProfileTag } from '../parts'
+import { SEEKER_PROFILE_HREF } from '@pages/public/profile/store'
 import { Link } from 'react-router-dom'
 import Reveal from '@components/motion/Reveal'
 import type { MockCandidate } from '@pages/recruiter/mockData'
@@ -45,12 +47,15 @@ export default function CandidateCard({ c, jobId }: { c: MockCandidate; jobId: s
             <dd>{c.expectedSalary}</dd>
           </div>
         </dl>
+        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <ProfileTag to={SEEKER_PROFILE_HREF}>Hồ sơ ứng viên</ProfileTag>
         <Link
           to={`/tuyen-dung/ung-vien-phu-hop?job=${jobId}`}
-          className={`link-underline mt-5 inline-block rounded-control text-sm text-page-muted hover:text-page-fg ${FOCUS}`}
+          className={`link-underline inline-block rounded-control text-sm text-page-muted hover:text-page-fg ${FOCUS}`}
         >
           Xem trong khu tuyển dụng
         </Link>
+        </div>
       </article>
     </Reveal>
   )

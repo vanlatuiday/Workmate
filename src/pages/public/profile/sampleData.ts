@@ -64,7 +64,8 @@ export const SAMPLE_SEEKER: SeekerProfile = {
     },
   ],
   education: [{ id: 'ed1', school: 'Đại học Bách khoa – Đại học Đà Nẵng', degree: 'Kỹ sư Công nghệ thông tin', year: 2023 }],
-  certificates: [{ id: 'c1', name: 'Meta Front-End Developer', issuer: 'Coursera', year: 2024 }],
+  // Để trống chứng chỉ → thanh hoàn thiện có sẵn một gợi ý khi mở demo
+  certificates: [],
   contact: { email: 'khoa.tran@example.com', phone: '0905 123 456' },
   visibility: { email: true, phone: false, salary: true, currentCompany: false },
 }

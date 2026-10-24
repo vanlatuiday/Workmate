@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, UserRound } from 'lucide-react'
 import type { ReactNode } from 'react'
 import RollText from '@components/motion/RollText'
 import { cn } from '@utils/cn'
@@ -102,5 +102,26 @@ export function ClosingBand({ title, text, children }: { title: string; text: st
         <div className="flex flex-wrap items-center gap-x-6 gap-y-4 md:col-span-5 md:justify-end">{children}</div>
       </div>
     </section>
+  )
+}
+
+/**
+ * Thẻ dẫn tới trang cá nhân của bên đang đăng tuyển / đang ứng tuyển.
+ * Mở bằng màn phủ từ trên xuống, cùng hướng với nút "Trang cá nhân" ở header.
+ */
+export function ProfileTag({ to, children }: { to: string; children: string }) {
+  return (
+    <CurtainLink
+      to={to}
+      title="Trang cá nhân"
+      direction="down"
+      className={cn(
+        'inline-flex items-center gap-2 rounded-full border border-page-line px-3 py-1.5 text-xs text-page-muted transition-colors duration-300 hover:border-page-fg hover:text-page-fg',
+        FOCUS,
+      )}
+    >
+      <UserRound className="h-3.5 w-3.5" />
+      {children}
+    </CurtainLink>
   )
 }

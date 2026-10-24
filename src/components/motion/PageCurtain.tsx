@@ -52,6 +52,7 @@ export function CurtainLink({
   to,
   title,
   state,
+  direction = 'up',
   className,
   children,
   ...rest
@@ -60,6 +61,7 @@ export function CurtainLink({
   /** Chữ hiện giữa màn */
   title: string
   state?: unknown
+  direction?: CurtainDirection
   className?: string
   children: ReactNode
   'aria-label'?: string
@@ -68,7 +70,7 @@ export function CurtainLink({
   const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
     e.preventDefault()
-    go(to, title, state)
+    go(to, title, state, direction)
   }
   return (
     <Link to={to} state={state} onClick={onClick} className={className} {...rest}>

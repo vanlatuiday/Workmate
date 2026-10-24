@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useAuthStore } from '@context/authStore'
-import { Facts, PrimaryLink, TextLink } from '@components/discover/parts'
+import { Facts, PrimaryLink, ProfileTag, TextLink } from '@components/discover/parts'
+import { COMPANY_PROFILE_HREF } from '@pages/public/profile/store'
 import DetailHero from '@components/discover/detail/DetailHero'
 import DetailLayout from '@components/discover/detail/DetailLayout'
 import DetailNotFound from '@components/discover/detail/NotFound'
@@ -38,6 +39,9 @@ export default function CompanyDetailPage() {
   const aside = (
     <>
       <p className="max-w-sm text-base md:text-lg leading-relaxed">{company.tagline}</p>
+      <div className="mt-4">
+        <ProfileTag to={COMPANY_PROFILE_HREF}>Trang doanh nghiệp</ProfileTag>
+      </div>
       <Facts
         rows={[
           ['Lĩnh vực', company.industry],

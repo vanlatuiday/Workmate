@@ -11,6 +11,7 @@ import RouteScroll from '@components/common/RouteScroll'
 import PageCurtain, { useCurtainNavigate } from '@components/motion/PageCurtain'
 import { profileHref } from '@pages/public/profile/store'
 import Magnetic from '@components/motion/Magnetic'
+import { useMediaQuery } from '@hooks/useMediaQuery'
 import RollText from '@components/motion/RollText'
 
 /** Mục điều hướng theo người đang xem. Khách thấy lời mời trung lập cho cả hai phía;
@@ -67,6 +68,9 @@ export default function PublicLayout() {
   // Theme ngà gắn vào header, footer và khung của TỪNG trang (không gắn lên wrapper),
   // nên trang cũ đang mờ dần vẫn giữ màu của chính nó.
   const dark = location.pathname === '/'
+  // Trang cá nhân theo chế độ sáng/tối của hệ thống (yêu cầu riêng của trang này) → header/footer đổi theo cho liền mạch
+  const systemDark = useMediaQuery('(prefers-color-scheme: dark)')
+  const chromeTheme = location.pathname === '/trang-ca-nhan' && systemDark ? 'theme-charcoal' : 'theme-ivory'
 
   // Đóng mọi menu khi chuyển trang
   useEffect(() => {
@@ -101,7 +105,7 @@ export default function PublicLayout() {
       <header
         className={cn(
           'top-0 z-40 text-page-fg',
-          dark ? 'fixed inset-x-0' : 'sticky theme-ivory border-b border-page-line',
+          dark ? 'fixed inset-x-0' : `sticky ${chromeTheme} border-b border-page-line`,
         )}
       >
         {dark && (
@@ -363,7 +367,7 @@ export default function PublicLayout() {
       <PageCurtain />
 
       {/* Footer */}
-      <footer className={cn('border-t bg-page-bg border-page-line', !dark && 'theme-ivory')}>
+      <footer className={cn('border-t bg-page-bg border-page-line', !dark && chromeTheme)}>
         <div className="shell py-section-sm">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">

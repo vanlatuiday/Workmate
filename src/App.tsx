@@ -16,6 +16,7 @@ import PositionDetailPage from '@pages/public/PositionDetailPage'
 import BlogPage from '@pages/public/BlogPage'
 import LoginPage from '@pages/public/LoginPage'
 import RegisterPage from '@pages/public/RegisterPage'
+import ProfilePage from '@pages/public/ProfilePage'
 
 // Jobseeker pages
 import JobseekerDashboard from '@pages/jobseeker/Dashboard'
@@ -70,6 +71,7 @@ export default function App() {
         <Route path="/cam-nang" element={<BlogPage />} />
         <Route path="/dang-nhap" element={<LoginPage />} />
         <Route path="/dang-ky" element={<RegisterPage />} />
+        <Route path="/trang-ca-nhan" element={<ProfilePage />} />
         <Route element={<ProtectedRoute role="recruiter" />}>
           <Route path="/vi-tri/:id" element={<PositionDetailPage />} />
         </Route>
