@@ -20,13 +20,13 @@ export default function CandidateCard({ c, jobId }: { c: MockCandidate; jobId: s
         <div className="flex items-center gap-4">
           <Initials text={initials} />
           <div className="min-w-0">
-            <h3 className="font-display text-xl font-semibold">{c.name}</h3>
+            <h3 className="font-display text-lg font-semibold">{c.name}</h3>
             <p className="text-sm text-page-muted">
               {c.area} · cách {c.distanceKm} km
             </p>
           </div>
           <p className="ml-auto shrink-0 text-right text-sm">
-            <span className="block font-display text-xl font-semibold">{c.score}%</span>
+            <span className="block font-display text-lg font-semibold">{c.score}%</span>
             <span className="text-xs text-page-muted">phù hợp (mẫu)</span>
           </p>
         </div>

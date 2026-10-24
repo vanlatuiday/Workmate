@@ -163,7 +163,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
 
             <div>
               <div className="flex items-end gap-3">
-                <span className="relative block h-[1.06em] overflow-hidden font-display text-display-lg font-semibold leading-[1.06] tnum">
+                <span className="relative block h-[1.06em] overflow-hidden font-display text-display-sm font-semibold leading-[1.06] tnum">
                   <AnimatePresence mode="popLayout" initial={false}>
                     <motion.span
                       key={active}

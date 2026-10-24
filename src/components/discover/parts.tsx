@@ -17,7 +17,7 @@ export function GalleryIntro({ eyebrow, title, text }: { eyebrow: string; title:
         <span className="h-px w-8 bg-page-line" />
         {eyebrow}
       </p>
-      <h1 className="mt-5 max-w-[14ch] font-display text-3xl font-semibold leading-[1.12] tracking-[-0.02em] lg:text-[2rem]">
+      <h1 className="mt-5 max-w-[14ch] font-display text-2xl font-semibold leading-[1.15] tracking-[-0.02em]">
         {title}
       </h1>
       <p className="mt-4 text-sm leading-relaxed text-page-muted">{text}</p>
@@ -29,7 +29,7 @@ export function DetailHead({ kicker, title }: { kicker: string; title: string })
   return (
     <>
       <p className="text-xs font-medium uppercase tracking-[0.18em] text-page-muted">{kicker}</p>
-      <h2 className="mt-3 font-display text-2xl font-semibold leading-tight tracking-[-0.02em] md:text-3xl">{title}</h2>
+      <h2 className="mt-3 font-display text-xl font-semibold leading-snug tracking-[-0.01em] md:text-2xl">{title}</h2>
     </>
   )
 }
@@ -96,7 +96,7 @@ export function ClosingBand({ title, text, children }: { title: string; text: st
     <section className="shell border-t border-page-line py-section-sm">
       <div className="grid gap-8 md:grid-cols-12 md:items-end">
         <div className="md:col-span-7">
-          <h2 className="max-w-[18ch] font-display text-display-sm font-semibold">{title}</h2>
+          <h2 className="max-w-[18ch] font-display text-2xl font-semibold md:text-3xl">{title}</h2>
           <p className="mt-4 max-w-xl leading-relaxed text-page-muted">{text}</p>
         </div>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-4 md:col-span-5 md:justify-end">{children}</div>

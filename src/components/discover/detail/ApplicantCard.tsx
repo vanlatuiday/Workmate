@@ -11,7 +11,7 @@ export default function ApplicantCard({ a }: { a: PublicApplicant }) {
           <Initials text={a.initials} />
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-page-muted">Người ứng tuyển</p>
-            <h3 className="font-display text-xl font-semibold">{a.alias}</h3>
+            <h3 className="font-display text-lg font-semibold">{a.alias}</h3>
           </div>
         </div>
         <p className="mt-5 leading-relaxed">{a.summary}</p>

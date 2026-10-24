@@ -32,7 +32,7 @@ export default function GuestJobs() {
         renderDetail={({ company: c }) => (
           <>
             <DetailHead kicker={`${c.industry} · ${c.district}`} title={c.name} />
-            <p className="mt-4 text-lg leading-relaxed">{c.why}</p>
+            <p className="mt-4 leading-relaxed">{c.why}</p>
             <p className="mt-2 text-sm leading-relaxed text-page-muted">{c.tagline}</p>
             <Facts
               rows={[

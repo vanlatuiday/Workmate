@@ -6,7 +6,7 @@ import { photoSrcSet, photoUrl, type Photo } from '../types'
 export function TextBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
     <Reveal>
-      <h2 className="font-display text-2xl font-semibold leading-tight tracking-[-0.02em] md:text-3xl">{title}</h2>
+      <h2 className="font-display text-xl font-semibold leading-tight tracking-[-0.02em] md:text-2xl">{title}</h2>
       <div className="mt-4">{children}</div>
     </Reveal>
   )

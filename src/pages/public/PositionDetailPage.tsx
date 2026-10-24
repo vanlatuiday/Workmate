@@ -28,7 +28,7 @@ export default function PositionDetailPage() {
 
   const aside = (
     <>
-      <p className="max-w-sm text-lg leading-relaxed">{p.need}</p>
+      <p className="max-w-sm text-base md:text-lg leading-relaxed">{p.need}</p>
       <Facts
         rows={[
           ['Trạng thái', JOB_STATUS_LABELS[p.status]],
@@ -63,7 +63,7 @@ export default function PositionDetailPage() {
           </>
         ) : (
           <TextBlock title="Chưa có ứng viên gợi ý">
-            <p className="max-w-xl text-lg leading-relaxed">
+            <p className="max-w-xl text-base md:text-lg leading-relaxed">
               {p.status === 'draft'
                 ? 'Tin này vẫn là bản nháp. Chốt lịch làm và mức lương, rồi đăng tin để Workmate bắt đầu gợi ý ứng viên.'
                 : 'Chưa có ứng viên phù hợp với tin này. Thử mở rộng lịch làm hoặc nới tiêu chí không bắt buộc để có thêm gợi ý.'}

@@ -19,7 +19,7 @@ export default function JobLinks({ jobs }: { jobs: MockJob[] }) {
               className={`group flex items-center justify-between gap-6 rounded-control py-5 ${FOCUS}`}
             >
               <span>
-                <span className="block font-display text-xl font-medium">{j.title}</span>
+                <span className="block font-display text-lg font-medium">{j.title}</span>
                 <span className="mt-1 block text-sm text-page-muted">
                   {j.salaryLabel} · {j.shift} · {j.district}
                 </span>

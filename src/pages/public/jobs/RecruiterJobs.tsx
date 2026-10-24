@@ -39,7 +39,7 @@ export default function RecruiterJobs() {
         renderDetail={({ position: p }) => (
           <>
             <DetailHead kicker={`${JOB_STATUS_LABELS[p.status]} · ${p.jobType}`} title={p.title} />
-            <p className="mt-4 text-lg leading-relaxed">{p.need}</p>
+            <p className="mt-4 leading-relaxed">{p.need}</p>
             <Facts
               rows={[
                 ['Lịch', p.schedule],

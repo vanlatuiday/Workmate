@@ -27,7 +27,7 @@ export default function DetailHero({
   return (
     // overflow-x-clip: tên đang trượt từ ngoài mép phải không làm trang cuộn ngang
     <header className="overflow-x-clip">
-      <div className="shell flex min-h-[calc(62svh-4rem)] flex-col justify-between pt-8 md:pt-10">
+      <div className="shell flex min-h-[calc(44svh-4rem)] flex-col justify-between pt-8 md:pt-10">
         <motion.div
           {...(reduced
             ? {}
@@ -46,7 +46,7 @@ export default function DetailHero({
 
         {/* leading ≥ 1.05 để không cắt dấu tiếng Việt */}
         <motion.h1
-          className="ml-auto mt-12 max-w-full break-words pb-4 text-right font-display text-[clamp(2.75rem,9vw,8rem)] font-semibold leading-[1.08] tracking-[-0.03em] md:max-w-[14ch]"
+          className="ml-auto mt-12 max-w-full break-words pb-4 text-right font-display text-display-md font-semibold leading-[1.08] tracking-[-0.03em] md:max-w-[16ch]"
           {...(reduced
             ? {}
             : {

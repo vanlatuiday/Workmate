@@ -37,7 +37,7 @@ export default function CompanyDetailPage() {
 
   const aside = (
     <>
-      <p className="max-w-sm text-lg leading-relaxed">{company.tagline}</p>
+      <p className="max-w-sm text-base md:text-lg leading-relaxed">{company.tagline}</p>
       <Facts
         rows={[
           ['Lĩnh vực', company.industry],
@@ -66,7 +66,7 @@ export default function CompanyDetailPage() {
 
       <DetailLayout aside={aside}>
         <TextBlock title="Về công ty">
-          <p className="text-lg leading-relaxed">{company.about}</p>
+          <p className="text-base md:text-lg leading-relaxed">{company.about}</p>
         </TextBlock>
 
         {applicants[0] && <ApplicantCard a={applicants[0]} />}
@@ -86,7 +86,7 @@ export default function CompanyDetailPage() {
         {withApplicants && (
           <Reveal>
             <div className="rounded-card border border-page-line p-6 md:p-8">
-              <h2 className="font-display text-2xl font-semibold leading-tight tracking-[-0.02em]">
+              <h2 className="font-display text-xl md:text-2xl font-semibold leading-tight tracking-[-0.02em]">
                 Bạn là người tìm việc hay người cần tuyển?
               </h2>
               <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">

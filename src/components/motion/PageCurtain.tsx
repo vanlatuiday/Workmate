@@ -108,7 +108,7 @@ export default function PageCurtain() {
     >
       <p
         ref={titleRef}
-        className="max-w-[18ch] px-6 text-center font-display text-display-md font-semibold"
+        className="max-w-[18ch] px-6 text-center font-display text-display-sm font-semibold"
       >
         {req?.title}
       </p>
