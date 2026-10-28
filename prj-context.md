@@ -71,7 +71,9 @@ Phân quyền: `ProtectedRoute` chỉ kiểm tra `user.role` trong Zustand store
 |---|---|
 | `/tim-viec` Dashboard · `/phu-hop` Việc phù hợp (lọc, sắp xếp, phân rã 5 tiêu chí từ `catalog.ts`) · `/ho-so` Hồ sơ (lịch rảnh T2–CN × buổi, kỹ năng) | **[có]** UI theo DESIGN.md, việc và điểm lấy từ `pages/public/jobs/catalog.ts`, phần còn lại (hồ sơ, đơn ứng tuyển) ở `pages/jobseeker/mockData.ts`, state cục bộ |
 | `/da-luu` Việc đã lưu · `/ung-tuyen` Đã ứng tuyển · `/match` Kết nối | **[có]** (2026-10-29) Đọc kho chung (`connectionService`, `matchStore`): Việc đã lưu (điểm, trạng thái, Ứng tuyển/Đồng ý kết nối/Bỏ lưu), Đã ứng tuyển (tabs + nhóm "Doanh nghiệp đang chờ bạn", Rút/Nhắn tin/Chọn giờ), Kết nối (tin nhắn cuối, chưa đọc, phỏng vấn). Tổng quan dùng số liệu thật từ kho. Dữ liệu demo, chưa có backend. |
-| `/tin-nhan` (chuyển hướng sang `/tin-nhan` công khai) · `/lich-phong-van` (chuyển hướng sang `/lich-phong-van` công khai) · `/cv` Quản lý CV · `/cai-dat` | **[khung]** Trang trống (hai route chuyển hướng là [có]) |
+| `/tin-nhan` (chuyển hướng sang `/tin-nhan` công khai) · `/lich-phong-van` (chuyển hướng sang `/lich-phong-van` công khai) | **[có]** hai route chuyển hướng |
+| `/cv` Quản lý CV | **[có]** (2026-10-29) Tải lên kéo-thả/chọn file (PDF, ảnh ≤5MB, tối đa 5), xem trước, đổi tên, đặt mặc định, tải xuống, xóa. Danh sách ở `context/cvStore.ts` (localStorage `workmate-cv`), nội dung file ở IndexedDB (`utils/fileStore.ts`) — chỉ trên trình duyệt này. |
+| `/cai-dat` Cài đặt | **[có]** (2026-10-29) Dùng chung hai phía (`components/settings/SettingsPage.tsx`): tài khoản + đổi mật khẩu (mẫu), công tắc thông báo (lọc thật ở `/thong-bao`), email tóm tắt, quyền riêng tư, đặt lại dữ liệu demo, xóa tài khoản (gõ XÓA). Lưu ở `context/settingsStore.ts` (`workmate-settings`). |
 
 ### Nhà tuyển dụng `/tuyen-dung`
 | Route | Trạng thái |
@@ -79,7 +81,9 @@ Phân quyền: `ProtectedRoute` chỉ kiểm tra `user.role` trong Zustand store
 | `/tuyen-dung` Dashboard · `/tin-dang` Tin tuyển dụng | **[có]** UI theo DESIGN.md, dữ liệu mẫu `pages/recruiter/mockData.ts`, state cục bộ |
 | `/dang-tin` Đăng tin | **[có]** Form 4 bước: Thông tin vị trí → Yêu cầu → Lịch & Lương (lịch theo từng ngày) → Tiêu chí. Chưa gửi lên API. |
 | `/tim-ung-vien` Tìm ứng viên · `/ung-vien-da-luu` Ứng viên đã lưu · `/match` Kết nối | **[có]** (2026-10-29) Đọc kho chung: Tìm ứng viên (lọc tên/kỹ năng/quận/buổi rảnh/lương, điểm hợp nhất, Quan tâm chọn tin, Lưu), Ứng viên đã lưu (nhóm theo tin), Kết nối (Nhắn tin, Mời phỏng vấn). `/tuyen-dung/ung-vien-phu-hop` chuyển hướng sang `/match` (file `SuggestedCandidates.tsx` còn nhưng không còn route). |
-| `/tin-nhan` · `/lich-phong-van` (chuyển hướng sang trang công khai) · `/ho-so-cong-ty` · `/cai-dat` | `/ho-so-cong-ty`, `/cai-dat` **[khung]** trang trống; hai route chuyển hướng là [có] |
+| `/tin-nhan` · `/lich-phong-van` (chuyển hướng sang trang công khai) | **[có]** chuyển hướng |
+| `/ho-so-cong-ty` Hồ sơ công ty | **[có]** (2026-10-29) Form (thông tin chung, ảnh bìa chọn sẵn, môi trường/giá trị/chính sách, văn hóa, liên hệ) + xem trước thẻ; Lưu/Hủy/Khôi phục mặc định. Lưu ở `context/companyStore.ts` (`workmate-company`); `/cong-ty/song-han` và trang Kết nối đọc từ đó. |
+| `/cai-dat` Cài đặt | **[có]** như phía người tìm việc (`SettingsPage`); công tắc "Công khai trang công ty". |
 
 ### Quản trị `/admin`
 | Route | Trạng thái |

@@ -1,6 +1,7 @@
 // Lớp dịch vụ cho quan tâm / kết nối / thông báo. Giao diện chỉ dùng các hàm ở đây.
 // Hiện đọc/ghi kho demo (`@context/demoStore`); khi có backend, đổi ruột các hàm này sang
 // gọi API (`./api`, `./matchService`) — chữ ký giữ nguyên nên giao diện không phải sửa.
+import { isNotifyOn, useSettingsStore } from '@context/settingsStore'
 import { useDemoStore, convKey, ME, RECRUITER_JOBS, type Connection, type Interview, type Message, type Side } from '@context/demoStore'
 
 export { ME, RECRUITER_JOBS }
@@ -56,15 +57,17 @@ export function withdrawInterest(from: Side, jobId: string, seekerId: string) {
   useDemoStore.getState().withdrawInterest(from, jobId, seekerId)
 }
 
-/** Hook: thông báo của tài khoản demo ở phía `to`, mới nhất trước (bỏ thông báo gửi cho ứng viên/tin mẫu khác) */
+/** Hook: thông báo của tài khoản demo ở phía `to`, mới nhất trước (bỏ thông báo gửi cho ứng viên/tin mẫu khác và loại đã tắt trong Cài đặt) */
 export function useNotifications(to: Side) {
   const all = useDemoStore((s) => s.notifications)
-  return all.filter((n) => n.to === to && isMine(to, n)).sort((a, b) => b.at.localeCompare(a.at))
+  const prefs = useSettingsStore((s) => s.bySide[to])
+  return all.filter((n) => n.to === to && isMine(to, n) && isNotifyOn(prefs, n.kind)).sort((a, b) => b.at.localeCompare(a.at))
 }
 
 /** Hook: số thông báo chưa đọc của tài khoản demo ở phía `to` */
 export function useUnreadCount(to: Side) {
-  return useDemoStore((s) => s.notifications.filter((n) => n.to === to && !n.read && isMine(to, n)).length)
+  const prefs = useSettingsStore((s) => s.bySide[to])
+  return useDemoStore((s) => s.notifications.filter((n) => n.to === to && !n.read && isMine(to, n) && isNotifyOn(prefs, n.kind)).length)
 }
 
 /**

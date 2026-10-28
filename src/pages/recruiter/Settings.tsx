@@ -1,3 +1,5 @@
+import SettingsPage from '@components/settings/SettingsPage'
+
 export default function Settings() {
-  return <div>Recruiter – Settings</div>
+  return <SettingsPage side="recruiter" />
 }

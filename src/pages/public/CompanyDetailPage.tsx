@@ -12,6 +12,7 @@ import { ImageBlock, TagList, TextBlock } from '@components/discover/detail/Deta
 import Reveal from '@components/motion/Reveal'
 import { applicantsOf, findCompany } from './jobs/data'
 import { jobsOfCompany } from './jobs/catalog'
+import { companyOf, DEMO_COMPANY } from './match/data'
 
 /**
  * /cong-ty/:id — chi tiết công ty kiểu "case study" (dữ liệu mẫu).
@@ -20,7 +21,8 @@ import { jobsOfCompany } from './jobs/catalog'
  */
 export default function CompanyDetailPage() {
   const { id } = useParams()
-  const company = findCompany(id)
+  // Công ty của doanh nghiệp demo nằm ngoài COMPANIES: lấy qua companyOf để nhận cả phần đã sửa ở Hồ sơ công ty
+  const company = findCompany(id) ?? (id === DEMO_COMPANY.id ? companyOf(id) : undefined)
   const role = useAuthStore((s) => s.user?.role)
 
   if (!company) {

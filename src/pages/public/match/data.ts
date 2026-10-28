@@ -10,6 +10,7 @@ import { COMPANY } from '@pages/public/personal/companyData'
 import { ME } from '@services/connectionService'
 import type { JobType } from '@/types'
 import type { JobRequirement, SeekerCriteria } from './score'
+import { useCompanyStore } from '@context/companyStore'
 
 /** Tạo danh sách khóa ca từ các ngày và buổi */
 const slots = (days: number[], sessions: number[]) => days.flatMap((d) => sessions.map((s) => `${d}-${s}`))
@@ -96,7 +97,11 @@ export const DEMO_COMPANY: DiscoverCompany = {
 }
 
 export function companyOf(id: string): DiscoverCompany {
-  if (id === DEMO_COMPANY.id) return DEMO_COMPANY
+  // Công ty của doanh nghiệp demo: ghép thông tin đã sửa ở "Hồ sơ công ty" (companyStore)
+  if (id === DEMO_COMPANY.id) {
+    const p = useCompanyStore.getState().profile
+    return { ...DEMO_COMPANY, name: p.name, industry: p.industry, district: p.district, size: p.size, tagline: p.tagline, about: p.about, environment: p.environment, cover: p.cover }
+  }
   // Dữ liệu mẫu luôn khớp COMPANIES; nếu lệch thì báo lỗi sớm để dễ thấy
   const c = COMPANIES.find((x) => x.id === id)
   if (!c) throw new Error(`Không có công ty mẫu "${id}"`)
