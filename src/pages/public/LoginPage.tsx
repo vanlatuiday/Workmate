@@ -5,6 +5,8 @@ import { useAuthStore } from '@context/authStore'
 import { DEMO_ACCOUNTS, buildDemoUser, findDemoAccount } from '@constants/demoAccounts'
 import { canVisit } from '@constants/roles'
 import { FOCUS } from '@utils/focus'
+import TextReveal from '@components/motion/TextReveal'
+import { usePageEnterDelay } from '@components/motion/PageTransition'
 
 /*
  * Đăng nhập — tạm dùng 3 tài khoản demo (xem constants/demoAccounts.ts).
@@ -16,6 +18,8 @@ const INPUT = `w-full rounded-control border border-page-edge bg-page-surface px
 const ICONS = { jobseeker: Search, recruiter: Building2, admin: ShieldCheck } as const
 
 export default function LoginPage() {
+  // Tiêu đề trồi lên theo từng chữ khi trang lộ ra (sau các dải chuyển trang nếu có)
+  const enter = usePageEnterDelay()
   const [form, setForm] = useState({ username: '', password: '' })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -57,7 +61,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-[calc(100vh-64px)] text-page-fg flex items-start justify-center px-6 py-12 md:py-16">
       <div className="w-full max-w-md">
-        <h1 className="font-display text-display-sm font-semibold text-page-fg">Đăng nhập</h1>
+        <TextReveal as="h1" immediate delay={enter} text="Đăng nhập" className="font-display text-display-sm font-semibold text-page-fg" />
         <p className="text-base text-page-muted mt-3">
           Chưa có tài khoản?{' '}
           <Link to="/dang-ky" className={`font-medium text-page-fg underline underline-offset-4 rounded-control ${FOCUS}`}>

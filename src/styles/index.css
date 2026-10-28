@@ -63,6 +63,20 @@
 :root {
   transition: --page-fg 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
+/* Nền cũng đăng ký kiểu <color> để header (ngoài trang chủ) chuyển màu dần khi đổi theme.
+   :root không có transition cho nền — trang chủ tự nội suy theo vị trí cuộn (useSectionThemes). */
+@property --page-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #242522; /* = wm-charcoal */
+}
+/* Header các trang công khai: đổi giữa theme ngà ↔ than chì (vd. sang /ca-nhan) thì chuyển dần.
+   Không gắn ở trang chủ: ở đó biến đã chuyển mượt trên :root, thêm transition sẽ trễ màu. */
+.header-theme {
+  transition:
+    --page-fg 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    --page-bg 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
 
 /* Bảng màu trang chủ. --page-bg / --page-fg được useSectionThemes ghi đè và nội
    suy theo vị trí cuộn; muted/line tự suy ra nên luôn khớp với màu nền hiện tại.
@@ -135,6 +149,30 @@
   .tnum {
     font-variant-numeric: tabular-nums;
   }
+}
+
+/* Dashboard: nội dung trang mới hiện dần + trượt lên rất nhẹ khi đổi mục ở thanh bên */
+@keyframes dash-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.dash-enter {
+  animation: dash-enter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Vạch tiến trình khi trang dashboard đang tải: chạy ngang lặp lại, trễ 150ms để không nháy khi tải nhanh */
+@keyframes dash-loading {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(300%); }
+}
+.dash-loading {
+  opacity: 0;
+  animation:
+    dash-loading-in 0s 0.15s forwards,
+    dash-loading 1.1s 0.15s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes dash-loading-in {
+  to { opacity: 1; }
 }
 
 /* Người dùng bật "giảm chuyển động" → tắt mọi animation */

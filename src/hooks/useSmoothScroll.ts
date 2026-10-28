@@ -12,6 +12,16 @@ export function scrollToY(y: number, smooth = false) {
 }
 
 /**
+ * Dừng Lenis đang chạy ngay lập tức (gỡ hẳn để lúc trang unmount). Gọi khi trang bắt đầu
+ * rời đi trong lúc chuyển chồng: nếu không, Lenis của trang cũ đang trôi dở sẽ kéo cửa sổ
+ * về đích cũ ngay sau khi trang mới cuộn về đầu.
+ */
+export function haltSmoothScroll() {
+  current?.stop()
+  current = null
+}
+
+/**
  * Smooth scroll cho toàn trang. Tự tắt khi người dùng bật
  * "giảm chuyển động" trong cài đặt hệ điều hành.
  *
@@ -42,7 +52,8 @@ export function useSmoothScroll(enabled = true) {
       gsap.ticker.remove(tick)
       gsap.ticker.lagSmoothing(500, 33)
       lenis.destroy()
-      current = null
+      // Lúc chuyển chồng trang, trang mới đã tạo Lenis của nó trước khi trang cũ gỡ xong
+      if (current === lenis) current = null
     }
   }, [enabled])
 }

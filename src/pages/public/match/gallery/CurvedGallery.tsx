@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { gsap } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useMediaQuery } from '@hooks/useMediaQuery'
@@ -6,6 +6,7 @@ import { useExperienceStore } from '@context/experienceStore'
 import { photoSrcSet, photoUrl, type Photo } from '@components/discover/types'
 import { cn } from '@utils/cn'
 import { FOCUS_FAR } from '@utils/focus'
+import { usePageEnterDelay } from '@components/motion/PageTransition'
 import { createCurveRenderer, type CardDraw } from './curveGL'
 
 export interface CurvedItem {
@@ -52,7 +53,16 @@ export default function CurvedGallery<T extends CurvedItem>({ items, label, rend
   const reduced = useReducedMotion()
   const desktop = useMediaQuery('(min-width: 1024px)')
   const quality = useExperienceStore((s) => s.quality)
-  const enabled = desktop && !reduced && quality === 'high'
+  // Vừa chuyển trang tới: đợi trang trượt vào xong mới khởi động WebGL (khởi tạo + nạp ảnh
+  // lên GPU nặng, làm hiệu ứng chuyển trang giật). Trong lúc chờ vẫn là ảnh DOM tĩnh.
+  const enterDelay = usePageEnterDelay()
+  const [settled, setSettled] = useState(enterDelay === 0)
+  useEffect(() => {
+    if (settled) return
+    const id = window.setTimeout(() => setSettled(true), (enterDelay + 0.75) * 1000)
+    return () => window.clearTimeout(id)
+  }, [settled, enterDelay])
+  const enabled = desktop && !reduced && quality === 'high' && settled
 
   // hiddenId đọc trong vòng vẽ qua ref, không khởi tạo lại WebGL
   const hiddenRef = useRef(hiddenId)
@@ -122,16 +132,23 @@ export default function CurvedGallery<T extends CurvedItem>({ items, label, rend
       img.crossOrigin = 'anonymous'
       img.decoding = 'async'
       img.onload = () => {
-        if (destroyed) return
-        const entry = { tex: renderer.upload(img), aspect: img.naturalWidth / img.naturalHeight }
-        texById.set(c.id, entry)
-        cards.filter((x) => x.id === c.id).forEach((x) => {
-          x.tex = entry.tex
-          x.aspect = entry.aspect
-          handOver(x)
-        })
+        if (!destroyed) uploads.push({ id: c.id, img })
       }
       img.src = photoUrl(photoId, TEX_WIDTH)
+    }
+
+    // Đưa ảnh lên GPU mỗi khung hình một tấm — dồn cả loạt vào một khung sẽ làm khựng
+    const uploads: { id: string; img: HTMLImageElement }[] = []
+    const uploadNext = () => {
+      const next = uploads.shift()
+      if (!next) return
+      const entry = { tex: renderer.upload(next.img), aspect: next.img.naturalWidth / next.img.naturalHeight }
+      texById.set(next.id, entry)
+      cards.filter((x) => x.id === next.id).forEach((x) => {
+        x.tex = entry.tex
+        x.aspect = entry.aspect
+        handOver(x)
+      })
     }
 
     let width = 0
@@ -150,6 +167,7 @@ export default function CurvedGallery<T extends CurvedItem>({ items, label, rend
     const start = performance.now()
 
     const tick = () => {
+      uploadNext()
       const y = window.scrollY
       const raw = Math.max(-1, Math.min(1, (y - lastY) / 60))
       lastY = y

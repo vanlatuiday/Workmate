@@ -130,9 +130,19 @@ function Sidebar({ navItems, roleLabel, homeHref, pathname, onClose }: SidebarPr
   )
 }
 
+/** Vạch tiến trình mảnh trên cùng khi trang đang tải (chỉ hiện nếu tải lâu hơn ~150ms) */
+function LoadingBar() {
+  return (
+    <div role="progressbar" aria-label="Đang tải trang" className="fixed inset-x-0 top-0 z-[60] h-0.5 overflow-hidden">
+      <div className="dash-loading h-full w-1/3 bg-page-fg" />
+    </div>
+  )
+}
+
 /**
  * Khung dùng chung cho 3 dashboard: thanh bên tối + thanh trên và vùng nội dung theme ngà.
- * Dashboard yên tĩnh: chỉ transition màu và drawer mobile trượt (tắt khi giảm chuyển động).
+ * Dashboard yên tĩnh: chỉ transition màu, drawer mobile trượt và nội dung hiện dần khi đổi trang
+ * (tắt khi giảm chuyển động).
  */
 export default function DashboardShell({ navItems, roleLabel, homeHref }: ShellProps) {
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -219,8 +229,9 @@ export default function DashboardShell({ navItems, roleLabel, homeHref }: ShellP
         <main id="dashboard-main" ref={mainRef} className="relative flex-1 overflow-y-auto p-4 md:p-8">
           {/* Trang được tải theo nhu cầu (xem App.tsx). RouteScroll nằm cùng Suspense
               để chỉ đặt vị trí cuộn khi nội dung trang đã có. */}
-          <Suspense fallback={null}>
-            <div className="mx-auto max-w-6xl">
+          <Suspense fallback={<LoadingBar />}>
+            {/* key theo route → mỗi trang mới hiện dần + trượt lên rất nhẹ (dash-enter, index.css) */}
+            <div key={`page:${location.pathname}`} className="dash-enter mx-auto max-w-6xl">
               <Outlet />
             </div>
             {/* key theo route → remount mỗi lần đổi trang, xem RouteScroll */}

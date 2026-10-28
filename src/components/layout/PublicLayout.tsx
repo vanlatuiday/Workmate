@@ -1,25 +1,27 @@
 import { Link, useLocation, useNavigate, useOutlet } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { Menu, X, Briefcase, UserRound } from 'lucide-react'
-import { motion, AnimatePresence } from 'motion/react'
+import { Menu, X, Briefcase } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useAuthStore } from '@context/authStore'
 import { ROLE_AREAS } from '@constants/roles'
 import type { UserRole } from '@/types'
 import { cn } from '@utils/cn'
 import MenuOverlay, { type MenuItem } from '@components/layout/MenuOverlay'
+import AccountMenu from '@components/layout/AccountMenu'
 import RouteScroll from '@components/common/RouteScroll'
 import PageCurtain, { useCurtainNavigate } from '@components/motion/PageCurtain'
+import PageTransition from '@components/motion/PageTransition'
 import { PERSONAL_HREF } from '@pages/public/personal/links'
-import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
 import { FOCUS } from '@utils/focus'
+import { useReducedMotion } from '@hooks/useReducedMotion'
 
 /** Mục điều hướng theo người đang xem. Khách thấy lời mời trung lập cho cả hai phía;
     đã đăng nhập thì chỉ thấy lối tắt tới việc của vai trò mình. */
 const NAV: Record<UserRole | 'guest', MenuItem[]> = {
   guest: [
     { label: 'Việc làm', href: '/viec-lam' },
-    { label: 'Dành cho nhà tuyển dụng', href: '/dang-ky?role=recruiter' },
+    { label: 'Nhà tuyển dụng', href: '/dang-ky?role=recruiter' },
     { label: 'Kết nối', href: '/match' },
   ],
   jobseeker: [
@@ -27,12 +29,11 @@ const NAV: Record<UserRole | 'guest', MenuItem[]> = {
     { label: 'Việc phù hợp', href: '/tim-viec/phu-hop' },
     { label: 'Kết nối', href: '/match' },
   ],
+  // Tối đa 3 mục để header gọn; các trang khác của nhà tuyển dụng nằm trong khu tuyển dụng
   recruiter: [
     { label: 'Việc làm', href: '/viec-lam' },
-    { label: 'Đăng tin', href: '/tuyen-dung/dang-tin' },
-    { label: 'Ứng viên phù hợp', href: '/tuyen-dung/ung-vien-phu-hop' },
-    { label: 'Tin của tôi', href: '/tuyen-dung/tin-dang' },
     { label: 'Kết nối', href: '/match' },
+    { label: 'Đăng tin', href: '/tuyen-dung/dang-tin' },
   ],
   admin: [
     { label: 'Xác minh', href: '/admin/xac-minh' },
@@ -61,6 +62,7 @@ export default function PublicLayout() {
   const [overlayOpen, setOverlayOpen] = useState(false)
   const { user, logout } = useAuthStore()
   const location = useLocation()
+  const reduced = useReducedMotion()
 
   // Trang chủ dùng nền tối (page-* do useSectionThemes điều khiển); các trang còn lại dùng theme ngà.
   // `dark` phải đổi ngay khi đổi route: IntroHero tìm data-brand-logo… lúc mount.
@@ -80,6 +82,10 @@ export default function PublicLayout() {
   const area = user ? ROLE_AREAS[user.role] : null
   const dashboardHref = area?.home ?? '/tim-viec'
   const navLinks = NAV[user?.role ?? 'guest']
+  // Nav chính hiện từ md; trang chủ từ lg (tablet không đủ chỗ cạnh logo lớn của intro).
+  // Hẹp hơn thì dùng nút menu (dropdown / menu phủ). Class viết đủ để Tailwind nhận ra.
+  const navShow = dark ? 'lg:flex' : 'md:flex'
+  const navHide = dark ? 'lg:hidden' : 'md:hidden'
 
   // Trang cá nhân: đã đăng nhập → mở bằng màn phủ từ trên xuống (cùng hướng menu phủ cũ);
   // khách → sang đăng nhập, xong quay lại trang cá nhân.
@@ -105,20 +111,22 @@ export default function PublicLayout() {
       <header
         className={cn(
           'top-0 z-40 text-page-fg',
-          dark ? 'fixed inset-x-0' : `sticky ${chrome} border-b border-page-line`,
+          // header-theme: màu chuyển dần khi đổi giữa theme ngà và than chì (index.css)
+          dark ? 'fixed inset-x-0' : `sticky header-theme ${chrome} border-b border-page-line`,
         )}
       >
         {dark && (
           <div data-header-bg aria-hidden className="absolute inset-0 -z-10 bg-page-bg border-b border-page-line" />
         )}
         <div className="shell">
-          <div className="flex items-center justify-between h-16">
+          {/* Lưới 3 cột: logo | nav đúng giữa header | cụm bên phải */}
+          <div className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-x-6">
             {/* Logo */}
             <Link
               to="/"
               data-brand-logo={dark ? '' : undefined}
               className={cn(
-                'flex items-center gap-2 font-display font-semibold text-xl tracking-tight text-page-fg rounded-control',
+                'justify-self-start flex items-center gap-2 font-display font-semibold text-xl tracking-tight text-page-fg rounded-control',
                 FOCUS,
               )}
             >
@@ -131,11 +139,11 @@ export default function PublicLayout() {
             </Link>
 
             {/* Desktop nav */}
-            {/* Trang chủ: nav chính chỉ hiện từ lg — ở tablet không đủ chỗ (chữ bị xuống
-                dòng), các link này đã có trong menu phủ toàn màn hình */}
+            {/* Nav chính chỉ hiện từ md (trang chủ: lg) — hẹp hơn thì không đủ chỗ,
+                các link này đã có trong menu phủ hoặc dropdown */}
             <nav
               data-header-item={dark ? '' : undefined}
-              className={cn('hidden items-center gap-1 whitespace-nowrap', dark ? 'lg:flex' : 'md:flex')}
+              className={cn('hidden items-center gap-1 whitespace-nowrap', navShow)}
             >
               {navLinks.map((link) => (
                 <Link
@@ -143,118 +151,94 @@ export default function PublicLayout() {
                   to={link.href}
                   aria-current={location.pathname === link.href ? 'page' : undefined}
                   className={cn(
-                    'group px-3 py-2 rounded-control text-sm font-medium transition-colors',
-                    location.pathname === link.href
-                      ? 'text-page-fg underline underline-offset-8 decoration-1'
-                      : 'text-page-muted hover:text-page-fg',
+                    'group relative px-3 py-2 rounded-control text-sm font-medium transition-colors',
+                    location.pathname === link.href ? 'text-page-fg' : 'text-page-muted hover:text-page-fg',
                     FOCUS,
                   )}
                 >
                   <RollText>{link.label}</RollText>
+                  {/* Gạch chân mục đang chọn — cùng layoutId nên trượt sang mục mới khi đổi trang */}
+                  {location.pathname === link.href && (
+                    <motion.span
+                      layoutId="nav-underline"
+                      aria-hidden="true"
+                      className="absolute inset-x-3 bottom-1 h-px bg-page-fg"
+                      transition={reduced ? { duration: 0 } : { duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  )}
                 </Link>
               ))}
             </nav>
 
-            {/* Auth buttons */}
-            <div data-header-item={dark ? '' : undefined} className="hidden md:flex items-center gap-2 whitespace-nowrap">
-              {user ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={logout}
-                    className={cn('group text-sm font-medium transition-colors text-page-muted hover:text-page-fg px-3 py-2 rounded-control', FOCUS)}
-                  >
-                    <RollText>Đăng xuất</RollText>
-                  </button>
-                  <Link
-                    to={dashboardHref}
-                    className={cn(
-                      'text-sm font-medium px-5 py-2 rounded-full transition-colors bg-page-fg text-page-bg hover:opacity-90',
-                      FOCUS,
-                    )}
-                  >
-                    {area?.label}
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/dang-nhap"
-                    className={cn(
-                      'group text-sm font-medium transition-colors text-page-muted hover:text-page-fg px-3 py-2 rounded-control',
-                      FOCUS,
-                    )}
-                  >
-                    <RollText>Đăng nhập</RollText>
-                  </Link>
-                  {/* Nút nam châm chỉ ở trang chủ — các trang làm việc giữ yên tĩnh */}
-                  <Magnetic strength={dark ? 0.3 : 0}>
+            {/* Bên phải: đã đăng nhập → một nút tài khoản (khu làm việc, trang cá nhân, đăng xuất);
+                khách → chỉ Đăng nhập / Đăng ký. Cùng một cụm để intro trang chủ hiện một lần. */}
+            <div className="flex items-center justify-end gap-1">
+              <div data-header-item={dark ? '' : undefined} className="hidden md:flex items-center gap-1 whitespace-nowrap">
+                {user && area ? (
+                  <AccountMenu
+                    initial={user.email?.[0]?.toUpperCase() ?? 'U'}
+                    area={{ label: area.label, href: dashboardHref }}
+                    profileHref={profileTo}
+                    onOpenProfile={openProfile}
+                    onLogout={logout}
+                    magnetic={dark}
+                  />
+                ) : (
+                  <>
+                    <Link
+                      to="/dang-nhap"
+                      className={cn('group text-sm text-page-muted hover:text-page-fg transition-colors px-2 py-2 rounded-control', FOCUS)}
+                    >
+                      <RollText>Đăng nhập</RollText>
+                    </Link>
+                    <span aria-hidden="true" className="text-sm text-page-muted">/</span>
                     <Link
                       to="/dang-ky"
-                      className={cn(
-                        'group block text-sm font-medium px-5 py-2 rounded-full transition-colors bg-page-fg text-page-bg hover:opacity-90',
-                        FOCUS,
-                      )}
+                      className={cn('group text-sm text-page-muted hover:text-page-fg transition-colors px-2 py-2 rounded-control', FOCUS)}
                     >
                       <RollText>Đăng ký</RollText>
                     </Link>
-                  </Magnetic>
-                </>
+                  </>
+                )}
+              </div>
+
+              {/* Trang chủ: menu phủ toàn màn hình khi nav chính ẩn (dưới lg); trang khác giữ dropdown (dưới md) */}
+              {dark ? (
+                // Bọc ngoài để GSAP (intro) và Magnetic không tranh nhau transform của cùng một phần tử
+                <div data-header-item className={navHide}>
+                  <button
+                    onClick={() => setOverlayOpen(true)}
+                    aria-expanded={overlayOpen}
+                    aria-label="Mở menu"
+                    className={cn(
+                      'flex items-center p-2 -mr-2 text-page-muted hover:text-page-fg transition-colors rounded-control',
+                      FOCUS,
+                    )}
+                  >
+                    <Menu className="w-5 h-5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className={cn(
+                    navHide,
+                    'p-2 -mr-2 rounded-control transition-colors text-page-muted hover:text-page-fg',
+                    FOCUS,
+                  )}
+                  onClick={() => setMobileOpen(!mobileOpen)}
+                  aria-expanded={mobileOpen}
+                  aria-label={mobileOpen ? 'Đóng menu' : 'Mở menu'}
+                >
+                  {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </button>
               )}
             </div>
-
-            {/* Trang cá nhân — thay chữ "Menu" cũ; mở bằng màn phủ từ trên xuống */}
-            <div data-header-item={dark ? '' : undefined} className="hidden sm:block">
-              <Magnetic strength={dark ? 0.3 : 0}>
-                <Link
-                  to={profileTo}
-                  onClick={openProfile}
-                  className={cn(
-                    'group flex items-center gap-2 text-sm text-page-muted hover:text-page-fg transition-colors px-3 py-2 rounded-control whitespace-nowrap',
-                    FOCUS,
-                  )}
-                >
-                  <RollText>Trang cá nhân</RollText>
-                  <UserRound className="w-4 h-4" />
-                </Link>
-              </Magnetic>
-            </div>
-
-            {/* Trang chủ: menu phủ toàn màn hình cho màn nhỏ (nav chính chỉ hiện từ lg); trang khác giữ dropdown mobile */}
-            {dark ? (
-              // Bọc ngoài để GSAP (intro) và Magnetic không tranh nhau transform của cùng một phần tử
-              <div data-header-item className="lg:hidden">
-                <button
-                  onClick={() => setOverlayOpen(true)}
-                  aria-expanded={overlayOpen}
-                  aria-label="Mở menu"
-                  className={cn(
-                    'flex items-center p-2 -mr-2 text-page-muted hover:text-page-fg transition-colors rounded-control',
-                    FOCUS,
-                  )}
-                >
-                  <Menu className="w-5 h-5" />
-                </button>
-              </div>
-            ) : (
-              <button
-                className={cn(
-                  'md:hidden p-2 -mr-2 rounded-control transition-colors text-page-muted hover:text-page-fg',
-                  FOCUS,
-                )}
-                onClick={() => setMobileOpen(!mobileOpen)}
-                aria-expanded={mobileOpen}
-                aria-label={mobileOpen ? 'Đóng menu' : 'Mở menu'}
-              >
-                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-            )}
           </div>
         </div>
 
-        {/* Mobile nav — chỉ dùng cho các trang ngoài trang chủ */}
+        {/* Dropdown khi nav chính ẩn — chỉ dùng cho các trang ngoài trang chủ */}
         {mobileOpen && !dark && (
-          <div className="md:hidden border-t border-page-line bg-page-bg px-6 pb-4 pt-2 space-y-1">
+          <div className={cn(navHide, 'border-t border-page-line bg-page-bg px-6 pb-4 pt-2 space-y-1')}>
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -344,23 +328,16 @@ export default function PublicLayout() {
         }
       />
 
-      {/* Page content — mờ dần khi đổi route */}
+      {/* Page content — đổi route: trang cũ mờ đi nhanh, trang mới trượt từ trên xuống vào chỗ */}
       <main className={cn('flex-1', !dark && 'flex flex-col')}>
         <AnimatePresence mode="wait">
           {/* Trang đang mờ đi giữ nguyên className cũ (AnimatePresence giữ element cũ),
               nên theme ngà/tối của nó không bị đổi giữa chừng */}
-          <motion.div
-            key={location.pathname}
-            className={dark ? undefined : 'theme-ivory flex-1'}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-          >
+          <PageTransition key={location.pathname} className={dark ? undefined : 'theme-ivory flex-1'}>
             <FrozenOutlet />
             {/* Đứng sau FrozenOutlet: chạy khi trang mới đã dựng xong (kể cả pin của trang chủ) */}
             <RouteScroll />
-          </motion.div>
+          </PageTransition>
         </AnimatePresence>
       </main>
 

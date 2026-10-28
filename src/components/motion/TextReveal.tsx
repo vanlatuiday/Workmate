@@ -18,6 +18,8 @@ type Props = {
    * Dùng khi màn chờ còn che, để chữ không trượt lên sau tấm màn.
    */
   hold?: boolean
+  /** id cho thẻ ngoài, vd. để aria-labelledby trỏ tới */
+  id?: string
 }
 
 /**
@@ -31,11 +33,12 @@ export default function TextReveal({
   as: Tag = 'h2',
   immediate = false,
   hold = false,
+  id,
 }: Props) {
   const reduced = useReducedMotion()
   const words = text.split(' ')
 
-  if (reduced) return <Tag className={className}>{text}</Tag>
+  if (reduced) return <Tag id={id} className={className}>{text}</Tag>
 
   // Thẻ ngoài theo dõi khung nhìn rồi truyền trạng thái xuống từng từ qua variants.
   // Không đặt whileInView trên từng từ: từ nằm dưới mặt nạ overflow-hidden nên
@@ -53,7 +56,7 @@ export default function TextReveal({
         }
 
   return (
-    <MotionTag className={className} initial="hidden" {...trigger}>
+    <MotionTag id={id} className={className} initial="hidden" {...trigger}>
       <span className="sr-only">{text}</span>
       <span aria-hidden className="inline">
         {words.map((word, i) => (

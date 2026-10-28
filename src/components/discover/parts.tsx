@@ -5,21 +5,32 @@ import RollText from '@components/motion/RollText'
 import { cn } from '@utils/cn'
 import { CurtainLink } from '@components/motion/PageCurtain'
 import { FOCUS } from '@utils/focus'
+import TextReveal from '@components/motion/TextReveal'
+import Reveal from '@components/motion/Reveal'
+import { usePageEnterDelay } from '@components/motion/PageTransition'
 
 /** Mảnh giao diện nhỏ cho phần chữ của bộ sưu tập — giữ ba vai trò cùng một nhịp chữ. */
 
 
 export function GalleryIntro({ eyebrow, title, text }: { eyebrow: string; title: string; text: string }) {
+  // Tiêu đề trồi lên theo từng chữ khi trang lộ ra (sau các dải chuyển trang nếu có)
+  const enter = usePageEnterDelay()
   return (
     <>
       <p className="eyebrow text-page-muted">
         <span className="h-px w-8 bg-page-line" />
         {eyebrow}
       </p>
-      <h1 className="mt-5 max-w-[14ch] font-display text-2xl font-semibold leading-[1.15] tracking-[-0.02em]">
-        {title}
-      </h1>
-      <p className="mt-4 text-sm leading-relaxed text-page-muted">{text}</p>
+      <TextReveal
+        as="h1"
+        immediate
+        delay={enter}
+        text={title}
+        className="mt-5 max-w-[14ch] font-display text-2xl font-semibold leading-[1.15] tracking-[-0.02em]"
+      />
+      <Reveal immediate delay={enter + 0.2} y={16}>
+        <p className="mt-4 text-sm leading-relaxed text-page-muted">{text}</p>
+      </Reveal>
     </>
   )
 }

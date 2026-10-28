@@ -4,6 +4,8 @@ import { AlertCircle, Building2, Eye, EyeOff, Loader2, Search } from 'lucide-rea
 import { useAuthStore } from '@context/authStore'
 import { buildDemoUser, getDemoAccountByRole } from '@constants/demoAccounts'
 import { FOCUS } from '@utils/focus'
+import TextReveal from '@components/motion/TextReveal'
+import { usePageEnterDelay } from '@components/motion/PageTransition'
 
 /*
  * Đăng ký — chưa có backend nên sau khi gửi form sẽ đăng nhập vào tài khoản demo
@@ -19,6 +21,8 @@ const ROLES: { value: Role; label: string; icon: typeof Search }[] = [
 ]
 
 export default function RegisterPage() {
+  // Tiêu đề trồi lên theo từng chữ khi trang lộ ra (sau các dải chuyển trang nếu có)
+  const enter = usePageEnterDelay()
   const [searchParams] = useSearchParams()
   // Chỉ chấp nhận 2 vai trò hợp lệ, còn lại mặc định người tìm việc
   const defaultRole: Role = searchParams.get('role') === 'recruiter' ? 'recruiter' : 'jobseeker'
@@ -51,7 +55,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-[calc(100vh-64px)] text-page-fg flex items-start justify-center px-6 py-12 md:py-16">
       <div className="w-full max-w-md">
-        <h1 className="font-display text-display-sm font-semibold text-page-fg">Tạo tài khoản</h1>
+        <TextReveal as="h1" immediate delay={enter} text="Tạo tài khoản" className="font-display text-display-sm font-semibold text-page-fg" />
         <p className="text-base text-page-muted mt-3">
           Đã có tài khoản?{' '}
           <Link to="/dang-nhap" className={`font-medium text-page-fg underline underline-offset-4 rounded-control ${FOCUS}`}>

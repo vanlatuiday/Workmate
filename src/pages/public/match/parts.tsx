@@ -7,6 +7,9 @@ import { Initials } from '@components/discover/detail/DetailBlocks'
 import type { MatchView } from '@context/matchStore'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import TextReveal from '@components/motion/TextReveal'
+import Reveal from '@components/motion/Reveal'
+import { usePageEnterDelay } from '@components/motion/PageTransition'
 import { CRITERION_LABELS, type CriterionResult, type MatchOutcome } from './score'
 import { companyOf, type MatchJob } from './data'
 
@@ -16,6 +19,8 @@ export const BTN_SECONDARY = `inline-flex items-center justify-center gap-1.5 ro
 
 /** Khung chung: eyebrow + tiêu đề + mô tả, rồi nội dung */
 export function MatchFrame({ title, intro, children }: { title: string; intro: string; children: ReactNode }) {
+  // Tiêu đề trồi lên theo từng chữ khi trang lộ ra (sau các dải chuyển trang nếu có)
+  const enter = usePageEnterDelay()
   return (
     <section className="shell py-section-sm" aria-labelledby="match-title">
       <p className="eyebrow !flex justify-center text-page-muted">
@@ -23,10 +28,17 @@ export function MatchFrame({ title, intro, children }: { title: string; intro: s
         Kết nối
         <span className="h-px w-8 bg-page-line" aria-hidden="true" />
       </p>
-      <h1 id="match-title" className="mx-auto mt-6 max-w-[22ch] text-center font-display text-display-sm font-semibold text-page-fg">
-        {title}
-      </h1>
-      <p className="mx-auto mt-4 max-w-xl text-center leading-relaxed text-page-muted">{intro}</p>
+      <TextReveal
+        as="h1"
+        id="match-title"
+        immediate
+        delay={enter}
+        text={title}
+        className="mx-auto mt-6 max-w-[22ch] text-center font-display text-display-sm font-semibold text-page-fg"
+      />
+      <Reveal immediate delay={enter + 0.25} y={16}>
+        <p className="mx-auto mt-4 max-w-xl text-center leading-relaxed text-page-muted">{intro}</p>
+      </Reveal>
       <div className="mt-10">{children}</div>
     </section>
   )
