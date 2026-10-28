@@ -297,7 +297,7 @@ export function LevelFilter({ scores, value, onChange }: { scores: number[]; val
 // ─── Chữ dưới ảnh của Bộ sưu tập ────────────────────────────────────────────
 
 /** Tiêu đề + điểm + mũi tên, phụ đề, rồi đường kẻ dưới. Nằm trong nút của thẻ nên chỉ dùng thẻ span. */
-export function GalleryCaption({ title, subtitle, score }: { title: string; subtitle: string; score: number }) {
+export function GalleryCaption({ title, subtitle, score, chip }: { title: string; subtitle: string; score: number; chip?: string }) {
   return (
     <span className="block border-b border-page-line pb-4">
       <span className="flex items-baseline justify-between gap-4">
@@ -308,6 +308,7 @@ export function GalleryCaption({ title, subtitle, score }: { title: string; subt
         </span>
       </span>
       <span className="mt-1 block text-sm text-page-muted">{subtitle}</span>
+      {chip && <span className="mt-2 inline-block rounded-full border border-page-line px-2.5 py-0.5 text-xs text-page-fg">{chip}</span>}
     </span>
   )
 }

@@ -6,6 +6,8 @@ import { COMPANIES, type DiscoverCompany } from '@pages/public/jobs/data'
 import { AVAILABILITY_DEFAULT, PROFILE_DEFAULT } from '@pages/jobseeker/mockData'
 import { MOCK_JOBS, type MockJob } from '@pages/recruiter/mockData'
 import type { Photo } from '@components/discover/types'
+import { COMPANY } from '@pages/public/personal/companyData'
+import { ME } from '@services/connectionService'
 import type { JobType } from '@/types'
 import type { JobRequirement, SeekerCriteria } from './score'
 
@@ -79,7 +81,22 @@ export const MATCH_JOBS: MatchJob[] = [
     photo: { id: '1466637574441-749b8f19452f', alt: 'Dao và rau củ xếp trên thớt gỗ, trứng và nấm bên cạnh' } },
 ]
 
+/** Công ty của doanh nghiệp demo (admin2) — tin j1–j4 của họ hiện cho người tìm việc ở /match */
+export const DEMO_COMPANY: DiscoverCompany = {
+  id: 'song-han',
+  name: COMPANY.name,
+  industry: COMPANY.industry,
+  district: 'Hải Châu',
+  size: '11-50',
+  cover: { id: '1554118811-1e0d58224f24', alt: 'Không gian quán cà phê nhiều cây xanh, quầy pha chế phía sau' },
+  tagline: 'Quán cà phê, cửa hàng tiện lợi và tiệc cưới quanh trung tâm.',
+  why: 'Nhiều ca và nhiều loại việc để chọn.',
+  about: COMPANY.intro,
+  environment: COMPANY.environment,
+}
+
 export function companyOf(id: string): DiscoverCompany {
+  if (id === DEMO_COMPANY.id) return DEMO_COMPANY
   // Dữ liệu mẫu luôn khớp COMPANIES; nếu lệch thì báo lỗi sớm để dễ thấy
   const c = COMPANIES.find((x) => x.id === id)
   if (!c) throw new Error(`Không có công ty mẫu "${id}"`)
@@ -109,6 +126,30 @@ export const POSITIONS: MatchPosition[] = MOCK_JOBS.filter((j) => j.id in POSITI
   req: POSITION_REQ[job.id],
   radiusKm: 8,
 }))
+
+/** Ảnh và khoảng cách cho các tin j1–j4 khi hiện ở phía người tìm việc */
+const POSITION_JOB_EXTRA: Record<string, { distanceKm: number; photo: Photo }> = {
+  j1: { distanceKm: 1.6, photo: { id: '1501339847302-ac426a4a7cbb', alt: 'Biển hiệu chữ CAFE phát sáng trong quán' } },
+  j2: { distanceKm: 2.2, photo: { id: '1441986300917-64674bd600d8', alt: 'Cửa hàng quần áo với kệ gỗ và đèn treo' } },
+  j3: { distanceKm: 3.0, photo: { id: '1414235077428-338989a2e8c0', alt: 'Món ăn trình bày trên đĩa trắng giữa bàn tiệc' } },
+  j4: { distanceKm: 1.2, photo: { id: '1604719312566-8912e9227c6a', alt: 'Lối đi giữa các kệ hàng trong cửa hàng tiện lợi' } },
+}
+
+/** Tin của doanh nghiệp demo nhìn từ phía người tìm việc (id trùng id vị trí để hai phía chung một cặp) */
+export const RECRUITER_POSITION_JOBS: MatchJob[] = POSITIONS.map((p) => ({
+  ...p.req,
+  id: p.id,
+  companyId: DEMO_COMPANY.id,
+  title: p.job.title,
+  district: 'Hải Châu',
+  distanceKm: POSITION_JOB_EXTRA[p.id].distanceKm,
+  salaryLabel: p.job.salary,
+  shiftLabel: p.job.schedule,
+  photo: POSITION_JOB_EXTRA[p.id].photo,
+}))
+
+/** Mọi việc người tìm việc thấy ở /match */
+export const SEEKER_JOBS: MatchJob[] = [...MATCH_JOBS, ...RECRUITER_POSITION_JOBS]
 
 export type Availability = { kind: 'ready'; from: string } | { kind: 'working' }
 
@@ -182,4 +223,23 @@ export const CANDIDATES: MatchCandidate[] = [
     ['Excel', 'Tiếng Anh giao tiếp'], ['0-0', '1-1', '2-2', '3-0'], 35, ['full-time'], { id: '1586528116311-ad8dd3c8310d', alt: 'Kho hàng với các kệ cao xếp đầy thùng hàng' }),
   cand('u20', 'j4', 'Trịnh M. A.', 'Hải Châu', 3.8, 'Mới tốt nghiệp · muốn việc ổn định', ready('01/12'),
     ['Thu ngân'], ['0-0', '1-1', '2-2', '3-0', '4-1', '5-2'], 34, ['full-time', 'shift'], { id: '1435527173128-983b87201f4d', alt: 'Cuốn sổ lịch mở trên bàn làm việc' }),
+]
+
+/** Người tìm việc demo (admin1) — hiện trong danh sách ứng viên của mọi vị trí */
+export const ME_CANDIDATE: MatchCandidate = {
+  id: ME,
+  positionId: '*',
+  name: 'Nguyễn M. A.',
+  area: 'Hải Châu',
+  distanceKm: 1.8,
+  summary: 'Phục vụ, sự kiện · 2 năm',
+  availability: ready('01/12'),
+  criteria: SEEKER_DEFAULT,
+  photo: { id: '1517248135467-4c7edcad34c4', alt: 'Phòng ăn nhà hàng với bàn gỗ và đèn vàng' },
+}
+
+/** Ứng viên của một vị trí: ứng viên mẫu của vị trí đó + người tìm việc demo */
+export const candidatesOf = (positionId: string): MatchCandidate[] => [
+  ...CANDIDATES.filter((c) => c.positionId === positionId),
+  ME_CANDIDATE,
 ]

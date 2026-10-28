@@ -4,12 +4,13 @@ import toast from 'react-hot-toast'
 import { Bookmark, Check, Clock, MapPin, UserCheck, UserX, Wallet } from 'lucide-react'
 import { EmptyState, MatchScore, MockNotice, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
+import { expressInterest, getPairStatus, RECRUITER_JOBS, resetDemoData, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { SEEKER_PUBLIC_HREF } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
-import { CANDIDATES, POSITIONS, type MatchCandidate, type MatchPosition } from './data'
+import { CANDIDATES, candidatesOf, ME_CANDIDATE, POSITIONS, type MatchCandidate, type MatchPosition } from './data'
 import CurvedGallery from './gallery/CurvedGallery'
 import MatchArches from './MatchArches'
 import MatchDetail from './MatchDetail'
@@ -20,7 +21,7 @@ import {
 } from './parts'
 import { DEFAULT_PRIORITY, scoreMatch, weightsOf, type CriterionResult } from './score'
 
-type TabKey = 'fit' | 'saved' | 'invited'
+type TabKey = 'fit' | 'saved' | 'interested' | 'connected'
 
 /** Lời ghi chú nhìn từ phía doanh nghiệp (score.ts viết từ phía người tìm việc). */
 function recruiterNote(r: CriterionResult) {
@@ -31,8 +32,8 @@ function recruiterNote(r: CriterionResult) {
 
 /** Nhà tuyển dụng: chọn vị trí, xem ứng viên xếp theo điểm, mời / lưu / bỏ qua. */
 export default function RecruiterMatch() {
-  const { savedCandidates, invitedCandidates, skippedCandidates, toggleSavedCandidate, inviteCandidate, skipCandidate, unskipCandidates } =
-    useMatchStore()
+  const { savedCandidates, skippedCandidates, toggleSavedCandidate, skipCandidate, unskipCandidates } = useMatchStore()
+  const statusOf = usePairStatuses('recruiter')
   const view = useMatchStore((s) => s.view)
   const setView = useMatchStore((s) => s.setView)
   const gallery = view === 'gallery'
@@ -58,12 +59,20 @@ export default function RecruiterMatch() {
   const position = positions.find((p) => p.id === positionId) ?? positions[0]
   const { job, req } = position
 
+  // Kết nối mới (kể cả do ứng viên đáp lại sau vài giây) → báo thành công
+  useOnNewConnection((c) => {
+    if (!RECRUITER_JOBS.includes(c.jobId) && c.jobId !== 'draft') return
+    const pos = positions.find((p) => p.id === c.jobId)
+    const cd = [...CANDIDATES, ME_CANDIDATE].find((x) => x.id === c.seekerId)
+    if (pos && cd) toast.success(`Kết nối thành công với ${cd.name} — ${pos.job.title}`)
+  })
+
   // Chấm điểm ứng viên của vị trí đang chọn (ưu tiên mặc định), cao trước
   const scored = useMemo(
     () =>
       (position.id === 'draft'
-        ? CANDIDATES.filter((c, i, all) => all.findIndex((x) => x.name === c.name) === i)
-        : CANDIDATES.filter((c) => c.positionId === position.id)
+        ? [...CANDIDATES, ME_CANDIDATE].filter((c, i, all) => all.findIndex((x) => x.name === c.name) === i)
+        : candidatesOf(position.id)
       )
         .map((c) => ({ c, key: candidateKey(position.id, c.id), outcome: scoreMatch(c.criteria, req, c.distanceKm) }))
         .sort((a, b) => b.outcome.score - a.outcome.score),
@@ -72,9 +81,10 @@ export default function RecruiterMatch() {
 
   const skipped = scored.filter((x) => skippedCandidates.includes(x.key))
   const lists = {
-    fit: scored.filter((x) => !invitedCandidates.includes(x.key) && !skippedCandidates.includes(x.key)),
+    fit: scored.filter((x) => ['none', 'received'].includes(statusOf(position.id, x.c.id)) && !skippedCandidates.includes(x.key)),
     saved: scored.filter((x) => savedCandidates.includes(x.key) && !skippedCandidates.includes(x.key)),
-    invited: scored.filter((x) => invitedCandidates.includes(x.key)),
+    interested: scored.filter((x) => statusOf(position.id, x.c.id) === 'sent'),
+    connected: scored.filter((x) => statusOf(position.id, x.c.id) === 'connected'),
   }
   const current = lists[tab]
   const shown = gallery ? filterByLevel(current, level, (x) => x.outcome.score) : current
@@ -82,35 +92,59 @@ export default function RecruiterMatch() {
 
   const jobTypeLabel = JOB_TYPES.find((t) => t.value === req.jobType)?.label ?? req.jobType
 
-  const invite = (c: MatchCandidate, key: string) => {
-    inviteCandidate(key)
-    // Ở lại tab hiện tại để mời tiếp; ứng viên chuyển sang tab Đã mời phỏng vấn
-    toast.success(`Đã mời ${c.name} phỏng vấn`)
+  const invite = (c: MatchCandidate) => {
+    // Ứng viên đã ứng tuyển → bấm là thành kết nối ngay (toast "Kết nối thành công" do useOnNewConnection hiện)
+    const waiting = getPairStatus('recruiter', position.id, c.id) === 'none'
+    expressInterest('recruiter', position.id, c.id)
+    // Ở lại tab hiện tại để quan tâm tiếp; ứng viên chuyển sang tab Đã quan tâm
+    if (waiting) toast.success('Đã quan tâm — chờ ứng viên phản hồi')
   }
 
   // Hàng nút của một ứng viên — dùng chung cho thẻ danh sách và khung chi tiết.
-  // `close` chỉ có ở khung chi tiết: mời / bỏ qua làm thẻ rời tab nên đóng khung (mờ dần) sau khi bấm.
+  // `close` chỉ có ở khung chi tiết: đổi trạng thái / bỏ qua làm thẻ rời tab nên đóng khung (mờ dần) sau khi bấm.
   const candActions = (c: MatchCandidate, key: string, close?: (quick?: boolean) => void) => {
     const saved = savedCandidates.includes(key)
-    const invited = invitedCandidates.includes(key)
+    const status = statusOf(position.id, c.id)
     return (
       <>
-        {invited ? (
-          <button type="button" disabled className={BTN_SECONDARY}>
-            <Check className="h-4 w-4" aria-hidden="true" />
-            Đã mời
+        {status === 'none' && (
+          <button type="button" onClick={() => { invite(c); close?.(true) }} className={BTN_PRIMARY}>
+            Quan tâm<span className="sr-only"> {c.name}</span>
           </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => {
-              invite(c, key)
-              close?.(true)
-            }}
-            className={BTN_PRIMARY}
-          >
-            Mời phỏng vấn<span className="sr-only"> {c.name}</span>
-          </button>
+        )}
+        {status === 'received' && (
+          <>
+            <span className="inline-flex items-center rounded-full border border-page-line px-3 py-1 text-xs text-page-muted">
+              Ứng viên đã ứng tuyển
+            </span>
+            <button type="button" onClick={() => { invite(c); close?.(true) }} className={BTN_PRIMARY}>
+              Đồng ý kết nối<span className="sr-only"> {c.name}</span>
+            </button>
+          </>
+        )}
+        {status === 'sent' && (
+          <>
+            <button type="button" disabled className={BTN_SECONDARY}>
+              <Check className="h-4 w-4" aria-hidden="true" />
+              Đã quan tâm · chờ phản hồi
+            </button>
+            <button
+              type="button"
+              onClick={() => withdrawInterest('recruiter', position.id, c.id)}
+              className={`rounded-control px-1 text-xs text-page-muted underline underline-offset-4 hover:text-page-fg ${FOCUS}`}
+            >
+              Rút<span className="sr-only"> quan tâm {c.name}</span>
+            </button>
+          </>
+        )}
+        {status === 'connected' && (
+          <>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-page-fg px-3 py-1 text-xs font-medium text-page-bg">
+              <Check className="h-3.5 w-3.5" aria-hidden="true" />
+              Đã kết nối
+            </span>
+            <button type="button" disabled className={BTN_SECONDARY}>Mời phỏng vấn (sắp có)</button>
+          </>
         )}
         <Link to={SEEKER_PUBLIC_HREF} className={BTN_SECONDARY}>
           Xem hồ sơ<span className="sr-only"> {c.name}</span>
@@ -120,7 +154,7 @@ export default function RecruiterMatch() {
           {saved ? 'Đã lưu' : 'Lưu'}
           <span className="sr-only"> {c.name}</span>
         </button>
-        {!invited && (
+        {(status === 'none' || status === 'received') && (
           <button
             type="button"
             onClick={() => {
@@ -190,7 +224,8 @@ export default function RecruiterMatch() {
           tabs={[
             { id: 'fit', label: 'Phù hợp', count: lists.fit.length },
             { id: 'saved', label: 'Đã lưu', count: lists.saved.length },
-            { id: 'invited', label: 'Đã mời phỏng vấn', count: lists.invited.length },
+            { id: 'interested', label: 'Đã quan tâm', count: lists.interested.length },
+            { id: 'connected', label: 'Đã kết nối', count: lists.connected.length },
           ]}
           value={tab}
           onChange={(id) => {
@@ -204,16 +239,18 @@ export default function RecruiterMatch() {
               title={
                 current.length > 0
                   ? 'Không có ứng viên ở mức này'
-                  : tab === 'fit' ? 'Hết ứng viên để xem' : tab === 'saved' ? 'Chưa lưu ứng viên nào' : 'Chưa mời ai phỏng vấn'
+                  : tab === 'fit' ? 'Hết ứng viên để xem' : tab === 'saved' ? 'Chưa lưu ứng viên nào' : tab === 'interested' ? 'Chưa quan tâm ai' : 'Chưa có kết nối nào'
               }
               description={
                 current.length > 0
                   ? 'Chọn mức phù hợp khác hoặc Tất cả để xem các ứng viên còn lại.'
                   : tab === 'fit'
-                  ? 'Bạn đã mời hoặc bỏ qua hết ứng viên của vị trí này.'
+                  ? 'Bạn đã quan tâm hoặc bỏ qua hết ứng viên của vị trí này.'
                   : tab === 'saved'
                     ? 'Bấm Lưu ở một ứng viên để xem lại tại đây.'
-                    : 'Ứng viên bạn mời sẽ nằm ở đây.'
+                    : tab === 'interested'
+                      ? 'Ứng viên bạn quan tâm sẽ nằm ở đây.'
+                      : 'Khi ứng viên cũng quan tâm lại, họ sẽ nằm ở đây.'
               }
             />
           ) : gallery ? (
@@ -222,7 +259,12 @@ export default function RecruiterMatch() {
               label="Danh sách ứng viên dạng bộ sưu tập"
               itemLabel={({ c, outcome }) => `${c.name}, phù hợp ${outcome.score}%. Mở chi tiết`}
               renderCaption={({ c, outcome }) => (
-                <GalleryCaption title={c.name} subtitle={`${c.summary} · ${c.area}`} score={outcome.score} />
+                <GalleryCaption
+                  title={c.name}
+                  subtitle={`${c.summary} · ${c.area}`}
+                  score={outcome.score}
+                  chip={(() => { const st = statusOf(position.id, c.id); return st === 'received' ? 'Quan tâm bạn' : st === 'connected' ? 'Đã kết nối' : undefined })()}
+                />
               )}
               onOpen={(item, origin) => setOpen({ id: item.id, origin })}
               hiddenId={open?.id ?? null}
@@ -254,7 +296,7 @@ export default function RecruiterMatch() {
             </ul>
           )}
 
-          {skipped.length > 0 && tab !== 'invited' && (
+          {skipped.length > 0 && tab !== 'connected' && tab !== 'interested' && (
             <p className="mt-6 text-sm text-page-muted">
               Đã bỏ qua <span className="tnum">{skipped.length}</span> ứng viên ·{' '}
               <button
@@ -271,6 +313,13 @@ export default function RecruiterMatch() {
 
       <div className="mx-auto mt-8 flex justify-center">
         <MockNotice />
+        <button
+          type="button"
+          onClick={() => { resetDemoData(); toast('Đã đặt lại dữ liệu demo') }}
+          className={`ml-4 rounded-control text-xs text-page-muted underline underline-offset-4 hover:text-page-fg ${FOCUS}`}
+        >
+          Đặt lại dữ liệu demo
+        </button>
       </div>
     </MatchFrame>
     </div>

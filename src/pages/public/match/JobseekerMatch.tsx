@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { ArrowDown, ArrowUp, Bookmark, Briefcase, Check, Clock, GripVertical, MapPin, SearchX, SlidersHorizontal, Wallet } from 'lucide-react'
 import { EmptyState, MockNotice } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
+import { expressInterest, getPairStatus, ME, resetDemoData, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
@@ -11,7 +12,7 @@ import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import type { JobType } from '@/types'
-import { companyOf, MATCH_JOBS, SEEKER_DEFAULT, type MatchJob } from './data'
+import { companyOf, SEEKER_DEFAULT, SEEKER_JOBS, type MatchJob } from './data'
 import CurvedGallery from './gallery/CurvedGallery'
 import CriteriaDrawer from './CriteriaDrawer'
 import MatchArches from './MatchArches'
@@ -31,7 +32,7 @@ import {
 } from './score'
 
 type SortKey = 'score' | 'salary' | 'distance'
-type TabKey = 'fit' | 'saved' | 'applied'
+type TabKey = 'fit' | 'saved' | 'applied' | 'connected'
 
 /** Dời phần tử từ vị trí `from` sang `to` (trả mảng mới) */
 function moveItem<T>(list: T[], from: number, to: number) {
@@ -41,11 +42,22 @@ function moveItem<T>(list: T[], from: number, to: number) {
   return next
 }
 
+/** Chip nhỏ dưới ảnh ở Bộ sưu tập: chỉ hiện khi đối phương đã quan tâm hoặc đã kết nối */
+const chipOf = (status: string, receivedLabel: string) =>
+  status === 'received' ? receivedLabel : status === 'connected' ? 'Đã kết nối' : undefined
+
 const RANGE = `h-2 w-full cursor-pointer accent-page-fg ${FOCUS}`
 
 /** Người tìm việc: tiêu chí lấy sẵn từ hồ sơ (chỉnh được ngay tại chỗ) + danh sách việc xếp theo điểm. */
 export default function JobseekerMatch() {
-  const { savedJobs, appliedJobs, toggleSavedJob, applyJob, view, setView } = useMatchStore()
+  const { savedJobs, toggleSavedJob, view, setView } = useMatchStore()
+  const statusOf = usePairStatuses('seeker')
+  // Kết nối mới (kể cả do doanh nghiệp đáp lại sau vài giây) → báo thành công
+  useOnNewConnection((c) => {
+    if (c.seekerId !== ME) return
+    const job = SEEKER_JOBS.find((j) => j.id === c.jobId)
+    if (job) toast.success(`Kết nối thành công với ${companyOf(job.companyId).name} — ${job.title}`)
+  })
   const gallery = view === 'gallery'
   // Lenis chỉ chạy ở Bộ sưu tập (canvas WebGL cần cuộn mượt đồng bộ); chế độ Danh sách giữ cuộn thường
   useSmoothScroll(gallery)
@@ -69,7 +81,7 @@ export default function JobseekerMatch() {
   // Chấm điểm lại mỗi khi tiêu chí hoặc thứ tự ưu tiên đổi
   const scored = useMemo(() => {
     const seeker = { ...SEEKER_DEFAULT, salaryMinK, maxDistanceKm, jobTypes }
-    return MATCH_JOBS.map((job) => ({ job, outcome: scoreMatch(seeker, job, job.distanceKm, priority) }))
+    return SEEKER_JOBS.map((job) => ({ job, outcome: scoreMatch(seeker, job, job.distanceKm, priority) }))
   }, [salaryMinK, maxDistanceKm, jobTypes, priority])
 
   const lists = useMemo(() => {
@@ -79,11 +91,13 @@ export default function JobseekerMatch() {
       return b.outcome.score - a.outcome.score
     }
     return {
-      fit: scored.filter((x) => !appliedJobs.includes(x.job.id)).sort(by),
+      fit: scored.filter((x) => ['none', 'received'].includes(statusOf(x.job.id, ME))).sort(by),
       saved: scored.filter((x) => savedJobs.includes(x.job.id)).sort(by),
-      applied: scored.filter((x) => appliedJobs.includes(x.job.id)).sort(by),
+      applied: scored.filter((x) => statusOf(x.job.id, ME) === 'sent').sort(by),
+      connected: scored.filter((x) => statusOf(x.job.id, ME) === 'connected').sort(by),
     }
-  }, [scored, sort, savedJobs, appliedJobs])
+    // statusOf đổi tham chiếu mỗi lần kho đổi nên dùng làm dependency là đủ
+  }, [scored, sort, savedJobs, statusOf])
 
   const current = lists[tab]
   const shown = gallery ? filterByLevel(current, level, (x) => x.outcome.score) : current
@@ -114,33 +128,57 @@ export default function JobseekerMatch() {
     setJobTypes((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]))
 
   const apply = (job: MatchJob) => {
-    applyJob(job.id)
-    toast.success(`Đã ứng tuyển ${job.title}`)
+    // Phía kia đã quan tâm → bấm là thành kết nối ngay (toast "Kết nối thành công" do useOnNewConnection hiện)
+    const waiting = getPairStatus('seeker', job.id, ME) === 'none'
+    expressInterest('seeker', job.id, ME)
+    if (waiting) toast.success('Đã ứng tuyển — chờ doanh nghiệp phản hồi')
   }
 
   // Hàng nút của một vị trí — dùng chung cho thẻ danh sách và khung chi tiết.
-  // `close` chỉ có ở khung chi tiết: ứng tuyển làm thẻ rời tab "Phù hợp" nên đóng khung (mờ dần) sau khi bấm.
+  // `close` chỉ có ở khung chi tiết: đổi trạng thái làm thẻ rời tab "Phù hợp" nên đóng khung (mờ dần) sau khi bấm.
   const jobActions = (job: MatchJob, close?: (quick?: boolean) => void) => {
     const saved = savedJobs.includes(job.id)
-    const applied = appliedJobs.includes(job.id)
+    const status = statusOf(job.id, ME)
     return (
       <>
-        {applied ? (
-          <button type="button" disabled className={BTN_SECONDARY}>
-            <Check className="h-4 w-4" aria-hidden="true" />
-            Đã ứng tuyển
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => {
-              apply(job)
-              close?.(true)
-            }}
-            className={BTN_PRIMARY}
-          >
+        {status === 'none' && (
+          <button type="button" onClick={() => { apply(job); close?.(true) }} className={BTN_PRIMARY}>
             Ứng tuyển<span className="sr-only"> {job.title}</span>
           </button>
+        )}
+        {status === 'received' && (
+          <>
+            <span className="inline-flex items-center rounded-full border border-page-line px-3 py-1 text-xs text-page-muted">
+              Doanh nghiệp đã quan tâm bạn
+            </span>
+            <button type="button" onClick={() => { apply(job); close?.(true) }} className={BTN_PRIMARY}>
+              Đồng ý kết nối<span className="sr-only"> {job.title}</span>
+            </button>
+          </>
+        )}
+        {status === 'sent' && (
+          <>
+            <button type="button" disabled className={BTN_SECONDARY}>
+              <Check className="h-4 w-4" aria-hidden="true" />
+              Đã ứng tuyển · chờ phản hồi
+            </button>
+            <button
+              type="button"
+              onClick={() => withdrawInterest('seeker', job.id, ME)}
+              className={`rounded-control px-1 text-xs text-page-muted underline underline-offset-4 hover:text-page-fg ${FOCUS}`}
+            >
+              Rút<span className="sr-only"> đơn ứng tuyển {job.title}</span>
+            </button>
+          </>
+        )}
+        {status === 'connected' && (
+          <>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-page-fg px-3 py-1 text-xs font-medium text-page-bg">
+              <Check className="h-3.5 w-3.5" aria-hidden="true" />
+              Đã kết nối
+            </span>
+            <button type="button" disabled className={BTN_SECONDARY}>Nhắn tin (sắp có)</button>
+          </>
         )}
         <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={BTN_SECONDARY}>
           <Bookmark className={cn('h-4 w-4', saved && 'fill-current')} aria-hidden="true" />
@@ -212,6 +250,7 @@ export default function JobseekerMatch() {
               { id: 'fit', label: 'Phù hợp', count: lists.fit.length },
               { id: 'saved', label: 'Đã lưu', count: lists.saved.length },
               { id: 'applied', label: 'Đã ứng tuyển', count: lists.applied.length },
+              { id: 'connected', label: 'Đã kết nối', count: lists.connected.length },
             ]}
             value={tab}
             onChange={(id) => {
@@ -225,7 +264,7 @@ export default function JobseekerMatch() {
                 title={
                   current.length > 0
                     ? 'Không có việc ở mức này'
-                    : tab === 'fit' ? 'Chưa có việc nào' : tab === 'saved' ? 'Chưa lưu việc nào' : 'Chưa ứng tuyển việc nào'
+                    : tab === 'fit' ? 'Chưa có việc nào' : tab === 'saved' ? 'Chưa lưu việc nào' : tab === 'applied' ? 'Chưa ứng tuyển việc nào' : 'Chưa có kết nối nào'
                 }
                 description={
                   current.length > 0
@@ -234,7 +273,9 @@ export default function JobseekerMatch() {
                     ? 'Bạn đã ứng tuyển hết các vị trí mẫu. Xem lại ở tab Đã ứng tuyển.'
                     : tab === 'saved'
                       ? 'Bấm Lưu ở một vị trí để xem lại tại đây.'
-                      : 'Các vị trí bạn ứng tuyển sẽ nằm ở đây.'
+                      : tab === 'applied'
+                        ? 'Các vị trí bạn ứng tuyển sẽ nằm ở đây.'
+                        : 'Khi doanh nghiệp cũng quan tâm bạn, vị trí sẽ nằm ở đây.'
                 }
               />
             ) : gallery ? (
@@ -248,6 +289,7 @@ export default function JobseekerMatch() {
                     title={job.title}
                     subtitle={`${companyOf(job.companyId).name} · ${job.district} · ${job.salaryLabel}`}
                     score={outcome.score}
+                    chip={chipOf(statusOf(job.id, ME), 'Quan tâm bạn')}
                   />
                 )}
                 onOpen={(item, origin) => setOpen({ id: item.id, origin })}
@@ -267,6 +309,13 @@ export default function JobseekerMatch() {
 
           <div className="mx-auto mt-8 flex justify-center">
             <MockNotice />
+            <button
+              type="button"
+              onClick={() => { resetDemoData(); toast('Đã đặt lại dữ liệu demo') }}
+              className={`ml-4 rounded-control text-xs text-page-muted underline underline-offset-4 hover:text-page-fg ${FOCUS}`}
+            >
+              Đặt lại dữ liệu demo
+            </button>
           </div>
     </MatchFrame>
     </div>
