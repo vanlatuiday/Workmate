@@ -70,14 +70,16 @@ Phân quyền: `ProtectedRoute` chỉ kiểm tra `user.role` trong Zustand store
 | Route | Trạng thái |
 |---|---|
 | `/tim-viec` Dashboard · `/phu-hop` Việc phù hợp (lọc, sắp xếp, phân rã 5 tiêu chí từ `catalog.ts`) · `/ho-so` Hồ sơ (lịch rảnh T2–CN × buổi, kỹ năng) | **[có]** UI theo DESIGN.md, việc và điểm lấy từ `pages/public/jobs/catalog.ts`, phần còn lại (hồ sơ, đơn ứng tuyển) ở `pages/jobseeker/mockData.ts`, state cục bộ |
-| `/da-luu` Đã lưu · `/ung-tuyen` Đơn ứng tuyển · `/match` · `/tin-nhan` (chuyển hướng sang `/tin-nhan` công khai) · `/lich-phong-van` (chuyển hướng sang `/lich-phong-van` công khai) · `/cv` Quản lý CV · `/cai-dat` | **[khung]** Trang trống |
+| `/da-luu` Việc đã lưu · `/ung-tuyen` Đã ứng tuyển · `/match` Kết nối | **[có]** (2026-10-29) Đọc kho chung (`connectionService`, `matchStore`): Việc đã lưu (điểm, trạng thái, Ứng tuyển/Đồng ý kết nối/Bỏ lưu), Đã ứng tuyển (tabs + nhóm "Doanh nghiệp đang chờ bạn", Rút/Nhắn tin/Chọn giờ), Kết nối (tin nhắn cuối, chưa đọc, phỏng vấn). Tổng quan dùng số liệu thật từ kho. Dữ liệu demo, chưa có backend. |
+| `/tin-nhan` (chuyển hướng sang `/tin-nhan` công khai) · `/lich-phong-van` (chuyển hướng sang `/lich-phong-van` công khai) · `/cv` Quản lý CV · `/cai-dat` | **[khung]** Trang trống (hai route chuyển hướng là [có]) |
 
 ### Nhà tuyển dụng `/tuyen-dung`
 | Route | Trạng thái |
 |---|---|
-| `/tuyen-dung` Dashboard · `/tin-dang` Tin tuyển dụng · `/ung-vien-phu-hop` Ứng viên phù hợp (Quan tâm → MATCH, bỏ qua/hoàn tác) | **[có]** UI theo DESIGN.md, dữ liệu mẫu `pages/recruiter/mockData.ts`, state cục bộ |
+| `/tuyen-dung` Dashboard · `/tin-dang` Tin tuyển dụng | **[có]** UI theo DESIGN.md, dữ liệu mẫu `pages/recruiter/mockData.ts`, state cục bộ |
 | `/dang-tin` Đăng tin | **[có]** Form 4 bước: Thông tin vị trí → Yêu cầu → Lịch & Lương (lịch theo từng ngày) → Tiêu chí. Chưa gửi lên API. |
-| `/tim-ung-vien` · `/ung-vien-da-luu` · `/match` · `/tin-nhan` (chuyển hướng sang `/tin-nhan` công khai) · `/lich-phong-van` (chuyển hướng sang `/lich-phong-van` công khai) · `/ho-so-cong-ty` · `/cai-dat` | **[khung]** Trang trống |
+| `/tim-ung-vien` Tìm ứng viên · `/ung-vien-da-luu` Ứng viên đã lưu · `/match` Kết nối | **[có]** (2026-10-29) Đọc kho chung: Tìm ứng viên (lọc tên/kỹ năng/quận/buổi rảnh/lương, điểm hợp nhất, Quan tâm chọn tin, Lưu), Ứng viên đã lưu (nhóm theo tin), Kết nối (Nhắn tin, Mời phỏng vấn). `/tuyen-dung/ung-vien-phu-hop` chuyển hướng sang `/match` (file `SuggestedCandidates.tsx` còn nhưng không còn route). |
+| `/tin-nhan` · `/lich-phong-van` (chuyển hướng sang trang công khai) · `/ho-so-cong-ty` · `/cai-dat` | `/ho-so-cong-ty`, `/cai-dat` **[khung]** trang trống; hai route chuyển hướng là [có] |
 
 ### Quản trị `/admin`
 | Route | Trạng thái |

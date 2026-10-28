@@ -157,3 +157,40 @@ export const inviteInterview = (input: Pick<Interview, 'jobId' | 'seekerId' | 's
 export const confirmInterview = (id: string, slot: string) => useDemoStore.getState().confirmInterview(id, slot)
 export const declineInterview = (id: string) => useDemoStore.getState().declineInterview(id)
 export const cancelInterview = (id: string) => useDemoStore.getState().cancelInterview(id)
+
+// ─── Danh sách cho dashboard ────────────────────────────────────────────────
+
+export interface PairItem {
+  jobId: string
+  seekerId: string
+  /** Lúc mình bày tỏ quan tâm (hoặc lúc kết nối nếu phía kia quan tâm trước) */
+  at: string
+  status: Exclude<PairStatus, 'none'>
+}
+
+/**
+ * Hook: mọi cặp liên quan tới tài khoản demo của phía `viewer` mà mình đã quan tâm, phía kia đã
+ * quan tâm mình, hoặc đã kết nối — mới nhất trước. Dùng cho "Đã ứng tuyển", "Kết nối"…
+ */
+export function useMyPairs(viewer: Side): PairItem[] {
+  const interests = useDemoStore((s) => s.interests)
+  const connections = useDemoStore((s) => s.connections)
+  const status = usePairStatuses(viewer)
+  const seen = new Map<string, PairItem>()
+  for (const i of interests) {
+    if (!isMine(viewer, i)) continue
+    const k = convKey(i.jobId, i.seekerId)
+    const st = status(i.jobId, i.seekerId)
+    if (st === 'none') continue
+    const prev = seen.get(k)
+    // Giữ thời điểm của chính mình nếu có, không thì thời điểm sớm nhất
+    const at = i.from === viewer || !prev ? i.at : prev.at
+    seen.set(k, { jobId: i.jobId, seekerId: i.seekerId, at, status: st })
+  }
+  for (const c of connections) {
+    if (!isMine(viewer, c)) continue
+    const k = convKey(c.jobId, c.seekerId)
+    if (!seen.has(k)) seen.set(k, { jobId: c.jobId, seekerId: c.seekerId, at: c.at, status: 'connected' })
+  }
+  return [...seen.values()].sort((a, b) => b.at.localeCompare(a.at))
+}

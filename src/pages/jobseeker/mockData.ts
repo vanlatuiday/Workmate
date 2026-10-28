@@ -16,8 +16,6 @@ export const RECENT_APPLICATIONS: MockApplication[] = [
   { id: 'dt-3', jobId: 'vl-102', title: 'Pha chế quán cà phê', company: 'Quán Gió Sông Hàn', status: 'viewed', appliedAt: '17/10/2026' },
 ]
 
-export const DASHBOARD_STATS = { applied: 12, viewed: 7, saved: 5, match: 3 }
-
 /** Hồ sơ mẫu để điền sẵn form */
 export const PROFILE_DEFAULT = {
   fullName: 'Nguyễn Minh Anh',

@@ -1,21 +1,17 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Bookmark, ClipboardList, Eye, MapPin, Zap } from 'lucide-react'
+import { ArrowRight, Bookmark, CalendarCheck, ClipboardList, MapPin, Zap } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
-import { JOB_TYPES, APPLICATION_STATUS_LABELS } from '@constants/index'
+import { JOB_TYPES } from '@constants/index'
 import { EmptyState, MatchScore, MockNotice, PageHeader, Panel, StatCard, StatusBadge } from '@components/dashboard'
-import type { ApplicationStatus } from '@/types'
-import { DASHBOARD_STATS, RECENT_APPLICATIONS } from './mockData'
+import { useMatchStore } from '@context/matchStore'
+import { useInterviews, useMyPairs } from '@services/connectionService'
+import { describeConversation } from '@pages/public/messages/describe'
+import { formatRelativeTime } from '@utils/format'
 import { ALL_JOBS, seekerOutcome } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { FOCUS } from '@utils/focus'
 
 const LINK = `underline underline-offset-4 text-page-fg hover:text-page-muted transition-colors duration-300 rounded-control ${FOCUS}`
-
-const STATUS_TONE: Partial<Record<ApplicationStatus, 'strong' | 'default' | 'muted'>> = {
-  interview_invited: 'strong',
-  considering: 'default',
-  viewed: 'muted',
-}
 
 // Mức hoàn thiện hồ sơ mẫu
 const PROFILE_PERCENT = 80
@@ -23,6 +19,15 @@ const PROFILE_PERCENT = 80
 export default function JobseekerDashboard() {
   const { user } = useAuthStore()
   const name = user?.email?.split('@')[0] ?? 'bạn'
+  // Số liệu thật từ kho dùng chung (demoStore + matchStore)
+  const pairs = useMyPairs('seeker')
+  const savedCount = useMatchStore((s) => s.savedJobs.length)
+  const interviews = useInterviews('seeker')
+  const now = new Date().toISOString()
+  const upcoming = interviews.filter((iv) => iv.status === 'confirmed' && (iv.chosen ?? iv.slots[0]) > now).length
+  const appliedCount = pairs.filter((p) => p.status === 'sent' || p.status === 'connected').length
+  const connectedCount = pairs.filter((p) => p.status === 'connected').length
+  const recent = pairs.slice(0, 3)
   // 3 việc điểm cao nhất theo cách tính chung (catalog.ts)
   const jobs = ALL_JOBS.map((job) => ({ job, outcome: seekerOutcome(job) }))
     .sort((a, b) => b.outcome.score - a.outcome.score)
@@ -36,10 +41,10 @@ export default function JobseekerDashboard() {
       />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Đã ứng tuyển" value={DASHBOARD_STATS.applied} icon={ClipboardList} href="/tim-viec/ung-tuyen" />
-        <StatCard label="NTD đã xem" value={DASHBOARD_STATS.viewed} icon={Eye} href="/tim-viec/ung-tuyen" />
-        <StatCard label="Việc đã lưu" value={DASHBOARD_STATS.saved} icon={Bookmark} href="/tim-viec/da-luu" />
-        <StatCard label="Kết nối" value={DASHBOARD_STATS.match} icon={Zap} href="/tim-viec/match" />
+        <StatCard label="Đã ứng tuyển" value={appliedCount} icon={ClipboardList} href="/tim-viec/ung-tuyen" />
+        <StatCard label="Việc đã lưu" value={savedCount} icon={Bookmark} href="/tim-viec/da-luu" />
+        <StatCard label="Kết nối" value={connectedCount} icon={Zap} href="/tim-viec/match" />
+        <StatCard label="Phỏng vấn sắp tới" value={upcoming} icon={CalendarCheck} href="/lich-phong-van" />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
@@ -100,19 +105,24 @@ export default function JobseekerDashboard() {
         className="mt-6"
         action={<Link to="/tim-viec/ung-tuyen" className={LINK}>Xem tất cả</Link>}
       >
-        {RECENT_APPLICATIONS.length === 0 ? (
+        {recent.length === 0 ? (
           <EmptyState icon={ClipboardList} title="Chưa có đơn ứng tuyển" description="Hãy ứng tuyển việc đầu tiên." />
         ) : (
           <ul className="divide-y divide-page-line">
-            {RECENT_APPLICATIONS.map((a) => (
-              <li key={a.id} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <p className="font-medium text-page-fg">{a.title}</p>
-                  <p className="text-sm text-page-muted">{a.company} · nộp ngày {a.appliedAt}</p>
-                </div>
-                <StatusBadge tone={STATUS_TONE[a.status] ?? 'muted'}>{APPLICATION_STATUS_LABELS[a.status]}</StatusBadge>
-              </li>
-            ))}
+            {recent.map((p) => {
+              const info = describeConversation('seeker', p.jobId, p.seekerId)
+              return (
+                <li key={`${p.jobId}|${p.seekerId}`} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="font-medium text-page-fg">{info.subtitle}</p>
+                    <p className="text-sm text-page-muted">{info.name} · {formatRelativeTime(p.at)}</p>
+                  </div>
+                  <StatusBadge tone={p.status === 'connected' ? 'strong' : 'default'}>
+                    {p.status === 'connected' ? 'Đã kết nối' : p.status === 'sent' ? 'Chờ phản hồi' : 'Doanh nghiệp quan tâm bạn'}
+                  </StatusBadge>
+                </li>
+              )
+            })}
           </ul>
         )}
       </Panel>
