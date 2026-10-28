@@ -17,7 +17,7 @@ import MatchArches from './MatchArches'
 import MatchDetail from './MatchDetail'
 import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
-  Avatar, BTN_PRIMARY, BTN_SECONDARY, CheckList, filterByLevel, GalleryCaption, LevelFilter, MatchFrame, personInitials, Tabs, ViewToggle,
+  Avatar, BTN_PRIMARY, BTN_SECONDARY, CheckList, filterByLevel, foldMatches, GalleryCaption, LevelFilter, MatchFrame, NameSearch, personInitials, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
 import { DEFAULT_PRIORITY, scoreMatch, weightsOf, type CriterionResult } from './score'
@@ -53,6 +53,7 @@ export default function RecruiterMatch() {
   const positions = useMemo(() => (draft ? [draft, ...POSITIONS] : POSITIONS), [draft])
   const [positionId, setPositionId] = useState(positions[0].id)
   const [tab, setTab] = useState<TabKey>('fit')
+  const [query, setQuery] = useState('')
   // Bộ sưu tập: lọc theo mức phù hợp; thẻ đang mở chi tiết (kèm nút gốc để ảnh phóng ra / thu về)
   const [level, setLevel] = useState<LevelKey>('all')
   const [open, setOpen] = useState<{ id: string; origin: HTMLElement } | null>(null)
@@ -87,7 +88,8 @@ export default function RecruiterMatch() {
     interested: scored.filter((x) => statusOf(position.id, x.c.id) === 'sent'),
     connected: scored.filter((x) => statusOf(position.id, x.c.id) === 'connected'),
   }
-  const current = lists[tab]
+  // Ô tìm theo tên ứng viên + kỹ năng, áp lên tab đang chọn (cả hai chế độ xem)
+  const current = lists[tab].filter((x) => foldMatches([x.c.name, ...x.c.criteria.skills], query))
   const shown = gallery ? filterByLevel(current, level, (x) => x.outcome.score) : current
   const detail = open ? scored.find((x) => x.key === open.id) : undefined
 
@@ -207,6 +209,7 @@ export default function RecruiterMatch() {
             </option>
           ))}
         </select>
+        <NameSearch value={query} onChange={setQuery} label="Tìm theo tên ứng viên hoặc kỹ năng" placeholder="Tìm tên, kỹ năng…" />
         <ViewToggle value={view} onChange={setView} />
       </div>
       <p className="mx-auto mt-3 max-w-3xl text-center text-sm leading-relaxed text-page-muted">
@@ -241,12 +244,16 @@ export default function RecruiterMatch() {
             <EmptyState
               icon={UserX}
               title={
-                current.length > 0
+                query && lists[tab].length > 0 && current.length === 0
+                  ? 'Không có ứng viên khớp từ khóa'
+                  : current.length > 0
                   ? 'Không có ứng viên ở mức này'
                   : tab === 'fit' ? 'Hết ứng viên để xem' : tab === 'saved' ? 'Chưa lưu ứng viên nào' : tab === 'interested' ? 'Chưa quan tâm ai' : 'Chưa có kết nối nào'
               }
               description={
-                current.length > 0
+                query && lists[tab].length > 0 && current.length === 0
+                  ? 'Thử gõ tên hoặc kỹ năng khác, hoặc xóa ô tìm.'
+                  : current.length > 0
                   ? 'Chọn mức phù hợp khác hoặc Tất cả để xem các ứng viên còn lại.'
                   : tab === 'fit'
                   ? 'Bạn đã quan tâm hoặc bỏ qua hết ứng viên của vị trí này.'

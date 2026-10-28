@@ -1,7 +1,6 @@
 // Dữ liệu mẫu cho /viec-lam và /cong-ty/:id — thay bằng API khi có backend.
-// Việc làm của từng công ty lấy từ RECOMMENDED_JOBS (khớp theo tên công ty),
+// Việc làm của từng công ty nằm ở `jobs/catalog.ts` (một nguồn cho cả hai phía),
 // tin của nhà tuyển dụng lấy từ MOCK_JOBS — cùng nguồn với dashboard nên số liệu không lệch nhau.
-import { RECOMMENDED_JOBS, type MockJob as SeekerJob } from '@pages/jobseeker/mockData'
 import { MOCK_CANDIDATES, MOCK_JOBS, type MockJob as RecruiterJob } from '@pages/recruiter/mockData'
 import type { Photo } from '@components/discover/types'
 import type { CompanySize } from '@/types'
@@ -123,11 +122,6 @@ export const COMPANIES: DiscoverCompany[] = [
 
 export function findCompany(id: string | undefined) {
   return COMPANIES.find((c) => c.id === id)
-}
-
-/** Việc đang tuyển của một công ty — chỉ những tin có trong dữ liệu mẫu, không tự thêm. */
-export function jobsOf(company: DiscoverCompany): SeekerJob[] {
-  return RECOMMENDED_JOBS.filter((j) => j.company === company.name)
 }
 
 // ─── Nhà tuyển dụng ─────────────────────────────────────────────────────────

@@ -4,7 +4,9 @@ import { useAuthStore } from '@context/authStore'
 import { JOB_TYPES, APPLICATION_STATUS_LABELS } from '@constants/index'
 import { EmptyState, MatchScore, MockNotice, PageHeader, Panel, StatCard, StatusBadge } from '@components/dashboard'
 import type { ApplicationStatus } from '@/types'
-import { DASHBOARD_STATS, RECENT_APPLICATIONS, RECOMMENDED_JOBS } from './mockData'
+import { DASHBOARD_STATS, RECENT_APPLICATIONS } from './mockData'
+import { ALL_JOBS, seekerOutcome } from '@pages/public/jobs/catalog'
+import { companyOf } from '@pages/public/match/data'
 import { FOCUS } from '@utils/focus'
 
 const LINK = `underline underline-offset-4 text-page-fg hover:text-page-muted transition-colors duration-300 rounded-control ${FOCUS}`
@@ -21,13 +23,16 @@ const PROFILE_PERCENT = 80
 export default function JobseekerDashboard() {
   const { user } = useAuthStore()
   const name = user?.email?.split('@')[0] ?? 'bạn'
-  const jobs = RECOMMENDED_JOBS.slice(0, 3)
+  // 3 việc điểm cao nhất theo cách tính chung (catalog.ts)
+  const jobs = ALL_JOBS.map((job) => ({ job, outcome: seekerOutcome(job) }))
+    .sort((a, b) => b.outcome.score - a.outcome.score)
+    .slice(0, 3)
 
   return (
     <div>
       <PageHeader
         title={`Xin chào, ${name}`}
-        description="Hôm nay có 3 việc phù hợp trên 80% với hồ sơ và lịch rảnh của bạn."
+        description="3 việc hợp nhất với hồ sơ và lịch rảnh của bạn đang chờ ở dưới."
       />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -44,13 +49,13 @@ export default function JobseekerDashboard() {
           action={<Link to="/tim-viec/phu-hop" className={LINK}>Xem tất cả</Link>}
         >
           <ul className="divide-y divide-page-line">
-            {jobs.map((job) => (
+            {jobs.map(({ job, outcome }) => (
               <li key={job.id} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <Link to={`/viec-lam/${job.id}`} className={`font-medium text-page-fg hover:underline underline-offset-4 rounded-control ${FOCUS}`}>
                     {job.title}
                   </Link>
-                  <p className="mt-1 text-sm text-page-muted">{job.company}</p>
+                  <p className="mt-1 text-sm text-page-muted">{companyOf(job.companyId).name}</p>
                   <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-page-muted">
                     <span className="inline-flex items-center gap-1">
                       <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
@@ -60,7 +65,7 @@ export default function JobseekerDashboard() {
                     <span>{JOB_TYPES.find((t) => t.value === job.jobType)?.label}</span>
                   </p>
                 </div>
-                <MatchScore score={job.score} size="sm" />
+                <MatchScore score={outcome.score} size="sm" />
               </li>
             ))}
           </ul>

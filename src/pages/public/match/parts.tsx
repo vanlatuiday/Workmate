@@ -1,7 +1,7 @@
 // Mảnh dùng chung của trang /match: khung trang, tabs, hàng ✓/✗, thẻ vị trí, vòng chữ tắt.
 // Trang yên tĩnh như dashboard: không chuyển động cuộn, chỉ đổi màu viền/nền khi hover.
 import { useRef, type KeyboardEvent, type ReactNode } from 'react'
-import { ArrowDownRight, Check, LayoutGrid, List, X } from 'lucide-react'
+import { ArrowDownRight, Check, LayoutGrid, List, Search, X } from 'lucide-react'
 import MatchScore from '@components/dashboard/MatchScore'
 import { Initials } from '@components/discover/detail/DetailBlocks'
 import type { MatchView } from '@context/matchStore'
@@ -213,6 +213,34 @@ export function JobCard({ job, outcome, actions }: { job: MatchJob; outcome: Mat
 }
 
 // ─── Chế độ xem Danh sách / Bộ sưu tập ──────────────────────────────────────
+
+/** Bỏ dấu + chữ thường để gõ "pha che" vẫn ra "Pha chế" */
+export const foldText = (s: string) =>
+  s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim()
+
+/** Mọi từ trong `query` đều có mặt trong `haystack` (đã bỏ dấu). Query trống = khớp. */
+export const foldMatches = (haystack: string[], query: string) => {
+  const hay = foldText(haystack.join(' '))
+  return foldText(query).split(/\s+/).filter(Boolean).every((w) => hay.includes(w))
+}
+
+/** Ô tìm nhỏ cạnh hàng điều khiển: lọc danh sách theo chữ gõ */
+export function NameSearch({ value, onChange, label, placeholder }: { value: string; onChange: (v: string) => void; label: string; placeholder: string }) {
+  return (
+    <div className="relative">
+      <label htmlFor="match-search" className="sr-only">{label}</label>
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-page-muted" aria-hidden="true" />
+      <input
+        id="match-search"
+        type="search"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={`w-56 max-w-full rounded-control border border-page-edge bg-page-surface py-2 pl-9 pr-3 text-sm text-page-fg placeholder:text-page-muted ${FOCUS}`}
+      />
+    </div>
+  )
+}
 
 /** Nhóm hai nút chuyển chế độ xem */
 export function ViewToggle({ value, onChange }: { value: MatchView; onChange: (v: MatchView) => void }) {

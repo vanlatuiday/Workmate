@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { photoUrl } from '@components/discover/types'
 import { FOCUS } from '@utils/focus'
 import ContentPage from './content/ContentPage'
-import { COMPANIES, jobsOf } from './jobs/data'
+import { COMPANIES } from './jobs/data'
+import { jobsOfCompany } from './jobs/catalog'
 
 export default function CompaniesPage() {
   return (
@@ -23,7 +24,7 @@ export default function CompaniesPage() {
               <h2 className="mt-4 font-display text-lg font-semibold text-page-fg">{c.name}</h2>
               <p className="text-sm text-page-muted">{c.industry} · {c.district}</p>
               <p className="mt-2 text-sm leading-relaxed text-page-muted">{c.tagline}</p>
-              <p className="mt-2 text-xs font-medium text-page-fg">{jobsOf(c).length} vị trí đang tuyển</p>
+              <p className="mt-2 text-xs font-medium text-page-fg">{jobsOfCompany(c.id).length} vị trí đang tuyển</p>
             </Link>
           </li>
         ))}

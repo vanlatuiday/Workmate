@@ -5,7 +5,9 @@ import { JOB_TYPES } from '@constants/index'
 import { EmptyState, MatchScore, MockNotice, PageHeader } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import type { JobType } from '@/types'
-import { MATCH_CRITERIA, RECOMMENDED_JOBS, type MockJob } from './mockData'
+import { ALL_JOBS, seekerOutcome, type MatchJob } from '@pages/public/jobs/catalog'
+import { companyOf } from '@pages/public/match/data'
+import { CRITERION_LABELS, type MatchOutcome } from '@pages/public/match/score'
 import { FOCUS } from '@utils/focus'
 
 const FIELD = `rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
@@ -38,7 +40,9 @@ function CriterionBar({ label, value }: { label: string; value: number }) {
   )
 }
 
-function JobCard({ job, saved, onToggleSave }: { job: MockJob; saved: boolean; onToggleSave: () => void }) {
+type Scored = { job: MatchJob; outcome: MatchOutcome }
+
+function JobCard({ job, outcome, saved, onToggleSave }: Scored & { saved: boolean; onToggleSave: () => void }) {
   const [open, setOpen] = useState(false)
   const panelId = useId()
   const typeLabel = JOB_TYPES.find((t) => t.value === job.jobType)?.label
@@ -48,7 +52,7 @@ function JobCard({ job, saved, onToggleSave }: { job: MockJob; saved: boolean; o
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h2 className="font-display text-lg font-medium text-page-fg">{job.title}</h2>
-          <p className="mt-1 text-sm text-page-muted">{job.company}</p>
+          <p className="mt-1 text-sm text-page-muted">{companyOf(job.companyId).name}</p>
           <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-page-muted">
             <span className="inline-flex items-center gap-1">
               <MapPin className="h-4 w-4" aria-hidden="true" />
@@ -58,10 +62,10 @@ function JobCard({ job, saved, onToggleSave }: { job: MockJob; saved: boolean; o
           </p>
           <p className="mt-3 flex flex-wrap items-center gap-2 text-xs text-page-muted">
             <span className="rounded-full border border-page-line px-2.5 py-0.5">{typeLabel}</span>
-            <span>Ca làm: {job.shift}</span>
+            <span>Ca làm: {job.shiftLabel}</span>
           </p>
         </div>
-        <MatchScore score={job.score} />
+        <MatchScore score={outcome.score} />
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -94,10 +98,10 @@ function JobCard({ job, saved, onToggleSave }: { job: MockJob; saved: boolean; o
 
       <div id={panelId} hidden={!open} className="mt-5 border-t border-page-line pt-5">
         {open && (<>
-          <p className="mb-4 text-sm text-page-muted">Điểm phù hợp được tính từ 7 tiêu chí:</p>
+          <p className="mb-4 text-sm text-page-muted">Điểm phù hợp được tính từ 5 tiêu chí:</p>
           <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
-            {MATCH_CRITERIA.map((c) => (
-              <CriterionBar key={c.key} label={c.label} value={job.breakdown[c.key]} />
+            {outcome.results.map((r) => (
+              <CriterionBar key={r.key} label={CRITERION_LABELS[r.key]} value={Math.round(r.value * 100)} />
             ))}
           </ul>
         </>)}
@@ -115,12 +119,19 @@ export default function RecommendedJobs() {
   const scoreId = useId()
   const sortId = useId()
 
+  // Điểm tính một lần cho cả danh mục (cùng cách tính với trang Kết nối)
+  const scored = useMemo<Scored[]>(() => ALL_JOBS.map((job) => ({ job, outcome: seekerOutcome(job) })), [])
+
   const jobs = useMemo(() => {
-    const list = RECOMMENDED_JOBS.filter((j) => (type === 'all' || j.jobType === type) && j.score >= minScore)
+    const list = scored.filter((x) => (type === 'all' || x.job.jobType === type) && x.outcome.score >= minScore)
     return [...list].sort((a, b) =>
-      sort === 'salary' ? b.salarySort - a.salarySort : sort === 'distance' ? a.distanceKm - b.distanceKm : b.score - a.score,
+      sort === 'salary'
+        ? b.job.salaryMaxK - a.job.salaryMaxK
+        : sort === 'distance'
+          ? a.job.distanceKm - b.job.distanceKm
+          : b.outcome.score - a.outcome.score,
     )
-  }, [type, minScore, sort])
+  }, [scored, type, minScore, sort])
 
   const toggleSave = (id: string) =>
     setSavedIds((prev) => {
@@ -177,8 +188,8 @@ export default function RecommendedJobs() {
         />
       ) : (
         <div className="space-y-4">
-          {jobs.map((job) => (
-            <JobCard key={job.id} job={job} saved={savedIds.has(job.id)} onToggleSave={() => toggleSave(job.id)} />
+          {jobs.map(({ job, outcome }) => (
+            <JobCard key={job.id} job={job} outcome={outcome} saved={savedIds.has(job.id)} onToggleSave={() => toggleSave(job.id)} />
           ))}
         </div>
       )}

@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
 import Reveal from '@components/motion/Reveal'
-import type { MockJob } from '@pages/jobseeker/mockData'
+import type { MatchJob } from '@pages/public/jobs/catalog'
 import { FOCUS } from '@utils/focus'
 
 
 /** Danh sách việc đang tuyển, mỗi dòng là link tới /viec-lam/:id. */
-export default function JobLinks({ jobs }: { jobs: MockJob[] }) {
+export default function JobLinks({ jobs }: { jobs: MatchJob[] }) {
   if (!jobs.length) return <p className="text-page-muted">Hiện chưa có tin đang mở.</p>
   return (
     <Reveal>
@@ -20,7 +20,7 @@ export default function JobLinks({ jobs }: { jobs: MockJob[] }) {
               <span>
                 <span className="block font-display text-lg font-medium">{j.title}</span>
                 <span className="mt-1 block text-sm text-page-muted">
-                  {j.salaryLabel} · {j.shift} · {j.district}
+                  {j.salaryLabel} · {j.shiftLabel} · {j.district}
                 </span>
               </span>
               <ArrowUpRight className="h-5 w-5 shrink-0 transition-transform duration-500 ease-editorial group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

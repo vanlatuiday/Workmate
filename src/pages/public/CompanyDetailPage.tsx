@@ -10,7 +10,8 @@ import ApplicantCard from '@components/discover/detail/ApplicantCard'
 import JobLinks from '@components/discover/detail/JobLinks'
 import { ImageBlock, TagList, TextBlock } from '@components/discover/detail/DetailBlocks'
 import Reveal from '@components/motion/Reveal'
-import { applicantsOf, findCompany, jobsOf } from './jobs/data'
+import { applicantsOf, findCompany } from './jobs/data'
+import { jobsOfCompany } from './jobs/catalog'
 
 /**
  * /cong-ty/:id — chi tiết công ty kiểu "case study" (dữ liệu mẫu).
@@ -31,7 +32,7 @@ export default function CompanyDetailPage() {
     )
   }
 
-  const jobs = jobsOf(company)
+  const jobs = jobsOfCompany(company.id)
   // Khách và admin xem như nhau: có phần người ứng tuyển
   const withApplicants = role !== 'jobseeker' && role !== 'recruiter'
   const applicants = withApplicants ? applicantsOf(company) : []

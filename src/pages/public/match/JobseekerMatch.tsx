@@ -20,7 +20,7 @@ import MatchArches from './MatchArches'
 import MatchDetail from './MatchDetail'
 import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
-  BTN_PRIMARY, BTN_SECONDARY, filterByLevel, GalleryCaption, JobCard, LevelFilter, MatchFrame, Tabs, ViewToggle,
+  BTN_PRIMARY, BTN_SECONDARY, filterByLevel, foldMatches, GalleryCaption, JobCard, LevelFilter, MatchFrame, NameSearch, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
 import {
@@ -75,6 +75,7 @@ export default function JobseekerMatch() {
 
   const [tab, setTab] = useState<TabKey>('fit')
   const [sort, setSort] = useState<SortKey>('score')
+  const [query, setQuery] = useState('')
   // Bộ sưu tập: lọc theo mức phù hợp; thẻ đang mở chi tiết (kèm nút gốc để ảnh phóng ra / thu về)
   const [level, setLevel] = useState<LevelKey>('all')
   const [open, setOpen] = useState<{ id: string; origin: HTMLElement } | null>(null)
@@ -100,7 +101,11 @@ export default function JobseekerMatch() {
     // statusOf đổi tham chiếu mỗi lần kho đổi nên dùng làm dependency là đủ
   }, [scored, sort, savedJobs, statusOf])
 
-  const current = lists[tab]
+  // Ô tìm theo tên việc + công ty, áp lên tab đang chọn (cả hai chế độ xem)
+  const current = useMemo(
+    () => lists[tab].filter((x) => foldMatches([x.job.title, companyOf(x.job.companyId).name], query)),
+    [lists, tab, query],
+  )
   const shown = gallery ? filterByLevel(current, level, (x) => x.outcome.score) : current
   const detail = open ? scored.find((x) => x.job.id === open.id) : undefined
 
@@ -218,6 +223,7 @@ export default function JobseekerMatch() {
           <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
           Tiêu chí
         </button>
+        <NameSearch value={query} onChange={setQuery} label="Tìm theo tên việc hoặc công ty" placeholder="Tìm việc, công ty…" />
         <div className="flex items-center gap-2">
           <label htmlFor="match-sort" className="text-page-muted">Sắp xếp</label>
           <select id="match-sort" value={sort} onChange={(e) => setSort(e.target.value as SortKey)}
@@ -266,12 +272,16 @@ export default function JobseekerMatch() {
               <EmptyState
                 icon={SearchX}
                 title={
-                  current.length > 0
+                  query && lists[tab].length > 0 && current.length === 0
+                    ? 'Không có việc nào khớp từ khóa'
+                    : current.length > 0
                     ? 'Không có việc ở mức này'
                     : tab === 'fit' ? 'Chưa có việc nào' : tab === 'saved' ? 'Chưa lưu việc nào' : tab === 'applied' ? 'Chưa ứng tuyển việc nào' : 'Chưa có kết nối nào'
                 }
                 description={
-                  current.length > 0
+                  query && lists[tab].length > 0 && current.length === 0
+                    ? 'Thử gõ tên việc hoặc công ty khác, hoặc xóa ô tìm.'
+                    : current.length > 0
                     ? 'Chọn mức phù hợp khác hoặc Tất cả để xem các việc còn lại.'
                     : tab === 'fit'
                     ? 'Bạn đã ứng tuyển hết các vị trí mẫu. Xem lại ở tab Đã ứng tuyển.'
