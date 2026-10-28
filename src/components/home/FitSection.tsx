@@ -1,8 +1,7 @@
 import Reveal from '@components/motion/Reveal'
 import TextReveal from '@components/motion/TextReveal'
 import { useHomeCopy } from './useAudience'
-
-const pad = (n: number) => String(n).padStart(2, '0')
+import { pad } from '@utils/format'
 
 /** Section B — lợi ích chính, trình bày đơn giản để tạo nhịp nghỉ sau hero. */
 export default function FitSection() {

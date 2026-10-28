@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import DiscoverGallery from '@components/discover/DiscoverGallery'
 import { ProfileTag, ClosingBand, DetailHead, GalleryIntro, PrimaryLink, SampleNote } from '@components/discover/parts'
 import type { GalleryItem } from '@components/discover/types'
+import MatchScore from '@components/dashboard/MatchScore'
 import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
 import { COMPANIES, jobsOf, type DiscoverCompany } from './data'
 
@@ -46,6 +47,8 @@ export default function JobseekerJobs() {
 
 function CompanyDetail({ company: c }: { company: DiscoverCompany }) {
   const jobs = jobsOf(c)
+  // Độ phù hợp của công ty = việc hợp nhất với hồ sơ người đang xem (điểm mẫu trong mockData)
+  const best = jobs.reduce<(typeof jobs)[number] | undefined>((a, j) => (!a || j.score > a.score ? j : a), undefined)
   return (
     <>
       <DetailHead kicker={`${c.industry} · ${c.district}`} title={c.name} />
@@ -53,6 +56,16 @@ function CompanyDetail({ company: c }: { company: DiscoverCompany }) {
         <ProfileTag to={COMPANY_PUBLIC_HREF}>Trang doanh nghiệp</ProfileTag>
       </div>
       <p className="mt-4 leading-relaxed text-page-muted">{c.tagline}</p>
+
+      {best && (
+        <>
+          <h3 className="mt-6 text-xs font-medium uppercase tracking-[0.18em] text-page-muted">Độ phù hợp với bạn</h3>
+          <div className="mt-3">
+            <MatchScore score={best.score} />
+          </div>
+          <p className="mt-2 text-xs text-page-muted">Theo hồ sơ của bạn, với việc “{best.title}”.</p>
+        </>
+      )}
 
       <h3 className="mt-6 text-xs font-medium uppercase tracking-[0.18em] text-page-muted">Việc đang tuyển</h3>
       {jobs.length ? (

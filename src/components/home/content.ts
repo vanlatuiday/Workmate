@@ -40,7 +40,7 @@ const sampleJobs: SampleJob[] = [
 export const steps = [
   { title: 'Tạo hồ sơ trong 5 phút', body: 'Kỹ năng, khu vực và lịch rảnh trong tuần — không cần CV dài.' },
   { title: 'Nhận gợi ý vừa khít', body: 'Mỗi việc làm kèm điểm phù hợp và lý do vì sao nó hợp với bạn.' },
-  { title: 'Match rồi mới trò chuyện', body: 'Hai bên cùng quan tâm thì kênh chat riêng mở ra, hẹn phỏng vấn ngay trong đó.' },
+  { title: 'Kết nối rồi mới trò chuyện', body: 'Hai bên cùng quan tâm thì kênh chat riêng mở ra, hẹn phỏng vấn ngay trong đó.' },
 ]
 
 export const brandStatement =
@@ -110,7 +110,7 @@ export type HomeCopy = {
 }
 
 const matchStep = {
-  title: 'Match rồi mới trò chuyện',
+  title: 'Kết nối rồi mới trò chuyện',
   body: 'Hai bên cùng quan tâm thì kênh chat riêng mở ra, hẹn phỏng vấn ngay trong đó.',
 }
 

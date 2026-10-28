@@ -24,7 +24,7 @@ export default function AdminDashboard() {
         <StatCard label="Người dùng" value={s.totalUsers.toLocaleString('vi-VN')} icon={Users} hint={s.usersHint} />
         <StatCard label="NTD chờ xác minh" value={s.pendingVerifications} icon={Building2} href="/admin/xac-minh" hint={s.verificationHint} />
         <StatCard label="Tin chờ kiểm duyệt" value={s.pendingModeration} icon={FileText} href="/admin/kiem-duyet" hint={s.moderationHint} />
-        <StatCard label="MATCH trong tuần" value={s.weeklyMatches} icon={Handshake} hint={s.matchHint} />
+        <StatCard label="Kết nối trong tuần" value={s.weeklyMatches} icon={Handshake} hint={s.matchHint} />
       </div>
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">

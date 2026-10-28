@@ -17,9 +17,11 @@ export function scrollToY(y: number, smooth = false) {
  *
  * Lenis chạy trên ticker của GSAP để ScrollTrigger (pin, scrub)
  * đọc cùng một vị trí cuộn với Lenis trong mỗi khung hình.
+ * `enabled = false` để tắt theo chế độ xem (vd. /match chỉ bật ở Bộ sưu tập).
  */
-export function useSmoothScroll() {
+export function useSmoothScroll(enabled = true) {
   useEffect(() => {
+    if (!enabled) return
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReduced) return
 
@@ -42,5 +44,5 @@ export function useSmoothScroll() {
       lenis.destroy()
       current = null
     }
-  }, [])
+  }, [enabled])
 }

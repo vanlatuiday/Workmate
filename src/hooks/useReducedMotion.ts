@@ -1,21 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useMediaQuery } from './useMediaQuery'
 
-/** Theo dõi cài đặt "giảm chuyển động" của hệ điều hành. */
+/**
+ * Theo dõi cài đặt "giảm chuyển động" của hệ điều hành.
+ * useMediaQuery đọc ngay ở lần render đầu: nếu chờ tới useEffect, người bật
+ * "giảm chuyển động" sẽ thấy intro trang chủ lóe lên một khung hình trước khi bị tắt.
+ */
 export function useReducedMotion() {
-  // Đọc ngay ở lần render đầu: nếu chờ tới useEffect, người bật "giảm chuyển động"
-  // sẽ thấy intro trang chủ lóe lên một khung hình trước khi bị tắt.
-  const [reduced, setReduced] = useState(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  )
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    setReduced(mq.matches)
-
-    const onChange = (e: MediaQueryListEvent) => setReduced(e.matches)
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
-  }, [])
-
-  return reduced
+  return useMediaQuery('(prefers-reduced-motion: reduce)')
 }

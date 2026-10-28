@@ -1,3 +1,3 @@
 export default function Match() {
-  return <div>Recruiter – Match</div>
+  return <div>Recruiter – Kết nối</div>
 }

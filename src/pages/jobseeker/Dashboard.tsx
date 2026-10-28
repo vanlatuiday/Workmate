@@ -34,7 +34,7 @@ export default function JobseekerDashboard() {
         <StatCard label="Đã ứng tuyển" value={DASHBOARD_STATS.applied} icon={ClipboardList} href="/tim-viec/ung-tuyen" />
         <StatCard label="NTD đã xem" value={DASHBOARD_STATS.viewed} icon={Eye} href="/tim-viec/ung-tuyen" />
         <StatCard label="Việc đã lưu" value={DASHBOARD_STATS.saved} icon={Bookmark} href="/tim-viec/da-luu" />
-        <StatCard label="MATCH" value={DASHBOARD_STATS.match} icon={Zap} href="/tim-viec/match" />
+        <StatCard label="Kết nối" value={DASHBOARD_STATS.match} icon={Zap} href="/tim-viec/match" />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">

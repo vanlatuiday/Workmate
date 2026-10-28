@@ -147,7 +147,7 @@ export default function JobListings() {
                   <th scope="col" className="px-3 py-3 font-medium">Ngày đăng</th>
                   <th scope="col" className="px-3 py-3 text-right font-medium">Lượt xem</th>
                   <th scope="col" className="px-3 py-3 text-right font-medium">Ứng viên phù hợp</th>
-                  <th scope="col" className="px-6 py-3 text-right font-medium">MATCH</th>
+                  <th scope="col" className="px-6 py-3 text-right font-medium">Kết nối</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-page-line">
@@ -188,7 +188,7 @@ export default function JobListings() {
                   {[
                     { icon: Eye, label: 'Lượt xem', v: j.views },
                     { icon: Users, label: 'Ứng viên', v: j.suggested },
-                    { icon: Handshake, label: 'MATCH', v: j.matches },
+                    { icon: Handshake, label: 'Kết nối', v: j.matches },
                   ].map(({ icon: I, label, v }) => (
                     <div key={label}>
                       <dt className="flex items-center justify-center gap-1 text-xs text-page-muted">

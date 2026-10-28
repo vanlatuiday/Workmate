@@ -1,17 +1,20 @@
 import type { SalaryRange } from '@/types'
 
-export function formatSalary(salary: SalaryRange): string {
-  const unitLabel: Record<string, string> = {
-    hour:        '/giờ',
-    day:         '/ngày',
-    month:       '/tháng',
-    commission:  '(hoa hồng)',
-    negotiable:  '',
-  }
+const SALARY_UNIT_LABEL: Record<string, string> = {
+  hour:        '/giờ',
+  day:         '/ngày',
+  month:       '/tháng',
+  commission:  '(hoa hồng)',
+  negotiable:  '',
+}
 
+/** Số thứ tự 2 chữ số: 1 → "01". */
+export const pad = (n: number) => String(n).padStart(2, '0')
+
+export function formatSalary(salary: SalaryRange): string {
   if (salary.unit === 'negotiable') return 'Thỏa thuận'
 
-  const unit = unitLabel[salary.unit] ?? ''
+  const unit = SALARY_UNIT_LABEL[salary.unit] ?? ''
 
   if (salary.min && salary.max) {
     return `${formatVND(salary.min)} – ${formatVND(salary.max)}${unit}`

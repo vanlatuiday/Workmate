@@ -9,7 +9,7 @@ const navItems = [
   { label: 'Việc phù hợp',     href: '/tim-viec/phu-hop',          icon: Sparkles },
   { label: 'Việc đã lưu',      href: '/tim-viec/da-luu',           icon: Bookmark },
   { label: 'Đã ứng tuyển',     href: '/tim-viec/ung-tuyen',        icon: ClipboardList },
-  { label: 'MATCH',            href: '/tim-viec/match',            icon: Zap, badge: 'Mới' },
+  { label: 'Kết nối',         href: '/tim-viec/match',            icon: Zap, badge: 'Mới' },
   { label: 'Tin nhắn',         href: '/tim-viec/tin-nhan',         icon: MessageCircle },
   { label: 'Lịch phỏng vấn',   href: '/tim-viec/lich-phong-van',   icon: Calendar },
   { label: 'CV',               href: '/tim-viec/cv',               icon: FileText },

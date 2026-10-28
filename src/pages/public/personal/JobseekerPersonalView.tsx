@@ -206,7 +206,7 @@ export default function JobseekerPersonalView({ owner }: Opts) {
             text={
               owner
                 ? 'Sáu phần hồ sơ mà nhà tuyển dụng sẽ thấy. Bấm từng tấm ảnh để xem; phần nào còn trống thì bổ sung trong hồ sơ.'
-                : 'Sáu phần hồ sơ công khai. Thông tin liên hệ được ẩn cho tới khi hai bên có MATCH.'
+                : 'Sáu phần hồ sơ công khai. Thông tin liên hệ được ẩn cho tới khi hai bên kết nối.'
             }
             mode={owner ? 'Trang của bạn' : `Bạn đang xem hồ sơ công khai của ${P.fullName}`}
             back={owner ? undefined : { to: '/viec-lam', label: 'Quay lại việc làm' }}

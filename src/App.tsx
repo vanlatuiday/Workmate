@@ -1,3 +1,4 @@
+import { lazy } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 
 // Layouts
@@ -17,43 +18,47 @@ import BlogPage from '@pages/public/BlogPage'
 import LoginPage from '@pages/public/LoginPage'
 import RegisterPage from '@pages/public/RegisterPage'
 import PersonalPage from '@pages/public/PersonalPage'
+import MatchPage from '@pages/public/MatchPage'
+
+// Trang dashboard: tải theo nhu cầu (Suspense nằm trong DashboardShell),
+// khách vào trang công khai không phải tải code của ba khu làm việc.
 
 // Jobseeker pages
-import JobseekerDashboard from '@pages/jobseeker/Dashboard'
-import RecommendedJobs from '@pages/jobseeker/RecommendedJobs'
-import SavedJobs from '@pages/jobseeker/SavedJobs'
-import Applications from '@pages/jobseeker/Applications'
-import JobseekerMatch from '@pages/jobseeker/Match'
-import JobseekerMessages from '@pages/jobseeker/Messages'
-import InterviewSchedule from '@pages/jobseeker/InterviewSchedule'
-import CVManager from '@pages/jobseeker/CVManager'
-import JobseekerProfile from '@pages/jobseeker/Profile'
-import JobseekerSettings from '@pages/jobseeker/Settings'
+const JobseekerDashboard = lazy(() => import('@pages/jobseeker/Dashboard'))
+const RecommendedJobs = lazy(() => import('@pages/jobseeker/RecommendedJobs'))
+const SavedJobs = lazy(() => import('@pages/jobseeker/SavedJobs'))
+const Applications = lazy(() => import('@pages/jobseeker/Applications'))
+const JobseekerMatch = lazy(() => import('@pages/jobseeker/Match'))
+const JobseekerMessages = lazy(() => import('@pages/jobseeker/Messages'))
+const InterviewSchedule = lazy(() => import('@pages/jobseeker/InterviewSchedule'))
+const CVManager = lazy(() => import('@pages/jobseeker/CVManager'))
+const JobseekerProfile = lazy(() => import('@pages/jobseeker/Profile'))
+const JobseekerSettings = lazy(() => import('@pages/jobseeker/Settings'))
 
 // Recruiter pages
-import RecruiterDashboard from '@pages/recruiter/Dashboard'
-import PostJob from '@pages/recruiter/PostJob'
-import JobListings from '@pages/recruiter/JobListings'
-import SuggestedCandidates from '@pages/recruiter/SuggestedCandidates'
-import FindCandidates from '@pages/recruiter/FindCandidates'
-import SavedCandidates from '@pages/recruiter/SavedCandidates'
-import RecruiterMatch from '@pages/recruiter/Match'
-import RecruiterMessages from '@pages/recruiter/Messages'
-import RecruiterInterviews from '@pages/recruiter/Interviews'
-import CompanyProfile from '@pages/recruiter/CompanyProfile'
-import RecruiterSettings from '@pages/recruiter/Settings'
+const RecruiterDashboard = lazy(() => import('@pages/recruiter/Dashboard'))
+const PostJob = lazy(() => import('@pages/recruiter/PostJob'))
+const JobListings = lazy(() => import('@pages/recruiter/JobListings'))
+const SuggestedCandidates = lazy(() => import('@pages/recruiter/SuggestedCandidates'))
+const FindCandidates = lazy(() => import('@pages/recruiter/FindCandidates'))
+const SavedCandidates = lazy(() => import('@pages/recruiter/SavedCandidates'))
+const RecruiterMatch = lazy(() => import('@pages/recruiter/Match'))
+const RecruiterMessages = lazy(() => import('@pages/recruiter/Messages'))
+const RecruiterInterviews = lazy(() => import('@pages/recruiter/Interviews'))
+const CompanyProfile = lazy(() => import('@pages/recruiter/CompanyProfile'))
+const RecruiterSettings = lazy(() => import('@pages/recruiter/Settings'))
 
 // Admin pages
-import AdminDashboard from '@pages/admin/Dashboard'
-import AdminUsers from '@pages/admin/Users'
-import AdminRecruiters from '@pages/admin/Recruiters'
-import AdminJobs from '@pages/admin/Jobs'
-import AdminCandidates from '@pages/admin/Candidates'
-import AdminReports from '@pages/admin/Reports'
-import AdminVerification from '@pages/admin/Verification'
-import AdminModeration from '@pages/admin/Moderation'
-import AdminStats from '@pages/admin/Stats'
-import AdminConfig from '@pages/admin/Config'
+const AdminDashboard = lazy(() => import('@pages/admin/Dashboard'))
+const AdminUsers = lazy(() => import('@pages/admin/Users'))
+const AdminRecruiters = lazy(() => import('@pages/admin/Recruiters'))
+const AdminJobs = lazy(() => import('@pages/admin/Jobs'))
+const AdminCandidates = lazy(() => import('@pages/admin/Candidates'))
+const AdminReports = lazy(() => import('@pages/admin/Reports'))
+const AdminVerification = lazy(() => import('@pages/admin/Verification'))
+const AdminModeration = lazy(() => import('@pages/admin/Moderation'))
+const AdminStats = lazy(() => import('@pages/admin/Stats'))
+const AdminConfig = lazy(() => import('@pages/admin/Config'))
 
 // Guards
 import ProtectedRoute from '@components/common/ProtectedRoute'
@@ -72,6 +77,7 @@ export default function App() {
         <Route path="/dang-nhap" element={<LoginPage />} />
         <Route path="/dang-ky" element={<RegisterPage />} />
         <Route path="/ca-nhan" element={<PersonalPage />} />
+        <Route path="/match" element={<MatchPage />} />
         {/* Bản bento cũ — đã thay bằng /ca-nhan */}
         <Route path="/trang-ca-nhan" element={<Navigate to="/ca-nhan" replace />} />
         <Route element={<ProtectedRoute role="recruiter" />}>

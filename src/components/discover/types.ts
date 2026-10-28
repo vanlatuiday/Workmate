@@ -26,4 +26,4 @@ export interface GalleryItem {
 }
 
 /** Số thứ tự hai chữ số: 1 → "01" */
-export const pad = (n: number) => String(n).padStart(2, '0')
+export { pad } from '@utils/format'

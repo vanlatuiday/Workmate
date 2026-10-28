@@ -104,11 +104,11 @@ function buildGuestEntries(admin: boolean): ArchiveEntry[] {
           <Section title="Hồ sơ đầy đủ giúp được gì">
             <p>
               Khi hồ sơ rõ ràng, điểm phù hợp với từng tin chính xác hơn. Khi bạn quan tâm một tin và nhà tuyển
-              dụng cũng quan tâm bạn, hai bên có MATCH và mới mở được thông tin liên hệ.
+              dụng cũng quan tâm bạn, hai bên kết nối và mới mở được thông tin liên hệ.
             </p>
           </Section>
           <Section title="Bạn chủ động">
-            <PlainList items={['Bạn quyết định điều gì hiển thị', 'Số điện thoại chỉ mở sau MATCH', 'Bạn chỉnh hồ sơ bất cứ lúc nào']} />
+            <PlainList items={['Bạn quyết định điều gì hiển thị', 'Số điện thoại chỉ mở sau khi kết nối', 'Bạn chỉnh hồ sơ bất cứ lúc nào']} />
           </Section>
         </>
       ),

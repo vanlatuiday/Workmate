@@ -3,8 +3,7 @@ import { gsap, useGSAP } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import MaskedWords from '@components/motion/MaskedWords'
 import { useHomeCopy } from './useAudience'
-
-const pad = (n: number) => String(n).padStart(2, '0')
+import { pad } from '@utils/format'
 
 /**
  * Section D — quy trình 3 bước. Số thứ tự lớn, mỗi bước hiện ra theo tiến

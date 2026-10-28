@@ -34,7 +34,7 @@ export default function RecruiterDashboard() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Tin đang mở" value={openJobs} icon={Briefcase} href="/tuyen-dung/tin-dang" hint="Trên tổng 6 tin" />
         <StatCard label="Ứng viên phù hợp mới" value={24} icon={UserCheck} href="/tuyen-dung/ung-vien-phu-hop" hint="Trong 7 ngày qua" />
-        <StatCard label="MATCH" value={6} icon={Handshake} href="/tuyen-dung/match" hint="Hai bên cùng quan tâm" />
+        <StatCard label="Kết nối" value={6} icon={Handshake} href="/tuyen-dung/match" hint="Hai bên cùng quan tâm" />
         <StatCard label="Phỏng vấn tuần này" value={MOCK_INTERVIEWS.length} icon={CalendarClock} href="/tuyen-dung/lich-phong-van" />
       </div>
 

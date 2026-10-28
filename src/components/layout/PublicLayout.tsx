@@ -20,17 +20,19 @@ const NAV: Record<UserRole | 'guest', MenuItem[]> = {
   guest: [
     { label: 'Việc làm', href: '/viec-lam' },
     { label: 'Dành cho nhà tuyển dụng', href: '/dang-ky?role=recruiter' },
+    { label: 'Kết nối', href: '/match' },
   ],
   jobseeker: [
     { label: 'Việc làm', href: '/viec-lam' },
     { label: 'Việc phù hợp', href: '/tim-viec/phu-hop' },
-    { label: 'MATCH', href: '/tim-viec/match' },
+    { label: 'Kết nối', href: '/match' },
   ],
   recruiter: [
     { label: 'Việc làm', href: '/viec-lam' },
     { label: 'Đăng tin', href: '/tuyen-dung/dang-tin' },
     { label: 'Ứng viên phù hợp', href: '/tuyen-dung/ung-vien-phu-hop' },
     { label: 'Tin của tôi', href: '/tuyen-dung/tin-dang' },
+    { label: 'Kết nối', href: '/match' },
   ],
   admin: [
     { label: 'Xác minh', href: '/admin/xac-minh' },

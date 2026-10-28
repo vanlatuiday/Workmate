@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { Briefcase, Bell, LogOut, Menu, X, ChevronRight, type LucideIcon } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { cn } from '@utils/cn'
@@ -217,11 +217,15 @@ export default function DashboardShell({ navItems, roleLabel, homeHref }: ShellP
 
         {/* Nội dung */}
         <main id="dashboard-main" ref={mainRef} className="relative flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="mx-auto max-w-6xl">
-            <Outlet />
-          </div>
-          {/* key theo route → remount mỗi lần đổi trang, xem RouteScroll */}
-          <RouteScroll key={location.pathname} container={mainRef} />
+          {/* Trang được tải theo nhu cầu (xem App.tsx). RouteScroll nằm cùng Suspense
+              để chỉ đặt vị trí cuộn khi nội dung trang đã có. */}
+          <Suspense fallback={null}>
+            <div className="mx-auto max-w-6xl">
+              <Outlet />
+            </div>
+            {/* key theo route → remount mỗi lần đổi trang, xem RouteScroll */}
+            <RouteScroll key={location.pathname} container={mainRef} />
+          </Suspense>
         </main>
       </div>
     </div>

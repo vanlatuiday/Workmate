@@ -75,7 +75,7 @@ export default function SuggestedCandidates() {
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="font-display text-lg font-medium text-page-fg">{c.name}</h2>
-                {isMatch && <StatusBadge tone="strong">MATCH</StatusBadge>}
+                {isMatch && <StatusBadge tone="strong">Đã kết nối</StatusBadge>}
                 {!isMatch && c.interestedBefore && <StatusBadge tone="default">Đã quan tâm tin của bạn</StatusBadge>}
               </div>
               <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-page-muted">
@@ -134,7 +134,7 @@ export default function SuggestedCandidates() {
         <div className="mt-5 flex flex-wrap items-center gap-2">
           {isMatch ? (
             <>
-              <StatusBadge tone="strong">MATCH — đã mở chat</StatusBadge>
+              <StatusBadge tone="strong">Đã kết nối — đã mở chat</StatusBadge>
               <Link to="/tuyen-dung/tin-nhan" className={BTN_OUTLINE}>
                 <MessageCircle className="h-4 w-4" aria-hidden="true" />
                 Mở tin nhắn
@@ -204,7 +204,7 @@ export default function SuggestedCandidates() {
           ))}
         </select>
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-page-muted">
-          MATCH là hai chiều: khi bạn quan tâm một ứng viên và họ cũng đã quan tâm tin của bạn, chat được mở và
+          Kết nối là hai chiều: khi bạn quan tâm một ứng viên và họ cũng đã quan tâm tin của bạn, chat được mở và
           thông tin liên hệ mới hiện ra. Trước đó bạn chỉ thấy tên viết tắt.
         </p>
       </Panel>
