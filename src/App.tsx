@@ -19,6 +19,15 @@ import LoginPage from '@pages/public/LoginPage'
 import RegisterPage from '@pages/public/RegisterPage'
 import PersonalPage from '@pages/public/PersonalPage'
 import MatchPage from '@pages/public/MatchPage'
+import PostJobPage from '@pages/public/PostJobPage'
+import ProfilePage from '@pages/public/ProfilePage'
+import AboutPage from '@pages/public/content/AboutPage'
+import ForRecruitersPage from '@pages/public/content/ForRecruitersPage'
+import ArticlePage from '@pages/public/content/ArticlePage'
+import HelpPage from '@pages/public/content/HelpPage'
+import ContactPage from '@pages/public/content/ContactPage'
+import TermsPage from '@pages/public/content/TermsPage'
+import PrivacyPage from '@pages/public/content/PrivacyPage'
 
 // Trang dashboard: tải theo nhu cầu (Suspense nằm trong DashboardShell),
 // khách vào trang công khai không phải tải code của ba khu làm việc.
@@ -78,10 +87,21 @@ export default function App() {
         <Route path="/dang-ky" element={<RegisterPage />} />
         <Route path="/ca-nhan" element={<PersonalPage />} />
         <Route path="/match" element={<MatchPage />} />
+        <Route path="/gioi-thieu" element={<AboutPage />} />
+        <Route path="/nha-tuyen-dung" element={<ForRecruitersPage />} />
+        <Route path="/cam-nang/:slug" element={<ArticlePage />} />
+        <Route path="/ho-tro" element={<HelpPage />} />
+        <Route path="/lien-he" element={<ContactPage />} />
+        <Route path="/dieu-khoan" element={<TermsPage />} />
+        <Route path="/bao-mat" element={<PrivacyPage />} />
         {/* Bản bento cũ — đã thay bằng /ca-nhan */}
         <Route path="/trang-ca-nhan" element={<Navigate to="/ca-nhan" replace />} />
         <Route element={<ProtectedRoute role="recruiter" />}>
           <Route path="/vi-tri/:id" element={<PositionDetailPage />} />
+          <Route path="/dang-tin" element={<PostJobPage />} />
+        </Route>
+        <Route element={<ProtectedRoute role="jobseeker" />}>
+          <Route path="/ho-so" element={<ProfilePage />} />
         </Route>
       </Route>
 

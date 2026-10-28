@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Bookmark, Check, Clock, MapPin, UserCheck, UserX, Wallet } from 'lucide-react'
 import { EmptyState, MatchScore, MockNotice, StatusBadge } from '@components/dashboard'
@@ -9,7 +9,7 @@ import { JOB_TYPES } from '@constants/index'
 import { SEEKER_PUBLIC_HREF } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
-import { CANDIDATES, POSITIONS, type MatchCandidate } from './data'
+import { CANDIDATES, POSITIONS, type MatchCandidate, type MatchPosition } from './data'
 import CurvedGallery from './gallery/CurvedGallery'
 import MatchArches from './MatchArches'
 import MatchDetail from './MatchDetail'
@@ -38,19 +38,33 @@ export default function RecruiterMatch() {
   const gallery = view === 'gallery'
   // Lenis chỉ chạy ở Bộ sưu tập (canvas WebGL cần cuộn mượt đồng bộ); chế độ Danh sách giữ cuộn thường
   useSmoothScroll(gallery)
-  const [positionId, setPositionId] = useState(POSITIONS[0].id)
+  // Tin vừa soạn ở /dang-tin (chưa lưu, tải lại là mất) nằm đầu danh sách vị trí
+  // Tin vừa đăng (chuyền qua state lúc chuyển trang, không lưu): đọc một lần rồi xóa khỏi
+  // history — nếu không, trình duyệt giữ state qua F5 và tin "chưa lưu" vẫn còn sau khi tải lại
+  const locState = useLocation().state as { draftPosition?: MatchPosition } | null
+  const [draft] = useState(() => locState?.draftPosition)
+  useEffect(() => {
+    if (window.history.state?.usr?.draftPosition) {
+      window.history.replaceState({ ...window.history.state, usr: null }, '')
+    }
+  }, [])
+  const positions = useMemo(() => (draft ? [draft, ...POSITIONS] : POSITIONS), [draft])
+  const [positionId, setPositionId] = useState(positions[0].id)
   const [tab, setTab] = useState<TabKey>('fit')
   // Bộ sưu tập: lọc theo mức phù hợp; thẻ đang mở chi tiết (kèm nút gốc để ảnh phóng ra / thu về)
   const [level, setLevel] = useState<LevelKey>('all')
   const [open, setOpen] = useState<{ id: string; origin: HTMLElement } | null>(null)
 
-  const position = POSITIONS.find((p) => p.id === positionId) ?? POSITIONS[0]
+  const position = positions.find((p) => p.id === positionId) ?? positions[0]
   const { job, req } = position
 
   // Chấm điểm ứng viên của vị trí đang chọn (ưu tiên mặc định), cao trước
   const scored = useMemo(
     () =>
-      CANDIDATES.filter((c) => c.positionId === position.id)
+      (position.id === 'draft'
+        ? CANDIDATES.filter((c, i, all) => all.findIndex((x) => x.name === c.name) === i)
+        : CANDIDATES.filter((c) => c.positionId === position.id)
+      )
         .map((c) => ({ c, key: candidateKey(position.id, c.id), outcome: scoreMatch(c.criteria, req, c.distanceKm) }))
         .sort((a, b) => b.outcome.score - a.outcome.score),
     [position.id, req],
@@ -147,10 +161,11 @@ export default function RecruiterMatch() {
           }}
           className={`max-w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`}
         >
-          {POSITIONS.map((p) => (
+          {positions.map((p) => (
             <option key={p.id} value={p.id}>
               {p.job.title}
               {p.job.status === 'paused' ? ' (tạm dừng)' : ''}
+              {p.id === 'draft' ? ' (vừa đăng — chưa lưu)' : ''}
             </option>
           ))}
         </select>

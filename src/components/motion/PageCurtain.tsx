@@ -24,7 +24,7 @@ type Request = {
  */
 export function curtainColors(to: string) {
   const path = to.split(/[?#]/)[0]
-  return path === '/' || path === '/ca-nhan' ? 'bg-wm-charcoal text-wm-ivory' : 'bg-wm-ivory text-wm-charcoal'
+  return path === '/' || path === '/ca-nhan' || path === '/ho-so' ? 'bg-wm-charcoal text-wm-ivory' : 'bg-wm-ivory text-wm-charcoal'
 }
 
 /**

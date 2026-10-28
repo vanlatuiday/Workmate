@@ -8,6 +8,7 @@ import type { UserRole } from '@/types'
 import { cn } from '@utils/cn'
 import MenuOverlay, { type MenuItem } from '@components/layout/MenuOverlay'
 import AccountMenu from '@components/layout/AccountMenu'
+import ExploreMenu, { EXPLORE_ITEMS } from '@components/layout/ExploreMenu'
 import RouteScroll from '@components/common/RouteScroll'
 import PageCurtain, { useCurtainNavigate } from '@components/motion/PageCurtain'
 import PageTransition from '@components/motion/PageTransition'
@@ -21,19 +22,19 @@ import { useReducedMotion } from '@hooks/useReducedMotion'
 const NAV: Record<UserRole | 'guest', MenuItem[]> = {
   guest: [
     { label: 'Việc làm', href: '/viec-lam' },
-    { label: 'Nhà tuyển dụng', href: '/dang-ky?role=recruiter' },
+    { label: 'Nhà tuyển dụng', href: '/nha-tuyen-dung' },
     { label: 'Kết nối', href: '/match' },
   ],
   jobseeker: [
     { label: 'Việc làm', href: '/viec-lam' },
-    { label: 'Việc phù hợp', href: '/tim-viec/phu-hop' },
+    { label: 'Hồ sơ', href: '/ho-so' },
     { label: 'Kết nối', href: '/match' },
   ],
   // Tối đa 3 mục để header gọn; các trang khác của nhà tuyển dụng nằm trong khu tuyển dụng
   recruiter: [
     { label: 'Việc làm', href: '/viec-lam' },
     { label: 'Kết nối', href: '/match' },
-    { label: 'Đăng tin', href: '/tuyen-dung/dang-tin' },
+    { label: 'Đăng tin', href: '/dang-tin' },
   ],
   admin: [
     { label: 'Xác minh', href: '/admin/xac-minh' },
@@ -69,8 +70,10 @@ export default function PublicLayout() {
   // Theme ngà gắn vào header, footer và khung của TỪNG trang (không gắn lên wrapper),
   // nên trang cũ đang mờ dần vẫn giữ màu của chính nó.
   const dark = location.pathname === '/'
+  // Đăng nhập / Đăng ký: ẩn header cho trang tập trung vào form, chỉ giữ logo nhỏ để về trang chủ
+  const bare = location.pathname === '/dang-nhap' || location.pathname === '/dang-ky'
   // Trang Cá nhân là "mặt bàn" tối → header/footer tối theo cho liền mạch
-  const chrome = location.pathname === '/ca-nhan' ? 'theme-charcoal' : 'theme-ivory'
+  const chrome = location.pathname === '/ca-nhan' || location.pathname === '/ho-so' ? 'theme-charcoal' : 'theme-ivory'
 
   // Đóng mọi menu khi chuyển trang
   useEffect(() => {
@@ -82,10 +85,10 @@ export default function PublicLayout() {
   const area = user ? ROLE_AREAS[user.role] : null
   const dashboardHref = area?.home ?? '/tim-viec'
   const navLinks = NAV[user?.role ?? 'guest']
-  // Nav chính hiện từ md; trang chủ từ lg (tablet không đủ chỗ cạnh logo lớn của intro).
-  // Hẹp hơn thì dùng nút menu (dropdown / menu phủ). Class viết đủ để Tailwind nhận ra.
-  const navShow = dark ? 'lg:flex' : 'md:flex'
-  const navHide = dark ? 'lg:hidden' : 'md:hidden'
+  // Nav chính (3 mục + "Khám phá") hiện từ lg — tablet không đủ chỗ cạnh cụm tài khoản.
+  // Hẹp hơn thì dùng nút menu (dropdown / menu phủ).
+  const navShow = 'lg:flex'
+  const navHide = 'lg:hidden'
 
   // Trang cá nhân: đã đăng nhập → mở bằng màn phủ từ trên xuống (cùng hướng menu phủ cũ);
   // khách → sang đăng nhập, xong quay lại trang cá nhân.
@@ -101,6 +104,19 @@ export default function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-page-bg">
+      {bare ? (
+        <Link
+          to="/"
+          className={cn(
+            'theme-ivory absolute left-6 top-5 z-40 flex items-center gap-2 rounded-control font-display text-lg font-semibold tracking-tight md:left-10',
+            FOCUS,
+          )}
+        >
+          <Briefcase className="h-5 w-5" aria-hidden="true" />
+          Workmate
+        </Link>
+      ) : (
+      <>
       {/* Header. Trang chủ: cố định trên cùng, màu theo section đang xem (biến --page-*),
           và được IntroHero điều khiển qua các data-attribute bên dưới:
             data-brand-logo  — logo đi từ giữa màn hình vào header
@@ -139,7 +155,7 @@ export default function PublicLayout() {
             </Link>
 
             {/* Desktop nav */}
-            {/* Nav chính chỉ hiện từ md (trang chủ: lg) — hẹp hơn thì không đủ chỗ,
+            {/* Nav chính chỉ hiện từ lg — hẹp hơn thì không đủ chỗ,
                 các link này đã có trong menu phủ hoặc dropdown */}
             <nav
               data-header-item={dark ? '' : undefined}
@@ -168,6 +184,8 @@ export default function PublicLayout() {
                   )}
                 </Link>
               ))}
+              {/* Trang thông tin chung (Giới thiệu, Công ty, Cẩm nang…) gom vào một mục */}
+              <ExploreMenu />
             </nav>
 
             {/* Bên phải: đã đăng nhập → một nút tài khoản (khu làm việc, trang cá nhân, đăng xuất);
@@ -202,7 +220,7 @@ export default function PublicLayout() {
                 )}
               </div>
 
-              {/* Trang chủ: menu phủ toàn màn hình khi nav chính ẩn (dưới lg); trang khác giữ dropdown (dưới md) */}
+              {/* Trang chủ: menu phủ toàn màn hình khi nav chính ẩn (dưới lg); trang khác giữ dropdown */}
               {dark ? (
                 // Bọc ngoài để GSAP (intro) và Magnetic không tranh nhau transform của cùng một phần tử
                 <div data-header-item className={navHide}>
@@ -240,6 +258,23 @@ export default function PublicLayout() {
         {mobileOpen && !dark && (
           <div className={cn(navHide, 'border-t border-page-line bg-page-bg px-6 pb-4 pt-2 space-y-1')}>
             {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                onClick={() => setMobileOpen(false)}
+                aria-current={location.pathname === link.href ? 'page' : undefined}
+                className={cn(
+                  'block px-3 py-2 rounded-control text-sm transition-colors hover:bg-page-surface',
+                  location.pathname === link.href ? 'text-page-fg font-medium' : 'text-page-muted hover:text-page-fg',
+                  FOCUS,
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+            {/* Trang thông tin chung — trên màn rộng nằm trong "Khám phá" */}
+            <p className="px-3 pb-1 pt-3 text-xs font-medium uppercase tracking-[0.18em] text-page-muted">Khám phá</p>
+            {EXPLORE_ITEMS.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
@@ -313,11 +348,13 @@ export default function PublicLayout() {
           </div>
         )}
       </header>
+      </>
+      )}
 
       <MenuOverlay
         open={overlayOpen}
         onClose={() => setOverlayOpen(false)}
-        items={[...navLinks, { label: 'Trang cá nhân', href: profileTo }]}
+        items={[...navLinks, ...EXPLORE_ITEMS, { label: 'Trang cá nhân', href: profileTo }]}
         actions={
           user
             ? [{ label: area?.label ?? '', href: dashboardHref }]
@@ -373,6 +410,7 @@ export default function PublicLayout() {
             <div>
               <h4 className="text-xs font-medium uppercase tracking-[0.18em] mb-4 text-page-muted">Nhà tuyển dụng</h4>
               <ul className="space-y-3 text-sm text-page-muted">
+                <li><Link to="/nha-tuyen-dung" className={FOOT_LINK}>Dành cho nhà tuyển dụng</Link></li>
                 <li><Link to="/dang-ky" className={FOOT_LINK}>Đăng tin miễn phí</Link></li>
                 <li><Link to="/tuyen-dung" className={FOOT_LINK}>Quản lý tuyển dụng</Link></li>
               </ul>
@@ -380,16 +418,20 @@ export default function PublicLayout() {
             <div>
               <h4 className="text-xs font-medium uppercase tracking-[0.18em] mb-4 text-page-muted">Hỗ trợ</h4>
               <ul className="space-y-3 text-sm text-page-muted">
-                <li><Link to="/cam-nang" className={FOOT_LINK}>Cẩm nang nghề nghiệp</Link></li>
-                <li><a href="mailto:support@workmate.vn" className={FOOT_LINK}>Liên hệ</a></li>
+                <li><Link to="/ho-tro" className={FOOT_LINK}>Câu hỏi thường gặp</Link></li>
+                <li><Link to="/cam-nang" className={FOOT_LINK}>Cẩm nang</Link></li>
+                <li><Link to="/lien-he" className={FOOT_LINK}>Liên hệ</Link></li>
               </ul>
             </div>
           </div>
           <div className="mt-16 pt-8 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-xs border-page-line text-page-muted">
             <p>© 2026 Workmate. All rights reserved.</p>
-            <a href="mailto:support@workmate.vn" className={FOOT_LINK}>
-              support@workmate.vn
-            </a>
+            <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+              <li><Link to="/gioi-thieu" className={FOOT_LINK}>Giới thiệu</Link></li>
+              <li><Link to="/cong-ty" className={FOOT_LINK}>Công ty</Link></li>
+              <li><Link to="/dieu-khoan" className={FOOT_LINK}>Điều khoản</Link></li>
+              <li><Link to="/bao-mat" className={FOOT_LINK}>Bảo mật</Link></li>
+            </ul>
           </div>
         </div>
       </footer>
