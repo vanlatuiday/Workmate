@@ -143,6 +143,9 @@ export default function RecruiterMatch() {
               <Check className="h-3.5 w-3.5" aria-hidden="true" />
               Đã kết nối
             </span>
+            <Link to={`/tin-nhan?c=${position.id}|${c.id}`} className={BTN_SECONDARY}>
+              Nhắn tin<span className="sr-only"> {c.name}</span>
+            </Link>
             <button type="button" disabled className={BTN_SECONDARY}>Mời phỏng vấn (sắp có)</button>
           </>
         )}

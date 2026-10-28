@@ -177,7 +177,9 @@ export default function JobseekerMatch() {
               <Check className="h-3.5 w-3.5" aria-hidden="true" />
               Đã kết nối
             </span>
-            <button type="button" disabled className={BTN_SECONDARY}>Nhắn tin (sắp có)</button>
+            <Link to={`/tin-nhan?c=${job.id}|${ME}`} className={BTN_SECONDARY}>
+              Nhắn tin<span className="sr-only"> {job.title}</span>
+            </Link>
           </>
         )}
         <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={BTN_SECONDARY}>

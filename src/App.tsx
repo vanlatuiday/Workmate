@@ -19,6 +19,7 @@ import LoginPage from '@pages/public/LoginPage'
 import RegisterPage from '@pages/public/RegisterPage'
 import PersonalPage from '@pages/public/PersonalPage'
 import MatchPage from '@pages/public/MatchPage'
+import MessagesPage from '@pages/public/MessagesPage'
 import PostJobPage from '@pages/public/PostJobPage'
 import ProfilePage from '@pages/public/ProfilePage'
 import AboutPage from '@pages/public/content/AboutPage'
@@ -38,7 +39,6 @@ const RecommendedJobs = lazy(() => import('@pages/jobseeker/RecommendedJobs'))
 const SavedJobs = lazy(() => import('@pages/jobseeker/SavedJobs'))
 const Applications = lazy(() => import('@pages/jobseeker/Applications'))
 const JobseekerMatch = lazy(() => import('@pages/jobseeker/Match'))
-const JobseekerMessages = lazy(() => import('@pages/jobseeker/Messages'))
 const InterviewSchedule = lazy(() => import('@pages/jobseeker/InterviewSchedule'))
 const CVManager = lazy(() => import('@pages/jobseeker/CVManager'))
 const JobseekerProfile = lazy(() => import('@pages/jobseeker/Profile'))
@@ -52,7 +52,6 @@ const SuggestedCandidates = lazy(() => import('@pages/recruiter/SuggestedCandida
 const FindCandidates = lazy(() => import('@pages/recruiter/FindCandidates'))
 const SavedCandidates = lazy(() => import('@pages/recruiter/SavedCandidates'))
 const RecruiterMatch = lazy(() => import('@pages/recruiter/Match'))
-const RecruiterMessages = lazy(() => import('@pages/recruiter/Messages'))
 const RecruiterInterviews = lazy(() => import('@pages/recruiter/Interviews'))
 const CompanyProfile = lazy(() => import('@pages/recruiter/CompanyProfile'))
 const RecruiterSettings = lazy(() => import('@pages/recruiter/Settings'))
@@ -87,6 +86,7 @@ export default function App() {
         <Route path="/dang-ky" element={<RegisterPage />} />
         <Route path="/ca-nhan" element={<PersonalPage />} />
         <Route path="/match" element={<MatchPage />} />
+        <Route path="/tin-nhan" element={<MessagesPage />} />
         <Route path="/gioi-thieu" element={<AboutPage />} />
         <Route path="/nha-tuyen-dung" element={<ForRecruitersPage />} />
         <Route path="/cam-nang/:slug" element={<ArticlePage />} />
@@ -113,7 +113,7 @@ export default function App() {
           <Route path="/tim-viec/da-luu" element={<SavedJobs />} />
           <Route path="/tim-viec/ung-tuyen" element={<Applications />} />
           <Route path="/tim-viec/match" element={<JobseekerMatch />} />
-          <Route path="/tim-viec/tin-nhan" element={<JobseekerMessages />} />
+          <Route path="/tim-viec/tin-nhan" element={<Navigate to="/tin-nhan" replace />} />
           <Route path="/tim-viec/lich-phong-van" element={<InterviewSchedule />} />
           <Route path="/tim-viec/cv" element={<CVManager />} />
           <Route path="/tim-viec/ho-so" element={<JobseekerProfile />} />
@@ -131,7 +131,7 @@ export default function App() {
           <Route path="/tuyen-dung/tim-ung-vien" element={<FindCandidates />} />
           <Route path="/tuyen-dung/ung-vien-da-luu" element={<SavedCandidates />} />
           <Route path="/tuyen-dung/match" element={<RecruiterMatch />} />
-          <Route path="/tuyen-dung/tin-nhan" element={<RecruiterMessages />} />
+          <Route path="/tuyen-dung/tin-nhan" element={<Navigate to="/tin-nhan" replace />} />
           <Route path="/tuyen-dung/lich-phong-van" element={<RecruiterInterviews />} />
           <Route path="/tuyen-dung/ho-so-cong-ty" element={<CompanyProfile />} />
           <Route path="/tuyen-dung/cai-dat" element={<RecruiterSettings />} />

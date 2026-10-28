@@ -7,6 +7,7 @@ import { ROLE_AREAS } from '@constants/roles'
 import type { UserRole } from '@/types'
 import { cn } from '@utils/cn'
 import MenuOverlay, { type MenuItem } from '@components/layout/MenuOverlay'
+import { useUnreadMessages } from '@services/connectionService'
 import AccountMenu from '@components/layout/AccountMenu'
 import ExploreMenu, { EXPLORE_ITEMS } from '@components/layout/ExploreMenu'
 import RouteScroll from '@components/common/RouteScroll'
@@ -64,6 +65,10 @@ export default function PublicLayout() {
   const { user, logout } = useAuthStore()
   const location = useLocation()
   const reduced = useReducedMotion()
+  // Tin nhắn chưa đọc (gọi hook luôn; admin không có hội thoại → 0)
+  const unreadAsSeeker = useUnreadMessages('seeker')
+  const unreadAsRecruiter = useUnreadMessages('recruiter')
+  const unreadMessages = user?.role === 'jobseeker' ? unreadAsSeeker : user?.role === 'recruiter' ? unreadAsRecruiter : 0
 
   // Trang chủ dùng nền tối (page-* do useSectionThemes điều khiển); các trang còn lại dùng theme ngà.
   // `dark` phải đổi ngay khi đổi route: IntroHero tìm data-brand-logo… lúc mount.
@@ -197,6 +202,7 @@ export default function PublicLayout() {
                     initial={user.email?.[0]?.toUpperCase() ?? 'U'}
                     area={{ label: area.label, href: dashboardHref }}
                     profileHref={profileTo}
+                    unreadMessages={unreadMessages}
                     onOpenProfile={openProfile}
                     onLogout={logout}
                     magnetic={dark}

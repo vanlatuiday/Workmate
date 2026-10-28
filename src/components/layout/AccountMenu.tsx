@@ -12,6 +12,8 @@ type Props = {
   /** Nút vào khu làm việc của vai trò, vd. "Khu tìm việc" */
   area: { label: string; href: string }
   profileHref: string
+  /** Số tin nhắn chưa đọc (0 = ẩn chip/chấm) */
+  unreadMessages: number
   /** Mở trang cá nhân (màn phủ từ trên xuống) — nhận sự kiện bấm của link */
   onOpenProfile: (e: MouseEvent<HTMLAnchorElement>) => void
   onLogout: () => void
@@ -29,7 +31,7 @@ const ITEM = cn(
  * bấm mở menu nhỏ gồm khu làm việc, trang cá nhân, đăng xuất.
  * Theo mẫu menu button của WAI-ARIA: mũi tên lên/xuống chuyển mục, Esc đóng và trả focus về nút.
  */
-export default function AccountMenu({ initial, area, profileHref, onOpenProfile, onLogout, magnetic }: Props) {
+export default function AccountMenu({ initial, area, profileHref, unreadMessages, onOpenProfile, onLogout, magnetic }: Props) {
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -107,10 +109,16 @@ export default function AccountMenu({ initial, area, profileHref, onOpenProfile,
         >
           <span
             aria-hidden="true"
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-page-edge text-xs font-medium text-page-fg"
+            className="relative flex h-7 w-7 items-center justify-center rounded-full border border-page-edge text-xs font-medium text-page-fg"
           >
             {initial}
+            {unreadMessages > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-page-bg bg-page-fg" />
+            )}
           </span>
+          {unreadMessages > 0 && (
+            <span className="sr-only">{`, ${unreadMessages} tin nhắn chưa đọc`}</span>
+          )}
           <RollText>Trang cá nhân</RollText>
           <ChevronDown
             aria-hidden="true"
@@ -132,6 +140,12 @@ export default function AccountMenu({ initial, area, profileHref, onOpenProfile,
           open ? 'visible translate-y-0 opacity-100' : 'invisible -translate-y-1 opacity-0',
         )}
       >
+        <Link role="menuitem" to="/tin-nhan" className={cn(ITEM, 'flex items-center justify-between')} onClick={() => close(false)}>
+          Tin nhắn
+          {unreadMessages > 0 && (
+            <span className="rounded-full bg-page-fg px-2 text-xs font-medium text-page-bg">{unreadMessages}</span>
+          )}
+        </Link>
         <Link role="menuitem" to={area.href} className={ITEM} onClick={() => close(false)}>
           {area.label}
         </Link>
