@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Bookmark, Check, UserX } from 'lucide-react'
+import { Bookmark, Check, Clock, MapPin, UserCheck, UserX, Wallet } from 'lucide-react'
 import { EmptyState, MatchScore, MockNotice, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
@@ -13,11 +13,12 @@ import { CANDIDATES, POSITIONS, type MatchCandidate } from './data'
 import CurvedGallery from './gallery/CurvedGallery'
 import MatchArches from './MatchArches'
 import MatchDetail from './MatchDetail'
+import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
   Avatar, BTN_PRIMARY, BTN_SECONDARY, CheckList, filterByLevel, GalleryCaption, LevelFilter, MatchFrame, personInitials, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
-import { scoreMatch, type CriterionResult } from './score'
+import { DEFAULT_PRIORITY, scoreMatch, weightsOf, type CriterionResult } from './score'
 
 type TabKey = 'fit' | 'saved' | 'invited'
 
@@ -259,24 +260,45 @@ export default function RecruiterMatch() {
     </MatchFrame>
     </div>
 
-    {detail && open && (
-      <MatchDetail
-        key={open.id}
-        photo={detail.c.photo}
-        title={detail.c.name}
-        subtitle={`${detail.c.summary} · ${detail.c.area} · cách ${detail.c.distanceKm} km`}
-        origin={open.origin}
-        onClosed={() => setOpen(null)}
-        actions={(close) => candActions(detail.c, detail.key, close)}
-      >
-        <MatchScore score={detail.outcome.score} />
-        <div className="mt-4">{availabilityBadge(detail.c)}</div>
-        <p className="mt-4 text-sm text-page-muted">
-          Mong muốn từ <span className="tnum">{detail.c.criteria.salaryMinK}.000</span>đ/giờ
-        </p>
-        <CheckList results={detail.outcome.results} missingSkills={detail.outcome.missingSkills} noteOf={recruiterNote} />
-      </MatchDetail>
-    )}
+    {detail && open && (() => {
+      const { c, key, outcome } = detail
+      const matched = req.slots.filter((s) => c.criteria.slots.includes(s)).length
+      return (
+        <MatchDetail
+          key={open.id}
+          photo={c.photo}
+          title={c.name}
+          eyebrow={`${c.area} · cách ${c.distanceKm} km`}
+          score={outcome.score}
+          origin={open.origin}
+          onClosed={() => setOpen(null)}
+          actions={(close) => candActions(c, key, close)}
+        >
+          <div className="mt-6">
+            <FactTiles
+              items={[
+                { icon: Wallet, label: 'Lương mong muốn', value: <><span className="tnum">{c.criteria.salaryMinK}.000</span>đ/giờ</> },
+                { icon: Clock, label: 'Lịch rảnh', value: <><span className="tnum">{matched}/{req.slots.length}</span> ca khớp</> },
+                { icon: MapPin, label: 'Khoảng cách', value: `${c.distanceKm} km` },
+                { icon: UserCheck, label: 'Trạng thái', value: c.availability.kind === 'ready' ? `Sẵn sàng từ ${c.availability.from}` : 'Đang đi làm' },
+              ]}
+            />
+          </div>
+          <DetailSection title="Mức độ khớp với tin">
+            <CriterionBars results={outcome.results} weights={weightsOf(DEFAULT_PRIORITY)} noteOf={recruiterNote} />
+            {outcome.missingSkills.length > 0 && (
+              <ImproveHint>
+                Ứng viên còn thiếu: <strong className="font-medium">{outcome.missingSkills.join(', ')}</strong>.
+              </ImproveHint>
+            )}
+          </DetailSection>
+          <DetailSection title="Về ứng viên">
+            <p className="text-sm leading-relaxed text-page-muted">{c.summary}</p>
+            <TagList tags={c.criteria.skills} />
+          </DetailSection>
+        </MatchDetail>
+      )
+    })()}
     </>
   )
 }

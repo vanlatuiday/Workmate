@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { ArrowDown, ArrowUp, Bookmark, Check, GripVertical, SearchX, SlidersHorizontal } from 'lucide-react'
-import { EmptyState, MatchScore, MockNotice } from '@components/dashboard'
+import { ArrowDown, ArrowUp, Bookmark, Briefcase, Check, Clock, GripVertical, MapPin, SearchX, SlidersHorizontal, Wallet } from 'lucide-react'
+import { EmptyState, MockNotice } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
@@ -16,8 +16,9 @@ import CurvedGallery from './gallery/CurvedGallery'
 import CriteriaDrawer from './CriteriaDrawer'
 import MatchArches from './MatchArches'
 import MatchDetail from './MatchDetail'
+import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
-  BTN_PRIMARY, BTN_SECONDARY, CheckList, filterByLevel, GalleryCaption, JobCard, LevelFilter, MatchFrame, Tabs, ViewToggle,
+  BTN_PRIMARY, BTN_SECONDARY, filterByLevel, GalleryCaption, JobCard, LevelFilter, MatchFrame, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
 import {
@@ -400,23 +401,59 @@ export default function JobseekerMatch() {
       </div>
     </CriteriaDrawer>
 
-    {detail && open && (
-      <MatchDetail
-        key={open.id}
-        photo={detail.job.photo}
-        title={detail.job.title}
-        subtitle={companyOf(detail.job.companyId).name}
-        origin={open.origin}
-        onClosed={() => setOpen(null)}
-        actions={(close) => jobActions(detail.job, close)}
-      >
-        <MatchScore score={detail.outcome.score} />
-        <p className="mt-4 text-sm text-page-muted">
-          {detail.job.district} · cách {detail.job.distanceKm} km · {detail.job.salaryLabel} · {detail.job.shiftLabel}
-        </p>
-        <CheckList results={detail.outcome.results} missingSkills={detail.outcome.missingSkills} />
-      </MatchDetail>
-    )}
+    {detail && open && (() => {
+      const { job, outcome } = detail
+      const company = companyOf(job.companyId)
+      const typeLabel = JOB_TYPES.find((t) => t.value === job.jobType)?.label ?? job.jobType
+      // Gợi ý: điểm nếu người tìm việc bổ sung các kỹ năng còn thiếu (giữ nguyên tiêu chí và thứ tự ưu tiên đang chọn)
+      const missing = outcome.missingSkills
+      const improved = missing.length
+        ? Math.round(
+            scoreMatch(
+              { ...SEEKER_DEFAULT, salaryMinK, maxDistanceKm, jobTypes, skills: [...SEEKER_DEFAULT.skills, ...missing] },
+              job,
+              job.distanceKm,
+              priority,
+            ).score,
+          )
+        : 0
+      return (
+        <MatchDetail
+          key={open.id}
+          photo={job.photo}
+          title={job.title}
+          eyebrow={`${company.name} · ${job.district}`}
+          score={outcome.score}
+          origin={open.origin}
+          onClosed={() => setOpen(null)}
+          actions={(close) => jobActions(job, close)}
+        >
+          <div className="mt-6">
+            <FactTiles
+              items={[
+                { icon: Wallet, label: 'Lương', value: job.salaryLabel },
+                { icon: Clock, label: 'Ca làm', value: job.shiftLabel },
+                { icon: MapPin, label: 'Khoảng cách', value: `${job.distanceKm} km` },
+                { icon: Briefcase, label: 'Loại việc', value: typeLabel },
+              ]}
+            />
+          </div>
+          <DetailSection title="Vì sao hợp với bạn">
+            <CriterionBars results={outcome.results} weights={weights} />
+            {improved > outcome.score && (
+              <ImproveHint>
+                Bổ sung <strong className="font-medium">{missing.join(', ')}</strong> để lên khoảng{' '}
+                <strong className="tnum font-medium">{improved}%</strong>.
+              </ImproveHint>
+            )}
+          </DetailSection>
+          <DetailSection title="Về công ty">
+            <p className="text-sm leading-relaxed text-page-muted">{company.about}</p>
+            <TagList tags={company.environment} />
+          </DetailSection>
+        </MatchDetail>
+      )
+    })()}
     </>
   )
 }
