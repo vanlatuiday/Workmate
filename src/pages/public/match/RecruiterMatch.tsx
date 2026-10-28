@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Bookmark, Check, Clock, MapPin, UserCheck, UserX, Wallet } from 'lucide-react'
+import InterviewAction from '@components/interview/InterviewAction'
 import { EmptyState, MatchScore, MockNotice, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
 import { expressInterest, getPairStatus, RECRUITER_JOBS, resetDemoData, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
@@ -146,7 +147,7 @@ export default function RecruiterMatch() {
             <Link to={`/tin-nhan?c=${position.id}|${c.id}`} className={BTN_SECONDARY}>
               Nhắn tin<span className="sr-only"> {c.name}</span>
             </Link>
-            <button type="button" disabled className={BTN_SECONDARY}>Mời phỏng vấn (sắp có)</button>
+            <InterviewAction viewer="recruiter" jobId={position.id} seekerId={c.id} />
           </>
         )}
         <Link to={SEEKER_PUBLIC_HREF} className={BTN_SECONDARY}>

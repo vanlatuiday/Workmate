@@ -2,6 +2,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { Briefcase, Bell, LogOut, Menu, X, ChevronRight, type LucideIcon } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
+import { useUnreadCount } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import RouteScroll from '@components/common/RouteScroll'
 import { FOCUS } from '@utils/focus'
@@ -148,6 +149,11 @@ export default function DashboardShell({ navItems, roleLabel, homeHref }: ShellP
   const [drawerOpen, setDrawerOpen] = useState(false)
   const location = useLocation()
   const mainRef = useRef<HTMLElement>(null)
+  // Chấm trên chuông: chỉ hiện khi có thông báo chưa đọc của vai trò đang đăng nhập
+  const role = useAuthStore((s) => s.user?.role)
+  const unreadSeeker = useUnreadCount('seeker')
+  const unreadRecruiter = useUnreadCount('recruiter')
+  const hasUnread = (role === 'jobseeker' ? unreadSeeker : role === 'recruiter' ? unreadRecruiter : 0) > 0
 
   // Đổi route thì đóng drawer
   useEffect(() => setDrawerOpen(false), [location.pathname])
@@ -215,14 +221,14 @@ export default function DashboardShell({ navItems, roleLabel, homeHref }: ShellP
             <Menu className="h-5 w-5" aria-hidden="true" />
           </button>
           <div className="flex-1" />
-          <button
-            type="button"
-            aria-label="Thông báo"
+          <Link
+            to="/thong-bao"
+            aria-label={hasUnread ? 'Thông báo (có thông báo chưa đọc)' : 'Thông báo'}
             className={cn('relative rounded-control p-2 transition-colors duration-300 hover:bg-page-surface', FOCUS)}
           >
             <Bell className="h-5 w-5" aria-hidden="true" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-page-fg" aria-hidden="true" />
-          </button>
+            {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-page-fg" aria-hidden="true" />}
+          </Link>
         </header>
 
         {/* Nội dung */}

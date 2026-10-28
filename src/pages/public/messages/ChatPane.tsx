@@ -1,8 +1,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, SendHorizontal } from 'lucide-react'
+import InterviewAction from '@components/interview/InterviewAction'
 import { useReducedMotion } from '@hooks/useReducedMotion'
-import { markConversationRead, sendMessage, useIsTyping, useMessages, type Side } from '@services/connectionService'
+import { markConversationRead, useActiveInterview, sendMessage, useIsTyping, useMessages, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { describeConversation } from './describe'
@@ -37,6 +38,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack }: Props) {
   const messages = useMessages(jobId, seekerId)
   const typing = useIsTyping(viewer, jobId, seekerId)
   const reduced = useReducedMotion()
+  const hasInterview = !!useActiveInterview(jobId, seekerId)
   const [draft, setDraft] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -101,9 +103,25 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack }: Props) {
         </Link>
       </header>
 
+      {/* Phỏng vấn: nút / chip trạng thái theo vai trò (không hiện gì khi người tìm việc chưa có lời mời) */}
+      {(viewer === 'recruiter' || hasInterview) && (
+        <div className="flex flex-wrap items-center gap-2 border-b border-page-line py-3">
+          <InterviewAction viewer={viewer} jobId={jobId} seekerId={seekerId} compact />
+        </div>
+      )}
+
       <div ref={scrollRef} data-lenis-prevent className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain py-5" role="log" aria-live="polite" aria-label="Nội dung cuộc trò chuyện">
         {rows.length === 0 && <p className="py-10 text-center text-sm text-page-muted">Chưa có tin nhắn. Hãy chào trước nhé.</p>}
         {rows.map(({ m, label }) => {
+          // Tin hệ thống (vd. lời mời phỏng vấn): dòng chữ nhỏ giữa khung, không phải bong bóng
+          if (m.system) {
+            return (
+              <div key={m.id}>
+                {label && <p className="py-2 text-center text-xs text-page-muted">{label}</p>}
+                <p className="px-6 text-center text-xs text-page-muted">{m.text} · {timeOf(m.at)}</p>
+              </div>
+            )
+          }
           const mine = m.from === viewer
           const bubble = (
             <div className={cn('flex flex-col', mine ? 'items-end' : 'items-start')}>

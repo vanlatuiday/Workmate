@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { ArrowDown, ArrowUp, Bookmark, Briefcase, Check, Clock, GripVertical, MapPin, SearchX, SlidersHorizontal, Wallet } from 'lucide-react'
+import InterviewAction from '@components/interview/InterviewAction'
 import { EmptyState, MockNotice } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
 import { expressInterest, getPairStatus, ME, resetDemoData, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
@@ -180,6 +181,7 @@ export default function JobseekerMatch() {
             <Link to={`/tin-nhan?c=${job.id}|${ME}`} className={BTN_SECONDARY}>
               Nhắn tin<span className="sr-only"> {job.title}</span>
             </Link>
+            <InterviewAction viewer="seeker" jobId={job.id} seekerId={ME} />
           </>
         )}
         <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={BTN_SECONDARY}>

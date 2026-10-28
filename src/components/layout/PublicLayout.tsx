@@ -7,7 +7,7 @@ import { ROLE_AREAS } from '@constants/roles'
 import type { UserRole } from '@/types'
 import { cn } from '@utils/cn'
 import MenuOverlay, { type MenuItem } from '@components/layout/MenuOverlay'
-import { useUnreadMessages } from '@services/connectionService'
+import { useUnreadCount, useUnreadMessages } from '@services/connectionService'
 import AccountMenu from '@components/layout/AccountMenu'
 import ExploreMenu, { EXPLORE_ITEMS } from '@components/layout/ExploreMenu'
 import RouteScroll from '@components/common/RouteScroll'
@@ -68,6 +68,9 @@ export default function PublicLayout() {
   // Tin nhắn chưa đọc (gọi hook luôn; admin không có hội thoại → 0)
   const unreadAsSeeker = useUnreadMessages('seeker')
   const unreadAsRecruiter = useUnreadMessages('recruiter')
+  const notifAsSeeker = useUnreadCount('seeker')
+  const notifAsRecruiter = useUnreadCount('recruiter')
+  const unreadNotifications = user?.role === 'jobseeker' ? notifAsSeeker : user?.role === 'recruiter' ? notifAsRecruiter : 0
   const unreadMessages = user?.role === 'jobseeker' ? unreadAsSeeker : user?.role === 'recruiter' ? unreadAsRecruiter : 0
 
   // Trang chủ dùng nền tối (page-* do useSectionThemes điều khiển); các trang còn lại dùng theme ngà.
@@ -203,6 +206,7 @@ export default function PublicLayout() {
                     area={{ label: area.label, href: dashboardHref }}
                     profileHref={profileTo}
                     unreadMessages={unreadMessages}
+                    unreadNotifications={unreadNotifications}
                     onOpenProfile={openProfile}
                     onLogout={logout}
                     magnetic={dark}

@@ -1,10 +1,10 @@
 // Lớp dịch vụ cho quan tâm / kết nối / thông báo. Giao diện chỉ dùng các hàm ở đây.
 // Hiện đọc/ghi kho demo (`@context/demoStore`); khi có backend, đổi ruột các hàm này sang
 // gọi API (`./api`, `./matchService`) — chữ ký giữ nguyên nên giao diện không phải sửa.
-import { useDemoStore, convKey, ME, RECRUITER_JOBS, type Connection, type Message, type Side } from '@context/demoStore'
+import { useDemoStore, convKey, ME, RECRUITER_JOBS, type Connection, type Interview, type Message, type Side } from '@context/demoStore'
 
 export { ME, RECRUITER_JOBS }
-export type { Side, Interest, Connection, DemoNotification, Message } from '@context/demoStore'
+export type { Side, Interest, Connection, DemoNotification, Message, Interview, InterviewMode, InterviewStatus } from '@context/demoStore'
 export { convKey }
 
 /** Trạng thái giữa một vị trí và một người tìm việc, nhìn từ phía `viewer` */
@@ -56,15 +56,15 @@ export function withdrawInterest(from: Side, jobId: string, seekerId: string) {
   useDemoStore.getState().withdrawInterest(from, jobId, seekerId)
 }
 
-/** Hook: thông báo của một phía, mới nhất trước */
+/** Hook: thông báo của tài khoản demo ở phía `to`, mới nhất trước (bỏ thông báo gửi cho ứng viên/tin mẫu khác) */
 export function useNotifications(to: Side) {
   const all = useDemoStore((s) => s.notifications)
-  return all.filter((n) => n.to === to).sort((a, b) => b.at.localeCompare(a.at))
+  return all.filter((n) => n.to === to && isMine(to, n)).sort((a, b) => b.at.localeCompare(a.at))
 }
 
-/** Hook: số thông báo chưa đọc của một phía */
+/** Hook: số thông báo chưa đọc của tài khoản demo ở phía `to` */
 export function useUnreadCount(to: Side) {
-  return useDemoStore((s) => s.notifications.filter((n) => n.to === to && !n.read).length)
+  return useDemoStore((s) => s.notifications.filter((n) => n.to === to && !n.read && isMine(to, n)).length)
 }
 
 /**
@@ -132,3 +132,28 @@ export const sendMessage = (from: Side, jobId: string, seekerId: string, text: s
 
 export const markConversationRead = (viewer: Side, jobId: string, seekerId: string) =>
   useDemoStore.getState().markConversationRead(viewer, jobId, seekerId)
+
+// ─── Lịch phỏng vấn ─────────────────────────────────────────────────────────
+
+/** Hook: các buổi phỏng vấn của phía `viewer` (mọi trạng thái), sớm nhất trước */
+export function useInterviews(viewer: Side): Interview[] {
+  const all = useDemoStore((s) => s.interviews)
+  return all
+    .filter((iv) => isMine(viewer, iv))
+    .sort((a, b) => (a.chosen ?? a.slots[0]).localeCompare(b.chosen ?? b.slots[0]))
+}
+
+/** Hook: buổi phỏng vấn đang hiệu lực (chờ xác nhận / đã xác nhận) của một cặp, nếu có */
+export function useActiveInterview(jobId: string, seekerId: string): Interview | undefined {
+  return useDemoStore((s) =>
+    s.interviews.find((iv) => iv.jobId === jobId && iv.seekerId === seekerId && (iv.status === 'pending' || iv.status === 'confirmed')),
+  )
+}
+
+/** Doanh nghiệp mời phỏng vấn — chỉ khi đã kết nối; 1–3 khung giờ (ISO) */
+export const inviteInterview = (input: Pick<Interview, 'jobId' | 'seekerId' | 'slots' | 'mode' | 'place' | 'note'>) =>
+  useDemoStore.getState().inviteInterview(input)
+/** Người tìm việc chọn một khung giờ trong lời mời */
+export const confirmInterview = (id: string, slot: string) => useDemoStore.getState().confirmInterview(id, slot)
+export const declineInterview = (id: string) => useDemoStore.getState().declineInterview(id)
+export const cancelInterview = (id: string) => useDemoStore.getState().cancelInterview(id)

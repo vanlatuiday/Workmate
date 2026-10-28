@@ -32,12 +32,35 @@ export interface DemoNotification {
   id: string
   /** Gửi tới phía nào */
   to: Side
-  /** interest = phía kia vừa quan tâm; connected = hai bên vừa kết nối */
-  kind: 'interest' | 'connected'
+  /**
+   * interest = phía kia vừa quan tâm · connected = hai bên vừa kết nối ·
+   * interview_invited = doanh nghiệp mời phỏng vấn · interview_confirmed / interview_declined =
+   * người tìm việc chọn giờ / từ chối · interview_cancelled = doanh nghiệp hủy
+   */
+  kind: 'interest' | 'connected' | 'interview_invited' | 'interview_confirmed' | 'interview_declined' | 'interview_cancelled'
   jobId: string
   seekerId: string
   at: string
   read: boolean
+}
+
+export type InterviewMode = 'onsite' | 'online'
+export type InterviewStatus = 'pending' | 'confirmed' | 'declined' | 'cancelled'
+
+export interface Interview {
+  id: string
+  jobId: string
+  seekerId: string
+  /** Các khung giờ doanh nghiệp đề xuất (ISO), 1–3 lựa chọn */
+  slots: string[]
+  /** Khung giờ người tìm việc đã chọn (khi confirmed) */
+  chosen?: string
+  mode: InterviewMode
+  /** Địa chỉ (trực tiếp) hoặc ghi chú cuộc gọi (online) */
+  place: string
+  note?: string
+  status: InterviewStatus
+  createdAt: string
 }
 
 export interface Message {
@@ -48,6 +71,8 @@ export interface Message {
   from: Side
   text: string
   at: string
+  /** Dòng thông báo trong cuộc trò chuyện (vd. "Đã gửi lời mời phỏng vấn") — hiện giữa khung, không phải bong bóng */
+  system?: boolean
 }
 
 /** Khóa một cuộc trò chuyện = một kết nối (vị trí + người tìm việc) */
@@ -119,7 +144,21 @@ function seed() {
     { id: 'msg-seed-2', jobId: 'm1', seekerId: ME, from: 'seeker', text: 'Dạ em đi được ạ. Em nên đến lúc mấy giờ ạ?', at: t(1420) },
     { id: 'msg-seed-3', jobId: 'm1', seekerId: ME, from: 'recruiter', text: CANNED.recruiter[1], at: t(60) },
   ]
-  return { interests, connections, notifications, messages, lastRead: { [`seeker|${convKey('m1', ME)}`]: t(1420) } }
+  // Một buổi phỏng vấn đã xác nhận với kết nối có sẵn (Quán Gió Sông Hàn), 2 ngày nữa lúc 15:00
+  const inDays = (d: number, h: number, m = 0) => {
+    const x = new Date()
+    x.setDate(x.getDate() + d)
+    x.setHours(h, m, 0, 0)
+    return x.toISOString()
+  }
+  const interviews: Interview[] = [
+    {
+      id: 'iv-seed-1', jobId: 'm1', seekerId: ME, slots: [inDays(2, 15), inDays(3, 9, 30)], chosen: inDays(2, 15),
+      mode: 'onsite', place: 'Quán Gió Sông Hàn, đường Trần Hưng Đạo, Sơn Trà', note: 'Mang theo CMND, đến sớm 10 phút.',
+      status: 'confirmed', createdAt: t(50),
+    },
+  ]
+  return { interests, connections, notifications, messages, interviews, lastRead: { [`seeker|${convKey('m1', ME)}`]: t(1420) } }
 }
 
 interface DemoState {
@@ -127,6 +166,7 @@ interface DemoState {
   connections: Connection[]
   notifications: DemoNotification[]
   messages: Message[]
+  interviews: Interview[]
   /** Lần cuối mỗi phía mở cuộc trò chuyện: `${side}|${convKey}` → thời điểm (đếm tin chưa đọc) */
   lastRead: Record<string, string>
   /** Phía kia đang gõ (không lưu) — convKey → phía đang gõ */
@@ -135,6 +175,14 @@ interface DemoState {
   sendMessage: (from: Side, jobId: string, seekerId: string, text: string) => void
   /** Đánh dấu đã đọc tới hiện tại */
   markConversationRead: (viewer: Side, jobId: string, seekerId: string) => void
+  /** Doanh nghiệp mời phỏng vấn (chỉ khi đã kết nối); ứng viên mẫu tự chọn giờ sau vài giây */
+  inviteInterview: (input: Pick<Interview, 'jobId' | 'seekerId' | 'slots' | 'mode' | 'place' | 'note'>) => void
+  /** Người tìm việc chọn một khung giờ */
+  confirmInterview: (id: string, slot: string) => void
+  /** Người tìm việc từ chối */
+  declineInterview: (id: string) => void
+  /** Doanh nghiệp hủy */
+  cancelInterview: (id: string) => void
   /** Bày tỏ quan tâm; hai bên cùng quan tâm → tạo kết nối + thông báo cả hai phía */
   expressInterest: (from: Side, jobId: string, seekerId: string) => void
   /** Rút quan tâm (chỉ khi chưa kết nối) */
@@ -216,18 +264,70 @@ export const useDemoStore = create<DemoState>()(
       markConversationRead: (viewer, jobId, seekerId) =>
         set((s) => ({ lastRead: { ...s.lastRead, [`${viewer}|${convKey(jobId, seekerId)}`]: now() } })),
 
+      inviteInterview: ({ jobId, seekerId, slots, mode, place, note }) => {
+        const s = get()
+        const k = convKey(jobId, seekerId)
+        if (!slots.length || !s.connections.some((c) => convKey(c.jobId, c.seekerId) === k)) return
+        const at = now()
+        const id = `iv${Date.now().toString(36)}${(seq++).toString(36)}`
+        set({
+          interviews: [...s.interviews, { id, jobId, seekerId, slots, mode, place, note, status: 'pending', createdAt: at }],
+          notifications: [...s.notifications, { id: nid(), to: 'seeker', kind: 'interview_invited', jobId, seekerId, at, read: false }],
+          messages: [...s.messages, { id: nid(), jobId, seekerId, from: 'recruiter', text: 'Đã gửi lời mời phỏng vấn — chọn một khung giờ phù hợp nhé.', at, system: true }],
+        })
+        // Ứng viên mẫu (không phải tài khoản demo) tự chọn khung giờ đầu sau vài giây
+        if (seekerId !== ME) window.setTimeout(() => get().confirmInterview(id, slots[0]), AUTO_REPLY_MS)
+      },
+
+      confirmInterview: (id, slot) => {
+        const s = get()
+        const iv = s.interviews.find((x) => x.id === id)
+        if (!iv || iv.status !== 'pending' || !iv.slots.includes(slot)) return
+        const at = now()
+        const when = new Date(slot).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+        set({
+          interviews: s.interviews.map((x) => (x.id === id ? { ...x, status: 'confirmed', chosen: slot } : x)),
+          notifications: [...s.notifications, { id: nid(), to: 'recruiter', kind: 'interview_confirmed', jobId: iv.jobId, seekerId: iv.seekerId, at, read: false }],
+          messages: [...s.messages, { id: nid(), jobId: iv.jobId, seekerId: iv.seekerId, from: 'seeker', text: `Đã xác nhận lịch phỏng vấn: ${when}.`, at, system: true }],
+        })
+      },
+
+      declineInterview: (id) => {
+        const s = get()
+        const iv = s.interviews.find((x) => x.id === id)
+        if (!iv || iv.status !== 'pending') return
+        const at = now()
+        set({
+          interviews: s.interviews.map((x) => (x.id === id ? { ...x, status: 'declined' } : x)),
+          notifications: [...s.notifications, { id: nid(), to: 'recruiter', kind: 'interview_declined', jobId: iv.jobId, seekerId: iv.seekerId, at, read: false }],
+          messages: [...s.messages, { id: nid(), jobId: iv.jobId, seekerId: iv.seekerId, from: 'seeker', text: 'Đã từ chối lời mời phỏng vấn.', at, system: true }],
+        })
+      },
+
+      cancelInterview: (id) => {
+        const s = get()
+        const iv = s.interviews.find((x) => x.id === id)
+        if (!iv || (iv.status !== 'pending' && iv.status !== 'confirmed')) return
+        const at = now()
+        set({
+          interviews: s.interviews.map((x) => (x.id === id ? { ...x, status: 'cancelled' } : x)),
+          notifications: [...s.notifications, { id: nid(), to: 'seeker', kind: 'interview_cancelled', jobId: iv.jobId, seekerId: iv.seekerId, at, read: false }],
+          messages: [...s.messages, { id: nid(), jobId: iv.jobId, seekerId: iv.seekerId, from: 'recruiter', text: 'Đã hủy lịch phỏng vấn.', at, system: true }],
+        })
+      },
+
       markRead: (id) => set((s) => ({ notifications: s.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)) })),
       markAllRead: (to) => set((s) => ({ notifications: s.notifications.map((n) => (n.to === to ? { ...n, read: true } : n)) })),
       reset: () => set({ ...seed(), typing: {} }),
     }),
-    { name: 'workmate-demo', version: 2,
-      // v1 chưa có tin nhắn → bổ sung dữ liệu mẫu của tin nhắn
+    { name: 'workmate-demo', version: 3,
+      // Bản lưu cũ thiếu phần nào thì bổ sung dữ liệu mẫu của phần đó
       migrate: (persisted, version) => {
         const p = persisted as Partial<DemoState>
-        if (version < 2) {
-          const fresh = seed()
-          return { ...p, messages: fresh.messages, lastRead: fresh.lastRead } as DemoState
-        }
+        const fresh = seed()
+        if (version < 2) Object.assign(p, { messages: fresh.messages, lastRead: fresh.lastRead })
+        // v3 thêm lịch phỏng vấn
+        if (version < 3) Object.assign(p, { interviews: fresh.interviews })
         return p as DemoState
       },
       partialize: (s) => ({
@@ -235,6 +335,7 @@ export const useDemoStore = create<DemoState>()(
         connections: s.connections,
         notifications: s.notifications,
         messages: s.messages,
+        interviews: s.interviews,
         lastRead: s.lastRead,
       }) },
   ),
