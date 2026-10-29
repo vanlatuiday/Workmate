@@ -23,3 +23,17 @@ export const HIRE_LABEL: Record<Side, Record<HireStatus, string>> = {
     rejected: 'Lần này chưa phù hợp',
   },
 }
+
+/** "dd/mm" từ chuỗi ngày YYYY-MM-DD */
+const fmtDayShort = (d: string) => `${d.slice(8, 10)}/${d.slice(5, 7)}`
+
+/**
+ * Nhãn của một bản ghi nhận việc. Đã xác nhận nhưng chưa tới ngày bắt đầu → "sẽ đi làm từ…"
+ * (số liệu thống kê vẫn tính là đã đi làm); từ ngày bắt đầu trở đi → "Đã đi làm · từ …".
+ */
+export function hireLabel(viewer: Side, hire: { status: HireStatus; startDate?: string }): string {
+  if (hire.status !== 'accepted' || !hire.startDate) return HIRE_LABEL[viewer][hire.status]
+  const day = fmtDayShort(hire.startDate)
+  if (hire.startDate > todayStr()) return viewer === 'recruiter' ? `Nhận việc · bắt đầu ${day}` : `Sẽ đi làm từ ${day}`
+  return `Đã đi làm · từ ${day}`
+}

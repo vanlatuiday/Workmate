@@ -10,7 +10,7 @@ import { fmtShort } from './format'
 
 type Props = { viewer: Side; jobId: string; seekerId: string; compact?: boolean }
 
-const BTN = 'inline-flex items-center justify-center gap-1.5 rounded-full border border-page-fg bg-page-fg font-medium text-page-bg transition-colors duration-300 hover:bg-page-bg hover:text-page-fg'
+const BTN = 'inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-page-fg bg-page-fg font-medium text-page-bg transition-colors duration-300 hover:bg-page-bg hover:text-page-fg'
 const CHIP = 'inline-flex items-center gap-1.5 rounded-full border border-page-line text-page-fg'
 
 /**

@@ -61,7 +61,9 @@ export default function RecruiterDashboard() {
     .slice(0, 4)
     .flatMap((i) => {
       const c = candidateOf(i.seekerId)
-      const job = rows.find((r) => r.job.id === i.jobId)?.job
+      // Chỉ tin đang mở mới hiện ở danh sách này
+      const row = rows.find((r) => r.job.id === i.jobId)
+      const job = row && row.status === 'approved' && row.jobStatus === 'open' ? row.job : undefined
       return c && job ? [{ key: `${i.jobId}|${i.seekerId}`, c, job, score: scoreMatch(c.criteria, job, c.distanceKm).score }] : []
     })
 
@@ -139,7 +141,9 @@ export default function RecruiterDashboard() {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-page-fg">{r.job.title}</p>
                     <p className="text-xs text-page-muted">
-                      {r.status === 'approved' ? `${numbers[r.job.id]?.fit ?? 0} ứng viên phù hợp` : 'Chưa hiển thị công khai'}
+                      {r.status === 'approved' && r.jobStatus === 'open'
+                        ? `${numbers[r.job.id]?.fit ?? 0} ứng viên phù hợp`
+                        : r.status === 'approved' ? (r.jobStatus === 'paused' ? 'Đang tạm dừng' : 'Đã đóng') : 'Chưa hiển thị công khai'}
                     </p>
                   </div>
                   <StatusBadge tone={b.tone}>{b.label}</StatusBadge>

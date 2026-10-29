@@ -1,6 +1,6 @@
 import { StatusBadge } from '@components/dashboard'
 import { useHire, type Side } from '@services/connectionService'
-import { HIRE_LABEL } from './format'
+import { hireLabel } from './format'
 
 type Props = { viewer: Side; jobId: string; seekerId: string }
 
@@ -10,7 +10,7 @@ export default function HireStatusChip({ viewer, jobId, seekerId }: Props) {
   if (!hire) return null
   return (
     <StatusBadge tone={hire.status === 'accepted' ? 'strong' : hire.status === 'offered' ? 'default' : 'muted'}>
-      {HIRE_LABEL[viewer][hire.status]}
+      {hireLabel(viewer, hire)}
     </StatusBadge>
   )
 }

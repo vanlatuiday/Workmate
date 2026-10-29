@@ -41,7 +41,7 @@ export default function OfferDialog({ jobId, seekerId, onClose }: Props) {
         </p>
         <label className="block">
           <span className="text-sm font-medium text-page-fg">Ngày bắt đầu</span>
-          <input type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className={cn(FIELD, 'mt-2')} />
+          <input type="date" min={today} value={date} onChange={(e) => { setDate(e.target.value); setError('') }} className={cn(FIELD, 'mt-2')} />
         </label>
         <label className="block">
           <span className="text-sm font-medium text-page-fg">Lời nhắn <span className="font-normal text-page-muted">(không bắt buộc)</span></span>

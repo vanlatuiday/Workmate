@@ -9,7 +9,7 @@ import { formatRelativeTime } from '@utils/format'
 import { FOCUS } from '@utils/focus'
 
 const BTN_PRIMARY = `inline-flex items-center gap-2 rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`
-const BTN_SECONDARY = `inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-page-line px-4 py-2 text-sm text-page-fg transition-colors duration-300 hover:border-page-fg disabled:cursor-not-allowed disabled:text-page-muted disabled:hover:border-page-line ${FOCUS}`
+const BTN_SECONDARY = `inline-flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-full border border-page-line px-4 py-2 text-sm text-page-fg transition-colors duration-300 hover:border-page-fg disabled:cursor-not-allowed disabled:text-page-muted disabled:hover:border-page-line ${FOCUS}`
 
 /** Trạng thái gộp: kiểm duyệt của quản trị thắng, còn lại theo trạng thái đăng tuyển do mình đặt */
 type Combined = 'open' | 'paused' | 'closed' | 'pending' | 'attention'
@@ -79,21 +79,15 @@ export default function JobListings() {
     const t = r.job.title
     if (!ok) {
       return (
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <button type="button" disabled className={BTN_SECONDARY}>Xem ứng viên<span className="sr-only"> {t}</span></button>
-            <button type="button" disabled className={BTN_SECONDARY}>Tạm dừng<span className="sr-only"> {t}</span></button>
-          </div>
-          <p className="text-xs text-page-muted">{lockedNote(r)}</p>
-        </div>
+        <p className="text-xs text-page-muted">{lockedNote(r)}</p>
       )
     }
     if (closing === r.job.id) {
       return (
         <div role="group" aria-label={`Xác nhận đóng tin ${t}`} className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-page-fg">Đóng tin này? Tin sẽ ẩn khỏi trang Việc làm.</span>
-          <button type="button" onClick={() => change(r, 'closed')} className={BTN_SECONDARY}>Đóng tin</button>
           <button type="button" onClick={() => setClosing(null)} className={BTN_SECONDARY}>Hủy</button>
+          <button type="button" onClick={() => change(r, 'closed')} className={cn(BTN_PRIMARY, 'min-h-10 !px-4 !py-2')}>Xác nhận đóng</button>
         </div>
       )
     }
@@ -174,7 +168,8 @@ export default function JobListings() {
         </div>
       </div>
 
-      <p ref={noticeRef} tabIndex={-1} role="status" className="text-sm text-page-muted focus:outline-none empty:hidden">{notice}</p>
+      {/* Giữ sẵn chỗ một dòng để thông báo xuất hiện không đẩy bảng xuống */}
+      <p ref={noticeRef} tabIndex={-1} role="status" className="-mt-2 min-h-5 text-sm text-page-muted focus:outline-none">{notice}</p>
 
       {shown.length === 0 ? (
         <EmptyState

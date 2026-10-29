@@ -6,7 +6,7 @@ import { acceptOffer, declineOffer, rejectCandidate, useActiveInterview, useHire
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import ConfirmDialog from './ConfirmDialog'
-import { fmtDay, HIRE_LABEL } from './format'
+import { hireLabel } from './format'
 import OfferDialog from './OfferDialog'
 
 type Props = { viewer: Side; jobId: string; seekerId: string; compact?: boolean }
@@ -64,8 +64,7 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
   const tone = hire.status === 'accepted' ? 'strong' : hire.status === 'offered' ? 'default' : 'muted'
   const chip = (
     <StatusBadge tone={tone}>
-      {HIRE_LABEL[viewer][hire.status]}
-      {hire.status === 'accepted' && hire.startDate && ` · từ ${fmtDay(hire.startDate)}`}
+      {hireLabel(viewer, hire)}
     </StatusBadge>
   )
 

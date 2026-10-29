@@ -6,6 +6,7 @@ import { EmptyState, MockNotice, PageHeader, Panel, StatusBadge } from '@compone
 import { HireStatusChip, OfferCard } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import { describeConversation } from '@pages/public/messages/describe'
+import { useDemoStore } from '@context/demoStore'
 import { expressInterest, ME, useHires, useMyPairs, useOnNewConnection, withdrawInterest, type PairItem } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -25,6 +26,9 @@ const TABS: { id: Tab; label: string }[] = [
 /** Một dòng đơn: việc + công ty, ngày, trạng thái, hành động theo trạng thái cặp. */
 function Row({ item }: { item: PairItem }) {
   const info = describeConversation('seeker', item.jobId, item.seekerId)
+  // Kết nối do doanh nghiệp quan tâm trước (mình chưa từng ứng tuyển) thì không nói "ứng tuyển"
+  const applied = useDemoStore((s) => s.interests.some((i) => i.jobId === item.jobId && i.seekerId === item.seekerId && i.from === 'seeker'))
+  const verb = item.status === 'received' ? 'quan tâm' : applied ? 'ứng tuyển' : 'cập nhật'
   return (
     <li className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 md:flex-row md:items-center md:justify-between">
       <div className="min-w-0">
@@ -38,7 +42,7 @@ function Row({ item }: { item: PairItem }) {
           {item.status === 'received' && <StatusBadge tone="default">Doanh nghiệp quan tâm bạn</StatusBadge>}
         </div>
         <p className="mt-1 text-sm text-page-muted">
-          {info.name} · {item.status === 'received' ? 'quan tâm' : 'ứng tuyển'} {formatRelativeTime(item.at)}
+          {info.name} · {verb} {formatRelativeTime(item.at)}
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2 md:flex-shrink-0">

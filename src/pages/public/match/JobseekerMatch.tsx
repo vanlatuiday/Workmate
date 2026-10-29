@@ -13,7 +13,8 @@ import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import type { JobType } from '@/types'
-import { companyOf, type MatchJob } from './data'
+import { companyOf, SEEKER_JOBS, type MatchJob } from './data'
+import { useAdminStore } from '@context/adminStore'
 import { useSeekerCriteria } from '@context/profileStore'
 import { useAllJobs } from '@pages/public/jobs/catalog'
 import { findAnyJob } from '@pages/public/jobs/lookup'
@@ -87,10 +88,17 @@ export default function JobseekerMatch() {
 
   // Chấm điểm lại mỗi khi tiêu chí hoặc thứ tự ưu tiên đổi
   const allJobs = useAllJobs()
+  const posted = useAdminStore((s) => s.posted)
+  // Mọi việc kể cả tin đã bị ẩn/tạm dừng/đóng: để Đã lưu / Đã ứng tuyển / Đã kết nối không mất việc đã có quan hệ
+  const pool = useMemo(() => {
+    const seen = new Set(allJobs.map((j) => j.id))
+    return [...allJobs, ...[...SEEKER_JOBS, ...posted].filter((j) => !seen.has(j.id))]
+  }, [allJobs, posted])
+  const visibleIds = useMemo(() => new Set(allJobs.map((j) => j.id)), [allJobs])
   const scored = useMemo(() => {
     const seeker = { ...base, salaryMinK, maxDistanceKm, jobTypes }
-    return allJobs.map((job) => ({ job, outcome: scoreMatch(seeker, job, job.distanceKm, priority) }))
-  }, [allJobs, base, salaryMinK, maxDistanceKm, jobTypes, priority])
+    return pool.map((job) => ({ job, outcome: scoreMatch(seeker, job, job.distanceKm, priority) }))
+  }, [pool, base, salaryMinK, maxDistanceKm, jobTypes, priority])
 
   const lists = useMemo(() => {
     const by = (a: { job: MatchJob; outcome: MatchOutcome }, b: { job: MatchJob; outcome: MatchOutcome }) => {
@@ -99,13 +107,13 @@ export default function JobseekerMatch() {
       return b.outcome.score - a.outcome.score
     }
     return {
-      fit: scored.filter((x) => ['none', 'received'].includes(statusOf(x.job.id, ME))).sort(by),
+      fit: scored.filter((x) => visibleIds.has(x.job.id) && ['none', 'received'].includes(statusOf(x.job.id, ME))).sort(by),
       saved: scored.filter((x) => savedJobs.includes(x.job.id)).sort(by),
       applied: scored.filter((x) => statusOf(x.job.id, ME) === 'sent').sort(by),
       connected: scored.filter((x) => statusOf(x.job.id, ME) === 'connected').sort(by),
     }
     // statusOf đổi tham chiếu mỗi lần kho đổi nên dùng làm dependency là đủ
-  }, [scored, sort, savedJobs, statusOf])
+  }, [scored, sort, savedJobs, statusOf, visibleIds])
 
   // Ô tìm theo tên việc + công ty, áp lên tab đang chọn (cả hai chế độ xem)
   const current = useMemo(

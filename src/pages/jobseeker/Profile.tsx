@@ -5,6 +5,7 @@ import { MockNotice, PageHeader, Panel } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import type { JobType } from '@/types'
 import { useProfileStore } from '@context/profileStore'
+import { completeness } from '@pages/public/profile/useProfileDraft'
 import { DAY_SHORT, SESSIONS } from './mockData'
 import { FOCUS } from '@utils/focus'
 
@@ -48,15 +49,10 @@ export default function Profile() {
   const [skillDup, setSkillDup] = useState(false)
   const skillId = useId()
 
-  // Mức hoàn thiện: mỗi nhóm có dữ liệu được một phần (cơ bản, mong muốn, lịch rảnh, kỹ năng, kinh nghiệm)
-  const checks = [
-    fullName.trim() && phone.trim() && area.trim(),
-    jobTypes.length > 0 && Number(salaryMin) > 0 && Number(maxKm) > 0,
-    slots.size >= 10,
-    skills.length >= 3,
-    experience.length > 0,
-  ]
-  const percent = Math.round((checks.filter(Boolean).length / checks.length) * 100)
+  // Mức hoàn thiện: cùng cách tính với trang /ho-so (completeness), theo hồ sơ đã lưu + ảnh đại diện
+  const stored = useProfileStore((s) => s.profile)
+  const avatarUrl = useProfileStore((s) => s.avatarUrl)
+  const percent = completeness({ ...stored, avatarUrl })
 
   // Mọi thay đổi xóa dòng "Đã lưu" để người dùng biết cần lưu lại
   const touch = <T,>(setter: (v: T) => void) => (v: T) => {
