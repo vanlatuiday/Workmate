@@ -35,9 +35,13 @@ export interface DemoNotification {
   /**
    * interest = phía kia vừa quan tâm · connected = hai bên vừa kết nối ·
    * interview_invited = doanh nghiệp mời phỏng vấn · interview_confirmed / interview_declined =
-   * người tìm việc chọn giờ / từ chối · interview_cancelled = doanh nghiệp hủy
+   * người tìm việc chọn giờ / từ chối · interview_cancelled = doanh nghiệp hủy ·
+   * offer = doanh nghiệp mời nhận việc · offer_accepted / offer_declined = người tìm việc xác nhận đi làm / từ chối ·
+   * offer_withdrawn = doanh nghiệp rút lời mời · rejected = doanh nghiệp không nhận
    */
-  kind: 'interest' | 'connected' | 'interview_invited' | 'interview_confirmed' | 'interview_declined' | 'interview_cancelled'
+  kind:
+    | 'interest' | 'connected' | 'interview_invited' | 'interview_confirmed' | 'interview_declined' | 'interview_cancelled'
+    | 'offer' | 'offer_accepted' | 'offer_declined' | 'offer_withdrawn' | 'rejected'
   jobId: string
   seekerId: string
   at: string
@@ -61,6 +65,28 @@ export interface Interview {
   note?: string
   status: InterviewStatus
   createdAt: string
+}
+
+/**
+ * Nhận việc: offered (chờ ứng viên) → accepted (đã đi làm) | declined (ứng viên từ chối) | withdrawn (doanh nghiệp rút);
+ * rejected = doanh nghiệp "Không nhận". Mỗi cặp tối đa một bản ghi; đã sang trạng thái cuối thì không đổi nữa.
+ */
+export type HireStatus = 'offered' | 'accepted' | 'declined' | 'withdrawn' | 'rejected'
+
+export interface Hire {
+  jobId: string
+  seekerId: string
+  status: HireStatus
+  /** Ngày bắt đầu làm (YYYY-MM-DD) — có khi đã mời nhận việc */
+  startDate?: string
+  /** Lời nhắn của doanh nghiệp kèm lời mời */
+  note?: string
+  /** Lý do (doanh nghiệp không nhận / ứng viên từ chối), không bắt buộc */
+  reason?: string
+  /** Lúc tạo bản ghi */
+  at: string
+  /** Lúc đổi trạng thái gần nhất */
+  updatedAt: string
 }
 
 export interface Message {
@@ -113,6 +139,9 @@ const now = () => new Date().toISOString()
 let seq = 0
 const nid = () => `n${Date.now().toString(36)}${(seq++).toString(36)}`
 
+/** "05/11/2026" từ YYYY-MM-DD */
+const fmtDay = (d: string) => new Date(`${d}T00:00`).toLocaleDateString('vi-VN')
+
 const key = (jobId: string, seekerId: string) => `${jobId}|${seekerId}`
 
 /** Dữ liệu ban đầu: đủ để các tab không trống và thấy được cả hai chiều */
@@ -158,7 +187,16 @@ function seed() {
       status: 'confirmed', createdAt: t(50),
     },
   ]
-  return { interests, connections, notifications, messages, interviews, lastRead: { [`seeker|${convKey('m1', ME)}`]: t(1420) } }
+  // Một ca đã đi làm của ứng viên mẫu (Lê Q. A. – pha chế j1) để thống kê không bằng 0
+  interests.push(
+    { from: 'seeker', jobId: 'j1', seekerId: 'u3', at: t(4000) },
+    { from: 'recruiter', jobId: 'j1', seekerId: 'u3', at: t(3900) },
+  )
+  connections.push({ jobId: 'j1', seekerId: 'u3', at: t(3900) })
+  const hires: Hire[] = [
+    { jobId: 'j1', seekerId: 'u3', status: 'accepted', startDate: new Date(Date.now() - 86_400_000).toLocaleDateString('sv-SE'), note: 'Chào mừng bạn, hẹn gặp ở quán nhé!', at: t(2000), updatedAt: t(1900) },
+  ]
+  return { interests, connections, notifications, messages, interviews, hires, lastRead: { [`seeker|${convKey('m1', ME)}`]: t(1420) } }
 }
 
 interface DemoState {
@@ -167,6 +205,7 @@ interface DemoState {
   notifications: DemoNotification[]
   messages: Message[]
   interviews: Interview[]
+  hires: Hire[]
   /** Lần cuối mỗi phía mở cuộc trò chuyện: `${side}|${convKey}` → thời điểm (đếm tin chưa đọc) */
   lastRead: Record<string, string>
   /** Phía kia đang gõ (không lưu) — convKey → phía đang gõ */
@@ -183,6 +222,16 @@ interface DemoState {
   declineInterview: (id: string) => void
   /** Doanh nghiệp hủy */
   cancelInterview: (id: string) => void
+  /** Doanh nghiệp mời nhận việc (chỉ khi đã kết nối và cặp chưa có bản ghi nhận việc); ứng viên mẫu tự xác nhận sau vài giây */
+  offerJob: (input: { jobId: string; seekerId: string; startDate: string; note?: string }) => void
+  /** Doanh nghiệp không nhận */
+  rejectCandidate: (jobId: string, seekerId: string, reason?: string) => void
+  /** Doanh nghiệp rút lời mời đang chờ */
+  withdrawOffer: (jobId: string, seekerId: string) => void
+  /** Người tìm việc xác nhận đi làm */
+  acceptOffer: (jobId: string, seekerId: string) => void
+  /** Người tìm việc từ chối lời mời */
+  declineOffer: (jobId: string, seekerId: string, reason?: string) => void
   /** Bày tỏ quan tâm; hai bên cùng quan tâm → tạo kết nối + thông báo cả hai phía */
   expressInterest: (from: Side, jobId: string, seekerId: string) => void
   /** Rút quan tâm (chỉ khi chưa kết nối) */
@@ -316,11 +365,76 @@ export const useDemoStore = create<DemoState>()(
         })
       },
 
+      offerJob: ({ jobId, seekerId, startDate, note }) => {
+        const s = get()
+        const k = convKey(jobId, seekerId)
+        if (!startDate || !s.connections.some((c) => convKey(c.jobId, c.seekerId) === k)) return
+        if (s.hires.some((h) => convKey(h.jobId, h.seekerId) === k)) return
+        const at = now()
+        const when = fmtDay(startDate)
+        set({
+          hires: [...s.hires, { jobId, seekerId, status: 'offered', startDate, note, at, updatedAt: at }],
+          notifications: [...s.notifications, { id: nid(), to: 'seeker', kind: 'offer', jobId, seekerId, at, read: false }],
+          messages: [...s.messages, { id: nid(), jobId, seekerId, from: 'recruiter', text: `Bên mình rất muốn nhận bạn vào làm, bắt đầu từ ${when}. Bạn xem lời mời và xác nhận giúp mình nhé.`, at, system: true }],
+        })
+        // Ứng viên mẫu (không phải tài khoản demo) tự xác nhận đi làm sau vài giây
+        if (seekerId !== ME) window.setTimeout(() => get().acceptOffer(jobId, seekerId), AUTO_REPLY_MS)
+      },
+
+      rejectCandidate: (jobId, seekerId, reason) => {
+        const s = get()
+        const k = convKey(jobId, seekerId)
+        if (!s.connections.some((c) => convKey(c.jobId, c.seekerId) === k)) return
+        if (s.hires.some((h) => convKey(h.jobId, h.seekerId) === k)) return
+        const at = now()
+        set({
+          hires: [...s.hires, { jobId, seekerId, status: 'rejected', reason: reason?.trim() || undefined, at, updatedAt: at }],
+          notifications: [...s.notifications, { id: nid(), to: 'seeker', kind: 'rejected', jobId, seekerId, at, read: false }],
+          messages: [...s.messages, { id: nid(), jobId, seekerId, from: 'recruiter', text: 'Cảm ơn bạn đã quan tâm, lần này bên mình chưa thấy phù hợp. Chúc bạn sớm tìm được công việc ưng ý.', at, system: true }],
+        })
+      },
+
+      withdrawOffer: (jobId, seekerId) => {
+        const s = get()
+        const h = s.hires.find((x) => x.jobId === jobId && x.seekerId === seekerId)
+        if (!h || h.status !== 'offered') return
+        const at = now()
+        set({
+          hires: s.hires.map((x) => (x === h ? { ...x, status: 'withdrawn', updatedAt: at } : x)),
+          notifications: [...s.notifications, { id: nid(), to: 'seeker', kind: 'offer_withdrawn', jobId, seekerId, at, read: false }],
+          messages: [...s.messages, { id: nid(), jobId, seekerId, from: 'recruiter', text: 'Doanh nghiệp đã rút lời mời nhận việc.', at, system: true }],
+        })
+      },
+
+      acceptOffer: (jobId, seekerId) => {
+        const s = get()
+        const h = s.hires.find((x) => x.jobId === jobId && x.seekerId === seekerId)
+        if (!h || h.status !== 'offered') return
+        const at = now()
+        set({
+          hires: s.hires.map((x) => (x === h ? { ...x, status: 'accepted', updatedAt: at } : x)),
+          notifications: [...s.notifications, { id: nid(), to: 'recruiter', kind: 'offer_accepted', jobId, seekerId, at, read: false }],
+          messages: [...s.messages, { id: nid(), jobId, seekerId, from: 'seeker', text: `Đã xác nhận đi làm${h.startDate ? ` từ ${fmtDay(h.startDate)}` : ''}.`, at, system: true }],
+        })
+      },
+
+      declineOffer: (jobId, seekerId, reason) => {
+        const s = get()
+        const h = s.hires.find((x) => x.jobId === jobId && x.seekerId === seekerId)
+        if (!h || h.status !== 'offered') return
+        const at = now()
+        set({
+          hires: s.hires.map((x) => (x === h ? { ...x, status: 'declined', reason: reason?.trim() || undefined, updatedAt: at } : x)),
+          notifications: [...s.notifications, { id: nid(), to: 'recruiter', kind: 'offer_declined', jobId, seekerId, at, read: false }],
+          messages: [...s.messages, { id: nid(), jobId, seekerId, from: 'seeker', text: 'Cảm ơn bên mình đã tin tưởng, nhưng mình xin phép từ chối lời mời nhận việc.', at, system: true }],
+        })
+      },
+
       markRead: (id) => set((s) => ({ notifications: s.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)) })),
       markAllRead: (to) => set((s) => ({ notifications: s.notifications.map((n) => (n.to === to ? { ...n, read: true } : n)) })),
       reset: () => set({ ...seed(), typing: {} }),
     }),
-    { name: 'workmate-demo', version: 3,
+    { name: 'workmate-demo', version: 4,
       // Bản lưu cũ thiếu phần nào thì bổ sung dữ liệu mẫu của phần đó
       migrate: (persisted, version) => {
         const p = persisted as Partial<DemoState>
@@ -328,6 +442,8 @@ export const useDemoStore = create<DemoState>()(
         if (version < 2) Object.assign(p, { messages: fresh.messages, lastRead: fresh.lastRead })
         // v3 thêm lịch phỏng vấn
         if (version < 3) Object.assign(p, { interviews: fresh.interviews })
+        // v4 thêm nhận việc (bản cũ chưa có ai được nhận)
+        if (version < 4) Object.assign(p, { hires: [] })
         return p as DemoState
       },
       partialize: (s) => ({
@@ -336,6 +452,7 @@ export const useDemoStore = create<DemoState>()(
         notifications: s.notifications,
         messages: s.messages,
         interviews: s.interviews,
+        hires: s.hires,
         lastRead: s.lastRead,
       }) },
   ),

@@ -2,10 +2,10 @@
 // Hiện đọc/ghi kho demo (`@context/demoStore`); khi có backend, đổi ruột các hàm này sang
 // gọi API (`./api`, `./matchService`) — chữ ký giữ nguyên nên giao diện không phải sửa.
 import { isNotifyOn, useSettingsStore } from '@context/settingsStore'
-import { useDemoStore, convKey, ME, RECRUITER_JOBS, type Connection, type Interview, type Message, type Side } from '@context/demoStore'
+import { useDemoStore, convKey, ME, RECRUITER_JOBS, type Connection, type Hire, type Interview, type Message, type Side } from '@context/demoStore'
 
 export { ME, RECRUITER_JOBS }
-export type { Side, Interest, Connection, DemoNotification, Message, Interview, InterviewMode, InterviewStatus } from '@context/demoStore'
+export type { Side, Interest, Connection, DemoNotification, Message, Interview, InterviewMode, InterviewStatus, Hire, HireStatus } from '@context/demoStore'
 export { convKey }
 
 /** Trạng thái giữa một vị trí và một người tìm việc, nhìn từ phía `viewer` */
@@ -160,6 +160,29 @@ export const inviteInterview = (input: Pick<Interview, 'jobId' | 'seekerId' | 's
 export const confirmInterview = (id: string, slot: string) => useDemoStore.getState().confirmInterview(id, slot)
 export const declineInterview = (id: string) => useDemoStore.getState().declineInterview(id)
 export const cancelInterview = (id: string) => useDemoStore.getState().cancelInterview(id)
+
+// ─── Nhận việc → xác nhận đi làm ────────────────────────────────────────────
+
+/** Hook: bản ghi nhận việc của một cặp (jobId + seekerId), nếu có */
+export function useHire(jobId: string, seekerId: string): Hire | undefined {
+  return useDemoStore((s) => s.hires.find((h) => h.jobId === jobId && h.seekerId === seekerId))
+}
+
+/** Hook: mọi bản ghi nhận việc của phía `viewer`, mới cập nhật trước */
+export function useHires(viewer: Side): Hire[] {
+  const all = useDemoStore((s) => s.hires)
+  return all.filter((h) => isMine(viewer, h)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+}
+
+/** Doanh nghiệp mời nhận việc — chỉ khi đã kết nối và cặp chưa có bản ghi nhận việc */
+export const offerJob = (input: { jobId: string; seekerId: string; startDate: string; note?: string }) => useDemoStore.getState().offerJob(input)
+/** Doanh nghiệp không nhận (kèm lý do không bắt buộc) */
+export const rejectCandidate = (jobId: string, seekerId: string, reason?: string) => useDemoStore.getState().rejectCandidate(jobId, seekerId, reason)
+/** Doanh nghiệp rút lời mời khi còn chờ */
+export const withdrawOffer = (jobId: string, seekerId: string) => useDemoStore.getState().withdrawOffer(jobId, seekerId)
+/** Người tìm việc xác nhận đi làm — lúc này cặp mới tính là "đã đi làm" */
+export const acceptOffer = (jobId: string, seekerId: string) => useDemoStore.getState().acceptOffer(jobId, seekerId)
+export const declineOffer = (jobId: string, seekerId: string, reason?: string) => useDemoStore.getState().declineOffer(jobId, seekerId, reason)
 
 // ─── Danh sách cho dashboard ────────────────────────────────────────────────
 

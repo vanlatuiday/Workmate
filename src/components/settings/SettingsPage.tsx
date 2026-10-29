@@ -23,12 +23,17 @@ const NOTIFY: Record<Side, { kind: NotificationKind; label: string }[]> = {
     { kind: 'connected', label: 'Hai bên đã kết nối' },
     { kind: 'interview_invited', label: 'Lời mời phỏng vấn' },
     { kind: 'interview_cancelled', label: 'Lịch phỏng vấn bị hủy' },
+    { kind: 'offer', label: 'Lời mời nhận việc' },
+    { kind: 'offer_withdrawn', label: 'Lời mời nhận việc bị rút' },
+    { kind: 'rejected', label: 'Doanh nghiệp chưa chọn bạn' },
   ],
   recruiter: [
     { kind: 'interest', label: 'Ứng viên ứng tuyển tin của bạn' },
     { kind: 'connected', label: 'Hai bên đã kết nối' },
     { kind: 'interview_confirmed', label: 'Ứng viên xác nhận lịch phỏng vấn' },
     { kind: 'interview_declined', label: 'Ứng viên từ chối lịch phỏng vấn' },
+    { kind: 'offer_accepted', label: 'Ứng viên xác nhận đi làm' },
+    { kind: 'offer_declined', label: 'Ứng viên từ chối nhận việc' },
   ],
 }
 

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Zap } from 'lucide-react'
 import { EmptyState, MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { HireAction } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import { describeConversation } from '@pages/public/messages/describe'
 import { useConversations, useMyPairs } from '@services/connectionService'
@@ -61,6 +62,7 @@ export default function JobseekerMatch() {
                   </div>
                   <div className="flex flex-wrap items-center gap-2 lg:flex-shrink-0">
                     <InterviewAction viewer="seeker" jobId={p.jobId} seekerId={p.seekerId} compact />
+                    <HireAction viewer="seeker" jobId={p.jobId} seekerId={p.seekerId} compact />
                     <Link to={`/tin-nhan?c=${p.jobId}|${p.seekerId}`} className={BTN_SOLID}>Nhắn tin</Link>
                     <Link to="/lich-phong-van" className={BTN_LINE}>Lịch phỏng vấn</Link>
                   </div>

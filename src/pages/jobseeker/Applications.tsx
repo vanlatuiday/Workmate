@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { ClipboardList } from 'lucide-react'
 import { EmptyState, MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { HireStatusChip, OfferCard } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import { describeConversation } from '@pages/public/messages/describe'
-import { expressInterest, ME, useMyPairs, useOnNewConnection, withdrawInterest, type PairItem } from '@services/connectionService'
+import { expressInterest, ME, useHires, useMyPairs, useOnNewConnection, withdrawInterest, type PairItem } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { formatRelativeTime } from '@utils/format'
@@ -33,6 +34,7 @@ function Row({ item }: { item: PairItem }) {
           </Link>
           {item.status === 'sent' && <StatusBadge tone="default">Chờ phản hồi</StatusBadge>}
           {item.status === 'connected' && <StatusBadge tone="strong">Đã kết nối</StatusBadge>}
+          {item.status === 'connected' && <HireStatusChip viewer="seeker" jobId={item.jobId} seekerId={item.seekerId} />}
           {item.status === 'received' && <StatusBadge tone="default">Doanh nghiệp quan tâm bạn</StatusBadge>}
         </div>
         <p className="mt-1 text-sm text-page-muted">
@@ -69,6 +71,8 @@ function Row({ item }: { item: PairItem }) {
 /** Đã ứng tuyển: các việc mình đã ứng tuyển (chờ phản hồi / đã kết nối) và nhóm doanh nghiệp đang chờ mình. */
 export default function Applications() {
   const pairs = useMyPairs('seeker')
+  // Lời mời nhận việc còn chờ mình xác nhận
+  const offers = useHires('seeker').filter((h) => h.status === 'offered')
   const [tab, setTab] = useState<Tab>('all')
 
   useOnNewConnection((c) => {
@@ -82,6 +86,14 @@ export default function Applications() {
   return (
     <div>
       <PageHeader title="Đã ứng tuyển" description="Theo dõi các đơn bạn đã gửi và doanh nghiệp đang chờ bạn đáp lại." />
+
+      {offers.length > 0 && (
+        <Panel title="Lời mời nhận việc" className="mb-6">
+          <ul className="divide-y divide-page-line">
+            {offers.map((h) => <OfferCard key={`${h.jobId}|${h.seekerId}`} hire={h} />)}
+          </ul>
+        </Panel>
+      )}
 
       {waiting.length > 0 && (
         <Panel title="Doanh nghiệp đang chờ bạn" className="mb-6">

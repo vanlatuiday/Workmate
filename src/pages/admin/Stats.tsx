@@ -53,6 +53,7 @@ export default function Stats() {
   const interests = useDemoStore((s) => s.interests)
   const connections = useDemoStore((s) => s.connections)
   const interviews = useDemoStore((s) => s.interviews)
+  const hires = useDemoStore((s) => s.hires)
   const reports = useAdmin((s) => s.reports)
   const visible = useVisibleJobs()
   const adminJobs = useAdminJobs()
@@ -62,13 +63,18 @@ export default function Stats() {
     const pairs = new Set(interests.map((i) => k(i.jobId, i.seekerId)))
     const interviewed = new Set(interviews.map((i) => k(i.jobId, i.seekerId)))
     const confirmed = new Set(interviews.filter((i) => i.status === 'confirmed').map((i) => k(i.jobId, i.seekerId)))
+    // Được nhận = đã có lời mời nhận việc (dù sau đó ra sao); Đã đi làm = ứng viên đã xác nhận
+    const offered = hires.filter((h) => h.status !== 'rejected').length
+    const working = hires.filter((h) => h.status === 'accepted').length
     return [
       { label: 'Quan tâm / ứng tuyển', value: pairs.size },
       { label: 'Kết nối', value: connections.length },
       { label: 'Có lịch phỏng vấn', value: interviewed.size },
       { label: 'Phỏng vấn đã xác nhận', value: confirmed.size },
+      { label: 'Được nhận', value: offered },
+      { label: 'Đã đi làm', value: working },
     ]
-  }, [interests, connections, interviews])
+  }, [interests, connections, interviews, hires])
 
   // Thời gian phản hồi = từ lượt quan tâm đầu tiên của một cặp đến lúc thành kết nối
   const avgResponse = useMemo(() => {

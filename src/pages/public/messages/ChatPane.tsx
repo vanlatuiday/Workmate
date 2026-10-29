@@ -1,9 +1,10 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, SendHorizontal } from 'lucide-react'
+import { HireStatusChip } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import { useReducedMotion } from '@hooks/useReducedMotion'
-import { markConversationRead, useActiveInterview, sendMessage, useIsTyping, useMessages, type Side } from '@services/connectionService'
+import { markConversationRead, useActiveInterview, useHire, sendMessage, useIsTyping, useMessages, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { describeConversation } from './describe'
@@ -39,6 +40,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack }: Props) {
   const typing = useIsTyping(viewer, jobId, seekerId)
   const reduced = useReducedMotion()
   const hasInterview = !!useActiveInterview(jobId, seekerId)
+  const hasHire = !!useHire(jobId, seekerId)
   const [draft, setDraft] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -104,9 +106,10 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack }: Props) {
       </header>
 
       {/* Phỏng vấn: nút / chip trạng thái theo vai trò (không hiện gì khi người tìm việc chưa có lời mời) */}
-      {(viewer === 'recruiter' || hasInterview) && (
+      {(viewer === 'recruiter' || hasInterview || hasHire) && (
         <div className="flex flex-wrap items-center gap-2 border-b border-page-line py-3">
           <InterviewAction viewer={viewer} jobId={jobId} seekerId={seekerId} compact />
+          <HireStatusChip viewer={viewer} jobId={jobId} seekerId={seekerId} />
         </div>
       )}
 

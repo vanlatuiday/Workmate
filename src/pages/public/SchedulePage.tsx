@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { CalendarX, MapPin, Video } from 'lucide-react'
+import { HireAction } from '@components/hire'
 import ChooseSlotDialog from '@components/interview/ChooseSlotDialog'
 import DialogShell from '@components/interview/DialogShell'
 import { fmtSlot, MODE_LABEL } from '@components/interview/format'
@@ -193,6 +194,7 @@ function InterviewCard({ iv, viewer, isPast, onChoose, onCancel }: { iv: Intervi
             Hủy lịch<span className="sr-only"> phỏng vấn {info.name}</span>
           </button>
         )}
+        {viewer === 'recruiter' && iv.status === 'confirmed' && <HireAction viewer="recruiter" jobId={iv.jobId} seekerId={iv.seekerId} compact />}
         <Link to={`/tin-nhan?c=${iv.jobId}|${iv.seekerId}`} className={BTN_LINE}>
           Nhắn tin<span className="sr-only"> {info.name}</span>
         </Link>
