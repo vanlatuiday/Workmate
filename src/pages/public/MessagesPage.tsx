@@ -53,7 +53,7 @@ function Inbox({ viewer }: { viewer: Side }) {
 
   return (
     <div className="shell h-[calc(100svh-4rem)] py-4 lg:py-6">
-      <div className="grid h-full min-h-0 gap-8 lg:grid-cols-[340px_minmax(0,1fr)]">
+      <div className="grid h-full min-h-0 grid-cols-1 gap-8 lg:grid-cols-[340px_minmax(0,1fr)]">
         <div className={cn('min-h-0', active ? 'hidden lg:block' : 'block')}>
           <ConversationList viewer={viewer} conversations={conversations} activeKey={shown?.key ?? null} onSelect={select} />
         </div>

@@ -124,7 +124,7 @@ export default function PostJobPage() {
       />
       <p className="mt-4 max-w-xl text-page-muted">Điền thông tin bên trái, bên phải cho thấy tin hiển thị ra sao và có bao nhiêu ứng viên đang hợp.</p>
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-12">
+      <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12">
         <form className="space-y-5 lg:col-span-7" onSubmit={(e) => { e.preventDefault(); submit() }}>
           <Group title="Thông tin chung">
             <div>

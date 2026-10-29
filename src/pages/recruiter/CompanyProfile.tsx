@@ -51,7 +51,7 @@ function ListEditor({ label, items, onChange, placeholder }: { label: string; it
           {items.map((it, i) => (
             <li key={`${it}-${i}`} className="flex items-start justify-between gap-3 rounded-control border border-page-line px-3 py-2 text-sm text-page-fg">
               <span className="min-w-0 break-words">{it}</span>
-              <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} aria-label={`Xóa “${it}”`} className={cn('flex-shrink-0 rounded-full text-page-muted hover:text-page-fg', FOCUS)}>
+              <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} aria-label={`Xóa “${it}”`} className={cn('-m-2 flex-shrink-0 rounded-full p-2 text-page-muted hover:text-page-fg', FOCUS)}>
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </li>

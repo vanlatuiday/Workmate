@@ -88,7 +88,7 @@ export default function Config() {
           {form.bannedWords.map((w) => (
             <li key={w} className="inline-flex items-center gap-1 rounded-full border border-page-line py-1 pl-3 pr-1 text-sm text-page-fg">
               {w}
-              <button type="button" onClick={() => patch({ bannedWords: form.bannedWords.filter((x) => x !== w) })} aria-label={`Xóa từ cấm ${w}`} className={`rounded-full p-1 text-page-muted hover:text-page-fg ${FOCUS}`}>
+              <button type="button" onClick={() => patch({ bannedWords: form.bannedWords.filter((x) => x !== w) })} aria-label={`Xóa từ cấm ${w}`} className={`-m-1 rounded-full p-2 text-page-muted hover:text-page-fg ${FOCUS}`}>
                 <X className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </li>
