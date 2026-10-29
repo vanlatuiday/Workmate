@@ -2,16 +2,15 @@ import PersonalArchive from '@components/archive/PersonalArchive'
 import type { ArchiveEntry } from '@components/archive/types'
 import { SampleNote } from '@components/discover/parts'
 import { JOB_TYPES } from '@constants/index'
-import { AVAILABILITY_DEFAULT, PROFILE_DEFAULT as P, RECENT_APPLICATIONS } from '@pages/jobseeker/mockData'
+import { RECENT_APPLICATIONS } from '@pages/jobseeker/mockData'
+import { useProfileStore, type SeekerProfile } from '@context/profileStore'
 import PersonalIntro from './PersonalIntro'
 import { ActionNote, ActionPrimary, ActionText, Actions, EmptyNote, Section, TagList, WeekGrid } from './parts'
 
 const EDIT_HREF = '/tim-viec/ho-so'
-const AVAILABLE = new Set(AVAILABILITY_DEFAULT)
-const typeLabels = P.jobTypes.map((t) => JOB_TYPES.find((j) => j.value === t)?.label ?? t)
-const salaryText = `từ ${P.salaryMin.toLocaleString('vi-VN')}đ/giờ`
 
 type Opts = { owner: boolean }
+type BuildOpts = Opts & { P: SeekerProfile }
 
 /** Gợi ý bổ sung chỉ hiện với chủ hồ sơ */
 const invite = (owner: boolean) => (owner ? { to: EDIT_HREF, label: 'Bổ sung trong hồ sơ' } : undefined)
@@ -33,7 +32,10 @@ function SeekerActions({ owner }: Opts) {
 }
 
 /** Dựng 6 tấm hồ sơ người tìm việc; `owner` chỉ đổi hành động và thông tin nhạy cảm. */
-function buildSeekerEntries({ owner }: Opts): ArchiveEntry[] {
+function buildSeekerEntries({ owner, P }: BuildOpts): ArchiveEntry[] {
+  const AVAILABLE = new Set(P.availability)
+  const typeLabels = P.jobTypes.map((t) => JOB_TYPES.find((j) => j.value === t)?.label ?? t)
+  const salaryText = `từ ${P.salaryMin.toLocaleString('vi-VN')}đ/giờ`
   const actions = <SeekerActions owner={owner} />
   const inv = invite(owner)
   return [
@@ -193,10 +195,11 @@ function buildSeekerEntries({ owner }: Opts): ArchiveEntry[] {
 
 /** Người tìm việc: hồ sơ của tôi (owner) hoặc bản công khai (người xem). */
 export default function JobseekerPersonalView({ owner }: Opts) {
+  const P = useProfileStore((s) => s.profile)
   return (
     <>
       <PersonalArchive
-        entries={buildSeekerEntries({ owner })}
+        entries={buildSeekerEntries({ owner, P })}
         label="Hồ sơ người tìm việc"
         eyebrow="Hồ sơ cá nhân"
         intro={

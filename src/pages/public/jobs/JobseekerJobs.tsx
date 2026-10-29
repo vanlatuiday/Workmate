@@ -10,6 +10,7 @@ import MatchScore from '@components/dashboard/MatchScore'
 import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
 import { FOCUS } from '@utils/focus'
 import type { DiscoverCompany } from './data'
+import { useSeekerCriteria } from '@context/profileStore'
 import { bestJobOf, companiesMatching, EMPTY_FILTERS, hasFilters, type MatchJob } from './catalog'
 import JobSearchBar from './JobSearchBar'
 import { useJobFilters } from './useJobFilters'
@@ -22,6 +23,7 @@ export default function JobseekerJobs() {
   // Quản trị viên duyệt/ẩn tin hoặc khóa công ty → tính lại danh sách
   const moderation = useAdmin((s) => s.moderation)
   const locked = useAdmin((s) => s.lockedCompanies)
+  const criteria = useSeekerCriteria() // bộ lọc "gần tôi" dùng khoảng cách tối đa trong hồ sơ
   // Chỉ giữ công ty có việc khớp; đổi danh sách thì remount bộ sưu tập cho sạch
   const items = useMemo<Item[]>(
     () =>
@@ -35,8 +37,8 @@ export default function JobseekerJobs() {
         company: c,
         jobs,
       })),
-    // moderation/locked chỉ để kích tính lại
-    [filters, moderation, locked],
+    // moderation/locked/criteria chỉ để kích tính lại
+    [filters, moderation, locked, criteria],
   )
   const jobCount = items.reduce((n, x) => n + x.jobs.length, 0)
 

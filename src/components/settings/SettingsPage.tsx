@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { AlertCircle } from 'lucide-react'
 import { PageHeader, Panel } from '@components/dashboard'
+import { useProfileStore } from '@context/profileStore'
 import { useAuthStore } from '@context/authStore'
 import type { Side } from '@context/demoStore'
 import { isNotifyOn, useSettingsStore, type EmailDigest, type NotificationKind, type ProfileVisibility } from '@context/settingsStore'
@@ -128,6 +129,7 @@ export default function SettingsPage({ side }: { side: Side }) {
   const deleteAccount = () => {
     useSettingsStore.getState().reset()
     resetDemoData()
+    useProfileStore.getState().reset()
     logout()
     navigate('/')
     toast.success('Đã xóa tài khoản (bản mẫu)')
@@ -174,8 +176,8 @@ export default function SettingsPage({ side }: { side: Side }) {
         </Section>
 
         <Section title="Dữ liệu demo">
-          <p className="mb-4 text-sm text-page-muted">Đưa kết nối, tin nhắn, thông báo và lịch phỏng vấn về trạng thái ban đầu.</p>
-          <button type="button" className={BTN_LINE} onClick={() => { resetDemoData(); toast.success('Đã đặt lại dữ liệu demo') }}>Đặt lại dữ liệu demo</button>
+          <p className="mb-4 text-sm text-page-muted">Đưa hồ sơ người tìm việc, kết nối, tin nhắn, thông báo và lịch phỏng vấn về trạng thái ban đầu.</p>
+          <button type="button" className={BTN_LINE} onClick={() => { resetDemoData(); useProfileStore.getState().reset(); toast.success('Đã đặt lại dữ liệu demo') }}>Đặt lại dữ liệu demo</button>
         </Section>
 
         <Section title="Vùng nguy hiểm">

@@ -13,7 +13,8 @@ import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import type { JobType } from '@/types'
-import { companyOf, SEEKER_DEFAULT, type MatchJob } from './data'
+import { companyOf, type MatchJob } from './data'
+import { useSeekerCriteria } from '@context/profileStore'
 import { useAllJobs } from '@pages/public/jobs/catalog'
 import { findAnyJob } from '@pages/public/jobs/lookup'
 import CurvedGallery from './gallery/CurvedGallery'
@@ -66,10 +67,11 @@ export default function JobseekerMatch() {
   // Lenis chỉ chạy ở Bộ sưu tập (canvas WebGL cần cuộn mượt đồng bộ); chế độ Danh sách giữ cuộn thường
   useSmoothScroll(gallery)
 
-  // Tiêu chí chỉnh tại chỗ, khởi tạo từ hồ sơ; không ghi ngược lên hồ sơ
-  const [salaryMinK, setSalaryMinK] = useState(SEEKER_DEFAULT.salaryMinK)
-  const [maxDistanceKm, setMaxDistanceKm] = useState(SEEKER_DEFAULT.maxDistanceKm)
-  const [jobTypes, setJobTypes] = useState<JobType[]>(SEEKER_DEFAULT.jobTypes)
+  // Tiêu chí chỉnh tại chỗ, khởi tạo từ hồ sơ (profileStore); không ghi ngược lên hồ sơ
+  const base = useSeekerCriteria()
+  const [salaryMinK, setSalaryMinK] = useState(base.salaryMinK)
+  const [maxDistanceKm, setMaxDistanceKm] = useState(base.maxDistanceKm)
+  const [jobTypes, setJobTypes] = useState<JobType[]>(base.jobTypes)
   const [priority, setPriority] = useState<CriterionKey[]>(DEFAULT_PRIORITY)
   const [announce, setAnnounce] = useState('')
   const [panelOpen, setPanelOpen] = useState(false)
@@ -86,9 +88,9 @@ export default function JobseekerMatch() {
   // Chấm điểm lại mỗi khi tiêu chí hoặc thứ tự ưu tiên đổi
   const allJobs = useAllJobs()
   const scored = useMemo(() => {
-    const seeker = { ...SEEKER_DEFAULT, salaryMinK, maxDistanceKm, jobTypes }
+    const seeker = { ...base, salaryMinK, maxDistanceKm, jobTypes }
     return allJobs.map((job) => ({ job, outcome: scoreMatch(seeker, job, job.distanceKm, priority) }))
-  }, [allJobs, salaryMinK, maxDistanceKm, jobTypes, priority])
+  }, [allJobs, base, salaryMinK, maxDistanceKm, jobTypes, priority])
 
   const lists = useMemo(() => {
     const by = (a: { job: MatchJob; outcome: MatchOutcome }, b: { job: MatchJob; outcome: MatchOutcome }) => {
@@ -350,7 +352,7 @@ export default function JobseekerMatch() {
         <div>
           <h3 className="text-sm font-medium text-page-fg">Kỹ năng</h3>
           <ul className="mt-2 flex flex-wrap gap-1.5">
-            {SEEKER_DEFAULT.skills.map((s) => (
+            {base.skills.map((s) => (
               <li key={s} className="rounded-full border border-page-line px-3 py-1 text-xs text-page-muted">
                 {s}
               </li>
@@ -360,11 +362,11 @@ export default function JobseekerMatch() {
 
         <div>
           <h3 className="text-sm font-medium text-page-fg">
-            Lịch rảnh <span className="font-normal text-page-muted">· {SEEKER_DEFAULT.slots.length} ca/tuần</span>
+            Lịch rảnh <span className="font-normal text-page-muted">· {base.slots.length} ca/tuần</span>
           </h3>
           {/* Lưới chỉ xem: hàng = buổi, cột = ngày; ô đặc = rảnh */}
           <div className="mt-2 grid grid-cols-[auto_repeat(7,1fr)] items-center gap-1 text-[11px] text-page-muted" role="img"
-            aria-label={`Lịch rảnh ${SEEKER_DEFAULT.slots.length} ca mỗi tuần`}>
+            aria-label={`Lịch rảnh ${base.slots.length} ca mỗi tuần`}>
             <span />
             {DAY_SHORT.map((d) => (
               <span key={d} className="text-center">{d}</span>
@@ -375,7 +377,7 @@ export default function JobseekerMatch() {
                 {DAY_SHORT.map((d, di) => (
                   <span
                     key={d}
-                    className={cn('h-4 rounded-md border', SEEKER_DEFAULT.slots.includes(`${di}-${si}`) ? 'border-page-fg bg-page-fg' : 'border-page-line')}
+                    className={cn('h-4 rounded-md border', base.slots.includes(`${di}-${si}`) ? 'border-page-fg bg-page-fg' : 'border-page-line')}
                   />
                 ))}
               </div>
@@ -477,7 +479,7 @@ export default function JobseekerMatch() {
       const improved = missing.length
         ? Math.round(
             scoreMatch(
-              { ...SEEKER_DEFAULT, salaryMinK, maxDistanceKm, jobTypes, skills: [...SEEKER_DEFAULT.skills, ...missing] },
+              { ...base, salaryMinK, maxDistanceKm, jobTypes, skills: [...base.skills, ...missing] },
               job,
               job.distanceKm,
               priority,

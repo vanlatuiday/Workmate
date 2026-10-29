@@ -9,7 +9,7 @@ import { persist } from 'zustand/middleware'
 /** Phía bày tỏ quan tâm */
 export type Side = 'seeker' | 'recruiter'
 
-/** Người tìm việc của tài khoản demo admin1 (hồ sơ PROFILE_DEFAULT) */
+/** Người tìm việc của tài khoản demo admin1 (hồ sơ ở profileStore, khởi tạo từ PROFILE_DEFAULT) */
 export const ME = 'me'
 
 export interface Interest {

@@ -4,7 +4,8 @@ import { JOB_TYPES } from '@constants/index'
 import { MockNotice, PageHeader, Panel } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import type { JobType } from '@/types'
-import { AVAILABILITY_DEFAULT, DAY_SHORT, PROFILE_DEFAULT, SESSIONS } from './mockData'
+import { useProfileStore } from '@context/profileStore'
+import { DAY_SHORT, SESSIONS } from './mockData'
 import { FOCUS } from '@utils/focus'
 
 const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
@@ -30,16 +31,19 @@ function Field({ label, value, onChange, type = 'text', inputMode, min }: {
 }
 
 export default function Profile() {
-  const [fullName, setFullName] = useState(PROFILE_DEFAULT.fullName)
-  const [phone, setPhone] = useState(PROFILE_DEFAULT.phone)
-  const [area, setArea] = useState(PROFILE_DEFAULT.area)
-  const [jobTypes, setJobTypes] = useState<JobType[]>(PROFILE_DEFAULT.jobTypes)
-  const [salaryMin, setSalaryMin] = useState(String(PROFILE_DEFAULT.salaryMin))
-  const [maxKm, setMaxKm] = useState(String(PROFILE_DEFAULT.maxDistanceKm))
-  const [slots, setSlots] = useState<Set<string>>(new Set(AVAILABILITY_DEFAULT))
-  const [skills, setSkills] = useState(PROFILE_DEFAULT.skills)
+  // Form lưu tường minh: state cục bộ khởi tạo từ profileStore, bấm "Lưu hồ sơ" mới ghi vào store
+  const P = useProfileStore.getState().profile
+  const update = useProfileStore((s) => s.update)
+  const [fullName, setFullName] = useState(P.fullName)
+  const [phone, setPhone] = useState(P.phone)
+  const [area, setArea] = useState(P.area)
+  const [jobTypes, setJobTypes] = useState<JobType[]>(P.jobTypes)
+  const [salaryMin, setSalaryMin] = useState(String(P.salaryMin))
+  const [maxKm, setMaxKm] = useState(String(P.maxDistanceKm))
+  const [slots, setSlots] = useState<Set<string>>(new Set(P.availability))
+  const [skills, setSkills] = useState(P.skills)
   const [newSkill, setNewSkill] = useState('')
-  const [experience, setExperience] = useState(PROFILE_DEFAULT.experience)
+  const [experience, setExperience] = useState(P.experience)
   const [saved, setSaved] = useState(false)
   const [skillDup, setSkillDup] = useState(false)
   const skillId = useId()
@@ -91,6 +95,17 @@ export default function Profile() {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
+    update({
+      fullName: fullName.trim(),
+      phone: phone.trim(),
+      area: area.trim(),
+      jobTypes,
+      salaryMin: Math.max(0, Number(salaryMin) || 0),
+      maxDistanceKm: Math.max(0, Number(maxKm) || 0),
+      availability: [...slots],
+      skills,
+      experience,
+    })
     setSaved(true)
   }
 
@@ -286,7 +301,7 @@ export default function Profile() {
         <button type="submit" className={`rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`}>
           Lưu hồ sơ
         </button>
-        <p role="status" className="text-sm text-page-muted">{saved ? 'Đã lưu (bản demo)' : ''}</p>
+        <p role="status" className="text-sm text-page-muted">{saved ? 'Đã lưu trên trình duyệt này' : ''}</p>
       </div>
       <div className="mt-4"><MockNotice /></div>
     </form>

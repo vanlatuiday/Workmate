@@ -9,7 +9,7 @@ import { AboutChapter, AvailabilityChapter, ExperienceChapter, SkillsChapter, Wa
 import { useProfileDraft } from './profile/useProfileDraft'
 
 /**
- * Hồ sơ người tìm việc — chỉ state trong trang, chưa lưu.
+ * Hồ sơ người tìm việc — sửa là lưu ngay vào profileStore (localStorage), điểm phù hợp ở mọi trang cập nhật theo.
  * Desktop: lưới bento 12×6 vừa một màn hình, nền than chì, khối sáng. Bấm "Sửa" thì khối phóng ra phủ
  * cả lưới (xem ChapterShell). Mobile: xếp dọc, cuộn bình thường.
  */

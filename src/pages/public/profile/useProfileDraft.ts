@@ -1,45 +1,13 @@
-import { useCallback, useMemo, useState } from 'react'
-import { AVAILABILITY_DEFAULT, PROFILE_DEFAULT } from '@pages/jobseeker/mockData'
+import { useCallback, useMemo } from 'react'
+import { useProfileStore, type ExperienceItem, type SeekerProfile } from '@context/profileStore'
 import type { JobType } from '@/types'
 
-export type ExperienceItem = { id: string; title: string; company: string; period: string }
+export type { ExperienceItem }
 
-/** Bản nháp hồ sơ — chỉ nằm trong state của trang, tải lại là mất (chưa nối API). */
-export type ProfileDraft = {
-  fullName: string
-  /** 1–2 câu giới thiệu (mẫu) */
-  intro: string
-  /** Đoạn giới thiệu dài hơn (mẫu) */
-  about: string
+/** Hồ sơ đang chỉnh — đọc/ghi thẳng vào profileStore (lưu ngay, giữ qua lần tải lại; ảnh đại diện chỉ giữ trong phiên). */
+export type ProfileDraft = SeekerProfile & {
   /** Object URL của ảnh đại diện vừa tải lên */
   avatarUrl: string | null
-  showAvatar: boolean
-  published: boolean
-  area: string
-  jobTypes: JobType[]
-  salaryMin: number
-  maxDistanceKm: number
-  skills: string[]
-  experience: ExperienceItem[]
-  /** Khóa `${chỉ số ngày}-${chỉ số buổi}` của các ô rảnh */
-  availability: string[]
-}
-
-const INITIAL: ProfileDraft = {
-  fullName: PROFILE_DEFAULT.fullName,
-  intro: 'Sinh viên năm cuối ở Đà Nẵng, quen làm ca tối và cuối tuần. Thích việc cần giao tiếp và làm việc nhóm.',
-  about:
-    'Mình đã làm phục vụ quán cà phê và cộng tác viên sự kiện hơn hai năm. Mình đúng giờ, học nhanh, không ngại việc nặng vào cuối tuần. Mình muốn tìm công việc gần nhà để có thể làm đều đặn.',
-  avatarUrl: null,
-  showAvatar: true,
-  published: false,
-  area: PROFILE_DEFAULT.area,
-  jobTypes: [...PROFILE_DEFAULT.jobTypes],
-  salaryMin: PROFILE_DEFAULT.salaryMin,
-  maxDistanceKm: PROFILE_DEFAULT.maxDistanceKm,
-  skills: [...PROFILE_DEFAULT.skills],
-  experience: PROFILE_DEFAULT.experience.map((e) => ({ ...e })),
-  availability: [...AVAILABILITY_DEFAULT],
 }
 
 /** Các mục tính vào mức hoàn thiện: nhãn + điều kiện đã điền */
@@ -64,58 +32,53 @@ export function completeness(p: ProfileDraft): number {
 }
 
 export function useProfileDraft() {
-  const [profile, setProfile] = useState<ProfileDraft>(INITIAL)
+  const stored = useProfileStore((s) => s.profile)
+  const avatarUrl = useProfileStore((s) => s.avatarUrl)
+  const update = useProfileStore((s) => s.update)
+  const setAvatarFile = useProfileStore((s) => s.setAvatarFile)
+  const profile = useMemo<ProfileDraft>(() => ({ ...stored, avatarUrl }), [stored, avatarUrl])
+
+  // Các thao tác đọc hồ sơ mới nhất từ store lúc gọi, nên callback không đổi giữa các lần render
+  const cur = () => useProfileStore.getState().profile
 
   const set = useCallback(<K extends keyof ProfileDraft>(key: K, value: ProfileDraft[K]) => {
-    setProfile((p) => ({ ...p, [key]: value }))
-  }, [])
+    if (key === 'avatarUrl') return // ảnh đổi qua setAvatarFile
+    update({ [key]: value } as Partial<SeekerProfile>)
+  }, [update])
 
   const toggleCell = useCallback((key: string) => {
-    setProfile((p) => ({
-      ...p,
-      availability: p.availability.includes(key) ? p.availability.filter((k) => k !== key) : [...p.availability, key],
-    }))
-  }, [])
+    const a = cur().availability
+    update({ availability: a.includes(key) ? a.filter((k) => k !== key) : [...a, key] })
+  }, [update])
 
   const toggleJobType = useCallback((t: JobType) => {
-    setProfile((p) => ({
-      ...p,
-      jobTypes: p.jobTypes.includes(t) ? p.jobTypes.filter((x) => x !== t) : [...p.jobTypes, t],
-    }))
-  }, [])
+    const j = cur().jobTypes
+    update({ jobTypes: j.includes(t) ? j.filter((x) => x !== t) : [...j, t] })
+  }, [update])
 
   const addSkill = useCallback((s: string) => {
     const v = s.trim()
     if (!v) return
-    setProfile((p) => (p.skills.some((x) => x.toLowerCase() === v.toLowerCase()) ? p : { ...p, skills: [...p.skills, v] }))
-  }, [])
+    const skills = cur().skills
+    if (skills.some((x) => x.toLowerCase() === v.toLowerCase())) return
+    update({ skills: [...skills, v] })
+  }, [update])
 
   const removeSkill = useCallback((s: string) => {
-    setProfile((p) => ({ ...p, skills: p.skills.filter((x) => x !== s) }))
-  }, [])
+    update({ skills: cur().skills.filter((x) => x !== s) })
+  }, [update])
 
   const addExperience = useCallback(() => {
-    setProfile((p) => ({
-      ...p,
-      experience: [...p.experience, { id: `kn-${Date.now()}`, title: '', company: '', period: '' }],
-    }))
-  }, [])
+    update({ experience: [...cur().experience, { id: `kn-${Date.now()}`, title: '', company: '', period: '' }] })
+  }, [update])
 
   const updateExperience = useCallback((id: string, patch: Partial<ExperienceItem>) => {
-    setProfile((p) => ({ ...p, experience: p.experience.map((e) => (e.id === id ? { ...e, ...patch } : e)) }))
-  }, [])
+    update({ experience: cur().experience.map((e) => (e.id === id ? { ...e, ...patch } : e)) })
+  }, [update])
 
   const removeExperience = useCallback((id: string) => {
-    setProfile((p) => ({ ...p, experience: p.experience.filter((e) => e.id !== id) }))
-  }, [])
-
-  /** Đổi ảnh: thu hồi object URL cũ để khỏi rò bộ nhớ */
-  const setAvatarFile = useCallback((file: File) => {
-    setProfile((p) => {
-      if (p.avatarUrl) URL.revokeObjectURL(p.avatarUrl)
-      return { ...p, avatarUrl: URL.createObjectURL(file) }
-    })
-  }, [])
+    update({ experience: cur().experience.filter((e) => e.id !== id) })
+  }, [update])
 
   const percent = useMemo(() => completeness(profile), [profile])
   const missing = useMemo(() => checklist(profile).filter((i) => !i.done).map((i) => i.label), [profile])

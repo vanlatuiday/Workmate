@@ -4,6 +4,7 @@
 // Ca làm là khóa `${ngày 0–6}-${buổi 0–2}` (T2…CN × Sáng/Chiều/Tối); lương quy ra nghìn đồng/giờ.
 import { COMPANIES, type DiscoverCompany } from '@pages/public/jobs/data'
 import { AVAILABILITY_DEFAULT, PROFILE_DEFAULT } from '@pages/jobseeker/mockData'
+import { getSeekerCriteria, useProfileStore } from '@context/profileStore'
 import { MOCK_JOBS, type MockJob } from '@pages/recruiter/mockData'
 import type { Photo } from '@components/discover/types'
 import { COMPANY } from '@pages/public/personal/companyData'
@@ -19,7 +20,7 @@ const WEEKDAYS = [0, 1, 2, 3, 4]
 
 // ─── Phía người tìm việc ────────────────────────────────────────────────────
 
-/** Tiêu chí mặc định lấy từ hồ sơ mẫu */
+/** Tiêu chí cố định từ hồ sơ mẫu — dành cho khách (GuestMatch). Người tìm việc đã đăng nhập dùng hồ sơ thật ở profileStore. */
 export const SEEKER_DEFAULT: SeekerCriteria = {
   skills: PROFILE_DEFAULT.skills,
   slots: AVAILABILITY_DEFAULT,
@@ -231,16 +232,24 @@ export const CANDIDATES: MatchCandidate[] = [
     ['Thu ngân'], ['0-0', '1-1', '2-2', '3-0', '4-1', '5-2'], 34, ['full-time', 'shift'], { id: '1435527173128-983b87201f4d', alt: 'Cuốn sổ lịch mở trên bàn làm việc' }),
 ]
 
-/** Người tìm việc demo (admin1) — hiện trong danh sách ứng viên của mọi vị trí */
+/** Tên viết tắt, vd. "Nguyễn Minh Anh" -> "Nguyễn M. A." */
+const abbrevName = (full: string) => {
+  const parts = full.trim().split(/\s+/).filter(Boolean)
+  if (parts.length < 2) return parts[0] ?? ''
+  return [parts[0], ...parts.slice(1).map((w) => `${w[0].toUpperCase()}.`)].join(' ')
+}
+
+/** Người tìm việc demo (admin1) — hiện trong danh sách ứng viên của mọi vị trí.
+ * name / area / criteria là getter: đọc hồ sơ mới nhất từ profileStore mỗi lần truy cập */
 export const ME_CANDIDATE: MatchCandidate = {
   id: ME,
   positionId: '*',
-  name: 'Nguyễn M. A.',
-  area: 'Hải Châu',
+  get name() { return abbrevName(useProfileStore.getState().profile.fullName) },
+  get area() { return useProfileStore.getState().profile.area.split(',')[0].trim() },
   distanceKm: 1.8,
   summary: 'Phục vụ, sự kiện · 2 năm',
   availability: ready('01/12'),
-  criteria: SEEKER_DEFAULT,
+  get criteria() { return getSeekerCriteria() },
   photo: { id: '1517248135467-4c7edcad34c4', alt: 'Phòng ăn nhà hàng với bàn gỗ và đèn vàng' },
 }
 

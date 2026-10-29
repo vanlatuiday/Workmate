@@ -16,7 +16,7 @@ export const RECENT_APPLICATIONS: MockApplication[] = [
   { id: 'dt-3', jobId: 'vl-102', title: 'Pha chế quán cà phê', company: 'Quán Gió Sông Hàn', status: 'viewed', appliedAt: '17/10/2026' },
 ]
 
-/** Hồ sơ mẫu để điền sẵn form */
+/** Hồ sơ mẫu ban đầu — chỉ là hạt giống cho `context/profileStore` (nguồn thật của hồ sơ, lưu localStorage) */
 export const PROFILE_DEFAULT = {
   fullName: 'Nguyễn Minh Anh',
   phone: '0905 123 456',
@@ -33,5 +33,5 @@ export const PROFILE_DEFAULT = {
 
 export const DAY_SHORT = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'] as const
 export const SESSIONS = ['Sáng', 'Chiều', 'Tối'] as const
-/** Lịch rảnh mẫu: khóa `${chỉ số ngày}-${chỉ số buổi}` được bật */
+/** Lịch rảnh mẫu (hạt giống của profileStore): khóa `${chỉ số ngày}-${chỉ số buổi}` được bật */
 export const AVAILABILITY_DEFAULT = ['0-2', '1-2', '2-2', '3-2', '4-2', '5-0', '5-1', '6-0', '6-1']

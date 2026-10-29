@@ -3,8 +3,9 @@
 // Đứng riêng để tránh vòng import giữa `jobs/data.ts` và `match/data.ts`.
 import type { JobType } from '@/types'
 import { COMPANIES, type DiscoverCompany } from './data'
-import { companyOf, DEMO_COMPANY, SEEKER_DEFAULT, type MatchJob } from '@pages/public/match/data'
+import { companyOf, DEMO_COMPANY, type MatchJob } from '@pages/public/match/data'
 import { getVisibleJobs, useVisibleJobs } from '@services/adminService'
+import { getSeekerCriteria } from '@context/profileStore'
 import { scoreMatch, type MatchOutcome } from '@pages/public/match/score'
 
 export type { MatchJob }
@@ -24,7 +25,7 @@ export function jobsOfCompany(companyId: string): MatchJob[] {
 
 /** Điểm phù hợp của một việc với hồ sơ người tìm việc demo — cách tính duy nhất (score.ts, 5 tiêu chí) */
 export function seekerOutcome(job: MatchJob): MatchOutcome {
-  return scoreMatch(SEEKER_DEFAULT, job, job.distanceKm)
+  return scoreMatch(getSeekerCriteria(), job, job.distanceKm)
 }
 
 /** Việc hợp nhất của một công ty (để hiện "Độ phù hợp với bạn") */
@@ -44,7 +45,7 @@ export interface JobFilters {
   type: JobType | ''
   /** Lương tối thiểu, nghìn đồng/giờ (0 = không lọc) */
   minSalaryK: number
-  /** Chỉ việc trong bán kính hồ sơ (SEEKER_DEFAULT.maxDistanceKm) */
+  /** Chỉ việc trong bán kính hồ sơ (hồ sơ: maxDistanceKm) */
   nearMe: boolean
 }
 
@@ -105,7 +106,7 @@ export function jobMatches(job: MatchJob, f: JobFilters): boolean {
   if (f.district && job.district !== f.district) return false
   if (f.type && job.jobType !== f.type) return false
   if (f.minSalaryK && job.salaryMaxK < f.minSalaryK) return false
-  if (f.nearMe && job.distanceKm > SEEKER_DEFAULT.maxDistanceKm) return false
+  if (f.nearMe && job.distanceKm > getSeekerCriteria().maxDistanceKm) return false
   if (f.q) {
     const c = companyOf(job.companyId)
     if (!textMatches(f.q, [job.title, c.name, c.industry, job.district, ...job.skills].join(' '))) return false
