@@ -4,7 +4,7 @@ import { Bookmark, MapPin } from 'lucide-react'
 import { EmptyState, MatchScore, MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
 import { expressInterest, ME, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
-import { ALL_JOBS, seekerOutcome } from '@pages/public/jobs/catalog'
+import { useAllJobs, seekerOutcome } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -32,7 +32,8 @@ export default function SavedJobs() {
   })
 
   // Giữ thứ tự lưu, bỏ id không còn trong danh mục
-  const jobs = savedJobs.flatMap((id) => ALL_JOBS.find((j) => j.id === id) ?? [])
+  const allJobs = useAllJobs()
+  const jobs = savedJobs.flatMap((id) => allJobs.find((j) => j.id === id) ?? [])
 
   return (
     <div>

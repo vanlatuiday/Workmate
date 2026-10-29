@@ -3,17 +3,23 @@
 // Đứng riêng để tránh vòng import giữa `jobs/data.ts` và `match/data.ts`.
 import type { JobType } from '@/types'
 import { COMPANIES, type DiscoverCompany } from './data'
-import { companyOf, SEEKER_DEFAULT, SEEKER_JOBS, type MatchJob } from '@pages/public/match/data'
+import { companyOf, DEMO_COMPANY, SEEKER_DEFAULT, type MatchJob } from '@pages/public/match/data'
+import { getVisibleJobs, useVisibleJobs } from '@services/adminService'
 import { scoreMatch, type MatchOutcome } from '@pages/public/match/score'
 
 export type { MatchJob }
 
-/** Mọi việc người tìm việc thấy được: việc của công ty mẫu + tin của doanh nghiệp demo */
-export const ALL_JOBS: MatchJob[] = SEEKER_JOBS
+/**
+ * Mọi việc người tìm việc thấy được (đọc tức thời): việc của công ty mẫu + tin của doanh nghiệp demo
+ * + tin mới đã được duyệt; bỏ tin bị ẩn/từ chối/chờ duyệt và tin của công ty bị khóa (adminService).
+ * Trong component dùng `useAllJobs()` để tự cập nhật khi quản trị viên thay đổi.
+ */
+export const getAllJobs = (): MatchJob[] => getVisibleJobs()
+export const useAllJobs = (): MatchJob[] => useVisibleJobs()
 
 /** Việc đang tuyển của một công ty (theo id công ty) */
 export function jobsOfCompany(companyId: string): MatchJob[] {
-  return ALL_JOBS.filter((j) => j.companyId === companyId)
+  return getAllJobs().filter((j) => j.companyId === companyId)
 }
 
 /** Điểm phù hợp của một việc với hồ sơ người tìm việc demo — cách tính duy nhất (score.ts, 5 tiêu chí) */
@@ -45,7 +51,7 @@ export interface JobFilters {
 export const EMPTY_FILTERS: JobFilters = { q: '', district: '', type: '', minSalaryK: 0, nearMe: false }
 
 /** Các quận có việc — cho ô chọn quận */
-export const DISTRICTS = [...new Set(ALL_JOBS.map((j) => j.district))].sort((a, b) => a.localeCompare(b, 'vi'))
+export const DISTRICTS = [...new Set(getAllJobs().map((j) => j.district))].sort((a, b) => a.localeCompare(b, 'vi'))
 
 /** Đọc bộ lọc từ query. Nhận cả tên tham số cũ của ô tìm kiếm trang chủ / footer (keyword, city, type, nearMe). */
 export function filtersFromParams(p: URLSearchParams): JobFilters {
@@ -108,8 +114,12 @@ export function jobMatches(job: MatchJob, f: JobFilters): boolean {
 }
 
 /** Công ty (trong COMPANIES + công ty demo) có ít nhất một việc khớp, kèm các việc khớp */
-export function companiesMatching(f: JobFilters, companies: DiscoverCompany[] = COMPANIES): { company: DiscoverCompany; jobs: MatchJob[] }[] {
-  return companies
-    .map((company) => ({ company, jobs: jobsOfCompany(company.id).filter((j) => jobMatches(j, f)) }))
-    .filter((x) => !hasFilters(f) || x.jobs.length > 0)
+export function companiesMatching(f: JobFilters, companies?: DiscoverCompany[]): { company: DiscoverCompany; jobs: MatchJob[] }[] {
+  // Mặc định: công ty mẫu + công ty demo (có tin mới đã duyệt). Công ty bị khóa / không còn tin nào
+  // đang hiện thì bỏ khỏi danh sách.
+  const list = companies ?? [...COMPANIES, companyOf(DEMO_COMPANY.id)]
+  return list
+    .map((company) => ({ company, all: jobsOfCompany(company.id), jobs: jobsOfCompany(company.id).filter((j) => jobMatches(j, f)) }))
+    .filter((x) => x.all.length > 0 && (!hasFilters(f) || x.jobs.length > 0))
+    .map(({ company, jobs }) => ({ company, jobs }))
 }

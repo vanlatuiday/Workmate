@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { Plus, Search, Pause, Play, Pencil, Users, Eye, Handshake, FileText } from 'lucide-react'
 import { PageHeader, Panel, StatusBadge, EmptyState, MockNotice } from '@components/dashboard'
 import { cn } from '@utils/cn'
+import { useAdmin } from '@services/adminService'
+import { formatRelativeTime } from '@utils/format'
 import { MOCK_JOBS, JOB_STATUS_LABELS, type JobStatus, type MockJob } from './mockData'
 import { FOCUS } from '@utils/focus'
 
@@ -12,7 +14,19 @@ const BTN_SECONDARY = `inline-flex items-center gap-1.5 whitespace-nowrap rounde
 const STATUS_TONE = { open: 'strong', paused: 'default', closed: 'muted', draft: 'muted' } as const
 const TABS: ('all' | JobStatus)[] = ['all', 'open', 'paused', 'closed', 'draft']
 
+/** Nhãn trạng thái kiểm duyệt của tin vừa đăng (bị từ chối / ẩn kèm lý do) */
+function moderationLabel(status: string, reason?: string) {
+  if (status === 'approved') return 'Đang hiện'
+  if (status === 'rejected') return `Bị từ chối${reason ? ` — ${reason}` : ''}`
+  if (status === 'hidden') return `Bị ẩn${reason ? ` — ${reason}` : ''}`
+  return 'Chờ duyệt'
+}
+
 export default function JobListings() {
+  // Tin vừa đăng ở /dang-tin của công ty demo, kèm trạng thái kiểm duyệt
+  const posted = useAdmin((s) => s.posted)
+  const moderation = useAdmin((s) => s.moderation)
+  const justPosted = posted.filter((p) => p.companyId === 'song-han').sort((a, b) => b.postedAt.localeCompare(a.postedAt))
   // Dữ liệu mẫu — thay bằng API. Tạm dừng/Mở lại chỉ đổi state cục bộ.
   const [jobs, setJobs] = useState<MockJob[]>(MOCK_JOBS)
   const [tab, setTab] = useState<'all' | JobStatus>('all')
@@ -81,6 +95,28 @@ export default function JobListings() {
         }
       />
       <MockNotice />
+
+      {justPosted.length > 0 && (
+        <Panel title="Tin vừa đăng">
+          <ul className="divide-y divide-page-line">
+            {justPosted.map((p) => {
+              const m = moderation[p.id]
+              const status = m?.status ?? 'pending'
+              return (
+                <li key={p.id} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="font-medium text-page-fg">{p.title}</p>
+                    <p className="mt-0.5 text-xs text-page-muted">{p.district} · {p.salaryLabel} · {formatRelativeTime(p.postedAt)}</p>
+                  </div>
+                  <StatusBadge tone={status === 'approved' ? 'strong' : status === 'pending' ? 'muted' : 'default'}>
+                    {moderationLabel(status, m?.reason)}
+                  </StatusBadge>
+                </li>
+              )
+            })}
+          </ul>
+        </Panel>
+      )}
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div role="group" aria-label="Lọc theo trạng thái" className="flex flex-wrap gap-2">

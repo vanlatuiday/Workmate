@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useAdmin } from '@services/adminService'
 import { Link } from 'react-router-dom'
 import { SearchX } from 'lucide-react'
 import EmptyState from '@components/dashboard/EmptyState'
@@ -17,6 +18,9 @@ type Item = GalleryItem & { company: DiscoverCompany; jobs: MatchJob[] }
 /** Khách: khám phá nơi làm việc — nhấn vào lý do đáng xem, mời đăng ký khi muốn ứng tuyển. */
 export default function GuestJobs() {
   const { filters, setFilters } = useJobFilters()
+  // Quản trị viên duyệt/ẩn tin hoặc khóa công ty → tính lại danh sách
+  const moderation = useAdmin((s) => s.moderation)
+  const locked = useAdmin((s) => s.lockedCompanies)
   const filtered = hasFilters(filters)
   // Chỉ giữ công ty có việc khớp; đổi danh sách thì remount bộ sưu tập cho sạch
   const items = useMemo<Item[]>(
@@ -31,7 +35,8 @@ export default function GuestJobs() {
         company: c,
         jobs,
       })),
-    [filters],
+    // moderation/locked chỉ để kích tính lại
+    [filters, moderation, locked],
   )
   const jobCount = items.reduce((n, x) => n + x.jobs.length, 0)
 

@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import toast from 'react-hot-toast'
 import { X } from 'lucide-react'
 import TextReveal from '@components/motion/TextReveal'
 import { usePageEnterDelay } from '@components/motion/PageTransition'
 import { useCurtainNavigate } from '@components/motion/PageCurtain'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
+import { submitJob, useAdmin } from '@services/adminService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import type { JobType } from '@/types'
@@ -43,7 +45,7 @@ function scheduleText(slots: string[]) {
   }).filter(Boolean).join(', ')
 }
 
-/** /dang-tin — NTD soạn tin, xem trước và số ứng viên phù hợp theo thời gian thực (dữ liệu mẫu, không lưu). */
+/** /dang-tin — NTD soạn tin, xem trước và số ứng viên phù hợp theo thời gian thực (dữ liệu mẫu; tin gửi đi chờ quản trị viên duyệt). */
 export default function PostJobPage() {
   const delay = usePageEnterDelay()
   const curtainTo = useCurtainNavigate()
@@ -56,7 +58,8 @@ export default function PostJobPage() {
   const [slots, setSlots] = useState<string[]>([])
   const [skills, setSkills] = useState<string[]>([])
   const [custom, setCustom] = useState('')
-  const [radius, setRadius] = useState(8)
+  // Bán kính mặc định lấy từ Cấu hình hệ thống
+  const [radius, setRadius] = useState(() => useAdmin.getState().config.defaultRadiusKm)
   const [desc, setDesc] = useState('')
   const [photoIndex, setPhotoIndex] = useState(0)
   const [posted, setPosted] = useState(false)
@@ -98,6 +101,13 @@ export default function PostJobPage() {
       req,
       radiusKm: radius,
     }
+    // Gửi vào hàng chờ duyệt của quản trị viên; tin chỉ hiện công khai sau khi được duyệt
+    submitJob({
+      companyId: 'song-han', title: title.trim(), district, distanceKm: 1.5, salaryLabel, shiftLabel: scheduleText(slots),
+      skills, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: req.jobType, photo: PHOTOS[photoIndex],
+      description: desc.trim(), quantity: headcount, radiusKm: radius,
+    })
+    toast.success('Tin đã gửi, chờ quản trị viên duyệt')
     setPosted(true)
     timer.current = window.setTimeout(() => curtainTo('/match', title.trim(), { draftPosition: draft }), 600)
   }
@@ -226,7 +236,7 @@ export default function PostJobPage() {
               Đăng tin
             </button>
             <p className="mt-3 text-sm text-page-muted" aria-live="polite">
-              {ready ? 'Sẵn sàng. Tin chỉ để xem thử, chưa được lưu.' : `Còn thiếu: ${missing.join(', ')}.`}
+              {ready ? 'Sẵn sàng. Tin sẽ được gửi cho quản trị viên duyệt trước khi hiện công khai.' : `Còn thiếu: ${missing.join(', ')}.`}
             </p>
           </div>
         </form>

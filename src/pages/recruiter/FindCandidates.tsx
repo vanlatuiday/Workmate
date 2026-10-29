@@ -6,6 +6,7 @@ import { candidateKey, useMatchStore } from '@context/matchStore'
 import { CANDIDATES, ME_CANDIDATE, POSITIONS, type MatchCandidate } from '@pages/public/match/data'
 import { scoreMatch } from '@pages/public/match/score'
 import { expressInterest, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
+import { useAdmin } from '@services/adminService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 
@@ -156,6 +157,8 @@ export default function FindCandidates() {
   const [skills, setSkills] = useState<string[]>([])
   const [sessions, setSessions] = useState<number[]>([])
   const [salaryCap, setSalaryCap] = useState(0)
+  // Ứng viên bị quản trị viên khóa không hiện cho doanh nghiệp
+  const lockedSeekers = useAdmin((s) => s.lockedSeekers)
 
   useOnNewConnection((c) => {
     const cand = ALL_CANDIDATES.find((x) => x.id === c.seekerId)
@@ -166,13 +169,14 @@ export default function FindCandidates() {
     const nq = norm(q)
     return ALL_CANDIDATES.filter(
       (c) =>
+        !lockedSeekers[c.id] &&
         (!nq || norm(c.name).includes(nq) || c.criteria.skills.some((s) => norm(s).includes(nq))) &&
         (!area || c.area === area) &&
         skills.every((s) => c.criteria.skills.includes(s)) &&
         sessions.every((s) => freeIn(c, s)) &&
         (!salaryCap || c.criteria.salaryMinK <= salaryCap),
     )
-  }, [q, area, skills, sessions, salaryCap])
+  }, [q, area, skills, sessions, salaryCap, lockedSeekers])
 
   const toggle = <T,>(arr: T[], v: T) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v])
   const hasFilter = !!(q || area || skills.length || sessions.length || salaryCap)

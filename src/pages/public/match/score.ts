@@ -2,6 +2,7 @@
 // Mỗi tiêu chí chấm 0–1, nhân trọng số rồi cộng lại thành phần trăm.
 // Đổi thứ tự ưu tiên = gán lại trọng số theo hạng (RANK_WEIGHTS) rồi tính lại.
 import type { JobType } from '@/types'
+import { useAdminStore } from '@context/adminStore'
 
 export type CriterionKey = 'skills' | 'schedule' | 'salary' | 'distance' | 'jobType'
 
@@ -71,13 +72,14 @@ const norm = (s: string) => s.trim().toLowerCase()
 /**
  * Chấm một cặp người tìm việc – vị trí.
  * `distanceKm` là khoảng cách từ nơi ở tới chỗ làm (dữ liệu mẫu cho sẵn).
- * `priority` chỉ người tìm việc chỉnh được; phía doanh nghiệp dùng mặc định.
+ * `priority` chỉ người tìm việc chỉnh được; bỏ trống thì dùng trọng số mặc định do quản trị viên đặt.
  */
 export function scoreMatch(
   seeker: SeekerCriteria,
   job: JobRequirement,
   distanceKm: number,
-  priority: CriterionKey[] = DEFAULT_PRIORITY,
+  /** Thứ tự ưu tiên riêng của người dùng; bỏ trống → trọng số mặc định trong Cấu hình hệ thống (quản trị) */
+  priority?: CriterionKey[],
 ): MatchOutcome {
   const have = new Set(seeker.skills.map(norm))
   const missingSkills = job.skills.filter((s) => !have.has(norm(s)))
@@ -119,7 +121,7 @@ export function scoreMatch(
     { key: 'jobType', value: jobTypeOk ? 1 : 0, ok: jobTypeOk, note: jobTypeOk ? 'Loại việc' : 'Khác loại việc' },
   ]
 
-  const w = weightsOf(priority)
+  const w = priority ? weightsOf(priority) : useAdminStore.getState().config.weights
   const score = Math.round(results.reduce((sum, r) => sum + r.value * w[r.key], 0))
   return { score, results, missingSkills }
 }

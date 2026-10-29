@@ -1,6 +1,7 @@
 import { COMPANY_PUBLIC_HREF, SEEKER_PUBLIC_HREF } from '@pages/public/personal/links'
 import type { Side } from '@services/connectionService'
-import { candidatesOf, companyOf, POSITIONS, SEEKER_JOBS } from '../match/data'
+import { candidatesOf, companyOf, POSITIONS } from '../match/data'
+import { findAnyJob } from '../jobs/lookup'
 
 export interface ConversationInfo {
   name: string
@@ -20,7 +21,7 @@ const initialsOf = (name: string) =>
  */
 export function describeConversation(viewer: Side, jobId: string, seekerId: string): ConversationInfo {
   if (viewer === 'seeker') {
-    const job = SEEKER_JOBS.find((j) => j.id === jobId)
+    const job = findAnyJob(jobId)
     const name = job ? companyOf(job.companyId).name : 'Doanh nghiệp'
     return { name, subtitle: job?.title ?? 'Vị trí đã đóng', initials: initialsOf(name), profileHref: COMPANY_PUBLIC_HREF, profileLabel: 'Xem công ty' }
   }

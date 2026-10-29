@@ -11,6 +11,7 @@ import { ME } from '@services/connectionService'
 import type { JobType } from '@/types'
 import type { JobRequirement, SeekerCriteria } from './score'
 import { useCompanyStore } from '@context/companyStore'
+import { useAdminStore } from '@context/adminStore'
 
 /** Tạo danh sách khóa ca từ các ngày và buổi */
 const slots = (days: number[], sessions: number[]) => days.flatMap((d) => sessions.map((s) => `${d}-${s}`))
@@ -244,7 +245,8 @@ export const ME_CANDIDATE: MatchCandidate = {
 }
 
 /** Ứng viên của một vị trí: ứng viên mẫu của vị trí đó + người tìm việc demo */
-export const candidatesOf = (positionId: string): MatchCandidate[] => [
-  ...CANDIDATES.filter((c) => c.positionId === positionId),
-  ME_CANDIDATE,
-]
+/** Ứng viên của một tin — bỏ người đã bị quản trị viên khóa */
+export const candidatesOf = (positionId: string): MatchCandidate[] =>
+  [...CANDIDATES.filter((c) => c.positionId === positionId), ME_CANDIDATE].filter(
+    (c) => !useAdminStore.getState().lockedSeekers[c.id],
+  )

@@ -49,7 +49,7 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
     return () => { tween.kill() }
   }, [count, reduced])
 
-  // Con dấu ĐÃ ĐĂNG đập xuống, thẻ rung nhẹ khi dấu chạm
+  // Con dấu ĐÃ GỬI DUYỆT đập xuống, thẻ rung nhẹ khi dấu chạm
   useEffect(() => {
     if (!posted || !stamp.current) return
     if (reduced) {
@@ -90,10 +90,10 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
             <div
               ref={stamp}
-              className="rounded-card border-[3px] border-page-fg bg-page-bg px-5 py-2 font-display text-3xl font-semibold uppercase tracking-wide text-page-fg"
+              className="rounded-card border-[3px] border-page-fg bg-page-bg px-5 py-2 font-display text-2xl font-semibold uppercase tracking-wide text-page-fg"
               style={{ opacity: 0 }}
             >
-              Đã đăng
+              Đã gửi duyệt
             </div>
           </div>
         )}

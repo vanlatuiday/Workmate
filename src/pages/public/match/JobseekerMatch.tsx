@@ -13,7 +13,9 @@ import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import type { JobType } from '@/types'
-import { companyOf, SEEKER_DEFAULT, SEEKER_JOBS, type MatchJob } from './data'
+import { companyOf, SEEKER_DEFAULT, type MatchJob } from './data'
+import { useAllJobs } from '@pages/public/jobs/catalog'
+import { findAnyJob } from '@pages/public/jobs/lookup'
 import CurvedGallery from './gallery/CurvedGallery'
 import CriteriaDrawer from './CriteriaDrawer'
 import MatchArches from './MatchArches'
@@ -56,7 +58,7 @@ export default function JobseekerMatch() {
   // Kết nối mới (kể cả do doanh nghiệp đáp lại sau vài giây) → báo thành công
   useOnNewConnection((c) => {
     if (c.seekerId !== ME) return
-    const job = SEEKER_JOBS.find((j) => j.id === c.jobId)
+    const job = findAnyJob(c.jobId)
     if (job) toast.success(`Kết nối thành công với ${companyOf(job.companyId).name} — ${job.title}`)
   })
   const gallery = view === 'gallery'
@@ -81,10 +83,11 @@ export default function JobseekerMatch() {
   const [open, setOpen] = useState<{ id: string; origin: HTMLElement } | null>(null)
 
   // Chấm điểm lại mỗi khi tiêu chí hoặc thứ tự ưu tiên đổi
+  const allJobs = useAllJobs()
   const scored = useMemo(() => {
     const seeker = { ...SEEKER_DEFAULT, salaryMinK, maxDistanceKm, jobTypes }
-    return SEEKER_JOBS.map((job) => ({ job, outcome: scoreMatch(seeker, job, job.distanceKm, priority) }))
-  }, [salaryMinK, maxDistanceKm, jobTypes, priority])
+    return allJobs.map((job) => ({ job, outcome: scoreMatch(seeker, job, job.distanceKm, priority) }))
+  }, [allJobs, salaryMinK, maxDistanceKm, jobTypes, priority])
 
   const lists = useMemo(() => {
     const by = (a: { job: MatchJob; outcome: MatchOutcome }, b: { job: MatchJob; outcome: MatchOutcome }) => {

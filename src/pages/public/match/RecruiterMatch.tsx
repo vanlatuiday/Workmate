@@ -21,6 +21,7 @@ import {
   type LevelKey,
 } from './parts'
 import { DEFAULT_PRIORITY, scoreMatch, weightsOf, type CriterionResult } from './score'
+import { useAdmin } from '@services/adminService'
 
 type TabKey = 'fit' | 'saved' | 'interested' | 'connected'
 
@@ -69,16 +70,19 @@ export default function RecruiterMatch() {
     if (pos && cd) toast.success(`Kết nối thành công với ${cd.name} — ${pos.job.title}`)
   })
 
+  const lockedSeekers = useAdmin((s) => s.lockedSeekers)
+
   // Chấm điểm ứng viên của vị trí đang chọn (ưu tiên mặc định), cao trước
   const scored = useMemo(
     () =>
       (position.id === 'draft'
-        ? [...CANDIDATES, ME_CANDIDATE].filter((c, i, all) => all.findIndex((x) => x.name === c.name) === i)
+        ? [...CANDIDATES, ME_CANDIDATE].filter((c, i, all) => all.findIndex((x) => x.name === c.name) === i && !lockedSeekers[c.id])
         : candidatesOf(position.id)
       )
         .map((c) => ({ c, key: candidateKey(position.id, c.id), outcome: scoreMatch(c.criteria, req, c.distanceKm) }))
         .sort((a, b) => b.outcome.score - a.outcome.score),
-    [position.id, req],
+    // lockedSeekers: đổi khi quản trị viên khóa/mở khóa ứng viên (candidatesOf đọc thẳng kho)
+    [position.id, req, lockedSeekers],
   )
 
   const skipped = scored.filter((x) => skippedCandidates.includes(x.key))

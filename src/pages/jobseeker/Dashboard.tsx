@@ -7,7 +7,7 @@ import { useMatchStore } from '@context/matchStore'
 import { useInterviews, useMyPairs } from '@services/connectionService'
 import { describeConversation } from '@pages/public/messages/describe'
 import { formatRelativeTime } from '@utils/format'
-import { ALL_JOBS, seekerOutcome } from '@pages/public/jobs/catalog'
+import { useAllJobs, seekerOutcome } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { FOCUS } from '@utils/focus'
 
@@ -29,7 +29,8 @@ export default function JobseekerDashboard() {
   const connectedCount = pairs.filter((p) => p.status === 'connected').length
   const recent = pairs.slice(0, 3)
   // 3 việc điểm cao nhất theo cách tính chung (catalog.ts)
-  const jobs = ALL_JOBS.map((job) => ({ job, outcome: seekerOutcome(job) }))
+  const allJobs = useAllJobs()
+  const jobs = allJobs.map((job) => ({ job, outcome: seekerOutcome(job) }))
     .sort((a, b) => b.outcome.score - a.outcome.score)
     .slice(0, 3)
 

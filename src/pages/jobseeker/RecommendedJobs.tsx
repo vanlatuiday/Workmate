@@ -5,7 +5,7 @@ import { JOB_TYPES } from '@constants/index'
 import { EmptyState, MatchScore, MockNotice, PageHeader } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import type { JobType } from '@/types'
-import { ALL_JOBS, seekerOutcome, type MatchJob } from '@pages/public/jobs/catalog'
+import { useAllJobs, seekerOutcome, type MatchJob } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { CRITERION_LABELS, type MatchOutcome } from '@pages/public/match/score'
 import { FOCUS } from '@utils/focus'
@@ -120,7 +120,8 @@ export default function RecommendedJobs() {
   const sortId = useId()
 
   // Điểm tính một lần cho cả danh mục (cùng cách tính với trang Kết nối)
-  const scored = useMemo<Scored[]>(() => ALL_JOBS.map((job) => ({ job, outcome: seekerOutcome(job) })), [])
+  const allJobs = useAllJobs()
+  const scored = useMemo<Scored[]>(() => allJobs.map((job) => ({ job, outcome: seekerOutcome(job) })), [allJobs])
 
   const jobs = useMemo(() => {
     const list = scored.filter((x) => (type === 'all' || x.job.jobType === type) && x.outcome.score >= minScore)
