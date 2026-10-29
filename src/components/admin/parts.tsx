@@ -35,6 +35,7 @@ export function JobStatusBadges({ row }: { row: AdminJobRow }) {
     <span className="inline-flex flex-wrap items-center gap-1.5">
       <StatusBadge tone={STATUS_TONE[row.status]}>{STATUS_LABEL[row.status]}</StatusBadge>
       {row.companyLocked && <StatusBadge tone="strong">Công ty bị khóa</StatusBadge>}
+      {row.jobStatus !== 'open' && <StatusBadge tone="muted">{row.jobStatus === 'paused' ? 'NTD tạm dừng' : 'NTD đã đóng'}</StatusBadge>}
     </span>
   )
 }

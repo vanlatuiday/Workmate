@@ -1,36 +1,52 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Search, Pause, Play, Pencil, Users, Eye, Handshake, FileText } from 'lucide-react'
-import { PageHeader, Panel, StatusBadge, EmptyState, MockNotice } from '@components/dashboard'
+import { Plus, Search, Pause, Play, Users, Handshake, FileText, Heart, XCircle } from 'lucide-react'
+import { PageHeader, Panel, StatusBadge, EmptyState } from '@components/dashboard'
 import { cn } from '@utils/cn'
-import { useAdmin } from '@services/adminService'
+import { setJobStatus, useCompanyJobs, useJobNumbers, type CompanyJobRow } from '@services/adminService'
+import { DEMO_COMPANY, POSITIONS } from '@pages/public/match/data'
 import { formatRelativeTime } from '@utils/format'
-import { MOCK_JOBS, JOB_STATUS_LABELS, type JobStatus, type MockJob } from './mockData'
 import { FOCUS } from '@utils/focus'
 
 const BTN_PRIMARY = `inline-flex items-center gap-2 rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`
-const BTN_SECONDARY = `inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-page-line px-4 py-2 text-sm text-page-fg transition-colors duration-300 hover:border-page-fg ${FOCUS}`
+const BTN_SECONDARY = `inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-page-line px-4 py-2 text-sm text-page-fg transition-colors duration-300 hover:border-page-fg disabled:cursor-not-allowed disabled:text-page-muted disabled:hover:border-page-line ${FOCUS}`
 
-const STATUS_TONE = { open: 'strong', paused: 'default', closed: 'muted', draft: 'muted' } as const
-const TABS: ('all' | JobStatus)[] = ['all', 'open', 'paused', 'closed', 'draft']
+/** Trạng thái gộp: kiểm duyệt của quản trị thắng, còn lại theo trạng thái đăng tuyển do mình đặt */
+type Combined = 'open' | 'paused' | 'closed' | 'pending' | 'attention'
+type Tab = 'all' | Combined
 
-/** Nhãn trạng thái kiểm duyệt của tin vừa đăng (bị từ chối / ẩn kèm lý do) */
-function moderationLabel(status: string, reason?: string) {
-  if (status === 'approved') return 'Đang hiện'
-  if (status === 'rejected') return `Bị từ chối${reason ? ` — ${reason}` : ''}`
-  if (status === 'hidden') return `Bị ẩn${reason ? ` — ${reason}` : ''}`
-  return 'Chờ duyệt'
+const COMBINED_LABEL: Record<Combined, string> = {
+  open: 'Đang mở',
+  paused: 'Tạm dừng',
+  closed: 'Đã đóng',
+  pending: 'Chờ duyệt',
+  attention: 'Cần xử lý',
+}
+const TABS: Tab[] = ['all', 'open', 'paused', 'closed', 'pending', 'attention']
+const TONE = { open: 'strong', paused: 'default', closed: 'muted', pending: 'muted', attention: 'default' } as const
+
+const combinedOf = (r: CompanyJobRow): Combined =>
+  r.status === 'pending' ? 'pending' : r.status === 'approved' ? r.jobStatus : 'attention'
+
+/** Nhãn đầy đủ cho huy hiệu (bị từ chối / ẩn kèm lý do) */
+function statusLabel(r: CompanyJobRow) {
+  const why = r.reason ? ` — ${r.reason}` : ''
+  if (r.status === 'rejected') return `Bị từ chối${why}`
+  if (r.status === 'hidden') return `Bị ẩn${why}`
+  return COMBINED_LABEL[combinedOf(r)]
 }
 
+/** Vì sao chưa thao tác được với tin chưa được duyệt */
+const lockedNote = (r: CompanyJobRow) =>
+  r.status === 'pending' ? 'Đang chờ quản trị viên duyệt nên chưa thể thao tác.' : 'Tin không còn hiển thị, chưa thể thao tác. Đăng tin mới để thay thế.'
+
 export default function JobListings() {
-  // Tin vừa đăng ở /dang-tin của công ty demo, kèm trạng thái kiểm duyệt
-  const posted = useAdmin((s) => s.posted)
-  const moderation = useAdmin((s) => s.moderation)
-  const justPosted = posted.filter((p) => p.companyId === 'song-han').sort((a, b) => b.postedAt.localeCompare(a.postedAt))
-  // Dữ liệu mẫu — thay bằng API. Tạm dừng/Mở lại chỉ đổi state cục bộ.
-  const [jobs, setJobs] = useState<MockJob[]>(MOCK_JOBS)
-  const [tab, setTab] = useState<'all' | JobStatus>('all')
+  const rows = useCompanyJobs(DEMO_COMPANY.id)
+  const numbers = useJobNumbers(rows.map((r) => r.job))
+  const [tab, setTab] = useState<Tab>('all')
   const [query, setQuery] = useState('')
+  // Tin đang chờ xác nhận đóng (đóng tin là việc khó hoàn tác với người xem nên hỏi lại một bước)
+  const [closing, setClosing] = useState<string | null>(null)
 
   const [notice, setNotice] = useState('')
   const [moved, setMoved] = useState(0)
@@ -41,46 +57,74 @@ export default function JobListings() {
     if (moved > 0) noticeRef.current?.focus()
   }, [moved])
 
-  const toggle = (id: string) => {
-    const job = jobs.find((j) => j.id === id)
-    if (!job) return
-    const next: JobStatus = job.status === 'open' ? 'paused' : 'open'
-    setJobs((list) => list.map((j) => (j.id === id ? { ...j, status: next } : j)))
-    setNotice(`${next === 'paused' ? 'Đã tạm dừng' : 'Đã mở lại'} tin "${job.title}".`)
+  const change = (r: CompanyJobRow, next: 'open' | 'paused' | 'closed') => {
+    setJobStatus(r.job.id, next)
+    setClosing(null)
+    const verb = next === 'paused' ? 'Đã tạm dừng' : next === 'closed' ? 'Đã đóng' : 'Đã mở lại'
+    setNotice(`${verb} tin "${r.job.title}".`)
     if (tab !== 'all' && tab !== next) setMoved((n) => n + 1)
   }
 
-  const count = (t: 'all' | JobStatus) => (t === 'all' ? jobs.length : jobs.filter((j) => j.status === t).length)
+  const count = (t: Tab) => (t === 'all' ? rows.length : rows.filter((r) => combinedOf(r) === t).length)
   const q = query.trim().toLowerCase()
-  const shown = jobs.filter(
-    (j) => (tab === 'all' || j.status === tab) && (!q || j.title.toLowerCase().includes(q)),
-  )
+  const shown = rows.filter((r) => (tab === 'all' || combinedOf(r) === tab) && (!q || r.job.title.toLowerCase().includes(q)))
+
+  /** Ngày đăng: tin mới đăng theo thời điểm; tin có sẵn theo ngày ghi trong dữ liệu mẫu */
+  const postedText = (r: CompanyJobRow) =>
+    r.postedAt ? formatRelativeTime(r.postedAt) : (POSITIONS.find((p) => p.id === r.job.id)?.job.postedAt ?? '—')
 
   /** Cụm hành động của một tin (dùng cho cả bảng và thẻ) */
-  const actions = (j: MockJob) => (
-    <div className="flex flex-wrap items-center gap-2">
-      {j.status !== 'draft' && (
-        <Link to={`/tuyen-dung/ung-vien-phu-hop?job=${j.id}`} className={BTN_SECONDARY}>
+  const actions = (r: CompanyJobRow) => {
+    const ok = r.status === 'approved'
+    const t = r.job.title
+    if (!ok) {
+      return (
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" disabled className={BTN_SECONDARY}>Xem ứng viên<span className="sr-only"> {t}</span></button>
+            <button type="button" disabled className={BTN_SECONDARY}>Tạm dừng<span className="sr-only"> {t}</span></button>
+          </div>
+          <p className="text-xs text-page-muted">{lockedNote(r)}</p>
+        </div>
+      )
+    }
+    if (closing === r.job.id) {
+      return (
+        <div role="group" aria-label={`Xác nhận đóng tin ${t}`} className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-page-fg">Đóng tin này? Tin sẽ ẩn khỏi trang Việc làm.</span>
+          <button type="button" onClick={() => change(r, 'closed')} className={BTN_SECONDARY}>Đóng tin</button>
+          <button type="button" onClick={() => setClosing(null)} className={BTN_SECONDARY}>Hủy</button>
+        </div>
+      )
+    }
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        <Link to="/match" className={BTN_SECONDARY}>
           <Users className="h-4 w-4" aria-hidden="true" />
-          Xem ứng viên<span className="sr-only"> {j.title}</span>
+          Xem ứng viên<span className="sr-only"> {t}</span>
         </Link>
-      )}
-      {(j.status === 'open' || j.status === 'paused') && (
-        <button type="button" onClick={() => toggle(j.id)} className={BTN_SECONDARY}>
-          {j.status === 'open' ? (
+        {r.jobStatus === 'open' ? (
+          <button type="button" onClick={() => change(r, 'paused')} className={BTN_SECONDARY}>
             <Pause className="h-4 w-4" aria-hidden="true" />
-          ) : (
+            Tạm dừng<span className="sr-only"> {t}</span>
+          </button>
+        ) : (
+          <button type="button" onClick={() => change(r, 'open')} className={BTN_SECONDARY}>
             <Play className="h-4 w-4" aria-hidden="true" />
-          )}
-          {j.status === 'open' ? 'Tạm dừng' : 'Mở lại'}<span className="sr-only"> {j.title}</span>
-        </button>
-      )}
-      <Link to="/dang-tin" className={BTN_SECONDARY} aria-label={`Sửa tin ${j.title}`}>
-        <Pencil className="h-4 w-4" aria-hidden="true" />
-        Sửa
-      </Link>
-    </div>
-  )
+            Mở lại<span className="sr-only"> {t}</span>
+          </button>
+        )}
+        {r.jobStatus !== 'closed' && (
+          <button type="button" onClick={() => setClosing(r.job.id)} className={BTN_SECONDARY}>
+            <XCircle className="h-4 w-4" aria-hidden="true" />
+            Đóng tin<span className="sr-only"> {t}</span>
+          </button>
+        )}
+      </div>
+    )
+  }
+
+  const num = (r: CompanyJobRow, k: 'fit' | 'interested' | 'connected') => (r.status === 'approved' ? numbers[r.job.id]?.[k] ?? 0 : '—')
 
   return (
     <div className="space-y-6">
@@ -94,29 +138,7 @@ export default function JobListings() {
           </Link>
         }
       />
-      <MockNotice />
-
-      {justPosted.length > 0 && (
-        <Panel title="Tin vừa đăng">
-          <ul className="divide-y divide-page-line">
-            {justPosted.map((p) => {
-              const m = moderation[p.id]
-              const status = m?.status ?? 'pending'
-              return (
-                <li key={p.id} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="font-medium text-page-fg">{p.title}</p>
-                    <p className="mt-0.5 text-xs text-page-muted">{p.district} · {p.salaryLabel} · {formatRelativeTime(p.postedAt)}</p>
-                  </div>
-                  <StatusBadge tone={status === 'approved' ? 'strong' : status === 'pending' ? 'muted' : 'default'}>
-                    {moderationLabel(status, m?.reason)}
-                  </StatusBadge>
-                </li>
-              )
-            })}
-          </ul>
-        </Panel>
-      )}
+      <p className="text-xs text-page-muted">Dữ liệu demo trên trình duyệt này — dùng chung với Kết nối và trang Ghép việc.</p>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div role="group" aria-label="Lọc theo trạng thái" className="flex flex-wrap gap-2">
@@ -134,7 +156,7 @@ export default function JobListings() {
                 FOCUS,
               )}
             >
-              {t === 'all' ? 'Tất cả' : JOB_STATUS_LABELS[t]} <span className="tnum">({count(t)})</span>
+              {t === 'all' ? 'Tất cả' : COMBINED_LABEL[t]} <span className="tnum">({count(t)})</span>
             </button>
           ))}
         </div>
@@ -181,27 +203,27 @@ export default function JobListings() {
                   <th scope="col" className="px-6 py-3 font-medium">Tin tuyển dụng</th>
                   <th scope="col" className="px-3 py-3 font-medium">Lương</th>
                   <th scope="col" className="px-3 py-3 font-medium">Ngày đăng</th>
-                  <th scope="col" className="px-3 py-3 text-right font-medium">Lượt xem</th>
                   <th scope="col" className="px-3 py-3 text-right font-medium">Ứng viên phù hợp</th>
+                  <th scope="col" className="px-3 py-3 text-right font-medium">Đã quan tâm</th>
                   <th scope="col" className="px-6 py-3 text-right font-medium">Kết nối</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-page-line">
-                {shown.map((j) => (
-                  <tr key={j.id} className="align-top">
+                {shown.map((r) => (
+                  <tr key={r.job.id} className="align-top">
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium text-page-fg">{j.title}</span>
-                        <StatusBadge tone={STATUS_TONE[j.status]}>{JOB_STATUS_LABELS[j.status]}</StatusBadge>
+                        <span className="font-medium text-page-fg">{r.job.title}</span>
+                        <StatusBadge tone={TONE[combinedOf(r)]}>{statusLabel(r)}</StatusBadge>
                       </div>
-                      <p className="mt-1 text-xs text-page-muted">{j.jobType} · {j.schedule}</p>
-                      <div className="mt-3">{actions(j)}</div>
+                      <p className="mt-1 text-xs text-page-muted">{r.job.district} · {r.job.shiftLabel}</p>
+                      <div className="mt-3">{actions(r)}</div>
                     </td>
-                    <td className="tnum px-3 py-4 text-page-fg">{j.salary}</td>
-                    <td className="tnum px-3 py-4 text-page-muted">{j.postedAt}</td>
-                    <td className="tnum px-3 py-4 text-right text-page-fg">{j.views}</td>
-                    <td className="tnum px-3 py-4 text-right text-page-fg">{j.suggested}</td>
-                    <td className="tnum px-6 py-4 text-right text-page-fg">{j.matches}</td>
+                    <td className="tnum px-3 py-4 text-page-fg">{r.job.salaryLabel}</td>
+                    <td className="tnum px-3 py-4 text-page-muted">{postedText(r)}</td>
+                    <td className="tnum px-3 py-4 text-right text-page-fg">{num(r, 'fit')}</td>
+                    <td className="tnum px-3 py-4 text-right text-page-fg">{num(r, 'interested')}</td>
+                    <td className="tnum px-6 py-4 text-right text-page-fg">{num(r, 'connected')}</td>
                   </tr>
                 ))}
               </tbody>
@@ -211,20 +233,20 @@ export default function JobListings() {
 
           {/* Dưới 1024px: danh sách thẻ */}
           <ul className="space-y-4 lg:hidden">
-            {shown.map((j) => (
-              <li key={j.id} className="rounded-card border border-page-line bg-page-surface p-5">
+            {shown.map((r) => (
+              <li key={r.job.id} className="rounded-card border border-page-line bg-page-surface p-5">
                 <div className="flex items-start justify-between gap-3">
-                  <h2 className="font-display text-base font-medium text-page-fg">{j.title}</h2>
-                  <StatusBadge tone={STATUS_TONE[j.status]}>{JOB_STATUS_LABELS[j.status]}</StatusBadge>
+                  <h2 className="font-display text-base font-medium text-page-fg">{r.job.title}</h2>
+                  <StatusBadge tone={TONE[combinedOf(r)]}>{statusLabel(r)}</StatusBadge>
                 </div>
-                <p className="mt-1 text-xs text-page-muted">{j.jobType} · {j.schedule}</p>
-                <p className="tnum mt-2 text-sm text-page-fg">{j.salary}</p>
-                <p className="mt-1 text-xs text-page-muted">Đăng ngày {j.postedAt}</p>
+                <p className="mt-1 text-xs text-page-muted">{r.job.district} · {r.job.shiftLabel}</p>
+                <p className="tnum mt-2 text-sm text-page-fg">{r.job.salaryLabel}</p>
+                <p className="mt-1 text-xs text-page-muted">Đăng {postedText(r)}</p>
                 <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-page-line pt-4 text-center">
                   {[
-                    { icon: Eye, label: 'Lượt xem', v: j.views },
-                    { icon: Users, label: 'Ứng viên', v: j.suggested },
-                    { icon: Handshake, label: 'Kết nối', v: j.matches },
+                    { icon: Users, label: 'Phù hợp', v: num(r, 'fit') },
+                    { icon: Heart, label: 'Quan tâm', v: num(r, 'interested') },
+                    { icon: Handshake, label: 'Kết nối', v: num(r, 'connected') },
                   ].map(({ icon: I, label, v }) => (
                     <div key={label}>
                       <dt className="flex items-center justify-center gap-1 text-xs text-page-muted">
@@ -235,7 +257,7 @@ export default function JobListings() {
                     </div>
                   ))}
                 </dl>
-                <div className="mt-4">{actions(j)}</div>
+                <div className="mt-4">{actions(r)}</div>
               </li>
             ))}
           </ul>

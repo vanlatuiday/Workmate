@@ -1,7 +1,7 @@
 # Workmate — Bối cảnh dự án
 
 > Tài liệu cho phiên Claude / người mới vào dự án. Đọc file này trước khi sửa code.
-> Cập nhật lần cuối: 2026-10-23 (dashboard 3 vai trò, liên kết theo vai trò, dọn component cũ). Khi trạng thái tính năng thay đổi, sửa lại mục 3, 6, 7, 8.
+> Cập nhật lần cuối: 2026-10-30 (hồ sơ lưu, nhận việc, dashboard NTD đọc kho chung) · trước đó 2026-10-23 (dashboard 3 vai trò, liên kết theo vai trò, dọn component cũ). Khi trạng thái tính năng thay đổi, sửa lại mục 3, 6, 7, 8.
 >
 > Quy ước trong file: **[có]** = đã có trong code · **[khung]** = có route/type/service
 > nhưng UI chưa làm · **[chưa rõ]** = chưa có quyết định, đừng tự giả định.
@@ -78,7 +78,7 @@ Phân quyền: `ProtectedRoute` chỉ kiểm tra `user.role` trong Zustand store
 ### Nhà tuyển dụng `/tuyen-dung`
 | Route | Trạng thái |
 |---|---|
-| `/tuyen-dung` Dashboard · `/tin-dang` Tin tuyển dụng | **[có]** UI theo DESIGN.md, dữ liệu mẫu `pages/recruiter/mockData.ts`, state cục bộ |
+| `/tuyen-dung` Dashboard · `/tin-dang` Tin tuyển dụng | **[có]** (2026-10-30) Đọc kho chung qua `adminService` (`useCompanyJobs`, `useJobNumbers`, `fitCandidatesOf` — điểm ≥60 như /match) + `connectionService`. Tin tuyển dụng: một danh sách (j1–j4 + tin đăng ở /dang-tin), tabs Đang mở/Tạm dừng/Đã đóng/Chờ duyệt/Cần xử lý; Tạm dừng/Mở lại/Đóng tin ghi `adminStore.jobStatus` → tin không mở thì ẩn khỏi trang công khai và phía người tìm việc (admin thấy nhãn "NTD tạm dừng/đã đóng"). Tổng quan: số thật (tin mở, ứng viên phù hợp, kết nối + số người đã đi làm, phỏng vấn 7 ngày tới), ứng viên vừa quan tâm, lịch sắp tới. Chưa có: sửa tin, lượt xem, chọn sẵn vị trí khi sang /match; /match phía NTD vẫn liệt kê cả tin tạm dừng. |
 | `/dang-tin` | **[có]** chuyển hướng sang `/dang-tin` công khai (bản form 4 bước cũ đã xóa 2026-10-29) |
 | `/tim-ung-vien` Tìm ứng viên · `/ung-vien-da-luu` Ứng viên đã lưu · `/match` Kết nối | **[có]** (2026-10-29) Đọc kho chung: Tìm ứng viên (lọc tên/kỹ năng/quận/buổi rảnh/lương, điểm hợp nhất, Quan tâm chọn tin, Lưu), Ứng viên đã lưu (nhóm theo tin), Kết nối (Nhắn tin, Mời phỏng vấn). `/tuyen-dung/ung-vien-phu-hop` chuyển hướng sang `/match` (file `SuggestedCandidates.tsx` còn nhưng không còn route). |
 | `/tin-nhan` · `/lich-phong-van` (chuyển hướng sang trang công khai) | **[có]** chuyển hướng |

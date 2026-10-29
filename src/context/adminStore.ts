@@ -25,6 +25,9 @@ export interface PostedJob extends MatchJob {
   postedAt: string
 }
 
+/** Trạng thái đăng tuyển do nhà tuyển dụng tự đặt (khác kiểm duyệt của quản trị): mở / tạm dừng / đã đóng */
+export type JobOpenStatus = 'open' | 'paused' | 'closed'
+
 export type ReportTarget = 'job' | 'seeker'
 export type ReportStatus = 'open' | 'dismissed' | 'actioned'
 
@@ -103,6 +106,8 @@ function seedReports(): Report[] {
 interface AdminState {
   moderation: Record<string, Moderation>
   posted: PostedJob[]
+  /** Trạng thái đăng tuyển theo id tin của doanh nghiệp demo; thiếu = đang mở */
+  jobStatus: Record<string, JobOpenStatus>
   /** Nhà tuyển dụng (theo id công ty) bị khóa */
   lockedCompanies: Record<string, boolean>
   /** Công ty đã xác minh (gắn nhãn) */
@@ -115,6 +120,7 @@ interface AdminState {
   /** Đăng tin mới (từ /dang-tin) → chờ duyệt */
   submitJob: (job: Omit<PostedJob, 'id' | 'postedAt'>) => string
   setModeration: (jobId: string, status: ModerationStatus, reason?: string) => void
+  setJobStatus: (jobId: string, status: JobOpenStatus) => void
   setCompanyLocked: (companyId: string, locked: boolean) => void
   setCompanyVerified: (companyId: string, verified: boolean) => void
   setSeekerLocked: (seekerId: string, locked: boolean) => void
@@ -129,6 +135,7 @@ function seed() {
   return {
     moderation: Object.fromEntries(posted.map((p) => [p.id, { status: 'pending' as const, at: p.postedAt }])),
     posted,
+    jobStatus: {},
     lockedCompanies: {},
     verifiedCompanies: { 'gio-song-han': true, 'bien-xanh': true, 'may-trang': true, 'hoa-sua': true },
     lockedSeekers: {},
@@ -151,6 +158,7 @@ export const useAdminStore = create<AdminState>()(
         return id
       },
       setModeration: (jobId, status, reason) => set((s) => ({ moderation: { ...s.moderation, [jobId]: { status, reason, at: now() } } })),
+      setJobStatus: (jobId, status) => set((s) => ({ jobStatus: { ...s.jobStatus, [jobId]: status } })),
       setCompanyLocked: (companyId, locked) => set((s) => ({ lockedCompanies: { ...s.lockedCompanies, [companyId]: locked } })),
       setCompanyVerified: (companyId, verified) => set((s) => ({ verifiedCompanies: { ...s.verifiedCompanies, [companyId]: verified } })),
       setSeekerLocked: (seekerId, locked) => set((s) => ({ lockedSeekers: { ...s.lockedSeekers, [seekerId]: locked } })),
@@ -162,10 +170,16 @@ export const useAdminStore = create<AdminState>()(
     }),
     {
       name: 'workmate-admin',
-      version: 1,
+      version: 2,
+      // v2: thêm jobStatus (tin cũ mặc định đang mở)
+      migrate: (persisted, version) => {
+        const old = (persisted ?? {}) as Record<string, unknown>
+        return (version < 2 ? { ...old, jobStatus: {} } : old) as unknown as AdminState
+      },
       partialize: (s) => ({
         moderation: s.moderation,
         posted: s.posted,
+        jobStatus: s.jobStatus,
         lockedCompanies: s.lockedCompanies,
         verifiedCompanies: s.verifiedCompanies,
         lockedSeekers: s.lockedSeekers,
