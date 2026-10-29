@@ -6,6 +6,10 @@ import {
   mockUsers, ROLE_LABELS, USER_STATUS_LABELS,
   type AdminUser, type UserStatus,
 } from './mockData'
+import { COMPANIES } from '@pages/public/jobs/data'
+import { CANDIDATES, DEMO_COMPANY, ME_CANDIDATE, companyOf } from '@pages/public/match/data'
+import { norm } from '@components/admin/parts'
+import { setCompanyLocked, setSeekerLocked } from '@services/adminService'
 import { FOCUS } from '@utils/focus'
 
 const FIELD =
@@ -19,6 +23,18 @@ const STATUS_TONE: Record<UserStatus, 'strong' | 'default' | 'muted'> = {
   active: 'default',
   unverified: 'muted',
   locked: 'strong',
+}
+
+/** Tài khoản khớp (theo tên) một ứng viên / công ty trong hệ thống thì khóa thật; không khớp thì chỉ đổi trạng thái mẫu */
+function syncLock(u: AdminUser, locked: boolean) {
+  const name = norm(u.name)
+  if (u.role === 'jobseeker') {
+    const c = [...CANDIDATES, ME_CANDIDATE].find((x) => norm(x.name) === name)
+    if (c) setSeekerLocked(c.id, locked)
+  } else if (u.role === 'recruiter') {
+    const id = [...COMPANIES.map((c) => c.id), DEMO_COMPANY.id].find((cid) => norm(companyOf(cid).name) === name)
+    if (id) setCompanyLocked(id, locked)
+  }
 }
 
 /** Nút Khóa / Mở khóa; bấm Khóa lần 1 hiện xác nhận ngay tại hàng. */
@@ -91,6 +107,7 @@ export default function Users() {
 
   const toggleLock = (u: AdminUser) => {
     const locking = u.status !== 'locked'
+    syncLock(u, locking)
     // Khóa: nhớ trạng thái cũ; mở khóa: khôi phục đúng trạng thái đó
     setUsers((prev) =>
       prev.map((x) => {

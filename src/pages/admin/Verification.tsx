@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { FileText, ChevronDown, Check, X, BadgeCheck, AlertCircle } from 'lucide-react'
 import { PageHeader, StatusBadge, EmptyState, MockNotice } from '@components/dashboard'
 import { COMPANY_SIZES } from '@/constants'
+import { COMPANIES } from '@pages/public/jobs/data'
+import { DEMO_COMPANY, companyOf } from '@pages/public/match/data'
+import { norm } from '@components/admin/parts'
+import { setCompanyVerified } from '@services/adminService'
 import { cn } from '@utils/cn'
 import { mockVerifications, type VerificationRequest, type VerificationStatus } from './mockData'
 import { FOCUS } from '@utils/focus'
@@ -14,6 +18,10 @@ const TABS: { value: VerificationStatus; label: string; empty: string }[] = [
   { value: 'approved', label: 'Đã duyệt', empty: 'Chưa có hồ sơ nào được duyệt.' },
   { value: 'rejected', label: 'Từ chối', empty: 'Chưa có hồ sơ nào bị từ chối.' },
 ]
+
+/** Công ty trong hệ thống khớp tên với hồ sơ xác minh (nếu có) — hồ sơ không khớp chỉ là dữ liệu mẫu */
+const companyIdOf = (name: string) =>
+  [...COMPANIES.map((c) => c.id), DEMO_COMPANY.id].find((id) => norm(companyOf(id).name) === norm(name))
 
 const sizeLabel = (v: string) => COMPANY_SIZES.find((s) => s.value === v)?.label ?? v
 
@@ -45,6 +53,8 @@ export default function Verification() {
   const approve = (r: VerificationRequest) => {
     refocusId.current = r.id
     update(r.id, { status: 'approved' })
+    const cid = companyIdOf(r.companyName)
+    if (cid) setCompanyVerified(cid, true)
     setNotice(`Đã duyệt hồ sơ ${r.companyName}.`)
   }
 
@@ -62,6 +72,8 @@ export default function Verification() {
     }
     refocusId.current = r.id
     update(r.id, { status: 'rejected', rejectReason: reason.trim() })
+    const cid = companyIdOf(r.companyName)
+    if (cid) setCompanyVerified(cid, false)
     setRejectingId(null)
     setNotice(`Đã từ chối hồ sơ ${r.companyName}.`)
   }

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { AlertCircle, Building2, Eye, EyeOff, Loader2, Search } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
+import { useAdmin } from '@services/adminService'
 import { buildDemoUser, getDemoAccountByRole } from '@constants/demoAccounts'
 import { FOCUS } from '@utils/focus'
 import TextReveal from '@components/motion/TextReveal'
@@ -36,6 +37,8 @@ export default function RegisterPage() {
   const { setUser } = useAuthStore()
 
   const demo = getDemoAccountByRole(role)
+  // Quản trị viên có thể tạm dừng đăng ký (Cấu hình hệ thống)
+  const registrationOpen = useAdmin((s) => s.config.registrationOpen)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,6 +53,23 @@ export default function RegisterPage() {
     await new Promise((r) => setTimeout(r, 600))
     setUser(buildDemoUser(demo), 'mock-token')
     navigate('/')
+  }
+
+  if (!registrationOpen) {
+    return (
+      <div className="min-h-[calc(100vh-64px)] text-page-fg flex items-start justify-center px-6 py-12 md:py-16">
+        <div className="w-full max-w-md">
+          <h1 className="font-display text-display-sm font-semibold text-page-fg">Workmate tạm dừng đăng ký tài khoản mới</h1>
+          <p className="text-base text-page-muted mt-3">
+            Vui lòng quay lại sau. Nếu đã có tài khoản,{' '}
+            <Link to="/dang-nhap" className={`font-medium text-page-fg underline underline-offset-4 rounded-control ${FOCUS}`}>
+              đăng nhập tại đây
+            </Link>
+            .
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (

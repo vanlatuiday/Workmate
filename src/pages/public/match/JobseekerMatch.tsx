@@ -19,6 +19,7 @@ import { findAnyJob } from '@pages/public/jobs/lookup'
 import CurvedGallery from './gallery/CurvedGallery'
 import CriteriaDrawer from './CriteriaDrawer'
 import MatchArches from './MatchArches'
+import ReportButton from '@components/report/ReportButton'
 import MatchDetail from './MatchDetail'
 import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
@@ -517,6 +518,7 @@ export default function JobseekerMatch() {
             <p className="text-sm leading-relaxed text-page-muted">{company.about}</p>
             <TagList tags={company.environment} />
           </DetailSection>
+          <div className="mt-8"><ReportButton target="job" targetId={job.id} name={job.title} /></div>
         </MatchDetail>
       )
     })()}

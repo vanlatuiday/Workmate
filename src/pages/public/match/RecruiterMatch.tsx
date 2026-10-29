@@ -14,6 +14,7 @@ import { FOCUS } from '@utils/focus'
 import { CANDIDATES, candidatesOf, ME_CANDIDATE, POSITIONS, type MatchCandidate, type MatchPosition } from './data'
 import CurvedGallery from './gallery/CurvedGallery'
 import MatchArches from './MatchArches'
+import ReportButton from '@components/report/ReportButton'
 import MatchDetail from './MatchDetail'
 import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
@@ -375,6 +376,7 @@ export default function RecruiterMatch() {
             <p className="text-sm leading-relaxed text-page-muted">{c.summary}</p>
             <TagList tags={c.criteria.skills} />
           </DetailSection>
+          <div className="mt-8"><ReportButton target="seeker" targetId={c.id} name={c.name} /></div>
         </MatchDetail>
       )
     })()}

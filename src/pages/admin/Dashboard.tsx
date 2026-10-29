@@ -1,7 +1,11 @@
 import { Link } from 'react-router-dom'
 import { Users, Building2, FileText, Handshake, ChevronRight } from 'lucide-react'
 import { PageHeader, Panel, StatCard, StatusBadge, MockNotice } from '@components/dashboard'
-import { mockUsers, newUsersPerDay, overviewStats, ROLE_LABELS, todoItems } from './mockData'
+import { useDemoStore } from '@context/demoStore'
+import { COMPANIES } from '@pages/public/jobs/data'
+import { DEMO_COMPANY } from '@pages/public/match/data'
+import { useAdmin, useAdminJobs } from '@services/adminService'
+import { mockUsers, newUsersPerDay, overviewStats, ROLE_LABELS } from './mockData'
 import { FOCUS } from '@utils/focus'
 
 
@@ -14,21 +18,40 @@ const chartSummary =
 // Dữ liệu mẫu — thay bằng API
 const recentSignups = mockUsers.slice(0, 5)
 
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000
+const COMPANY_IDS = [...COMPANIES.map((c) => c.id), DEMO_COMPANY.id]
+
 export default function AdminDashboard() {
   const s = overviewStats
+  // Số liệu thật từ kho quản trị + kho kết nối (người dùng và đăng ký mới vẫn là mẫu)
+  const jobRows = useAdminJobs()
+  const reports = useAdmin((st) => st.reports)
+  const verified = useAdmin((st) => st.verifiedCompanies)
+  const connections = useDemoStore((st) => st.connections)
+  const pendingJobs = jobRows.filter((r) => r.status === 'pending')
+  const flaggedPending = pendingJobs.filter((r) => r.flags.length).length
+  const openReports = reports.filter((r) => r.status === 'open').length
+  const unverified = COMPANY_IDS.filter((id) => !verified[id]).length
+  const weekMatches = connections.filter((c) => Date.now() - +new Date(c.at) <= WEEK_MS).length
+  const todoItems = [
+    { id: 't1', label: `${unverified} nhà tuyển dụng chưa xác minh`, detail: 'Xem hồ sơ và gắn nhãn xác minh', href: '/admin/xac-minh', n: unverified },
+    { id: 't2', label: `${openReports} báo cáo đang mở`, detail: 'Báo cáo tin hoặc ứng viên cần xem xét', href: '/admin/bao-cao', n: openReports },
+    { id: 't3', label: `${pendingJobs.length} tin chờ kiểm duyệt`, detail: flaggedPending ? `${flaggedPending} tin bị gắn cờ cảnh báo` : 'Chưa có tin nào bị gắn cờ', href: '/admin/kiem-duyet', n: pendingJobs.length },
+  ].filter((t) => t.n > 0)
   return (
     <div>
       <PageHeader title="Tổng quan" description="Tình hình hệ thống Workmate và những việc cần xử lý hôm nay." />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard label="Người dùng" value={s.totalUsers.toLocaleString('vi-VN')} icon={Users} hint={s.usersHint} />
-        <StatCard label="NTD chờ xác minh" value={s.pendingVerifications} icon={Building2} href="/admin/xac-minh" hint={s.verificationHint} />
-        <StatCard label="Tin chờ kiểm duyệt" value={s.pendingModeration} icon={FileText} href="/admin/kiem-duyet" hint={s.moderationHint} />
-        <StatCard label="Kết nối trong tuần" value={s.weeklyMatches} icon={Handshake} hint={s.matchHint} />
+        <StatCard label="NTD chưa xác minh" value={unverified} icon={Building2} href="/admin/xac-minh" hint="Công ty chưa có nhãn xác minh" />
+        <StatCard label="Tin chờ kiểm duyệt" value={pendingJobs.length} icon={FileText} href="/admin/kiem-duyet" hint={`${flaggedPending} tin bị gắn cờ`} />
+        <StatCard label="Kết nối 7 ngày qua" value={weekMatches} icon={Handshake} hint={`${openReports} báo cáo đang mở`} />
       </div>
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Panel title="Việc cần xử lý">
+          {todoItems.length === 0 && <p className="py-3 text-sm text-page-muted">Không có việc nào cần xử lý.</p>}
           <ul className="divide-y divide-page-line">
             {todoItems.map((t) => (
               <li key={t.id}>

@@ -7,6 +7,7 @@ import DetailNotFound from '@components/discover/detail/NotFound'
 import BackLink from '@components/discover/detail/BackLink'
 import CandidateCard from '@components/discover/detail/CandidateCard'
 import { TextBlock } from '@components/discover/detail/DetailBlocks'
+import ReportButton from '@components/report/ReportButton'
 import { candidatesOf, findPosition } from './jobs/data'
 
 /** /vi-tri/:id — chi tiết một tin tuyển dụng, dành cho nhà tuyển dụng (dữ liệu mẫu). */
@@ -75,6 +76,7 @@ export default function PositionDetailPage() {
         )}
 
         <p className="text-xs text-page-muted">Tin tuyển dụng và hồ sơ ứng viên là dữ liệu mẫu. Ảnh minh họa từ Unsplash.</p>
+        <div><ReportButton target="job" targetId={p.id} name={p.title} /></div>
       </DetailLayout>
     </article>
   )

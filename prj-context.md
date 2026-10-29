@@ -88,9 +88,10 @@ Phân quyền: `ProtectedRoute` chỉ kiểm tra `user.role` trong Zustand store
 ### Quản trị `/admin`
 | Route | Trạng thái |
 |---|---|
-| `/admin` Dashboard · `/nguoi-dung` Người dùng (lọc, khóa/mở khóa) · `/xac-minh` Xác minh doanh nghiệp (duyệt/từ chối có lý do) | **[có]** UI theo DESIGN.md, dữ liệu mẫu `pages/admin/mockData.ts`, state cục bộ |
+| `/admin` Dashboard · `/nguoi-dung` Người dùng (lọc, khóa/mở khóa) · `/xac-minh` Xác minh doanh nghiệp (duyệt/từ chối có lý do) | **[có]** (2026-10-29) Tổng quan dùng số thật (tin chờ duyệt, báo cáo mở, kết nối 7 ngày, NTD chưa xác minh; số người dùng/đăng ký mới vẫn mẫu). Xác minh gọi `setCompanyVerified` và Người dùng gọi `setSeekerLocked`/`setCompanyLocked` khi tên khớp một công ty/ứng viên (không khớp thì giữ dữ liệu mẫu `pages/admin/mockData.ts`, state cục bộ) |
 | `/kiem-duyet` Kiểm duyệt (tab Chờ duyệt / Bị gắn cờ / Đã xử lý; duyệt, từ chối/ẩn có lý do, khôi phục) · `/tin-tuyen-dung` Tin tuyển dụng (bảng mọi tin, tìm/lọc/sắp xếp, khung chi tiết trượt phải) · `/nha-tuyen-dung` Nhà tuyển dụng (xác minh, khóa/mở khóa công ty) · `/ung-vien` Ứng viên (khóa/mở khóa) | **[có]** (2026-10-29) đọc/ghi `adminStore` nên có tác dụng thật lên web. Khung chi tiết dùng chung `components/admin/DetailDrawer`; hộp xác nhận/nhập lý do và cụm nút kiểm duyệt ở `components/admin/parts` |
-| `/bao-cao` · `/thong-ke` · `/cau-hinh` | **[khung]** Trang trống (store đã có sẵn `reports`, `config`) |
+| `/bao-cao` Báo cáo vi phạm (tab Đang mở / Đã xử lý; Bỏ qua, Ẩn tin, Khóa công ty/ứng viên) · `/thong-ke` Thống kê (phễu kết nối, người dùng mới 14 ngày [mẫu], tin theo quận/loại việc, thời gian phản hồi, tin gắn cờ) · `/cau-hinh` Cấu hình hệ thống (trọng số 5 tiêu chí tổng 100, từ cấm, ngưỡng lương, bán kính, mở đăng ký, khôi phục/đặt lại) | **[có]** (2026-10-29) file `pages/admin/{Reports,Stats,Config}.tsx`. Đóng đăng ký → `/dang-ky` hiện thông báo tạm dừng. Bán kính mặc định đã lưu nhưng form đăng tin chưa đọc |
+| Nút "Báo cáo" phía người dùng | **[có]** `components/report/ReportButton` (lý do + ghi chú → `fileReport`), đặt cuối khung chi tiết việc làm (Kết nối người tìm việc), khung chi tiết ứng viên (Kết nối doanh nghiệp) và `/vi-tri/:id` |
 
 ### Tính năng sẽ có (suy ra từ types/service/nội dung trang chủ, chưa có UI)
 - **Matching**: `MatchResult` gồm điểm 0–100, mức (`high ≥80`, `medium ≥60`, `possible ≥40`,
@@ -223,7 +224,7 @@ Mọi hiệu ứng phải có phương án cho mobile và `prefers-reduced-motio
 - Tự gắn cờ (`flagsOf`): lương dưới mức tối thiểu, thiếu kỹ năng/ca/mô tả, chứa từ cấm. Tin có sẵn mặc định "đang hiện"; tin mới đăng mặc định "chờ duyệt".
 - Tác dụng lên web: `getVisibleJobs()/useVisibleJobs()` (qua `getAllJobs()/useAllJobs()` ở `jobs/catalog.ts`) chỉ gồm tin đã duyệt và công ty không bị khóa → `/viec-lam`, `/cong-ty`, Kết nối, dashboard người tìm việc đều theo. Tra tên vị trí cũ (kết nối, tin nhắn) dùng `findAnyJob` ở `jobs/lookup.ts` để tin đã ẩn vẫn có tên. Ứng viên bị khóa bị bỏ khỏi `candidatesOf`, Tìm ứng viên, Kết nối phía doanh nghiệp. `match/score.ts` không truyền ưu tiên → dùng trọng số trong `config`.
 - `/dang-tin` gửi tin vào hàng chờ duyệt (`submitJob`); `/tuyen-dung/tin-tuyen-dung` có khối "Tin vừa đăng" kèm trạng thái kiểm duyệt.
-- Chưa có UI: Báo cáo (`reports`), Cấu hình (`config`), Thống kê.
+- Báo cáo, Cấu hình, Thống kê đã có UI (xem bảng Quản trị).
 
 ## 8. Thêm tính năng mới — làm ở đâu (cập nhật 2026-10-23)
 
