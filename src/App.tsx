@@ -47,7 +47,6 @@ const JobseekerSettings = lazy(() => import('@pages/jobseeker/Settings'))
 
 // Recruiter pages
 const RecruiterDashboard = lazy(() => import('@pages/recruiter/Dashboard'))
-const PostJob = lazy(() => import('@pages/recruiter/PostJob'))
 const JobListings = lazy(() => import('@pages/recruiter/JobListings'))
 const FindCandidates = lazy(() => import('@pages/recruiter/FindCandidates'))
 const SavedCandidates = lazy(() => import('@pages/recruiter/SavedCandidates'))
@@ -126,7 +125,7 @@ export default function App() {
       <Route element={<ProtectedRoute role="recruiter" />}>
         <Route element={<RecruiterLayout />}>
           <Route path="/tuyen-dung" element={<RecruiterDashboard />} />
-          <Route path="/tuyen-dung/dang-tin" element={<PostJob />} />
+          <Route path="/tuyen-dung/dang-tin" element={<Navigate to="/dang-tin" replace />} />
           <Route path="/tuyen-dung/tin-dang" element={<JobListings />} />
           <Route path="/tuyen-dung/ung-vien-phu-hop" element={<Navigate to="/match" replace />} />
           <Route path="/tuyen-dung/tim-ung-vien" element={<FindCandidates />} />

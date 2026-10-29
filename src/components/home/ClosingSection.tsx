@@ -12,7 +12,7 @@ import type { UserRole } from '@/types'
 const SECOND_CTA: Record<UserRole | 'guest', { to: string; label: string }> = {
   guest: { to: '/dang-ky?role=recruiter', label: 'Tôi cần tuyển người' },
   jobseeker: { to: '/tim-viec/phu-hop', label: 'Xem việc phù hợp với tôi' },
-  recruiter: { to: '/tuyen-dung/dang-tin', label: 'Đăng tin tuyển dụng' },
+  recruiter: { to: '/dang-tin', label: 'Đăng tin tuyển dụng' },
   admin: { to: '/admin', label: 'Vào khu quản trị' },
 }
 

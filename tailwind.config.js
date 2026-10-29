@@ -8,35 +8,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: {
-          50:  '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-        },
-        secondary: {
-          50:  '#f0fdf4',
-          100: '#dcfce7',
-          200: '#bbf7d0',
-          300: '#86efac',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#166534',
-          900: '#14532d',
-        },
-        match: {
-          high:   '#22c55e',
-          medium: '#f59e0b',
-          low:    '#ef4444',
-        },
         // Bảng màu trung tính ấm của Workmate (wm-charcoal, wm-ivory…)
         wm: tokens.palette,
         // Màu trang chủ theo section đang xem — giá trị do useSectionThemes nội suy
@@ -48,16 +19,6 @@ export default {
           line:  'var(--page-line)',
           surface: 'var(--page-surface)',
           edge:  'var(--page-edge)',
-        },
-        // CŨ — chỉ còn trong các component trang chủ không dùng nữa. Không dùng cho code mới.
-        ink: {
-          900: '#08090a',
-          800: '#121315',
-          700: '#1c1e21',
-          600: '#2a2d31',
-          400: '#6b7075',
-          200: '#b9bdc2',
-          100: '#e8eaec',
         },
       },
       fontFamily: {

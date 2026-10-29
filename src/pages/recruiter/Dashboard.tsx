@@ -21,7 +21,7 @@ export default function RecruiterDashboard() {
         description="Theo dõi tin đang mở, ứng viên phù hợp và lịch phỏng vấn trong tuần."
         actions={
           <Link
-            to="/tuyen-dung/dang-tin"
+            to="/dang-tin"
             className={`inline-flex items-center gap-2 rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`}
           >
             <Plus className="h-4 w-4" aria-hidden="true" />

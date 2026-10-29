@@ -73,7 +73,7 @@ export const heroCopy: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin', Her
     lead: 'Đăng tin với lịch làm và tiêu chí rõ ràng — Workmate gợi ý người rảnh đúng ca, sống gần và đủ kỹ năng.',
     search: false,
     actions: [
-      { label: 'Đăng tin tuyển dụng', href: '/tuyen-dung/dang-tin' },
+      { label: 'Đăng tin tuyển dụng', href: '/dang-tin' },
       { label: 'Xem ứng viên phù hợp', href: '/tuyen-dung/ung-vien-phu-hop' },
     ],
   },

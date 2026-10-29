@@ -7,7 +7,7 @@ import DashboardShell from './DashboardShell'
 
 const navItems = [
   { label: 'Tổng quan',          href: '/tuyen-dung',                    icon: LayoutDashboard },
-  { label: 'Đăng tin',           href: '/tuyen-dung/dang-tin',           icon: PlusCircle },
+  { label: 'Đăng tin',           href: '/dang-tin',           icon: PlusCircle },
   { label: 'Tin tuyển dụng',     href: '/tuyen-dung/tin-dang',           icon: List },
   { label: 'Ứng viên phù hợp',   href: '/tuyen-dung/ung-vien-phu-hop',   icon: UserCheck },
   { label: 'Tìm ứng viên',       href: '/tuyen-dung/tim-ung-vien',       icon: Search },

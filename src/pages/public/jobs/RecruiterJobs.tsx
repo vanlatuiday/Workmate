@@ -61,7 +61,7 @@ export default function RecruiterJobs() {
         title="Cần người cho một vị trí khác?"
         text="Đăng tin kèm lịch làm và tiêu chí bắt buộc, Workmate sẽ gợi ý ứng viên khớp lịch gần nơi làm."
       >
-        <PrimaryLink to="/tuyen-dung/dang-tin">Đăng tin mới</PrimaryLink>
+        <PrimaryLink to="/dang-tin">Đăng tin mới</PrimaryLink>
       </ClosingBand>
       <SampleNote>Tin tuyển dụng và số liệu trên trang này là dữ liệu mẫu, giống khu tuyển dụng. Ảnh minh họa từ Unsplash.</SampleNote>
     </>

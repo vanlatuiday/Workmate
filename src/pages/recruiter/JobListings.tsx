@@ -75,7 +75,7 @@ export default function JobListings() {
           {j.status === 'open' ? 'Tạm dừng' : 'Mở lại'}<span className="sr-only"> {j.title}</span>
         </button>
       )}
-      <Link to="/tuyen-dung/dang-tin" className={BTN_SECONDARY} aria-label={`Sửa tin ${j.title}`}>
+      <Link to="/dang-tin" className={BTN_SECONDARY} aria-label={`Sửa tin ${j.title}`}>
         <Pencil className="h-4 w-4" aria-hidden="true" />
         Sửa
       </Link>
@@ -88,7 +88,7 @@ export default function JobListings() {
         title="Tin tuyển dụng"
         description="Quản lý các tin bạn đã đăng, xem ai đang phù hợp với từng vị trí."
         actions={
-          <Link to="/tuyen-dung/dang-tin" className={BTN_PRIMARY}>
+          <Link to="/dang-tin" className={BTN_PRIMARY}>
             <Plus className="h-4 w-4" aria-hidden="true" />
             Đăng tin mới
           </Link>

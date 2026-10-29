@@ -127,10 +127,8 @@ Không dùng modifier độ trong suốt (`/50`) với `page-*` — đó là bi�
 Viền ô nhập liệu (`page-edge`, 60%): 3.65 : 1 trên ivory, 3.28 : 1 trên stone (≥ 3:1 theo WCAG 1.4.11).
 
 ### Màu cũ (legacy)
-- `primary` (xanh dương), `secondary` (xanh lá), `match-*`: đang dùng ở dashboard, trang
-  đăng nhập/đăng ký, `/viec-lam`. **[giả định]** Sẽ được chuyển sang bảng màu trên khi
-  làm lại các trang đó — chưa có quyết định, hỏi chủ dự án trước.
-- `ink-*`: chỉ còn trong component trang chủ cũ không dùng. Không dùng cho code mới.
+Đã gỡ hẳn (2026-10-29): màu `primary`, `secondary`, `match-*`, `ink-*` khỏi `tailwind.config.js`
+và class `.btn-*`, `.card`, `.input`, `.badge-*` khỏi `index.css`. Mọi trang dùng bảng màu trên.
 
 ## Typography
 
