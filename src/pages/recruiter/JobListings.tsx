@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Search, Pause, Play, Users, Handshake, FileText, Heart, XCircle } from 'lucide-react'
+import { Plus, Search, Pencil, Pause, Play, Users, Handshake, FileText, Heart, XCircle } from 'lucide-react'
 import { PageHeader, Panel, StatusBadge, EmptyState } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import { setJobStatus, useCompanyJobs, useJobNumbers, type CompanyJobRow } from '@services/adminService'
@@ -38,7 +38,11 @@ function statusLabel(r: CompanyJobRow) {
 
 /** Vì sao chưa thao tác được với tin chưa được duyệt */
 const lockedNote = (r: CompanyJobRow) =>
-  r.status === 'pending' ? 'Đang chờ quản trị viên duyệt nên chưa thể thao tác.' : 'Tin không còn hiển thị, chưa thể thao tác. Đăng tin mới để thay thế.'
+  r.status === 'pending'
+    ? 'Đang chờ quản trị viên duyệt nên chưa thể thao tác.'
+    : r.posted
+      ? 'Tin không còn hiển thị, chưa thể thao tác. Sửa tin để gửi duyệt lại.'
+      : 'Tin không còn hiển thị, chưa thể thao tác. Đăng tin mới để thay thế.'
 
 export default function JobListings() {
   const rows = useCompanyJobs(DEMO_COMPANY.id)
@@ -77,9 +81,19 @@ export default function JobListings() {
   const actions = (r: CompanyJobRow) => {
     const ok = r.status === 'approved'
     const t = r.job.title
+    // Nút Sửa chỉ có ở tin đăng qua /dang-tin, ở mọi trạng thái (tin bị từ chối/ẩn sửa xong sẽ được duyệt lại)
+    const edit = r.posted && (
+      <Link to={`/dang-tin?sua=${r.job.id}`} className={BTN_SECONDARY}>
+        <Pencil className="h-4 w-4" aria-hidden="true" />
+        Sửa<span className="sr-only"> {t}</span>
+      </Link>
+    )
     if (!ok) {
       return (
-        <p className="text-xs text-page-muted">{lockedNote(r)}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          {edit}
+          <p className="text-xs text-page-muted">{lockedNote(r)}</p>
+        </div>
       )
     }
     if (closing === r.job.id) {
@@ -97,6 +111,7 @@ export default function JobListings() {
           <Users className="h-4 w-4" aria-hidden="true" />
           Xem ứng viên<span className="sr-only"> {t}</span>
         </Link>
+        {edit}
         {r.jobStatus === 'open' ? (
           <button type="button" onClick={() => change(r, 'paused')} className={BTN_SECONDARY}>
             <Pause className="h-4 w-4" aria-hidden="true" />

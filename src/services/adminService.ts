@@ -153,6 +153,9 @@ export const setJobStatus = (jobId: string, status: JobOpenStatus) => useAdminSt
 
 /** Gửi tin mới từ /dang-tin vào hàng chờ duyệt; trả về id */
 export const submitJob = (job: Omit<PostedJob, 'id' | 'postedAt'>) => useAdminStore.getState().submitJob(job)
+/** Lưu chỉnh sửa một tin đã đăng; tin quay lại hàng chờ duyệt */
+export const updateJob = (jobId: string, patch: Parameters<ReturnType<typeof useAdminStore.getState>['updateJob']>[1]) =>
+  useAdminStore.getState().updateJob(jobId, patch)
 export const setModeration = (jobId: string, status: ModerationStatus, reason?: string) =>
   useAdminStore.getState().setModeration(jobId, status, reason)
 export const setCompanyLocked = (id: string, locked: boolean) => useAdminStore.getState().setCompanyLocked(id, locked)

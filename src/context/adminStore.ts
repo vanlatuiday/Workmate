@@ -119,6 +119,8 @@ interface AdminState {
 
   /** Đăng tin mới (từ /dang-tin) → chờ duyệt */
   submitJob: (job: Omit<PostedJob, 'id' | 'postedAt'>) => string
+  /** Sửa tin đã đăng: giữ id/ngày đăng/công ty, đưa tin về "chờ duyệt" để quản trị viên duyệt lại */
+  updateJob: (jobId: string, patch: Omit<PostedJob, 'id' | 'postedAt' | 'companyId'>) => void
   setModeration: (jobId: string, status: ModerationStatus, reason?: string) => void
   setJobStatus: (jobId: string, status: JobOpenStatus) => void
   setCompanyLocked: (companyId: string, locked: boolean) => void
@@ -157,6 +159,12 @@ export const useAdminStore = create<AdminState>()(
         set((s) => ({ posted: [...s.posted, { ...job, id, postedAt: at }], moderation: { ...s.moderation, [id]: { status: 'pending', at } } }))
         return id
       },
+      updateJob: (jobId, patch) =>
+        set((s) => ({
+          posted: s.posted.map((j) => (j.id === jobId ? { ...j, ...patch, id: j.id, postedAt: j.postedAt, companyId: j.companyId } : j)),
+          // Tin sửa phải được duyệt lại; xóa lý do từ chối/ẩn cũ
+          moderation: { ...s.moderation, [jobId]: { status: 'pending', at: now() } },
+        })),
       setModeration: (jobId, status, reason) => set((s) => ({ moderation: { ...s.moderation, [jobId]: { status, reason, at: now() } } })),
       setJobStatus: (jobId, status) => set((s) => ({ jobStatus: { ...s.jobStatus, [jobId]: status } })),
       setCompanyLocked: (companyId, locked) => set((s) => ({ lockedCompanies: { ...s.lockedCompanies, [companyId]: locked } })),

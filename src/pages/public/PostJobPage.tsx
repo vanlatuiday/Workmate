@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { X } from 'lucide-react'
 import TextReveal from '@components/motion/TextReveal'
@@ -6,11 +7,11 @@ import { usePageEnterDelay } from '@components/motion/PageTransition'
 import { useCurtainNavigate } from '@components/motion/PageCurtain'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
-import { submitJob, useAdmin } from '@services/adminService'
+import { submitJob, updateJob, useAdmin } from '@services/adminService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import type { JobType } from '@/types'
-import { CANDIDATES, MATCH_JOBS, type MatchPosition } from './match/data'
+import { CANDIDATES, DEMO_COMPANY, MATCH_JOBS, type MatchPosition } from './match/data'
 import { scoreMatch } from './match/score'
 import { COMPANY } from './personal/companyData'
 import ShiftGrid from './post/ShiftGrid'
@@ -49,19 +50,24 @@ function scheduleText(slots: string[]) {
 export default function PostJobPage() {
   const delay = usePageEnterDelay()
   const curtainTo = useCurtainNavigate()
-  const [title, setTitle] = useState('')
-  const [jobType, setJobType] = useState<JobType | ''>('')
-  const [district, setDistrict] = useState(DISTRICTS[0])
-  const [headcount, setHeadcount] = useState(1)
-  const [minK, setMinK] = useState(28)
-  const [maxK, setMaxK] = useState(32)
-  const [slots, setSlots] = useState<string[]>([])
-  const [skills, setSkills] = useState<string[]>([])
+  // Chế độ sửa: /dang-tin?sua=<id>, chỉ nhận tin đã đăng của công ty demo; id lạ hoặc tin có sẵn thì rơi về đăng tin mới
+  const editId = useSearchParams()[0].get('sua')
+  const [editing] = useState(() =>
+    editId ? useAdmin.getState().posted.find((j) => j.id === editId && j.companyId === DEMO_COMPANY.id) : undefined,
+  )
+  const [title, setTitle] = useState(editing?.title ?? '')
+  const [jobType, setJobType] = useState<JobType | ''>(editing?.jobType ?? '')
+  const [district, setDistrict] = useState(editing?.district ?? DISTRICTS[0])
+  const [headcount, setHeadcount] = useState(editing?.quantity ?? 1)
+  const [minK, setMinK] = useState(editing?.salaryMinK ?? 28)
+  const [maxK, setMaxK] = useState(editing?.salaryMaxK ?? 32)
+  const [slots, setSlots] = useState<string[]>(editing?.slots ?? [])
+  const [skills, setSkills] = useState<string[]>(editing?.skills ?? [])
   const [custom, setCustom] = useState('')
   // Bán kính mặc định lấy từ Cấu hình hệ thống
-  const [radius, setRadius] = useState(() => useAdmin.getState().config.defaultRadiusKm)
-  const [desc, setDesc] = useState('')
-  const [photoIndex, setPhotoIndex] = useState(0)
+  const [radius, setRadius] = useState(() => editing?.radiusKm ?? useAdmin.getState().config.defaultRadiusKm)
+  const [desc, setDesc] = useState(editing?.description ?? '')
+  const [photoIndex, setPhotoIndex] = useState(() => Math.max(0, PHOTOS.findIndex((p) => p.id === editing?.photo.id)))
   const [posted, setPosted] = useState(false)
   const card = useRef<HTMLDivElement>(null)
   const timer = useRef<number>()
@@ -92,6 +98,19 @@ export default function PostJobPage() {
 
   const submit = () => {
     if (!ready || posted) return
+    const fields = {
+      title: title.trim(), district, distanceKm: editing?.distanceKm ?? 1.5, salaryLabel, shiftLabel: scheduleText(slots),
+      skills, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: req.jobType, photo: PHOTOS[photoIndex],
+      description: desc.trim(), quantity: headcount, radiusKm: radius,
+    }
+    // Sửa tin: lưu đè, tin quay lại hàng chờ duyệt rồi về danh sách tin (không sang /match)
+    if (editing) {
+      updateJob(editing.id, fields)
+      toast.success('Đã lưu, tin chờ quản trị viên duyệt lại')
+      setPosted(true)
+      timer.current = window.setTimeout(() => curtainTo('/tuyen-dung/tin-dang', 'Tin tuyển dụng'), 600)
+      return
+    }
     const draft: MatchPosition = {
       id: 'draft',
       job: {
@@ -102,11 +121,7 @@ export default function PostJobPage() {
       radiusKm: radius,
     }
     // Gửi vào hàng chờ duyệt của quản trị viên; tin chỉ hiện công khai sau khi được duyệt
-    submitJob({
-      companyId: 'song-han', title: title.trim(), district, distanceKm: 1.5, salaryLabel, shiftLabel: scheduleText(slots),
-      skills, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: req.jobType, photo: PHOTOS[photoIndex],
-      description: desc.trim(), quantity: headcount, radiusKm: radius,
-    })
+    submitJob({ companyId: DEMO_COMPANY.id, ...fields })
     toast.success('Tin đã gửi, chờ quản trị viên duyệt')
     setPosted(true)
     timer.current = window.setTimeout(() => curtainTo('/match', title.trim(), { draftPosition: draft }), 600)
@@ -114,12 +129,12 @@ export default function PostJobPage() {
 
   return (
     <div className="shell py-section-sm">
-      <p className="eyebrow text-page-muted"><span className="h-px w-8 bg-page-line" />Đăng tin</p>
+      <p className="eyebrow text-page-muted"><span className="h-px w-8 bg-page-line" />{editing ? 'Sửa tin' : 'Đăng tin'}</p>
       <TextReveal
         as="h1"
         immediate
         delay={delay}
-        text="Tin mới, ứng viên hợp ngay khi bạn soạn"
+        text={editing ? 'Sửa tin, ứng viên hợp cập nhật theo' : 'Tin mới, ứng viên hợp ngay khi bạn soạn'}
         className="mt-6 max-w-[20ch] font-display text-display-md font-semibold text-page-fg"
       />
       <p className="mt-4 max-w-xl text-page-muted">Điền thông tin bên trái, bên phải cho thấy tin hiển thị ra sao và có bao nhiêu ứng viên đang hợp.</p>
@@ -233,10 +248,11 @@ export default function PostJobPage() {
               disabled={!ready || posted}
               className={`rounded-full bg-page-fg px-8 py-4 text-sm font-medium text-page-bg transition-opacity disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS}`}
             >
-              Đăng tin
+              {editing ? 'Lưu thay đổi' : 'Đăng tin'}
             </button>
+            {editing && <p className="mt-3 text-sm text-page-muted">Sau khi sửa, tin sẽ chờ quản trị viên duyệt lại.</p>}
             <p className="mt-3 text-sm text-page-muted" aria-live="polite">
-              {ready ? 'Sẵn sàng. Tin sẽ được gửi cho quản trị viên duyệt trước khi hiện công khai.' : `Còn thiếu: ${missing.join(', ')}.`}
+              {ready ? (editing ? 'Sẵn sàng lưu.' : 'Sẵn sàng. Tin sẽ được gửi cho quản trị viên duyệt trước khi hiện công khai.') : `Còn thiếu: ${missing.join(', ')}.`}
             </p>
           </div>
         </form>
