@@ -16,6 +16,7 @@ import CompanyDetailPage from '@pages/public/CompanyDetailPage'
 import PositionDetailPage from '@pages/public/PositionDetailPage'
 import BlogPage from '@pages/public/BlogPage'
 import LoginPage from '@pages/public/LoginPage'
+import ForgotPasswordPage from '@pages/public/ForgotPasswordPage'
 import RegisterPage from '@pages/public/RegisterPage'
 import PersonalPage from '@pages/public/PersonalPage'
 import MatchPage from '@pages/public/MatchPage'
@@ -81,6 +82,7 @@ export default function App() {
         <Route path="/cong-ty/:id" element={<CompanyDetailPage />} />
         <Route path="/cam-nang" element={<BlogPage />} />
         <Route path="/dang-nhap" element={<LoginPage />} />
+        <Route path="/quen-mat-khau" element={<ForgotPasswordPage />} />
         <Route path="/dang-ky" element={<RegisterPage />} />
         <Route path="/ca-nhan" element={<PersonalPage />} />
         <Route path="/match" element={<MatchPage />} />

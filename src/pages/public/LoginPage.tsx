@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AlertCircle, Building2, Eye, EyeOff, Loader2, Search, ShieldCheck } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
-import { DEMO_ACCOUNTS, buildDemoUser, findDemoAccount } from '@constants/demoAccounts'
+import { DEMO_ACCOUNTS, buildDemoUser, findDemoAccount, getEffectivePassword } from '@constants/demoAccounts'
 import { canVisit } from '@constants/roles'
 import { FOCUS } from '@utils/focus'
 import TextReveal from '@components/motion/TextReveal'
@@ -20,7 +20,9 @@ const ICONS = { jobseeker: Search, recruiter: Building2, admin: ShieldCheck } as
 export default function LoginPage() {
   // Tiêu đề trồi lên theo từng chữ khi trang lộ ra (sau các dải chuyển trang nếu có)
   const enter = usePageEnterDelay()
-  const [form, setForm] = useState({ username: '', password: '' })
+  // Có thể nhận sẵn tên đăng nhập từ trang đặt lại mật khẩu
+  const prefill = (useLocation().state as { username?: string } | null)?.username
+  const [form, setForm] = useState({ username: prefill ?? '', password: '' })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -95,7 +97,12 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label htmlFor="login-password" className="block text-sm font-medium mb-2">Mật khẩu</label>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="login-password" className="text-sm font-medium">Mật khẩu</label>
+              <Link to="/quen-mat-khau" className={`inline-flex items-center min-h-10 px-1 text-sm text-page-muted underline underline-offset-4 hover:text-page-fg rounded-control ${FOCUS}`}>
+                Quên mật khẩu?
+              </Link>
+            </div>
             <div className="relative">
               <input
                 id="login-password"
@@ -135,19 +142,20 @@ export default function LoginPage() {
           <div className="mt-4 grid gap-3">
             {DEMO_ACCOUNTS.map((acc) => {
               const Icon = ICONS[acc.role]
+              const password = getEffectivePassword(acc)
               return (
                 <button
                   key={acc.username}
                   type="button"
                   disabled={loading}
-                  onClick={() => quickLogin(acc.username, acc.password)}
+                  onClick={() => quickLogin(acc.username, password)}
                   className={`group flex items-center gap-3 rounded-card border border-page-line bg-page-surface p-4 text-left
                               transition-colors duration-300 hover:border-page-fg disabled:opacity-60 disabled:cursor-not-allowed ${FOCUS}`}
                 >
                   <Icon className="w-5 h-5 shrink-0" aria-hidden />
                   <span>
                     <span className="block text-sm font-medium">{acc.label} · {acc.username}</span>
-                    <span className="block text-xs text-page-muted mt-1">Mật khẩu: {acc.password}</span>
+                    <span className="block text-xs text-page-muted mt-1">Mật khẩu: {password}</span>
                   </span>
                 </button>
               )
