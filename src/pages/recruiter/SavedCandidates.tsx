@@ -3,7 +3,9 @@ import toast from 'react-hot-toast'
 import { Bookmark } from 'lucide-react'
 import { EmptyState, MatchScore, MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
-import { candidatesOf, POSITIONS } from '@pages/public/match/data'
+import { useDemoStore } from '@context/demoStore'
+import { useSettingsStore } from '@context/settingsStore'
+import { POSITIONS, visibleCandidatesOf } from '@pages/public/match/data'
 import { scoreMatch } from '@pages/public/match/score'
 import { expressInterest, useOnNewConnection, usePairStatuses } from '@services/connectionService'
 import { FOCUS } from '@utils/focus'
@@ -17,6 +19,9 @@ export default function SavedCandidates() {
   const savedCandidates = useMatchStore((s) => s.savedCandidates)
   const toggleSaved = useMatchStore((s) => s.toggleSavedCandidate)
   const statusOf = usePairStatuses('recruiter')
+  // Quyền riêng tư của người tìm việc demo: đăng ký để danh sách cập nhật khi đổi cài đặt hoặc kết nối
+  useSettingsStore((s) => s.bySide.seeker.visibility)
+  useDemoStore((s) => s.connections)
 
   useOnNewConnection(() => toast.success('Kết nối thành công'))
 
@@ -26,7 +31,7 @@ export default function SavedCandidates() {
     rows: savedCandidates.flatMap((key) => {
       const i = key.indexOf(':')
       if (key.slice(0, i) !== position.id) return []
-      const cand = candidatesOf(position.id).find((c) => c.id === key.slice(i + 1))
+      const cand = visibleCandidatesOf(position.id).find((c) => c.id === key.slice(i + 1))
       return cand ? [{ key, cand, score: scoreMatch(cand.criteria, position.req, cand.distanceKm).score }] : []
     }),
   })).filter((g) => g.rows.length > 0)

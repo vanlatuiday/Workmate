@@ -3,7 +3,9 @@ import toast from 'react-hot-toast'
 import { Bookmark, BookmarkCheck, MapPin, Search, UserSearch } from 'lucide-react'
 import { EmptyState, MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
-import { CANDIDATES, ME_CANDIDATE, POSITIONS, type MatchCandidate } from '@pages/public/match/data'
+import { useDemoStore } from '@context/demoStore'
+import { useSettingsStore } from '@context/settingsStore'
+import { CANDIDATES, isSeekerVisibleTo, ME_CANDIDATE, POSITIONS, type MatchCandidate } from '@pages/public/match/data'
 import { scoreMatch } from '@pages/public/match/score'
 import { expressInterest, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
 import { useAdmin } from '@services/adminService'
@@ -159,6 +161,9 @@ export default function FindCandidates() {
   const [salaryCap, setSalaryCap] = useState(0)
   // Ứng viên bị quản trị viên khóa không hiện cho doanh nghiệp
   const lockedSeekers = useAdmin((s) => s.lockedSeekers)
+  // Quyền riêng tư của người tìm việc demo: đổi cài đặt hoặc kết nối thì danh sách tính lại
+  const seekerVisibility = useSettingsStore((s) => s.bySide.seeker.visibility)
+  const connections = useDemoStore((s) => s.connections)
 
   useOnNewConnection((c) => {
     const cand = ALL_CANDIDATES.find((x) => x.id === c.seekerId)
@@ -170,13 +175,14 @@ export default function FindCandidates() {
     return ALL_CANDIDATES.filter(
       (c) =>
         !lockedSeekers[c.id] &&
+        (c.id !== ME_CANDIDATE.id || isSeekerVisibleTo()) &&
         (!nq || norm(c.name).includes(nq) || c.criteria.skills.some((s) => norm(s).includes(nq))) &&
         (!area || c.area === area) &&
         skills.every((s) => c.criteria.skills.includes(s)) &&
         sessions.every((s) => freeIn(c, s)) &&
         (!salaryCap || c.criteria.salaryMinK <= salaryCap),
     )
-  }, [q, area, skills, sessions, salaryCap, lockedSeekers])
+  }, [q, area, skills, sessions, salaryCap, lockedSeekers, seekerVisibility, connections])
 
   const toggle = <T,>(arr: T[], v: T) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v])
   const hasFilter = !!(q || area || skills.length || sessions.length || salaryCap)

@@ -13,6 +13,8 @@ import type { JobType } from '@/types'
 import type { JobRequirement, SeekerCriteria } from './score'
 import { useCompanyStore } from '@context/companyStore'
 import { useAdminStore } from '@context/adminStore'
+import { useDemoStore } from '@context/demoStore'
+import { useSettingsStore } from '@context/settingsStore'
 
 /** Tạo danh sách khóa ca từ các ngày và buổi */
 const slots = (days: number[], sessions: number[]) => days.flatMap((d) => sessions.map((s) => `${d}-${s}`))
@@ -259,3 +261,20 @@ export const candidatesOf = (positionId: string): MatchCandidate[] =>
   [...CANDIDATES.filter((c) => c.positionId === positionId), ME_CANDIDATE].filter(
     (c) => !useAdminStore.getState().lockedSeekers[c.id],
   )
+
+/** Người tìm việc demo có hiện với doanh nghiệp theo cài đặt "Quyền riêng tư" không.
+ * public: luôn hiện · hidden: không bao giờ · connected: chỉ khi đã kết nối với tin `jobId`
+ * (không truyền `jobId` = hiện nếu đã kết nối với ít nhất một tin của doanh nghiệp).
+ * Chỉ dùng cho danh sách ứng viên/tìm kiếm — không dùng để dán nhãn kết nối, tin nhắn, lịch hẹn có sẵn.
+ * Hàm đọc thẳng kho: component gọi nó cần đăng ký `visibility` và `connections` để cập nhật. */
+export function isSeekerVisibleTo(jobId?: string): boolean {
+  const visibility = useSettingsStore.getState().bySide.seeker.visibility
+  if (visibility === 'public') return true
+  if (visibility === 'hidden') return false
+  const connections = useDemoStore.getState().connections
+  return connections.some((c) => c.seekerId === ME && (jobId ? c.jobId === jobId : POSITIONS.some((p) => p.id === c.jobId)))
+}
+
+/** Ứng viên của một tin như doanh nghiệp được thấy: như `candidatesOf` nhưng tôn trọng quyền riêng tư của người tìm việc demo */
+export const visibleCandidatesOf = (positionId: string): MatchCandidate[] =>
+  candidatesOf(positionId).filter((c) => c.id !== ME_CANDIDATE.id || isSeekerVisibleTo(positionId))

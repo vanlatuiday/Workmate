@@ -1,5 +1,6 @@
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useAuthStore } from '@context/authStore'
+import { useSettingsStore } from '@context/settingsStore'
 import { Facts, PrimaryLink, ProfileTag, TextLink } from '@components/discover/parts'
 import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
 import DetailHero from '@components/discover/detail/DetailHero'
@@ -24,12 +25,24 @@ export default function CompanyDetailPage() {
   // Công ty của doanh nghiệp demo nằm ngoài COMPANIES: lấy qua companyOf để nhận cả phần đã sửa ở Hồ sơ công ty
   const company = findCompany(id) ?? (id === DEMO_COMPANY.id ? companyOf(id) : undefined)
   const role = useAuthStore((s) => s.user?.role)
+  // Doanh nghiệp demo tắt "Công khai trang công ty": chỉ chính họ (và quản trị viên) còn xem được trang
+  const companyHidden = useSettingsStore((s) => s.bySide.recruiter.visibility === 'hidden')
+  const hiddenPage = company?.id === DEMO_COMPANY.id && companyHidden
 
   if (!company) {
     return (
       <DetailNotFound
         title="Không tìm thấy công ty"
         text="Công ty này không có trong dữ liệu mẫu hoặc đường dẫn đã thay đổi."
+      />
+    )
+  }
+
+  if (hiddenPage && role !== 'recruiter' && role !== 'admin') {
+    return (
+      <DetailNotFound
+        title="Trang công ty này đang ẩn"
+        text="Doanh nghiệp đã tạm ẩn trang giới thiệu. Các tin tuyển dụng của họ vẫn xem được ở mục Việc làm."
       />
     )
   }
@@ -72,6 +85,11 @@ export default function CompanyDetailPage() {
       />
 
       <DetailLayout aside={aside}>
+        {hiddenPage && (
+          <p className="rounded-card border border-page-line p-4 text-sm text-page-muted">
+            Trang này đang ẩn với người khác. <Link to="/tuyen-dung/cai-dat" className="text-page-fg underline underline-offset-4">Đổi trong Cài đặt</Link>
+          </p>
+        )}
         <TextBlock title="Về công ty">
           <p className="text-base md:text-lg leading-relaxed">{company.about}</p>
         </TextBlock>

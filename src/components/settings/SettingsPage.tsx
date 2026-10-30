@@ -47,6 +47,12 @@ const VISIBILITIES: { value: ProfileVisibility; label: string }[] = [
   { value: 'connected', label: 'Chỉ doanh nghiệp đã kết nối' },
   { value: 'hidden', label: 'Ẩn hồ sơ' },
 ]
+/** Giải thích tác dụng của từng mức hiển thị hồ sơ */
+const SEEKER_VISIBILITY_HINT: Record<ProfileVisibility, string> = {
+  public: 'Mọi doanh nghiệp thấy bạn trong danh sách ứng viên.',
+  connected: 'Doanh nghiệp chỉ thấy bạn trong danh sách ứng viên của tin mà bạn đã kết nối. Các kết nối đã có vẫn giữ nguyên.',
+  hidden: 'Doanh nghiệp không thấy bạn trong danh sách ứng viên. Các kết nối đã có vẫn giữ nguyên.',
+}
 
 /** Công tắc bật/tắt (role="switch") kèm nhãn; bật = nền đặc */
 function Switch({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
@@ -172,11 +178,21 @@ export default function SettingsPage({ side }: { side: Side }) {
 
         <Section title="Quyền riêng tư">
           {side === 'seeker' ? (
-            <RadioGroup legend="Ai xem được hồ sơ" options={VISIBILITIES} value={settings.visibility} onChange={(v) => { update(side, { visibility: v }); saved() }} />
+            <>
+              <RadioGroup legend="Ai xem được hồ sơ" options={VISIBILITIES} value={settings.visibility} onChange={(v) => { update(side, { visibility: v }); saved() }} />
+              <p className="mt-3 text-sm text-page-muted">{SEEKER_VISIBILITY_HINT[settings.visibility]}</p>
+            </>
           ) : (
-            <ul>
-              <Switch label="Công khai trang công ty" checked={settings.visibility !== 'hidden'} onChange={(on) => { update(side, { visibility: on ? 'public' : 'hidden' }); saved() }} />
-            </ul>
+            <>
+              <ul>
+                <Switch label="Công khai trang công ty" checked={settings.visibility !== 'hidden'} onChange={(on) => { update(side, { visibility: on ? 'public' : 'hidden' }); saved() }} />
+              </ul>
+              <p className="mt-3 text-sm text-page-muted">
+                {settings.visibility === 'hidden'
+                  ? 'Đang ẩn: khách và người tìm việc không xem được trang công ty của bạn. Các tin tuyển dụng vẫn hiện bình thường.'
+                  : 'Đang công khai: ai cũng xem được trang công ty. Tắt để ẩn trang này; các tin tuyển dụng vẫn hiện bình thường.'}
+              </p>
+            </>
           )}
         </Section>
 

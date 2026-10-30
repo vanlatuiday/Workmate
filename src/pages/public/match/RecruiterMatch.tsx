@@ -5,13 +5,15 @@ import { Bookmark, Check, Clock, MapPin, UserCheck, UserX, Wallet } from 'lucide
 import InterviewAction from '@components/interview/InterviewAction'
 import { EmptyState, MatchScore, MockNotice, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
+import { useDemoStore } from '@context/demoStore'
+import { useSettingsStore } from '@context/settingsStore'
 import { expressInterest, getPairStatus, RECRUITER_JOBS, resetDemoData, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { SEEKER_PUBLIC_HREF } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
-import { CANDIDATES, candidatesOf, ME_CANDIDATE, POSITIONS, type MatchCandidate, type MatchPosition } from './data'
+import { CANDIDATES, isSeekerVisibleTo, ME_CANDIDATE, visibleCandidatesOf, POSITIONS, type MatchCandidate, type MatchPosition } from './data'
 import CurvedGallery from './gallery/CurvedGallery'
 import MatchArches from './MatchArches'
 import ReportButton from '@components/report/ReportButton'
@@ -72,18 +74,21 @@ export default function RecruiterMatch() {
   })
 
   const lockedSeekers = useAdmin((s) => s.lockedSeekers)
+  // Quyền riêng tư của người tìm việc demo: đổi cài đặt hoặc kết nối thì danh sách tính lại
+  const seekerVisibility = useSettingsStore((s) => s.bySide.seeker.visibility)
+  const connections = useDemoStore((s) => s.connections)
 
   // Chấm điểm ứng viên của vị trí đang chọn (ưu tiên mặc định), cao trước
   const scored = useMemo(
     () =>
       (position.id === 'draft'
-        ? [...CANDIDATES, ME_CANDIDATE].filter((c, i, all) => all.findIndex((x) => x.name === c.name) === i && !lockedSeekers[c.id])
-        : candidatesOf(position.id)
+        ? [...CANDIDATES, ME_CANDIDATE].filter((c, i, all) => all.findIndex((x) => x.name === c.name) === i && !lockedSeekers[c.id] && (c.id !== ME_CANDIDATE.id || isSeekerVisibleTo(position.id)))
+        : visibleCandidatesOf(position.id)
       )
         .map((c) => ({ c, key: candidateKey(position.id, c.id), outcome: scoreMatch(c.criteria, req, c.distanceKm) }))
         .sort((a, b) => b.outcome.score - a.outcome.score),
-    // lockedSeekers: đổi khi quản trị viên khóa/mở khóa ứng viên (candidatesOf đọc thẳng kho)
-    [position.id, req, lockedSeekers],
+    // lockedSeekers: đổi khi quản trị viên khóa/mở khóa ứng viên (candidatesOf đọc thẳng kho); quyền riêng tư: xem isSeekerVisibleTo
+    [position.id, req, lockedSeekers, seekerVisibility, connections],
   )
 
   const skipped = scored.filter((x) => skippedCandidates.includes(x.key))
