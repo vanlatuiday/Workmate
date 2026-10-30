@@ -85,9 +85,11 @@ export default function ReviewDialog({ viewer, jobId, seekerId, targetName, onCl
                   key={t}
                   type="button"
                   aria-pressed={on}
+                  // Đủ số thẻ: khóa các thẻ chưa chọn để thấy rõ giới hạn
+                  disabled={!on && tags.length >= REVIEW_MAX_TAGS}
                   onClick={() => toggleTag(t)}
                   className={cn(
-                    'min-h-10 rounded-full border px-3.5 py-1.5 text-sm transition-colors duration-300',
+                    'min-h-10 rounded-full border px-3.5 py-1.5 text-sm transition-colors duration-300 disabled:cursor-not-allowed disabled:opacity-40',
                     on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
                     FOCUS,
                   )}

@@ -134,10 +134,14 @@ export default function PostJobPage() {
         as="h1"
         immediate
         delay={delay}
-        text={editing ? 'Sửa tin, ứng viên hợp cập nhật theo' : 'Tin mới, ứng viên hợp ngay khi bạn soạn'}
+        text={editing ? 'Sửa tin, xem ngay ai còn phù hợp' : 'Tin mới, ứng viên hợp ngay khi bạn soạn'}
         className="mt-6 max-w-[20ch] font-display text-display-md font-semibold text-page-fg"
       />
-      <p className="mt-4 max-w-xl text-page-muted">Điền thông tin bên trái, bên phải cho thấy tin hiển thị ra sao và có bao nhiêu ứng viên đang hợp.</p>
+      <p className="mt-4 max-w-xl text-page-muted">
+        {editing
+          ? 'Thông tin cũ đã được điền sẵn. Sửa bên trái, bên phải cập nhật tin hiển thị ra sao và có bao nhiêu ứng viên đang hợp.'
+          : 'Điền thông tin bên trái, bên phải cho thấy tin hiển thị ra sao và có bao nhiêu ứng viên đang hợp.'}
+      </p>
 
       <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12">
         <form className="space-y-5 lg:col-span-7" onSubmit={(e) => { e.preventDefault(); submit() }}>
