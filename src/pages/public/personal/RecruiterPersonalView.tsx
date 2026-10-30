@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import PersonalArchive from '@components/archive/PersonalArchive'
 import type { ArchiveEntry } from '@components/archive/types'
+import { CompanyReviews } from '@components/hire'
+import { DEMO_COMPANY } from '@pages/public/match/data'
 import { Facts, SampleNote } from '@components/discover/parts'
 import { JOB_STATUS_LABELS, MOCK_JOBS } from '@pages/recruiter/mockData'
 import PersonalIntro from './PersonalIntro'
@@ -201,6 +203,9 @@ export default function RecruiterPersonalView({ owner }: Opts) {
           />
         }
       />
+      <div className="shell pb-section-sm">
+        <CompanyReviews companyId={DEMO_COMPANY.id} className="mx-auto max-w-2xl" />
+      </div>
       <SampleNote>Thông tin doanh nghiệp là dữ liệu mẫu, sẽ thay bằng dữ liệu thật. Ảnh minh họa từ Unsplash.</SampleNote>
     </>
   )

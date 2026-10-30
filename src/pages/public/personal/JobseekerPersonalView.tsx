@@ -1,5 +1,7 @@
 import PersonalArchive from '@components/archive/PersonalArchive'
 import type { ArchiveEntry } from '@components/archive/types'
+import { SeekerReviews } from '@components/hire'
+import { ME } from '@services/connectionService'
 import { SampleNote } from '@components/discover/parts'
 import { JOB_TYPES } from '@constants/index'
 import { RECENT_APPLICATIONS } from '@pages/jobseeker/mockData'
@@ -216,6 +218,9 @@ export default function JobseekerPersonalView({ owner }: Opts) {
           />
         }
       />
+      <div className="shell pb-section-sm">
+        <SeekerReviews seekerId={ME} className="mx-auto max-w-2xl" />
+      </div>
       <SampleNote>Hồ sơ trên trang này là dữ liệu mẫu, dùng chung với khu tìm việc. Ảnh minh họa từ Unsplash.</SampleNote>
     </>
   )

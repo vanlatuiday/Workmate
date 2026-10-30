@@ -10,6 +10,7 @@ import BackLink from '@components/discover/detail/BackLink'
 import ApplicantCard from '@components/discover/detail/ApplicantCard'
 import JobLinks from '@components/discover/detail/JobLinks'
 import { ImageBlock, TagList, TextBlock } from '@components/discover/detail/DetailBlocks'
+import { CompanyReviews } from '@components/hire'
 import Reveal from '@components/motion/Reveal'
 import { applicantsOf, findCompany } from './jobs/data'
 import { jobsOfCompany } from './jobs/catalog'
@@ -106,6 +107,10 @@ export default function CompanyDetailPage() {
 
         <TextBlock title="Việc đang tuyển">
           <JobLinks jobs={jobs} />
+        </TextBlock>
+
+        <TextBlock title="Đánh giá từ người đã làm">
+          <CompanyReviews companyId={company.id} hideTitle />
         </TextBlock>
 
         {withApplicants && (

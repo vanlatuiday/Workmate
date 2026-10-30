@@ -37,11 +37,12 @@ export interface DemoNotification {
    * interview_invited = doanh nghiệp mời phỏng vấn · interview_confirmed / interview_declined =
    * người tìm việc chọn giờ / từ chối · interview_cancelled = doanh nghiệp hủy ·
    * offer = doanh nghiệp mời nhận việc · offer_accepted / offer_declined = người tìm việc xác nhận đi làm / từ chối ·
-   * offer_withdrawn = doanh nghiệp rút lời mời · rejected = doanh nghiệp không nhận
+   * offer_withdrawn = doanh nghiệp rút lời mời · rejected = doanh nghiệp không nhận ·
+   * review = phía kia vừa gửi đánh giá sau khi đi làm
    */
   kind:
     | 'interest' | 'connected' | 'interview_invited' | 'interview_confirmed' | 'interview_declined' | 'interview_cancelled'
-    | 'offer' | 'offer_accepted' | 'offer_declined' | 'offer_withdrawn' | 'rejected'
+    | 'offer' | 'offer_accepted' | 'offer_declined' | 'offer_withdrawn' | 'rejected' | 'review'
   jobId: string
   seekerId: string
   at: string
@@ -88,6 +89,25 @@ export interface Hire {
   /** Lúc đổi trạng thái gần nhất */
   updatedAt: string
 }
+
+/**
+ * Đánh giá hai chiều sau khi đi làm. `from` = phía viết: seeker → đánh giá công ty (của tin `jobId`),
+ * recruiter → đánh giá người tìm việc. Mỗi (jobId, seekerId, from) chỉ một đánh giá, gửi rồi không sửa.
+ */
+export interface Review {
+  jobId: string
+  seekerId: string
+  from: Side
+  /** 1–5 sao */
+  stars: number
+  /** Thẻ nhanh (tối đa 3) */
+  tags: string[]
+  comment?: string
+  at: string
+}
+
+export const REVIEW_MAX_TAGS = 3
+export const REVIEW_MAX_COMMENT = 300
 
 export interface Message {
   id: string
@@ -196,7 +216,14 @@ function seed() {
   const hires: Hire[] = [
     { jobId: 'j1', seekerId: 'u3', status: 'accepted', startDate: new Date(Date.now() - 86_400_000).toLocaleDateString('sv-SE'), note: 'Chào mừng bạn, hẹn gặp ở quán nhé!', at: t(2000), updatedAt: t(1900) },
   ]
-  return { interests, connections, notifications, messages, interviews, hires, lastRead: { [`seeker|${convKey('m1', ME)}`]: t(1420) } }
+  // Vài đánh giá mẫu để trang công ty / hồ sơ không trống (ứng viên mẫu, không phải tài khoản demo)
+  const reviews: Review[] = [
+    { jobId: 'j1', seekerId: 'u3', from: 'seeker', stars: 5, tags: ['Trả lương đúng hẹn', 'Môi trường thân thiện'], comment: 'Quản lý hướng dẫn kỹ ngay từ ca đầu, lương trả đúng hẹn.', at: t(1200) },
+    { jobId: 'j1', seekerId: 'u3', from: 'recruiter', stars: 4, tags: ['Đúng giờ', 'Chăm chỉ'], comment: 'Bạn nhận ca đều và làm việc nghiêm túc.', at: t(1100) },
+    { jobId: 'j2', seekerId: 'u6', from: 'seeker', stars: 4, tags: ['Đúng mô tả công việc'], comment: 'Việc đúng như mô tả, ca làm ổn định.', at: t(9000) },
+    { jobId: 'j4', seekerId: 'u16', from: 'seeker', stars: 5, tags: ['Quản lý hướng dẫn tận tình', 'Môi trường thân thiện'], at: t(20000) },
+  ]
+  return { interests, connections, notifications, messages, interviews, hires, reviews, lastRead: { [`seeker|${convKey('m1', ME)}`]: t(1420) } }
 }
 
 interface DemoState {
@@ -206,6 +233,7 @@ interface DemoState {
   messages: Message[]
   interviews: Interview[]
   hires: Hire[]
+  reviews: Review[]
   /** Lần cuối mỗi phía mở cuộc trò chuyện: `${side}|${convKey}` → thời điểm (đếm tin chưa đọc) */
   lastRead: Record<string, string>
   /** Phía kia đang gõ (không lưu) — convKey → phía đang gõ */
@@ -232,6 +260,8 @@ interface DemoState {
   acceptOffer: (jobId: string, seekerId: string) => void
   /** Người tìm việc từ chối lời mời */
   declineOffer: (jobId: string, seekerId: string, reason?: string) => void
+  /** Gửi đánh giá — chỉ khi cặp đã xác nhận đi làm và đã tới ngày bắt đầu; mỗi phía một lần, không sửa */
+  submitReview: (input: { jobId: string; seekerId: string; from: Side; stars: number; tags: string[]; comment?: string }) => void
   /** Bày tỏ quan tâm; hai bên cùng quan tâm → tạo kết nối + thông báo cả hai phía */
   expressInterest: (from: Side, jobId: string, seekerId: string) => void
   /** Rút quan tâm (chỉ khi chưa kết nối) */
@@ -430,11 +460,28 @@ export const useDemoStore = create<DemoState>()(
         })
       },
 
+      submitReview: ({ jobId, seekerId, from, stars, tags, comment }) => {
+        const s = get()
+        const h = s.hires.find((x) => x.jobId === jobId && x.seekerId === seekerId)
+        if (!h || h.status !== 'accepted' || (h.startDate && h.startDate > new Date().toLocaleDateString('sv-SE'))) return
+        if (s.reviews.some((r) => r.jobId === jobId && r.seekerId === seekerId && r.from === from)) return
+        if (!Number.isInteger(stars) || stars < 1 || stars > 5) return
+        const at = now()
+        const text = comment?.trim().slice(0, REVIEW_MAX_COMMENT)
+        const to: Side = from === 'seeker' ? 'recruiter' : 'seeker'
+        // Chỉ báo khi phía nhận là tài khoản demo (người tìm việc 'me' / tin j1–j4)
+        const reachesDemoUser = to === 'seeker' ? seekerId === ME : RECRUITER_JOBS.includes(jobId)
+        set({
+          reviews: [...s.reviews, { jobId, seekerId, from, stars, tags: tags.slice(0, REVIEW_MAX_TAGS), comment: text || undefined, at }],
+          notifications: reachesDemoUser ? [...s.notifications, { id: nid(), to, kind: 'review', jobId, seekerId, at, read: false }] : s.notifications,
+        })
+      },
+
       markRead: (id) => set((s) => ({ notifications: s.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)) })),
       markAllRead: (to) => set((s) => ({ notifications: s.notifications.map((n) => (n.to === to ? { ...n, read: true } : n)) })),
       reset: () => set({ ...seed(), typing: {} }),
     }),
-    { name: 'workmate-demo', version: 4,
+    { name: 'workmate-demo', version: 5,
       // Bản lưu cũ thiếu phần nào thì bổ sung dữ liệu mẫu của phần đó
       migrate: (persisted, version) => {
         const p = persisted as Partial<DemoState>
@@ -444,6 +491,8 @@ export const useDemoStore = create<DemoState>()(
         if (version < 3) Object.assign(p, { interviews: fresh.interviews })
         // v4 thêm nhận việc (bản cũ chưa có ai được nhận)
         if (version < 4) Object.assign(p, { hires: [] })
+        // v5 thêm đánh giá hai chiều
+        if (version < 5) Object.assign(p, { reviews: fresh.reviews })
         return p as DemoState
       },
       partialize: (s) => ({
@@ -453,6 +502,7 @@ export const useDemoStore = create<DemoState>()(
         messages: s.messages,
         interviews: s.interviews,
         hires: s.hires,
+        reviews: s.reviews,
         lastRead: s.lastRead,
       }) },
   ),

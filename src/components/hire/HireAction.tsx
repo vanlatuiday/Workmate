@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { BriefcaseBusiness } from 'lucide-react'
+import { BriefcaseBusiness, Star } from 'lucide-react'
 import { StatusBadge } from '@components/dashboard'
-import { acceptOffer, declineOffer, rejectCandidate, useActiveInterview, useHire, withdrawOffer, type Side } from '@services/connectionService'
+import { describeConversation } from '@pages/public/messages/describe'
+import { acceptOffer, declineOffer, rejectCandidate, useActiveInterview, useHire, useReview, withdrawOffer, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import ConfirmDialog from './ConfirmDialog'
-import { hireLabel } from './format'
+import { hireLabel, todayStr } from './format'
 import OfferDialog from './OfferDialog'
+import ReviewDialog from './ReviewDialog'
 
 type Props = { viewer: Side; jobId: string; seekerId: string; compact?: boolean }
-type Open = 'offer' | 'reject' | 'withdraw' | 'decline' | null
+type Open = 'offer' | 'reject' | 'withdraw' | 'decline' | 'review' | null
 
 const BTN = 'inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border font-medium transition-colors duration-300'
 const SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
@@ -25,6 +27,7 @@ const LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 export default function HireAction({ viewer, jobId, seekerId, compact }: Props) {
   const hire = useHire(jobId, seekerId)
   const iv = useActiveInterview(jobId, seekerId)
+  const myReview = useReview(jobId, seekerId, viewer)
   const [open, setOpen] = useState<Open>(null)
   const size = compact ? 'px-3.5 py-1.5 text-xs' : 'px-5 py-2.5 text-sm'
   const close = () => setOpen(null)
@@ -67,6 +70,33 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
       {hireLabel(viewer, hire)}
     </StatusBadge>
   )
+
+  // Đã xác nhận đi làm: đánh giá hai chiều mở từ ngày bắt đầu, mỗi phía một lần
+  if (hire.status === 'accepted') {
+    const started = !hire.startDate || hire.startDate <= todayStr()
+    return (
+      <>
+        {chip}
+        {!started && hire.startDate && (
+          <span className={cn('text-page-muted', compact ? 'text-xs' : 'text-sm')}>Đánh giá được từ ngày bắt đầu làm</span>
+        )}
+        {started && myReview && (
+          <span className="inline-flex items-center gap-1 text-xs text-page-muted">
+            Đã đánh giá <Star className="h-3.5 w-3.5 fill-current text-page-fg" aria-hidden="true" /><span className="font-medium text-page-fg">{myReview.stars}</span>
+          </span>
+        )}
+        {started && !myReview && (
+          <button type="button" onClick={() => setOpen('review')} className={cn(LINE, size, FOCUS)}>
+            <Star className="h-4 w-4" aria-hidden="true" />
+            Đánh giá
+          </button>
+        )}
+        {open === 'review' && (
+          <ReviewDialog viewer={viewer} jobId={jobId} seekerId={seekerId} targetName={describeConversation(viewer, jobId, seekerId).name} onClose={close} />
+        )}
+      </>
+    )
+  }
 
   if (hire.status !== 'offered') return chip
 

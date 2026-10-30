@@ -1,3 +1,5 @@
 export { default as HireAction } from './HireAction'
 export { default as HireStatusChip } from './HireStatusChip'
 export { default as OfferCard } from './OfferCard'
+export { default as ReviewDialog } from './ReviewDialog'
+export { CompanyReviews, SeekerReviews } from './ReviewList'

@@ -37,3 +37,16 @@ export function hireLabel(viewer: Side, hire: { status: HireStatus; startDate?: 
   if (hire.startDate > todayStr()) return viewer === 'recruiter' ? `Nhận việc · bắt đầu ${day}` : `Sẽ đi làm từ ${day}`
   return `Đã đi làm · từ ${day}`
 }
+
+/** Thẻ nhanh khi đánh giá: người tìm việc → công ty, doanh nghiệp → người tìm việc */
+export const REVIEW_TAGS: Record<Side, string[]> = {
+  seeker: ['Trả lương đúng hẹn', 'Đúng mô tả công việc', 'Môi trường thân thiện', 'Quản lý hướng dẫn tận tình'],
+  recruiter: ['Đúng giờ', 'Chăm chỉ', 'Học việc nhanh', 'Thái độ tốt'],
+}
+
+/** Rút gọn tên người: "Nguyễn Văn An" → "Nguyễn V. A." (tên đã viết tắt thì giữ nguyên) */
+export function abbreviateName(full: string): string {
+  const parts = full.trim().split(/\s+/).filter(Boolean)
+  if (parts.length <= 1) return full.trim()
+  return [parts[0], ...parts.slice(1).map((w) => (w.endsWith('.') ? w : `${w[0].toUpperCase()}.`))].join(' ')
+}

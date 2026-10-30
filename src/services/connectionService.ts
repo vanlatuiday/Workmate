@@ -2,11 +2,12 @@
 // Hiện đọc/ghi kho demo (`@context/demoStore`); khi có backend, đổi ruột các hàm này sang
 // gọi API (`./api`, `./matchService`) — chữ ký giữ nguyên nên giao diện không phải sửa.
 import { isNotifyOn, useSettingsStore } from '@context/settingsStore'
-import { useDemoStore, convKey, ME, RECRUITER_JOBS, type Connection, type Hire, type Interview, type Message, type Side } from '@context/demoStore'
+import { useDemoStore, convKey, ME, RECRUITER_JOBS, type Connection, type Hire, type Interview, type Message, type Review, type Side } from '@context/demoStore'
 
 export { ME, RECRUITER_JOBS }
-export type { Side, Interest, Connection, DemoNotification, Message, Interview, InterviewMode, InterviewStatus, Hire, HireStatus } from '@context/demoStore'
+export type { Side, Interest, Connection, DemoNotification, Message, Interview, InterviewMode, InterviewStatus, Hire, HireStatus, Review } from '@context/demoStore'
 export { convKey }
+export { REVIEW_MAX_COMMENT, REVIEW_MAX_TAGS } from '@context/demoStore'
 
 /** Trạng thái giữa một vị trí và một người tìm việc, nhìn từ phía `viewer` */
 export type PairStatus =
@@ -183,6 +184,29 @@ export const withdrawOffer = (jobId: string, seekerId: string) => useDemoStore.g
 /** Người tìm việc xác nhận đi làm — lúc này cặp mới tính là "đã đi làm" */
 export const acceptOffer = (jobId: string, seekerId: string) => useDemoStore.getState().acceptOffer(jobId, seekerId)
 export const declineOffer = (jobId: string, seekerId: string, reason?: string) => useDemoStore.getState().declineOffer(jobId, seekerId, reason)
+
+// ─── Đánh giá hai chiều sau khi đi làm ──────────────────────────────────────
+
+/** Hook: đánh giá `from` đã gửi cho một cặp, nếu có */
+export function useReview(jobId: string, seekerId: string, from: Side): Review | undefined {
+  return useDemoStore((s) => s.reviews.find((r) => r.jobId === jobId && r.seekerId === seekerId && r.from === from))
+}
+
+/** Hook: mọi đánh giá, mới nhất trước (trang hiển thị tự lọc theo công ty / người tìm việc) */
+export function useReviews(): Review[] {
+  const all = useDemoStore((s) => s.reviews)
+  return [...all].sort((a, b) => b.at.localeCompare(a.at))
+}
+
+/** Điểm trung bình (1 số lẻ) và số lượng của một nhóm đánh giá */
+export function reviewStats(list: Review[]): { average: number; count: number } {
+  const count = list.length
+  return { average: count ? Math.round((list.reduce((n, r) => n + r.stars, 0) / count) * 10) / 10 : 0, count }
+}
+
+/** Gửi đánh giá — kho tự bỏ qua nếu chưa tới ngày đi làm, đã đánh giá rồi hoặc dữ liệu sai */
+export const submitReview = (input: { jobId: string; seekerId: string; from: Side; stars: number; tags: string[]; comment?: string }) =>
+  useDemoStore.getState().submitReview(input)
 
 // ─── Danh sách cho dashboard ────────────────────────────────────────────────
 

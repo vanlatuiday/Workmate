@@ -1,5 +1,5 @@
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { Bell, CalendarCheck, CalendarPlus, CalendarX, Handshake, Heart, BriefcaseBusiness, UserCheck, UserX, Undo2, HeartHandshake, type LucideIcon } from 'lucide-react'
+import { Bell, CalendarCheck, CalendarPlus, CalendarX, Handshake, Heart, BriefcaseBusiness, UserCheck, UserX, Undo2, HeartHandshake, Star, type LucideIcon } from 'lucide-react'
 import { EmptyState } from '@components/dashboard'
 import { useAuthStore } from '@context/authStore'
 import {
@@ -23,6 +23,7 @@ const ICONS: Record<DemoNotification['kind'], LucideIcon> = {
   offer_declined: UserX,
   offer_withdrawn: Undo2,
   rejected: HeartHandshake,
+  review: Star,
 }
 
 /** Câu mô tả bằng tên thật của hai phía, theo người xem */
@@ -51,6 +52,8 @@ function sentence(viewer: Side, n: DemoNotification) {
       return `${name} đã từ chối lời mời nhận việc vị trí ${subtitle}`
     case 'offer_withdrawn':
       return `${name} đã rút lời mời nhận việc vị trí ${subtitle}`
+    case 'review':
+      return `${name} vừa gửi đánh giá sau khi làm việc cùng bạn (vị trí ${subtitle})`
     case 'rejected':
       return `${name} cảm ơn bạn đã quan tâm vị trí ${subtitle}, lần này chưa phù hợp. Chúc bạn sớm tìm được việc ưng ý`
   }
@@ -58,6 +61,7 @@ function sentence(viewer: Side, n: DemoNotification) {
 
 const targetOf = (n: DemoNotification) => {
   switch (n.kind) {
+    case 'review': return '/ca-nhan'
     case 'interest': return '/match'
     case 'connected': return `/tin-nhan?c=${n.jobId}|${n.seekerId}`
     case 'offer': case 'offer_withdrawn': case 'rejected': return '/tim-viec/ung-tuyen'
