@@ -2,6 +2,7 @@
 // Hiện đọc/ghi kho demo (`@context/demoStore`); khi có backend, đổi ruột các hàm này sang
 // gọi API (`./api`, `./matchService`) — chữ ký giữ nguyên nên giao diện không phải sửa.
 import { isNotifyOn, useSettingsStore } from '@context/settingsStore'
+import { useAdminStore } from '@context/adminStore'
 import { useDemoStore, convKey, ME, RECRUITER_JOBS, type Connection, type Hire, type Interview, type Message, type Review, type Side } from '@context/demoStore'
 
 export { ME, RECRUITER_JOBS }
@@ -79,8 +80,11 @@ export { useOnNewConnection } from './connectionEvents'
 
 export const markNotificationRead = (id: string) => useDemoStore.getState().markRead(id)
 export const markAllNotificationsRead = (to: Side) => useDemoStore.getState().markAllRead(to)
-/** Đưa dữ liệu demo về ban đầu */
-export const resetDemoData = () => useDemoStore.getState().reset()
+/** Đưa dữ liệu demo về ban đầu (cả phần quản trị: tin đã sửa, kiểm duyệt, cấu hình) */
+export const resetDemoData = () => {
+  useDemoStore.getState().reset()
+  useAdminStore.getState().reset()
+}
 
 // ─── Tin nhắn (chỉ giữa hai bên đã kết nối) ──────────────────────────────────
 
