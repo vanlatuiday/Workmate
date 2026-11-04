@@ -184,6 +184,9 @@ html[data-intro] [data-hero-item] {
 .grain {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.14 0 0 0 0 0.145 0 0 0 0 0.133 0 0 0 0.7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   opacity: 0.07;
+  /* Lớp riêng: vẽ nhiễu SVG một lần rồi chỉ ghép hình. Không có dòng này, mỗi khung
+     nền đổi màu khi cuộn là cả lớp phủ toàn màn hình bị vẽ lại → khựng ở intro. */
+  will-change: transform;
 }
 
 /* Viền focus bàn phím ở trang chủ: theo màu chữ (ngà trên nền tối, than chì trên

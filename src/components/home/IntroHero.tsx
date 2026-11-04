@@ -1,10 +1,10 @@
-import { forwardRef, lazy, Suspense, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, lazy, Suspense, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Search, MapPin, ArrowDown, ArrowUpRight } from 'lucide-react'
 
 import { gsap, useGSAP } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
-import { scrollToY } from '@hooks/useSmoothScroll'
+import { getSmoothScroll, scrollToY } from '@hooks/useSmoothScroll'
 import MaskedWords from '@components/motion/MaskedWords'
 import RollText from '@components/motion/RollText'
 import { useAuthStore } from '@context/authStore'
@@ -20,6 +20,15 @@ export type IntroHeroHandle = {
 
 /** Logo ở trạng thái intro rộng chừng này phần chiều ngang màn hình. */
 const INTRO_LOGO_WIDTH = { ratio: 0.5, max: 620, mobileRatio: 0.62 }
+
+/** Thời gian (giây) trôi trọn qua intro khi lướt nhẹ. */
+const INTRO_GLIDE = 2.4
+/** Chuyển động bắt đầu ngay (không "đứng một nhịp" như kiểu tăng tốc từ 0) rồi chậm dần êm khi tới nơi. */
+const introEase = (t: number) => Math.sin((t * Math.PI) / 2)
+/** Các sự kiện wheel cách nhau dưới khoảng này coi là cùng một lần lướt (quán tính trackpad). */
+const GESTURE_GAP_MS = 180
+/** Lướt lên từ các phần bên dưới về tới hero: nhanh, chỉ là chặn lại đúng chỗ. */
+const FROM_BELOW_GLIDE = 0.6
 
 /**
  * Section A — mở đầu trang chủ.
@@ -173,6 +182,107 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
     // phần tử mới chưa bị giấu; dựng lại timeline để chúng cũng ẩn trong intro như lúc tải trang
     { scope: wrapRef, dependencies: [reduced, audience], revertOnUpdate: true },
   )
+
+  // Intro là MỘT khối: lướt nhẹ xuống là trôi một mạch tới hero, lướt lên từ hero là
+  // trôi một mạch về logo — không bao giờ dừng lửng giữa chừng. Hiệu ứng vẫn chạy
+  // theo vị trí cuộn như cũ, chỉ là vị trí cuộn được đưa trọn tới đích.
+  useEffect(() => {
+    if (reduced) return
+
+    let animating = false
+    let glideTarget = 0
+    let lastWheel = 0
+    let swallowGesture = false // bỏ phần quán tính trackpad còn lại sau khi đã nhảy
+    let lastY = window.scrollY
+    let dir: 1 | -1 = 1
+    let idle = 0
+
+    const glide = (target: number, duration = INTRO_GLIDE) => {
+      const lenis = getSmoothScroll()
+      if (!lenis) {
+        window.scrollTo({ top: target, behavior: 'smooth' })
+        return
+      }
+      animating = true
+      glideTarget = target
+      lenis.scrollTo(target, {
+        duration,
+        easing: introEase,
+        lock: true,
+        force: true,
+        onComplete: () => {
+          animating = false
+          // Font tải xong giữa chừng làm ScrollTrigger đo lại → mốc hero xê dịch vài chục px.
+          // Chỉnh cho khớp, nếu không lần lướt lên kế tiếp chỉ nhích nhẹ thay vì về logo.
+          const end = introEnd.current
+          if (target > 0 && end && Math.abs(window.scrollY - end) > 2) lenis.scrollTo(end, { immediate: true, force: true })
+        },
+      })
+    }
+
+    const onWheel = (e: WheelEvent) => {
+      const end = introEnd.current
+      if (!end || e.ctrlKey || document.body.style.overflow === 'hidden') return
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
+
+      const now = performance.now()
+      const newGesture = now - lastWheel > GESTURE_GAP_MS
+      lastWheel = now
+      if (newGesture) swallowGesture = false
+
+      const y = window.scrollY
+      const lenis = getSmoothScroll()
+      const next = (lenis?.targetScroll ?? y) + e.deltaY
+      // Xuống trong intro / lên khi đang ở hero hoặc trong intro / lên từ dưới mà sắp lọt vào intro
+      const down = e.deltaY > 0 && y < end - 2
+      const up = e.deltaY < 0 && y <= end + 2 && y > 2
+      const enteringFromBelow = e.deltaY < 0 && y > end + 2 && next < end
+
+      if (animating || swallowGesture || down || up || enteringFromBelow) {
+        e.preventDefault()
+        e.stopImmediatePropagation() // chặn trước Lenis (listener capture trên window)
+      } else return
+
+      if (animating) {
+        // Lướt NGƯỢC chiều giữa lúc đang trôi → đổi hướng ngay, không bắt chờ hết lượt
+        const goingDown = glideTarget > window.scrollY
+        if (newGesture && e.deltaY > 0 !== goingDown && y < end + 2) glide(goingDown ? 0 : end)
+        return
+      }
+      if (swallowGesture) return
+
+      if (enteringFromBelow) {
+        // Từ dưới lướt lên: về nhanh tới hero, KHÔNG nuốt phần lướt còn lại — lướt tiếp
+        // thì đi luôn lên logo. (Trước đây trôi 2,4s và bỏ mọi cú lăn → chuột như bị đơ.)
+        glide(end, FROM_BELOW_GLIDE)
+        return
+      }
+      swallowGesture = true
+      glide(down ? end : 0)
+    }
+
+    // Lưới an toàn cho cảm ứng, phím mũi tên, kéo thanh cuộn: dừng giữa intro → đi nốt
+    const onScroll = () => {
+      const y = window.scrollY
+      if (y !== lastY) dir = y > lastY ? 1 : -1
+      lastY = y
+      window.clearTimeout(idle)
+      idle = window.setTimeout(() => {
+        const end = introEnd.current
+        const cur = window.scrollY
+        if (animating || !end || cur <= 2 || cur >= end - 2) return
+        glide(dir > 0 ? end : 0)
+      }, 160)
+    }
+
+    window.addEventListener('wheel', onWheel, { passive: false, capture: true })
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('wheel', onWheel, { capture: true })
+      window.removeEventListener('scroll', onScroll)
+      window.clearTimeout(idle)
+    }
+  }, [reduced])
 
   return (
     <section

@@ -163,9 +163,16 @@ export default function HeroCanvas({ className }: Props) {
 
     let ratio = 1
     const resize = () => {
+      // Intro ẩn lớp này (display:none) khi cuộn qua → kích thước về 0 rồi hiện lại.
+      // Bỏ qua lúc ẩn và chỉ gán khi đổi thật: gán width/height (kể cả cùng giá trị)
+      // là cấp phát lại bộ đệm WebGL — tốn ~300ms, làm khựng lúc cuộn về đầu trang.
+      if (!canvas.clientWidth || !canvas.clientHeight) return
       ratio = Math.min(window.devicePixelRatio || 1, settings.maxDpr) * settings.scale
-      canvas.width = Math.max(1, Math.round(canvas.clientWidth * ratio))
-      canvas.height = Math.max(1, Math.round(canvas.clientHeight * ratio))
+      const w = Math.max(1, Math.round(canvas.clientWidth * ratio))
+      const h = Math.max(1, Math.round(canvas.clientHeight * ratio))
+      if (w === canvas.width && h === canvas.height) return
+      canvas.width = w
+      canvas.height = h
       gl.viewport(0, 0, canvas.width, canvas.height)
       gl.uniform2f(uRes, canvas.width, canvas.height)
     }

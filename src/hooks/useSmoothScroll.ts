@@ -11,6 +11,11 @@ export function scrollToY(y: number, smooth = false) {
   else window.scrollTo(0, y)
 }
 
+/** Lenis đang chạy (null khi tắt, vd. người dùng bật giảm chuyển động). */
+export function getSmoothScroll() {
+  return current
+}
+
 /**
  * Dừng Lenis đang chạy ngay lập tức (gỡ hẳn để lúc trang unmount). Gọi khi trang bắt đầu
  * rời đi trong lúc chuyển chồng: nếu không, Lenis của trang cũ đang trôi dở sẽ kéo cửa sổ
