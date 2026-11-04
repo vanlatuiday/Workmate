@@ -206,3 +206,163 @@ export const homeCopy: Record<Audience, HomeCopy> = {
     closing: { title: 'Người phù hợp đang chờ tin của bạn.' },
   },
 }
+
+/* ── Các section bên dưới hero (trang chủ kiểu "ảnh + khối + hàng thẻ") ───────
+   Ảnh đi kèm nằm ở homeMedia.ts. Toàn bộ là nội dung mẫu, thay tại đây. */
+
+export const homeSections = {
+  /** Chú thích gắn ở các hàng thẻ việc làm */
+  sampleNote: 'Dữ liệu minh họa',
+  urgent: { title: 'Việc đang tuyển gấp', all: { label: 'Xem tất cả', href: '/viec-lam' } },
+  /** Lời dẫn của section ③ (khối ảnh dọc) — title ngắt dòng bằng '|' */
+  blocksIntro: {
+    eyebrow: 'Workmate giúp bạn thế nào',
+    title: 'Việc làm|vừa với|nhịp sống.',
+    lead: 'Khai lịch rảnh và khu vực một lần, phần còn lại để Workmate lo — từ gợi ý ca khớp giờ đến kết nối hai bên.',
+    footer: 'đà nẵng   ·   2026',
+  },
+  blocks: [
+    {
+      id: 'schedule',
+      label: 'Lịch rảnh',
+      title: 'Việc tự tìm đến bạn',
+      body: 'Khai lịch rảnh một lần — những ca khớp với giờ học, giờ làm của bạn sẽ được gợi ý, không phải ngồi lọc từng tin.',
+      cta: 'Tạo hồ sơ',
+    },
+    {
+      id: 'near',
+      label: 'Gần nhà',
+      title: 'Gần nhà, đúng quãng đường',
+      body: 'Đặt bán kính di chuyển bạn chấp nhận, Workmate chỉ hiện việc nằm trong tầm đó.',
+      cta: 'Xem việc gần tôi',
+    },
+    {
+      id: 'match',
+      label: 'Kết nối',
+      title: 'Kết nối rồi mới trò chuyện',
+      body: 'Hai bên cùng quan tâm thì kênh chat riêng mới mở ra — không tin nhắn rải, không bị làm phiền.',
+      cta: 'Xem kết nối',
+    },
+    {
+      id: 'guide',
+      label: 'Cẩm nang',
+      title: 'Cẩm nang đi làm',
+      body: 'Viết hồ sơ ngắn gọn, đi phỏng vấn ca đầu tiên, hiểu quyền lợi của người làm linh hoạt.',
+      cta: 'Đọc cẩm nang',
+    },
+  ],
+  fresh: { title: 'Việc mới đăng', all: { label: 'Xem tất cả', href: '/viec-lam' } },
+  explore: {
+    title: 'Khám phá theo nhóm',
+    /** `q` là từ khóa lọc ở /viec-lam; số việc đếm thật từ danh mục demo */
+    categories: [
+      { key: 'pha_che', label: 'Pha chế', q: 'Pha chế' },
+      { key: 'ban_hang', label: 'Bán hàng', q: 'Bán hàng' },
+      { key: 'giao_hang', label: 'Giao hàng', q: 'Lái xe máy' },
+      { key: 'phuc_vu', label: 'Phục vụ', q: 'Phục vụ' },
+      { key: 'kho', label: 'Kho hàng', q: 'Kho' },
+    ],
+    districts: 'Khu vực',
+    types: 'Hình thức',
+  },
+  recruiter: {
+    title: 'Bạn đang thiếu người?',
+    body: 'Đăng tin kèm ca làm và tiêu chí rõ ràng, Workmate gợi ý người rảnh đúng ca và sống gần chỗ làm.',
+    cta: { label: 'Đăng tin tuyển dụng', href: '/dang-tin' },
+  },
+  final: { title: 'Chưa thấy việc hợp với bạn?', cta: 'Tìm việc ngay' },
+}
+
+/**
+ * Chữ riêng cho nhà tuyển dụng và người tìm việc ở các section ②–⑦ (khách và quản trị
+ * dùng bản `homeSections` ở trên). Người tìm việc chỉ khác ở section ②; nhà tuyển dụng
+ * khác ở tất cả. Dữ liệu trong thẻ là dữ liệu demo của dự án.
+ */
+export const homeSectionsByRole = {
+  jobseeker: {
+    urgent: {
+      title: 'Việc hợp với bạn',
+      all: { label: 'Xem tất cả', href: '/tim-viec/phu-hop' },
+      /** aria-label của nút ‹ › */
+      prev: 'Xem các việc trước',
+      next: 'Xem các việc tiếp theo',
+    },
+    /** Tấm tối ⑥: người tìm việc thấy lời mời tìm việc thay cho lời mời đăng tin */
+    panel: {
+      title: 'Bạn đang tìm việc?',
+      body: 'Khai lịch rảnh và khu vực một lần, Workmate gợi ý việc đúng ca, gần nhà, không cần CV dài.',
+      cta: { label: 'Xem việc phù hợp với tôi', href: '/tim-viec/phu-hop' },
+    },
+  },
+  recruiter: {
+    urgent: {
+      title: 'Ứng viên sẵn sàng đi làm',
+      all: { label: 'Xem tất cả', href: '/tuyen-dung/tim-ung-vien' },
+      prev: 'Xem các ứng viên trước',
+      next: 'Xem các ứng viên tiếp theo',
+    },
+    blocksLabel: 'Workmate giúp bạn tìm người thế nào',
+    blocksIntro: {
+      eyebrow: 'Workmate giúp bạn tìm người thế nào',
+      title: 'Người đúng ca|ở ngay|gần bạn.',
+      lead: 'Đăng tin kèm ca làm và vị trí, Workmate gợi ý những ứng viên đang rảnh và sống quanh cửa hàng của bạn.',
+      footer: 'đà nẵng   ·   2026',
+    },
+    blocks: [
+      {
+        id: 'slots',
+        label: 'Đúng ca',
+        title: 'Người rảnh đúng ca bạn cần',
+        body: 'Đăng tin kèm ca làm, Workmate chỉ gợi ý những người đang rảnh đúng các ca đó — không phải đọc từng hồ sơ.',
+        cta: 'Đăng tin tuyển dụng',
+        href: '/dang-tin',
+      },
+      {
+        id: 'nearby',
+        label: 'Gần cửa hàng',
+        title: 'Ứng viên sống gần cửa hàng',
+        body: 'Người ở gần đi làm đúng giờ và gắn bó lâu hơn. Xem ai quanh cửa hàng đang sẵn sàng nhận việc.',
+        cta: 'Tìm ứng viên',
+        href: '/match', // trang web, không vào dashboard
+      },
+    ],
+    mine: {
+      title: 'Tin của bạn',
+      // Trang chủ chỉ dẫn tới trang web, không vào dashboard: xem tin của mình trên trang công ty công khai
+      all: { label: 'Xem trang công ty', href: '/cong-ty/song-han' },
+      interested: (n: number) => `${n} người quan tâm`,
+      empty: {
+        body: 'Bạn chưa có tin tuyển dụng nào. Đăng tin đầu tiên để nhận gợi ý ứng viên.',
+        cta: { label: 'Đăng tin tuyển dụng', href: '/dang-tin' },
+      },
+      /** Nhãn trạng thái tin (kiểm duyệt thắng trạng thái đăng tuyển) */
+      status: {
+        open: 'Đang mở',
+        paused: 'Tạm dừng',
+        closed: 'Đã đóng',
+        pending: 'Chờ duyệt',
+        rejected: 'Bị từ chối',
+        hidden: 'Bị ẩn',
+      },
+    },
+    explore: {
+      title: 'Tìm ứng viên theo nhóm',
+      /** `skill` là từ khóa khớp kỹ năng của ứng viên (không dấu, chữ thường) */
+      categories: [
+        { key: 'pha_che', label: 'Pha chế', skill: 'pha che' },
+        { key: 'ban_hang', label: 'Bán hàng', skill: 'ban hang' },
+        { key: 'phuc_vu', label: 'Phục vụ', skill: 'phuc vu' },
+        { key: 'thu_ngan', label: 'Thu ngân', skill: 'thu ngan' },
+      ],
+      districts: 'Khu vực',
+      skills: 'Kỹ năng',
+      unit: 'ứng viên',
+    },
+    panel: {
+      title: 'Hoàn thiện trang công ty',
+      body: 'Trang công ty đầy đủ giúp ứng viên tin tưởng hơn và dễ nhận lời hơn.',
+      cta: { label: 'Hoàn thiện trang công ty', href: '/tuyen-dung/ho-so-cong-ty' },
+    },
+    final: { title: 'Cần thêm người?', cta: { label: 'Đăng tin tuyển dụng', href: '/dang-tin' } },
+  },
+}

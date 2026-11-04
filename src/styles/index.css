@@ -179,6 +179,42 @@ html[data-intro] [data-hero-item] {
   pointer-events: none;
 }
 
+/* Header trang chủ (useHomeHeader đặt data-header / data-header-hidden lên <html>):
+   - Đang ở banner ('hero'): chỉ còn logo + nút menu, không nền, chữ ngà trên ảnh tối.
+   - Qua banner ('full'): đủ header; cuộn xuống trượt khuất, cuộn lên hiện lại.
+   Chỉ transform/opacity; tắt chuyển động thì khối @media phía trên đã làm chúng tức thì. */
+[data-site-header] {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+html[data-header-hidden] [data-site-header] {
+  transform: translateY(-100%);
+}
+html[data-header='hero'] [data-site-header] {
+  /* Đặt lại cả muted vì muted được tính sẵn từ --page-fg ở :root */
+  --page-fg: var(--wm-ivory);
+  --page-muted: var(--wm-mist);
+}
+[data-site-header] [data-header-bg],
+[data-site-header] [data-header-item] {
+  transition:
+    opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0.35s;
+}
+html[data-header='hero'] [data-header-bg] {
+  opacity: 0;
+}
+html[data-header='hero'] [data-header-item]:not([data-header-menu]),
+html[data-intro] [data-header-item] {
+  opacity: 0;
+  transform: translateY(-12px);
+  visibility: hidden;
+}
+/* Ở banner nút menu là lối điều hướng duy nhất → hiện cả trên màn rộng (ghi đè lg:hidden) */
+html[data-header='hero'] [data-header-menu] {
+  display: block;
+}
+
 /* Hạt nhiễu rất mờ màu than chì phủ trang chủ — cảm giác giấy in trên các nền
    sáng thay cho màu nhấn. Ảnh tĩnh, lớp cố định: cuộn không phải vẽ lại. */
 .grain {

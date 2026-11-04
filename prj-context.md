@@ -130,18 +130,24 @@ Phân quyền: `ProtectedRoute` chỉ kiểm tra `user.role` trong Zustand store
 
 ## 5. Trang chủ — kiến trúc trải nghiệm cuộn
 
-Lấy cảm hứng từ cách dẫn dắt cuộn của uncommondesign.group (**không** sao chép thương hiệu/bố cục).
+Màn mở đầu (logo) lấy cảm hứng từ uncommondesign.group; từ màn hero trở xuống làm lại
+2026-11-04 theo hướng Snagajob (ảnh, khối, hàng thẻ) — **không** sao chép thương hiệu.
 
-Hành trình 6 section (`src/pages/public/HomePage.tsx`):
+Thứ tự (`src/pages/public/HomePage.tsx`):
 
 | | Component | Nền | Nội dung |
 |---|---|---|---|
-| A | `IntroHero` | than chì → ngà | Mở trang: chỉ logo giữa màn hình. Cuộn: logo thu nhỏ bay về header, nav hiện dần, rồi tiêu đề + thanh tìm kiếm + tag |
-| B | `FitSection` | ngà | 3 lợi ích |
-| C | `OpportunitiesSection` | đá (stone) | Thẻ việc làm **mẫu** dạng bento, ghi rõ “Tin mẫu” |
-| D | `HowItWorksSection` | xám đậm | Quy trình 3 bước |
-| E | `StatementSection` | sage | Tuyên ngôn, tấm nền nở ra bằng clip-path |
-| F | `ClosingSection` | than chì | CTA “Tìm việc ngay” cuộn về ô tìm kiếm |
+| ① | `IntroHero` | than chì → ngà | Logo giữa màn hình → lướt nhẹ là trôi trọn (2,4s) tới hero: khối ảnh lớn bo góc, chữ ngà + ô tìm kiếm đè lên |
+| ② | `UrgentJobsSection` | ngà | Hàng thẻ việc cuộn ngang (8 tin demo thật, bấm mở chi tiết) |
+| ③ | `FeatureBlocksSection` | đá | 2 khối ảnh + chữ xen kẽ (lịch rảnh, gần nhà; 2 khối khác tạm ẩn); ảnh hé lộ bằng tấm màn + parallax |
+| ④ | `NewJobsSection` | ngà | Lưới 6 thẻ việc |
+| ⑤ | `ExploreSection` | ngà | Ô ngành nghề có ảnh (đếm việc thật) + khu vực + hình thức |
+| ⑥ | `RecruiterSection` | ngà (tấm than chì) | Khối nhà tuyển dụng, phóng 0,9 → 1 khi cuộn tới |
+| ⑦ | `FinalCtaSection` | than chì | "Chưa thấy việc hợp?" → về ô tìm kiếm |
+
+Ảnh demo của trang chủ gom ở `src/components/home/homeMedia.ts` (chủ dự án sẽ thay ảnh).
+Thẻ việc dùng `JobCard` + `useCardsEnter`. Section cũ (`FitSection`, `OpportunitiesSection`,
+`HowItWorksSection`, `StatementSection`, `ClosingSection`) còn file nhưng không còn hiển thị.
 
 Cơ chế quan trọng (đọc comment trong từng file trước khi sửa):
 - **Logo là một phần tử duy nhất** — chính logo trong header (`PublicLayout`), được
@@ -151,7 +157,7 @@ Cơ chế quan trọng (đọc comment trong từng file trước khi sửa):
 - **Màu theo section**: mỗi section có `data-theme`; `useSectionThemes` nội suy biến CSS
   `--page-bg` theo cuộn, còn `--page-fg` đổi ở mốc 50% bằng CSS transition (`@property`)
   để chữ không bao giờ trùng màu nền. Dùng token Tailwind `page-bg/fg/muted/line/surface/edge`.
-- **Nội dung placeholder** nằm tập trung ở `src/components/home/content.ts`.
+- **Nội dung placeholder** nằm ở `src/components/home/content.ts` (`homeSections`).
 - Chỉ trang chủ mới có header cố định đổi màu, con trỏ tùy biến (`CustomCursor`), nút
   nam châm (`Magnetic`), chữ cuộn (`RollText`), hạt nhiễu (`.grain`).
 - `RouteScroll` (`components/common`) xử lý vị trí cuộn khi chuyển trang / Back-Forward

@@ -128,11 +128,13 @@ export default function PublicLayout() {
       {/* Header. Trang chủ: cố định trên cùng, màu theo section đang xem (biến --page-*),
           và được IntroHero điều khiển qua các data-attribute bên dưới:
             data-brand-logo  — logo đi từ giữa màn hình vào header
-            data-header-item — các cụm hiện dần khi logo đã về chỗ
-            data-header-bg   — nền header, chỉ hiện sau intro
+            data-header-item — các cụm, ẩn khi đang ở banner (useHomeHeader + index.css)
+            data-header-bg   — nền header, chỉ hiện khi đã cuộn qua banner
+          Qua khỏi banner: cuộn xuống thì header trượt khuất, cuộn lên thì hiện lại.
           Mặc định mọi thứ ở trạng thái cuối, nên không có JS vẫn dùng được.
           Trang khác: sticky, nền và viền lấy thẳng từ theme ngà. */}
       <header
+        data-site-header={dark ? '' : undefined}
         className={cn(
           'top-0 z-40 text-page-fg',
           // header-theme: màu chuyển dần khi đổi giữa theme ngà và than chì (index.css)
@@ -198,7 +200,8 @@ export default function PublicLayout() {
 
             {/* Bên phải: đã đăng nhập → một nút tài khoản (khu làm việc, trang cá nhân, đăng xuất);
                 khách → chỉ Đăng nhập / Đăng ký. Cùng một cụm để intro trang chủ hiện một lần. */}
-            <div className="flex items-center justify-end gap-1">
+            {/* col-start-3: dưới lg nav bị ẩn, không ghim cột thì cụm này rơi vào cột giữa */}
+            <div className="col-start-3 flex items-center justify-end gap-1">
               <div data-header-item={dark ? '' : undefined} className="hidden md:flex items-center gap-1 whitespace-nowrap">
                 {user && area ? (
                   <AccountMenu
@@ -232,8 +235,8 @@ export default function PublicLayout() {
 
               {/* Trang chủ: menu phủ toàn màn hình khi nav chính ẩn (dưới lg); trang khác giữ dropdown */}
               {dark ? (
-                // Bọc ngoài để GSAP (intro) và Magnetic không tranh nhau transform của cùng một phần tử
-                <div data-header-item className={navHide}>
+                // data-header-menu: nút này vẫn hiện khi đang ở banner (cả màn rộng) — xem index.css
+                <div data-header-item data-header-menu className={navHide}>
                   <button
                     onClick={() => setOverlayOpen(true)}
                     aria-expanded={overlayOpen}

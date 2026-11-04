@@ -7,8 +7,11 @@ import { useReducedMotion } from '@hooks/useReducedMotion'
 import { getSmoothScroll, scrollToY } from '@hooks/useSmoothScroll'
 import MaskedWords from '@components/motion/MaskedWords'
 import RollText from '@components/motion/RollText'
+import Magnetic from '@components/motion/Magnetic'
 import { useAuthStore } from '@context/authStore'
+import { photoSrcSet, photoUrl } from '@components/discover/types'
 import { heroCopy, heroTags } from './content'
+import { homeMedia } from './homeMedia'
 
 // Tách riêng để shader không nằm trong bundle chính
 const HeroCanvas = lazy(() => import('@components/motion/HeroCanvas'))
@@ -27,8 +30,10 @@ const INTRO_GLIDE = 2.4
 const introEase = (t: number) => Math.sin((t * Math.PI) / 2)
 /** Các sự kiện wheel cách nhau dưới khoảng này coi là cùng một lần lướt (quán tính trackpad). */
 const GESTURE_GAP_MS = 180
-/** Lướt lên từ các phần bên dưới về tới hero: nhanh, chỉ là chặn lại đúng chỗ. */
-const FROM_BELOW_GLIDE = 0.6
+/** Lướt lên từ các phần bên dưới về tới hero: đủ dài để phanh từ từ, không khựng. */
+const FROM_BELOW_GLIDE = 1.1
+/** Đi nhanh theo đà lướt rồi chậm dần rất êm (đuôi dài) — cảm giác đỗ lại thay vì phanh gấp. */
+const fromBelowEase = (t: number) => 1 - Math.pow(1 - t, 4)
 
 /**
  * Section A — mở đầu trang chủ.
@@ -81,9 +86,8 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
       // Các phần tử header nằm trong PublicLayout, đánh dấu bằng data-attribute.
       // Dùng document.querySelector* — selector chuỗi của GSAP ở đây bị giới hạn
       // trong scope của hero nên sẽ không thấy header.
+      // Các cụm còn lại của header (nav, tài khoản, nền) do useHomeHeader + CSS lo.
       const logo = document.querySelector<HTMLElement>('[data-brand-logo]')
-      const headerItems = Array.from(document.querySelectorAll<HTMLElement>('[data-header-item]'))
-      const headerBg = document.querySelector<HTMLElement>('[data-header-bg]')
       if (!logo) return
 
       const html = document.documentElement
@@ -106,8 +110,6 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
       // Trạng thái ẩn ban đầu đặt bằng gsap.set, ngoài timeline. Nếu dùng fromTo bắt
       // đầu giữa timeline, mỗi lần ScrollTrigger refresh (đo lại layout) sẽ trả các
       // tween chưa tới lượt về trạng thái gốc → nav và hero hiện sẵn ngay ở intro.
-      gsap.set(headerItems, { opacity: 0, y: -12 })
-      gsap.set(headerBg, { opacity: 0 })
       gsap.set('[data-hero-item]', { opacity: 0, y: 32 })
       gsap.set('[data-hero-title] [data-word]', { yPercent: 120, opacity: 0 })
 
@@ -149,9 +151,6 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
         .to('[data-scroll-hint]', { autoAlpha: 0, duration: 0.08 }, 0)
         // Kết cấu WebGL chỉ thuộc về intro than chì — mờ đi trong lúc nền chuyển sang ngà
         .to('[data-hero-canvas]', { opacity: 0, duration: 0.32 }, 0.08)
-        // 0.22 → 0.5: header hiện dần từng cụm
-        .to(headerItems, { opacity: 1, y: 0, duration: 0.18, stagger: 0.05, ease: 'power2.out' }, 0.22)
-        .to(headerBg, { opacity: 1, duration: 0.2 }, 0.28)
         // 0.38 → 0.9: nội dung hero
         .to(
           '[data-hero-title] [data-word]',
@@ -161,6 +160,17 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
         .to('[data-hero-item]', { opacity: 1, y: 0, duration: 0.3, stagger: 0.06, ease: 'power2.out' }, 0.42)
         // Giữ một nhịp cho người dùng đọc trước khi lớp sticky nhả ra
         .to({}, { duration: 0.1 })
+
+      // Qua khỏi banner: phần 2 (tấm bo góc, HomePage) trượt lên che, banner phía sau
+      // "lùi vào trong" — trôi chậm hơn trang, thu nhỏ nhẹ và tối dần. Lướt lên thì ngược lại.
+      // Bắt đầu đúng lúc lớp sticky nhả ra nên không đụng tới intro.
+      gsap
+        .timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: { trigger: wrapRef.current, start: 'bottom bottom', end: 'bottom top', scrub: true },
+        })
+        .to('[data-hero-stage]', { y: () => window.innerHeight * 0.45, scale: 0.94, transformOrigin: '50% 0%' }, 0)
+        .to('[data-hero-dim]', { opacity: 0.6 }, 0)
 
       // onUpdate chỉ chạy khi cuộn — lúc vừa mở trang phải tự đặt trạng thái intro
       if ((tl.scrollTrigger?.progress ?? 0) < 0.45) html.setAttribute('data-intro', '')
@@ -190,6 +200,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
     if (reduced) return
 
     let animating = false
+    let soft = false // đang trôi từ dưới lên vào hero (không khóa, lướt tiếp được)
     let glideTarget = 0
     let lastWheel = 0
     let swallowGesture = false // bỏ phần quán tính trackpad còn lại sau khi đã nhảy
@@ -197,21 +208,23 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
     let dir: 1 | -1 = 1
     let idle = 0
 
-    const glide = (target: number, duration = INTRO_GLIDE) => {
+    const glide = (target: number, fromBelow = false) => {
       const lenis = getSmoothScroll()
       if (!lenis) {
         window.scrollTo({ top: target, behavior: 'smooth' })
         return
       }
       animating = true
+      soft = fromBelow
       glideTarget = target
       lenis.scrollTo(target, {
-        duration,
-        easing: introEase,
-        lock: true,
+        duration: fromBelow ? FROM_BELOW_GLIDE : INTRO_GLIDE,
+        easing: fromBelow ? fromBelowEase : introEase,
+        lock: !fromBelow,
         force: true,
         onComplete: () => {
           animating = false
+          soft = false
           // Font tải xong giữa chừng làm ScrollTrigger đo lại → mốc hero xê dịch vài chục px.
           // Chỉnh cho khớp, nếu không lần lướt lên kế tiếp chỉ nhích nhẹ thay vì về logo.
           const end = introEnd.current
@@ -243,6 +256,19 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
         e.stopImmediatePropagation() // chặn trước Lenis (listener capture trên window)
       } else return
 
+      if (animating && soft && newGesture) {
+        // Đang trôi từ dưới lên vào hero mà lướt thêm một cú: lên → đi luôn về logo;
+        // xuống → thôi trôi, trả lại cho cuộn thường (không bắt chờ hết lượt)
+        if (e.deltaY < 0) {
+          glide(0)
+          swallowGesture = true
+        } else {
+          animating = false
+          soft = false
+          getSmoothScroll()?.scrollTo(window.scrollY, { immediate: true, force: true })
+        }
+        return
+      }
       if (animating) {
         // Lướt NGƯỢC chiều giữa lúc đang trôi → đổi hướng ngay, không bắt chờ hết lượt
         const goingDown = glideTarget > window.scrollY
@@ -254,7 +280,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
       if (enteringFromBelow) {
         // Từ dưới lướt lên: về nhanh tới hero, KHÔNG nuốt phần lướt còn lại — lướt tiếp
         // thì đi luôn lên logo. (Trước đây trôi 2,4s và bỏ mọi cú lăn → chuột như bị đơ.)
-        glide(end, FROM_BELOW_GLIDE)
+        glide(end, true)
         return
       }
       swallowGesture = true
@@ -290,6 +316,8 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
       // Intro nền than chì, hero nền ngà. Khi tắt chuyển động thì không có intro → ngà luôn.
       data-theme={reduced ? 'ivory' : 'charcoal'}
       aria-label="Tìm việc"
+      // useHomeHeader: còn thấy khối này thì header chỉ có logo + nút menu
+      data-home-hero
       className={reduced ? 'relative' : 'relative h-[200svh]'}
     >
       {/* Mốc đổi nền than chì → ngà, chạy cùng lúc logo bay về header
@@ -313,101 +341,128 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
           </div>
         )}
 
-        <div className="shell w-full pt-24 pb-16">
-          <p data-hero-item className="eyebrow text-page-muted">
-            <span className="w-8 h-px bg-page-line" />
-            Nền tảng việc làm linh hoạt
-          </p>
-
-          <div data-hero-title>
-            <MaskedWords
-              as="h1"
-              text={copy.title}
-              className="font-display text-display-lg font-semibold mt-6 md:mt-8 max-w-[18ch] text-page-fg"
+        {/* Hero: ảnh tràn toàn màn hình (sát mép, nằm dưới header), chữ ngà căn giữa.
+            Màu trong khối này cố định (wm-*) vì nền là ảnh tối, không theo theme trang. */}
+        {/* data-hero-stage: khối lùi vào trong khi phần 2 che lên (không dùng data-hero-item
+            vì transform của các phần đó thuộc timeline intro) */}
+        <div data-hero-stage className="relative w-full">
+          <div
+            data-hero-item
+            className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-wm-charcoal"
+          >
+            <img
+              src={photoUrl(homeMedia.hero.id, 1400)}
+              srcSet={photoSrcSet(homeMedia.hero.id)}
+              sizes="100vw"
+              alt={homeMedia.hero.alt}
+              width={1400}
+              height={900}
+              className="absolute inset-0 h-full w-full object-cover"
             />
-          </div>
+            {/* Lớp tối phủ ảnh để chữ ngà luôn đọc được */}
+            <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-wm-charcoal/60 via-wm-charcoal/65 to-wm-charcoal/85" />
 
-          <p data-hero-item className="mt-6 md:mt-8 max-w-xl text-base md:text-lg text-page-muted leading-relaxed">
-            {copy.lead}
-          </p>
+            <div className="relative shell flex w-full flex-col items-center pt-24 pb-16 text-center text-wm-ivory">
+              <p data-hero-item className="eyebrow text-wm-mist">
+                <span className="w-8 h-px bg-wm-mist" />
+                Nền tảng việc làm linh hoạt
+              </p>
 
-          {copy.search && (
-          <>
-          <div data-hero-item className="mt-8 md:mt-12 max-w-3xl">
-            <form
-              onSubmit={handleSearch}
-              role="search"
-              className="flex flex-col sm:flex-row gap-px bg-page-edge rounded-card overflow-hidden border border-page-edge"
-            >
-              <label className="flex-1 flex items-center gap-3 bg-page-surface px-5 py-4 focus-within:bg-page-bg focus-within:ring-2 focus-within:ring-inset focus-within:ring-page-fg transition-colors">
-                <Search className="w-4 h-4 text-page-muted shrink-0" />
-                <span className="sr-only">Từ khóa tìm việc</span>
-                <input
-                  ref={keywordRef}
-                  type="text"
-                  placeholder="Vị trí, kỹ năng, ngành nghề…"
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-sm text-page-fg placeholder:text-page-muted"
+              <div data-hero-title>
+                <MaskedWords
+                  as="h1"
+                  text={copy.title}
+                  className="font-display text-display-md font-semibold mt-4 md:mt-8 mx-auto max-w-[18ch] text-wm-ivory"
                 />
-              </label>
+              </div>
 
-              <label className="flex items-center gap-3 bg-page-surface px-5 py-4 sm:w-56 focus-within:bg-page-bg focus-within:ring-2 focus-within:ring-inset focus-within:ring-page-fg transition-colors">
-                <MapPin className="w-4 h-4 text-page-muted shrink-0" />
-                <span className="sr-only">Địa điểm</span>
-                <input
-                  type="text"
-                  placeholder="Địa điểm…"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="flex-1 w-full bg-transparent outline-none text-sm text-page-fg placeholder:text-page-muted"
-                />
-              </label>
+              {/* Điện thoại: bỏ đoạn dẫn để cả khối vừa một màn hình */}
+              <p data-hero-item className="hidden sm:block mx-auto mt-6 md:mt-8 max-w-xl text-base md:text-lg text-wm-mist leading-relaxed">
+                {copy.lead}
+              </p>
 
-              <button
-                type="submit"
-                className="group bg-page-fg text-page-bg font-medium text-sm px-8 py-4
-                           hover:bg-wm-graphite transition-colors duration-300
-                           outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-page-bg"
-              >
-                <RollText>Tìm việc</RollText>
-              </button>
-            </form>
-          </div>
-
-          <ul data-hero-item className="flex flex-wrap gap-2 mt-4" aria-label="Ngành nghề phổ biến">
-            {heroTags.map((tag) => (
-              <li key={tag}>
-                <Link
-                  to={`/viec-lam?keyword=${encodeURIComponent(tag)}`}
-                  className="block text-xs text-page-muted border border-page-line rounded-full px-3 py-1.5
-                             hover:text-page-fg hover:border-page-fg transition-colors duration-300"
+              {copy.search && (
+              <>
+              <div data-hero-item className="mx-auto mt-6 md:mt-10 w-full max-w-3xl text-left">
+                <form
+                  onSubmit={handleSearch}
+                  role="search"
+                  className="flex flex-col sm:flex-row gap-px bg-wm-sage rounded-card overflow-hidden border border-wm-ivory"
                 >
-                  {tag}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          </>
-          )}
+                  <label className="flex-1 flex items-center gap-3 bg-wm-ivory px-5 py-4 focus-within:bg-wm-mist focus-within:ring-2 focus-within:ring-inset focus-within:ring-wm-charcoal transition-colors">
+                    <Search className="w-4 h-4 text-wm-graphite shrink-0" />
+                    <span className="sr-only">Từ khóa tìm việc</span>
+                    <input
+                      ref={keywordRef}
+                      type="text"
+                      placeholder="Vị trí, kỹ năng, ngành nghề…"
+                      value={keyword}
+                      onChange={(e) => setKeyword(e.target.value)}
+                      className="flex-1 bg-transparent outline-none text-sm text-wm-charcoal placeholder:text-wm-graphite"
+                    />
+                  </label>
 
-          {/* Lối đi theo vai trò: bên dưới ô tìm việc, hoặc thay cho nó */}
-          <div data-hero-item className={copy.search ? 'flex flex-wrap gap-3 mt-6' : 'flex flex-wrap gap-3 mt-8 md:mt-12'}>
-            {copy.actions.map((a, i) => (
-              <Link
-                key={a.href}
-                to={a.href}
-                className={
-                  i === 0 && !copy.search
-                    ? 'group inline-flex items-center gap-2 bg-page-fg text-page-bg font-medium text-sm px-8 py-4 rounded-full transition-opacity duration-300 hover:opacity-90'
-                    : 'group inline-flex items-center gap-2 border border-page-line text-page-fg font-medium text-sm px-6 py-3 rounded-full hover:border-page-fg transition-colors duration-300'
-                }
-              >
-                <RollText>{a.label}</RollText>
-                <ArrowUpRight className="w-4 h-4" aria-hidden />
-              </Link>
-            ))}
+                  <label className="flex items-center gap-3 bg-wm-ivory px-5 py-4 sm:w-56 focus-within:bg-wm-mist focus-within:ring-2 focus-within:ring-inset focus-within:ring-wm-charcoal transition-colors">
+                    <MapPin className="w-4 h-4 text-wm-graphite shrink-0" />
+                    <span className="sr-only">Địa điểm</span>
+                    <input
+                      type="text"
+                      placeholder="Địa điểm…"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="flex-1 w-full bg-transparent outline-none text-sm text-wm-charcoal placeholder:text-wm-graphite"
+                    />
+                  </label>
+
+                  <button
+                    type="submit"
+                    className="group bg-wm-charcoal text-wm-ivory font-medium text-sm px-8 py-4
+                               hover:bg-wm-graphite transition-colors duration-300
+                               outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-wm-ivory"
+                  >
+                    <RollText>Tìm việc</RollText>
+                  </button>
+                </form>
+              </div>
+
+              <ul data-hero-item className="flex flex-wrap justify-center gap-2 mt-4" aria-label="Ngành nghề phổ biến">
+                {heroTags.map((tag) => (
+                  <li key={tag}>
+                    <Link
+                      to={`/viec-lam?keyword=${encodeURIComponent(tag)}`}
+                      className="flex min-h-9 items-center text-xs text-wm-ivory border border-wm-mist rounded-full px-3 py-1.5
+                                 hover:bg-wm-ivory hover:text-wm-charcoal transition-colors duration-300"
+                    >
+                      {tag}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              </>
+              )}
+
+              {/* Lối đi theo vai trò: bên dưới ô tìm việc, hoặc thay cho nó */}
+              <div data-hero-item className={copy.search ? 'flex flex-wrap justify-center gap-3 mt-5 md:mt-6' : 'flex flex-wrap justify-center gap-3 mt-8 md:mt-12'}>
+                {copy.actions.map((a, i) => (
+                  <Magnetic key={a.href}>
+                  <Link
+                    to={a.href}
+                    className={
+                      i === 0 && !copy.search
+                        ? 'group inline-flex min-h-11 items-center gap-2 bg-wm-ivory text-wm-charcoal font-medium text-sm px-8 py-4 rounded-full transition-opacity duration-300 hover:opacity-90'
+                        : 'group inline-flex min-h-11 items-center gap-2 border border-wm-mist text-wm-ivory font-medium text-sm px-6 py-3 rounded-full hover:bg-wm-ivory hover:text-wm-charcoal transition-colors duration-300'
+                    }
+                  >
+                    <RollText>{a.label}</RollText>
+                    <ArrowUpRight className="w-4 h-4" aria-hidden />
+                  </Link>
+                  </Magnetic>
+                ))}
+              </div>
+            </div>
           </div>
+          {/* Lớp tối dần khi banner lùi ra sau phần 2 (opacity do GSAP điều khiển) */}
+          <div data-hero-dim aria-hidden className="pointer-events-none absolute inset-0 bg-wm-charcoal opacity-0" />
         </div>
 
         {/* Gợi ý cuộn — chỉ có ở trạng thái intro, mờ đi ngay khi bắt đầu cuộn */}

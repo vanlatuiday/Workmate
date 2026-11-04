@@ -8,6 +8,7 @@ colors:
   charcoal: "#242522"   # nền tối chính, chữ trên nền sáng, nút chính
   graphite: "#454640"   # nền tối phụ (nhịp tối giữa trang)
   sage: "#A6A69A"       # nền tuyên ngôn / brand story
+  olive: "#858B70"      # viền khung thẻ (thẻ ảnh dọc ở trang chủ) — chỉ dùng cho viền, không làm nền/chữ
   stone: "#D9D3C8"      # nền khu việc làm
   mist: "#E1DED5"       # bề mặt phụ (chỉ dùng có chủ đích)
   ivory: "#F3F0E9"      # nền sáng chính, chữ trên nền tối
@@ -99,6 +100,7 @@ chuyển màu nền theo tiến trình cuộn.
 | `wm-charcoal` | `#242522` | Nền intro/kết, chữ trên nền sáng, nút chính trên nền sáng |
 | `wm-graphite` | `#454640` | Nền tối giữa trang |
 | `wm-sage` | `#A6A69A` | Nền tuyên ngôn |
+| `wm-olive` | `#858B70` | Viền khung thẻ (chủ dự án chọn) — chỉ làm viền |
 | `wm-stone` | `#D9D3C8` | Nền khu việc làm |
 | `wm-mist` | `#E1DED5` | Bề mặt phụ, chữ phụ trong menu |
 | `wm-ivory` | `#F3F0E9` | Nền sáng chính, chữ trên nền tối |
