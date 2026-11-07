@@ -187,7 +187,7 @@ Chi tiết đầy đủ ở **`DESIGN.md`** (nguồn chuẩn cho design system).
 
 Nguyên tắc: nút tối chữ ngà (đảo lại trên nền tối); tránh trắng/đen tuyệt đối, gradient
 màu mè, bóng đổ nặng, glassmorphism. Tương phản chữ ≥ 4.5:1, viền ô nhập ≥ 3:1.
-Typography: Instrument Sans (display) + Inter; chữ lớn, nhiều khoảng trắng, xuống dòng có chủ đích.
+Typography: Plus Jakarta Sans (display) + Inter; chữ lớn, nhiều khoảng trắng, xuống dòng có chủ đích.
 
 **Phạm vi hiệu ứng**: chuyển động nặng **chỉ ở trang công khai** (chủ yếu trang chủ).
 Dashboard ứng viên / NTD / admin là nơi làm việc → phải nhanh, yên tĩnh, không animation trang trí.

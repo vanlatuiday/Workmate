@@ -26,6 +26,10 @@ const WHEEL_DEG = 0.15
 const DRAG_DEG = 0.25
 /** Sau chừng này ms không thao tác thì vòng tự căn về thẻ gần nhất (ms) */
 const SNAP_IDLE_MS = 150
+/** Cuộn chuột xoay tối đa một vòng (độ); hết vòng thì trang cuộn tiếp */
+const WHEEL_RANGE = 360
+/** Ô lệch dưới chừng này độ so với mặt trước mới tính là "ảnh đang hiện" để bắt cuộn chuột */
+const WHEEL_HIT_DEG = 75
 
 type Row = { job: MatchJob; href: string; status?: string; note?: string }
 
@@ -105,10 +109,12 @@ function RowLink({ row, label }: { row: Row; label: string }) {
  * vòng lùi translateZ(-R) rồi rotateY(-góc) để thẻ ở trước nằm đúng mặt phẳng, to nhất; thẻ xa mép
  * thì xoay nghiêng, nhỏ theo phối cảnh, mờ dần theo góc, mặt sau ẩn. R ≈ 0.6 × bề rộng khung (đo lại
  * khi đổi cỡ) để vòng trải gần hết chiều ngang.
- * Chuột đặt TRÊN vòng: cuộn chuột/trackpad cộng dồn vào góc đích (deltaY → độ), góc thật đuổi theo bằng
- * lerp trên gsap.ticker (quán tính), sự kiện bị nuốt (preventDefault + stopPropagation → không tới
- * Lenis ở window nên trang không cuộn). Vòng vô hạn nên không có đầu/cuối. Kéo ngang bằng chuột/cảm
- * ứng cũng xoay (touch-action: pan-y giữ cuộn dọc). Ngừng thao tác ~150ms thì căn về ô gần nhất.
+ * Chuột đặt TRÊN một ảnh đang hiện: cuộn chuột/trackpad cộng dồn vào góc đích (deltaY → độ), góc thật
+ * đuổi theo bằng lerp trên gsap.ticker (quán tính), sự kiện bị nuốt (preventDefault + stopPropagation →
+ * không tới Lenis ở window nên trang không cuộn). Cuộn chuột chỉ xoay trong khoảng 0 → 360° (một vòng):
+ * tới đầu/cuối thì thả sự kiện cho trang cuộn tiếp. Chuột ở ngoài ảnh (hai bên, trên, dưới) → trang cuộn.
+ * Kéo ngang bằng chuột/cảm ứng vẫn xoay tự do (touch-action: pan-y giữ cuộn dọc). Ngừng thao tác
+ * ~150ms thì căn về ô gần nhất.
  * Phím ← →, nút trước/sau: một ô. Khối chữ của việc ở trước chuyển mờ chéo.
  * Điện thoại hoặc giảm chuyển động: dải chữ đứng yên + danh sách dọc.
  */
@@ -187,6 +193,8 @@ export default function NewJobsSection() {
       let front = -1
       let running = false
       let snapTimer: number | undefined
+      // Ô nào đang hiện đủ rõ để tính là "chuột trên ảnh" khi cuộn
+      const visible: boolean[] = new Array(N).fill(false)
 
       // Đặt transform của vòng + độ mờ / bắt chuột của từng ô theo góc lệch so với mặt trước
       const render = () => {
@@ -195,6 +203,7 @@ export default function NewJobsSection() {
         slots.forEach((el, k) => {
           const d = mod(k * step - cur + 180, 360) - 180
           const ad = Math.abs(d)
+          visible[k] = ad < WHEEL_HIT_DEG
           el.style.opacity = ad >= 90 ? '0' : String(1 - 0.75 * (ad / 90))
           el.style.pointerEvents = ad < step / 2 ? 'auto' : 'none'
         })
@@ -243,13 +252,37 @@ export default function NewJobsSection() {
       const ro = new ResizeObserver(measure)
       ro.observe(area)
 
-      // Cuộn chuột trên vòng: nuốt sự kiện (không nổi bọt tới Lenis ở window) và xoay
+      // Chuột có nằm trong dải ảnh đang hiện không: khung bao chung của các ô đang hiện (sau khi xoay 3D),
+      // tính cả khe giữa hai ảnh — nếu không, lúc vòng đang quay con trỏ rơi vào khe là trang trôi mất
+      const overImage = (x: number, y: number) => {
+        let l = Infinity, r = -Infinity, t = Infinity, b = -Infinity
+        slots.forEach((el, k) => {
+          if (!visible[k]) return
+          const box = el.getBoundingClientRect()
+          l = Math.min(l, box.left)
+          r = Math.max(r, box.right)
+          t = Math.min(t, box.top)
+          b = Math.max(b, box.bottom)
+        })
+        return x >= l && x <= r && y >= t && y <= b
+      }
+
+      // Cuộn chuột trên ảnh: xoay trong khoảng 0 → 360°, nuốt sự kiện (không nổi bọt tới Lenis ở window).
+      // Ngoài ảnh, hoặc đã tới đầu/cuối vòng theo chiều đang cuộn → để trang cuộn bình thường.
       const onWheel = (e: WheelEvent) => {
         const raw = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
-        if (!raw) return
+        if (!raw || !overImage(e.clientX, e.clientY)) return
+        // Kéo tay / nút bấm có thể đưa góc ra ngoài 0..360 — quy về trong khoảng (vòng đối xứng nên trông y hệt)
+        if (target < 0 || target > WHEEL_RANGE) {
+          const shift = Math.floor(target / WHEEL_RANGE) * WHEEL_RANGE
+          target -= shift
+          cur -= shift
+        }
+        const delta = (e.deltaMode === 1 ? raw * 16 : raw) * WHEEL_DEG
+        if ((delta > 0 && target >= WHEEL_RANGE - 0.01) || (delta < 0 && target <= 0.01)) return
         e.preventDefault()
         e.stopPropagation()
-        target += (e.deltaMode === 1 ? raw * 16 : raw) * WHEEL_DEG
+        target = Math.min(WHEEL_RANGE, Math.max(0, target + delta))
         kick()
         snapSoon()
       }

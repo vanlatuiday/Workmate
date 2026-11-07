@@ -35,7 +35,7 @@ themes:          # tên theme dùng trong data-theme="…"
   graphite: { bg: graphite, fg: ivory }
 
 typography:
-  font-display: "Instrument Sans (500–600)"
+  font-display: "Plus Jakarta Sans (500–700)"
   font-body: "Inter (400–500)"
   display-lg: { size: "clamp(2.75rem, 7vw, 5.5rem)", lineHeight: 1.06, letterSpacing: "-0.03em", class: text-display-lg }
   display-md: { size: "clamp(2.5rem, 6vw, 4.5rem)",  lineHeight: 1.08, letterSpacing: "-0.03em", class: text-display-md }
@@ -93,7 +93,7 @@ chuyển màu nền theo tiến trình cuộn.
 **Đặc điểm nhận diện**
 - Đơn sắc ấm: 6 màu, không màu nhấn bão hòa, không gradient màu, không trắng/đen tuyệt đối.
 - Tương phản bằng **xen kẽ sáng/tối** giữa các section, không bằng màu nhấn.
-- Chữ display Instrument Sans, tracking âm vừa phải; line-height nới rộng để dấu tiếng Việt không bị cắt.
+- Chữ display Plus Jakarta Sans, tracking âm vừa phải; line-height nới rộng để dấu tiếng Việt không bị cắt.
 - Chuyển động phản hồi theo cuộn và đảo ngược được; một khoảnh khắc chính là logo bay từ giữa màn hình vào header.
 - Mọi nút hành động là viên thuốc (pill).
 
@@ -146,7 +146,7 @@ và class `.btn-*`, `.card`, `.input`, `.badge-*` khỏi `index.css`. Mọi tran
 
 ## Typography
 
-- **Instrument Sans** cho display và tiêu đề thẻ; **Inter** cho nội dung. Tải từ Google Fonts trong `index.html`.
+- **Plus Jakarta Sans** cho display và tiêu đề thẻ; **Inter** cho nội dung (cả hai có bộ chữ tiếng Việt). Tải từ Google Fonts trong `index.html`.
 - Thang chữ display co giãn theo viewport (`clamp`), nên **không** cần đổi class theo breakpoint.
 - Line-height display 1.06–1.12 — nới hơn thông lệ vì dấu chồng tiếng Việt (ấ, ỗ, ặ). Không hạ xuống dưới 1.05.
 - Đặt `max-w-[14ch]–[22ch]` cho tiêu đề lớn để xuống dòng có chủ đích.

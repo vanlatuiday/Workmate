@@ -341,3 +341,53 @@ html[data-page='home'] :focus-visible {
     }
   }
 }
+
+/* ─── Kính lỏng (references/p13): trong hơn glass-light, nhòe mạnh + tăng độ tươi màu phía sau,
+   viền sáng như ánh phản chiếu ở mép (inset), một vệt sáng chéo rất nhẹ phía trên. Dùng cho thẻ
+   "Workmate lo phần này" ở trang chủ — thẻ sau trượt lên thì thẻ trước nhòe qua lớp kính. ── */
+@layer components {
+  .glass-liquid {
+    position: relative;
+    /* Rất trong: chỉ một lớp ngà mỏng; cảm giác "tấm kính" đến từ mép sáng + quầng sáng trong ở viền */
+    background-color: color-mix(in srgb, var(--wm-ivory) 18%, transparent);
+    -webkit-backdrop-filter: blur(12px) saturate(1.15) brightness(1.03);
+    backdrop-filter: blur(12px) saturate(1.15) brightness(1.03);
+    border: 1px solid color-mix(in srgb, var(--wm-ivory) 85%, transparent);
+    box-shadow:
+      /* mép trên/trái bắt sáng, mép dưới hơi tối — độ dày của kính */
+      inset 0 1.5px 0 color-mix(in srgb, var(--wm-ivory) 100%, transparent),
+      inset 1.5px 0 0 color-mix(in srgb, var(--wm-ivory) 70%, transparent),
+      inset 0 -1px 0 color-mix(in srgb, var(--wm-charcoal) 12%, transparent),
+      /* quầng sáng mềm chạy quanh viền bên trong */
+      inset 0 0 24px color-mix(in srgb, var(--wm-ivory) 45%, transparent),
+      /* bóng rất mềm bên dưới để tấm kính tách khỏi nền */
+      0 12px 32px -14px color-mix(in srgb, var(--wm-charcoal) 25%, transparent);
+  }
+  /* Vệt sáng chéo phía trên — nằm dưới nội dung, không nhận chuột */
+  .glass-liquid::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    /* backdrop-filter tạo stacking context riêng → -1 nằm trên nền thẻ nhưng dưới ảnh và chữ */
+    z-index: -1;
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--wm-ivory) 55%, transparent) 0%,
+      transparent 32%,
+      transparent 70%,
+      color-mix(in srgb, var(--wm-ivory) 18%, transparent) 100%
+    );
+  }
+  @supports not (backdrop-filter: blur(1px)) {
+    .glass-liquid { background-color: color-mix(in srgb, var(--wm-ivory) 94%, transparent); }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .glass-liquid {
+      background-color: color-mix(in srgb, var(--wm-ivory) 96%, transparent);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+}

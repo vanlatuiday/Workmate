@@ -90,11 +90,13 @@ function BlockRow({
       data-row
       style={{ "--stick": `${STICK_TOP + index * STEP}px` } as React.CSSProperties}
       className={cn(
-        "group relative border-t border-wm-olive bg-page-bg py-8 md:grid md:h-[min(62vh,520px)] md:grid-cols-12 md:gap-x-6 md:py-0",
+        // Thẻ kính lỏng (glass-liquid, references/p13): trong, nhòe mạnh, viền sáng ở mép;
+        // thẻ sau trượt lên thì thẻ trước nhòe qua lớp kính. Pha chút màu đá để thẻ tách khỏi nền ngà.
+        "glass-liquid group mb-4 overflow-hidden rounded-card bg-wm-stone/[0.12] md:mb-0 md:grid md:h-[min(62vh,520px)] md:grid-cols-12 md:gap-x-6",
         sticky && "md:sticky md:top-[var(--stick)]",
       )}
     >
-      {/* Ảnh: trên mobile 16/10, desktop cao hết hàng (dải thu gọn khi bị hàng sau phủ lên) */}
+      {/* Ảnh: trên mobile 16/10, desktop cao hết hàng (dải thu gọn khi bị hàng sau phủ lên); góc bo theo thẻ */}
       <div className="overflow-hidden bg-wm-mist md:col-span-3 md:h-full">
         <img
           src={photoUrl(photo.id, 640)}
@@ -109,10 +111,10 @@ function BlockRow({
         />
       </div>
 
-      <div className="md:col-span-5">
+      <div className="px-5 md:col-span-5 md:px-0">
         {/* Dòng số + tên nằm trong 44px đầu hàng để vẫn đọc được khi hàng thu thành dải */}
         <div className="mt-5 flex items-center gap-4 md:mt-0 md:h-11">
-          <span className="tnum text-sm text-wm-olive">
+          <span className="tnum text-sm text-page-muted">
             {String(index + 1).padStart(2, "0")}.
           </span>
           <h3 className="min-w-0 font-display text-xl font-normal leading-snug text-page-fg md:truncate">
@@ -121,7 +123,7 @@ function BlockRow({
               data-cursor="Xem"
               className={cn(
                 "inline-flex items-center gap-2 outline-none",
-                'after:absolute after:inset-0 after:content-[""]',
+                'after:absolute after:inset-0 after:rounded-card after:content-[""]',
                 "focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-page-fg",
               )}
             >
@@ -147,8 +149,8 @@ function BlockRow({
       </div>
 
       {/* Cột "Workmate lo phần này": mờ dần khi hàng bị phủ (GSAP đặt opacity/y trên [data-bullets]) */}
-      <div data-bullets className="mt-5 md:col-span-4 md:mt-0 md:pt-3">
-        <p className="text-xs text-wm-olive">Workmate lo phần này</p>
+      <div data-bullets className="mt-5 px-5 pb-6 md:col-span-4 md:mt-0 md:px-0 md:pb-0 md:pr-6 md:pt-3">
+        <p className="text-xs text-page-muted">Workmate lo phần này</p>
         <ul className="mt-2 space-y-1 text-sm text-page-muted">
           {points.map((p) => (
             <li key={p} className="flex gap-2">
@@ -166,12 +168,13 @@ function BlockRow({
  * Section ③ — "Workmate giúp bạn thế nào" dạng danh sách chồng dính (sticky stacking,
  * references/p8.mp4 nửa đầu), 2–3 hàng (nhà tuyển dụng 2, còn lại 3).
  *
- * Toán dính (md+, không giảm chuyển động): hàng i dính ở top = 96 + 44·i, cao H, nền đục. Hàng i+1
+ * Toán dính (md+, không giảm chuyển động): hàng i dính ở top = 96 + 44·i, cao H, nền kính gần đặc. Hàng i+1
  * trượt lên phủ hàng i, nên hàng i chỉ còn 44px đầu (dải ảnh + số + tên). Mỗi hàng (trừ hàng cuối)
  * có một ScrollTrigger scrub: từ lúc đỉnh hàng i+1 chạm đáy hàng i (top_i + H) đến lúc nó dính ở
  * top_{i+1} thì cột bên phải của hàng i mờ đi. Phần đệm cuối để hàng cuối đọc trọn trước khi nhả.
  *
- * Điện thoại hoặc "giảm chuyển động": không dính — danh sách dọc, vạch phân cách mảnh.
+ * Mỗi hàng là một thẻ kính sáng (ảnh + nội dung chung một khối bo góc).
+ * Điện thoại hoặc "giảm chuyển động": không dính — các thẻ xếp dọc, cách nhau một khoảng.
  */
 export default function FeatureBlocksSection() {
   const ref = useRef<HTMLElement>(null);
