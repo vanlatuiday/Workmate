@@ -232,6 +232,16 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
   (`pages/public/auth/*`) theo `references/p11.mp4` — một thẻ kính **sáng** chia hai nửa trên nền ngà
   có khối hình học màu nhạt; được phép: kính mờ, vệt sáng trắng nhẹ theo chuột, làm nhòe ngắn
   (`filter: blur`) lúc hai nửa đổi chỗ. Mọi hiệu ứng có nhánh giảm chuyển động.
+  **Ngoại lệ thứ ba (2026-11-08, chủ dự án duyệt):** trang Việc làm `/viec-lam`, bản cuộn
+  (`components/discover/ScrollGallery.tsx` bố cục `jobs`, `pages/public/jobs/JobSearchBar.tsx`). Được phép:
+  - **Kính mờ** `.glass-liquid` (kèm bóng mềm của nó) cho: ô tìm kiếm đầu trang, viên thu gọn dính dưới
+    header, thanh tìm kiếm nổi khi bấm viên (kính đậm hơn `backdrop-blur-xl`, chip chưa chọn cũng có nền kính),
+    và chồng thẻ nội dung cột phải. Thẻ ở giữa hiện chữ; thẻ trên/dưới là khung kính trống, nghiêng theo ảnh;
+    thẻ cao ≈80% ảnh để ảnh luôn là khối lớn nhất.
+  - **Vệt sáng màu ảnh** dưới ảnh đang xem: bản ảnh 160px làm nhòe mạnh (`blur-[56px]`), đặt sau ảnh,
+    chỉ đổi opacity theo cuộn (tối đa 0.55). Màu đến từ chính ảnh, không thêm token màu nào.
+  Giới hạn: không mang các hiệu ứng này sang trang công khai khác khi chưa hỏi; bản giảm chuyển động
+  (`StaticGallery`) không có vệt sáng. Ô tìm kiếm ở các trang khác vẫn theo mục **Thanh tìm kiếm** ở trên.
 - Dùng `#000` / `#fff` tuyệt đối.
 - Viết hex trực tiếp trong component — thêm vào `tokens.json` nếu thật sự cần màu mới.
 - Đánh số 01/02/03 cho nội dung không phải trình tự thật.

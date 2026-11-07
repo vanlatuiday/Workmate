@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { X } from 'lucide-react'
-import TextReveal from '@components/motion/TextReveal'
-import { usePageEnterDelay } from '@components/motion/PageTransition'
+import { gsap } from '@utils/gsap'
+import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useCurtainNavigate } from '@components/motion/PageCurtain'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
@@ -21,19 +21,31 @@ const DISTRICTS = ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 
 const SUGGESTED = [...new Set(CANDIDATES.flatMap((c) => c.criteria.skills))].sort((a, b) => a.localeCompare(b, 'vi'))
 const PHOTOS = MATCH_JOBS.slice(0, 6).map((j) => j.photo)
 const MATCH_MIN = 60
-const INPUT = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
+// Ô nhập kính: nền ngà trong suốt + nhòe phía sau, viền giữ page-edge để đủ tương phản (WCAG 1.4.11)
+const INPUT = `w-full rounded-control border border-page-edge bg-[color-mix(in_srgb,var(--wm-ivory)_55%,transparent)] backdrop-blur-md px-3 py-2 text-sm text-page-fg ${FOCUS}`
 const chip = (on: boolean) =>
   cn(
-    'rounded-full border px-4 py-2 text-sm transition-colors duration-200',
+    'rounded-full border px-4 py-2 text-sm transition-[color,background-color,border-color,transform] duration-200 active:scale-95 motion-reduce:transition-none',
     on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
     FOCUS,
   )
 
-function Group({ title, children }: { title: string; children: ReactNode }) {
+/** Chip bật lên thì "nảy" nhẹ; giảm chuyển động thì bỏ qua */
+function pop(el: HTMLElement, reduced: boolean) {
+  if (reduced) return
+  gsap.fromTo(el, { scale: 0.94 }, { scale: 1, duration: 0.3, ease: 'back.out(3)', overwrite: 'auto' })
+}
+
+function Group({ title, index, children }: { title: string; index: number; children: ReactNode }) {
   return (
-    <fieldset className="rounded-card border border-page-line p-5">
-      <legend className="px-2 text-sm font-medium text-page-fg">{title}</legend>
-      <div className="space-y-4">{children}</div>
+    // Thẻ kính; legend thả nổi (float) để nằm trong thẻ thay vì cắt ngang viền
+    <fieldset className="glass-liquid rounded-card p-5 [--glass-alpha:40%]">
+      {/* Số thứ tự mờ ở góc phải, chỉ để trang trí */}
+      <span aria-hidden="true" className="pointer-events-none absolute right-4 top-2 select-none font-display text-5xl font-semibold leading-none text-page-line">
+        {String(index).padStart(2, '0')}
+      </span>
+      <legend className="float-left mb-4 w-full pr-16 text-sm font-medium text-page-fg">{title}</legend>
+      <div className="clear-both space-y-4">{children}</div>
     </fieldset>
   )
 }
@@ -48,7 +60,6 @@ function scheduleText(slots: string[]) {
 
 /** /dang-tin — NTD soạn tin, xem trước và số ứng viên phù hợp theo thời gian thực (dữ liệu mẫu; tin gửi đi chờ quản trị viên duyệt). */
 export default function PostJobPage() {
-  const delay = usePageEnterDelay()
   const curtainTo = useCurtainNavigate()
   // Chế độ sửa: /dang-tin?sua=<id>, chỉ nhận tin đã đăng của công ty demo; id lạ hoặc tin có sẵn thì rơi về đăng tin mới
   const editId = useSearchParams()[0].get('sua')
@@ -71,6 +82,9 @@ export default function PostJobPage() {
   const [posted, setPosted] = useState(false)
   const card = useRef<HTMLDivElement>(null)
   const timer = useRef<number>()
+  const reduced = useReducedMotion()
+  const submitBtn = useRef<HTMLButtonElement>(null)
+  const wasReady = useRef<boolean | null>(null)
   useEffect(() => () => window.clearTimeout(timer.current), [])
 
   const salaryLabel = minK === maxK ? `${minK}.000đ/giờ` : `${minK}.000–${maxK}.000đ/giờ`
@@ -95,9 +109,21 @@ export default function PostJobPage() {
 
   const missing = [!title.trim() && 'tên vị trí', !jobType && 'hình thức', slots.length === 0 && 'ít nhất một ca', skills.length === 0 && 'ít nhất một kỹ năng'].filter(Boolean)
   const ready = missing.length === 0
+  const filled = 4 - missing.length
+
+  // Vừa đủ 4 mục bắt buộc thì nút gửi nảy một lần (không nảy khi mở trang đã đủ sẵn)
+  useEffect(() => {
+    const was = wasReady.current
+    wasReady.current = ready
+    if (!ready || was !== false || reduced || !submitBtn.current) return
+    const t = gsap.fromTo(submitBtn.current, { scale: 1 }, { keyframes: { scale: [1, 1.07, 1] }, duration: 0.5, ease: 'power2.out' })
+    return () => { t.kill() }
+  }, [ready, reduced])
 
   const submit = () => {
     if (!ready || posted) return
+    // Thẻ xem trước nhấc lên; dùng y/scale để không đụng tween x của con dấu
+    if (!reduced && card.current) gsap.to(card.current, { y: -12, scale: 1.02, duration: 0.4, ease: 'power2.out', overwrite: false })
     const fields = {
       title: title.trim(), district, distanceKm: editing?.distanceKm ?? 1.5, salaryLabel, shiftLabel: scheduleText(slots),
       skills, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: req.jobType, photo: PHOTOS[photoIndex],
@@ -129,23 +155,35 @@ export default function PostJobPage() {
 
   return (
     <div className="shell py-section-sm">
-      <p className="eyebrow text-page-muted"><span className="h-px w-8 bg-page-line" />{editing ? 'Sửa tin' : 'Đăng tin'}</p>
-      <TextReveal
-        as="h1"
-        immediate
-        delay={delay}
-        text={editing ? 'Sửa tin, xem ngay ai còn phù hợp' : 'Tin mới, ứng viên hợp ngay khi bạn soạn'}
-        className="mt-6 max-w-[20ch] font-display text-display-md font-semibold text-page-fg"
-      />
-      <p className="mt-4 max-w-xl text-page-muted">
-        {editing
-          ? 'Thông tin cũ đã được điền sẵn. Sửa bên trái, bên phải cập nhật tin hiển thị ra sao và có bao nhiêu ứng viên đang hợp.'
-          : 'Điền thông tin bên trái, bên phải cho thấy tin hiển thị ra sao và có bao nhiêu ứng viên đang hợp.'}
-      </p>
+      <h1 className="mb-8 font-display text-display-sm font-semibold text-page-fg">
+        {editing ? 'Sửa tin tuyển dụng' : 'Đăng tin tuyển dụng'}
+      </h1>
 
-      <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12">
+      <div className="relative isolate grid grid-cols-1 gap-10 lg:grid-cols-12">
+        {/* Ánh màu của ảnh minh họa đang chọn, nhòe mạnh sau cột form → kính có thứ để "lọc" */}
+        <img
+          src={`https://images.unsplash.com/photo-${PHOTOS[photoIndex].id}?w=160&q=60&auto=format&fit=crop`}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute left-0 top-24 -z-10 h-[70%] w-full object-cover opacity-30 blur-[90px] saturate-150 lg:w-[58%]"
+        />
         <form className="space-y-5 lg:col-span-7" onSubmit={(e) => { e.preventDefault(); submit() }}>
-          <Group title="Thông tin chung">
+          {/* Thanh tiến độ dính dưới header */}
+          <div className="glass-liquid sticky top-20 z-20 flex items-center gap-4 rounded-full px-5 py-2 [--glass-alpha:55%]">
+            <span className="tnum whitespace-nowrap text-sm text-page-fg">Đã điền {filled}/4 mục bắt buộc</span>
+            <div
+              role="progressbar"
+              aria-label="Tiến độ điền mục bắt buộc"
+              aria-valuemin={0}
+              aria-valuemax={4}
+              aria-valuenow={filled}
+              className="h-1 flex-1 overflow-hidden rounded-full bg-page-line"
+            >
+              <div className="h-full origin-left rounded-full bg-page-fg transition-transform duration-500 ease-out motion-reduce:transition-none" style={{ transform: `scaleX(${filled / 4})` }} />
+            </div>
+          </div>
+
+          <Group title="Thông tin chung" index={1}>
             <div>
               <label htmlFor="pj-title" className="mb-1 block text-sm text-page-muted">Tên vị trí *</label>
               <input id="pj-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ví dụ: Pha chế ca tối" className={INPUT} />
@@ -154,7 +192,7 @@ export default function PostJobPage() {
               <p className="mb-2 text-sm text-page-muted">Hình thức *</p>
               <div className="flex flex-wrap gap-2">
                 {JOB_TYPES.map((t) => (
-                  <button key={t.value} type="button" aria-pressed={jobType === t.value} onClick={() => setJobType(t.value)} className={chip(jobType === t.value)}>
+                  <button key={t.value} type="button" aria-pressed={jobType === t.value} onClick={(e) => { if (jobType !== t.value) pop(e.currentTarget, reduced); setJobType(t.value) }} className={chip(jobType === t.value)}>
                     {t.label}
                   </button>
                 ))}
@@ -174,7 +212,7 @@ export default function PostJobPage() {
             </div>
           </Group>
 
-          <Group title="Mức lương">
+          <Group title="Mức lương" index={2}>
             <p className="tnum text-sm text-page-fg">{salaryLabel}</p>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block text-sm text-page-muted">
@@ -188,17 +226,17 @@ export default function PostJobPage() {
             </div>
           </Group>
 
-          <Group title="Ca làm *">
+          <Group title="Ca làm *" index={3}>
             <p className="text-sm text-page-muted">Bấm hoặc kéo để tô nhiều ô. Ô đậm là ca cần người.</p>
             <ShiftGrid value={slots} onChange={setSlots} />
           </Group>
 
-          <Group title="Kỹ năng *">
+          <Group title="Kỹ năng *" index={4}>
             <div className="flex flex-wrap gap-2">
               {[...SUGGESTED, ...skills.filter((s) => !SUGGESTED.includes(s))].map((s) => {
                 const on = skills.includes(s)
                 return (
-                  <button key={s} type="button" aria-pressed={on} onClick={() => setSkills(on ? skills.filter((x) => x !== s) : [...skills, s])} className={chip(on)}>
+                  <button key={s} type="button" aria-pressed={on} onClick={(e) => { if (!on) pop(e.currentTarget, reduced); setSkills(on ? skills.filter((x) => x !== s) : [...skills, s]) }} className={chip(on)}>
                     {s}
                     {on && !SUGGESTED.includes(s) && <X className="ml-1.5 inline h-3.5 w-3.5" aria-label="Bỏ kỹ năng" />}
                   </button>
@@ -217,19 +255,19 @@ export default function PostJobPage() {
             </div>
           </Group>
 
-          <Group title="Bán kính tuyển">
+          <Group title="Bán kính tuyển" index={5}>
             <label className="block text-sm text-page-muted">
               Ứng viên trong vòng <span className="tnum text-page-fg">{radius}</span> km
               <input type="range" min={1} max={15} value={radius} onChange={(e) => setRadius(Number(e.target.value))} className={`mt-2 w-full accent-page-fg ${FOCUS}`} />
             </label>
           </Group>
 
-          <Group title="Mô tả ngắn">
+          <Group title="Mô tả ngắn" index={6}>
             <label htmlFor="pj-desc" className="sr-only">Mô tả ngắn</label>
             <textarea id="pj-desc" rows={3} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Tùy chọn: vài dòng về công việc, môi trường làm việc" className={INPUT} />
           </Group>
 
-          <Group title="Ảnh minh họa">
+          <Group title="Ảnh minh họa" index={7}>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
               {PHOTOS.map((p, i) => (
                 <button
@@ -249,6 +287,7 @@ export default function PostJobPage() {
           <div className="pt-2">
             <button
               type="submit"
+              ref={submitBtn}
               disabled={!ready || posted}
               className={`rounded-full bg-page-fg px-8 py-4 text-sm font-medium text-page-bg transition-opacity disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS}`}
             >

@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useRef, useState } from 'react'
 import { gsap } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
+import Tilt from '@components/motion/Tilt'
 import { photoUrl, type Photo } from '@components/discover/types'
 import { personInitials } from '../match/parts'
 
@@ -30,6 +31,19 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
   const prev = useRef(count)
   const counter = useRef({ v: count })
   const stamp = useRef<HTMLDivElement>(null)
+  const numRef = useRef<HTMLSpanElement>(null)
+  const deltaRef = useRef<HTMLParagraphElement>(null)
+  const lastChar = useRef<HTMLSpanElement>(null)
+  const prevLen = useRef(title.length)
+
+  // Chỉ ký tự mới gõ hiện dần (mờ → rõ, nhích lên); xóa chữ hoặc giảm chuyển động thì đổi ngay
+  useEffect(() => {
+    const grew = title.length > prevLen.current
+    prevLen.current = title.length
+    if (!grew || reduced || !lastChar.current) return
+    const t = gsap.fromTo(lastChar.current, { opacity: 0, y: 5 }, { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' })
+    return () => { t.kill() }
+  }, [title, reduced])
 
   useEffect(() => {
     setSeen((s) => (s.includes(photoIndex) ? s : [...s, photoIndex]))
@@ -40,6 +54,11 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
     if (count === prev.current) return
     setDelta(count - prev.current)
     prev.current = count
+    // Số "nảy" và dòng chênh lệch trượt vào
+    if (!reduced) {
+      if (numRef.current) gsap.fromTo(numRef.current, { scale: 1 }, { keyframes: { scale: [1, 1.08, 1] }, duration: 0.35, ease: 'power2.out', overwrite: 'auto' })
+      if (deltaRef.current) gsap.fromTo(deltaRef.current, { y: 6, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out', overwrite: 'auto' })
+    }
     if (reduced) {
       counter.current.v = count
       setShown(count)
@@ -71,10 +90,12 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
   return (
     <div className="space-y-6">
       <div ref={cardRef} className="relative">
+        <Tilt>
         <div className="relative aspect-[16/10] overflow-hidden rounded-card bg-page-surface">
           {seen.map((i) => (
             <img
               key={i}
+              data-tilt-media
               src={photoUrl(photos[i].id, 800)}
               alt={i === photoIndex ? photos[i].alt : ''}
               className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
@@ -82,8 +103,9 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
             />
           ))}
         </div>
+        </Tilt>
         <div className="mt-3 border-b border-page-line pb-4">
-          <p className="font-display text-lg font-medium text-page-fg">{title || 'Tên vị trí của bạn'}</p>
+          <p className="font-display text-lg font-medium text-page-fg">{title ? <>{title.slice(0, -1)}<span ref={lastChar} className="inline-block whitespace-pre">{title.slice(-1)}</span></> : 'Tên vị trí của bạn'}</p>
           <p className="mt-1 text-sm text-page-muted">{subtitle}</p>
         </div>
         {posted && (
@@ -102,15 +124,18 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
       <section aria-label="Ứng viên phù hợp ngay lúc này" className="rounded-card border border-page-line p-5">
         <p className="text-sm text-page-muted">Ứng viên phù hợp ngay lúc này</p>
         <div className="mt-2 flex items-end gap-3">
-          <span className="tnum font-display text-display-md font-semibold leading-none text-page-fg">{shown}</span>
+          <span ref={numRef} className="tnum inline-block origin-bottom-left font-display text-display-md font-semibold leading-none text-page-fg">{shown}</span>
           <span className="pb-1 text-sm text-page-muted">/ {total} ứng viên</span>
         </div>
         <div className="mt-3 flex flex-wrap gap-1" aria-hidden="true">
           {Array.from({ length: total }, (_, i) => (
-            <span key={i} className={i < count ? 'h-2 w-2 rounded-full bg-page-fg' : 'h-2 w-2 rounded-full border border-page-line'} />
+            <span
+              key={i}
+              className={`h-2 w-2 rounded-full border transition-[transform,background-color,border-color] duration-300 motion-reduce:transition-none ${i < count ? 'scale-110 border-page-fg bg-page-fg' : 'border-page-line'}`}
+            />
           ))}
         </div>
-        <p className="mt-3 min-h-[1.25rem] text-sm text-page-fg" aria-live="polite">
+        <p ref={deltaRef} className="mt-3 min-h-[1.25rem] text-sm text-page-fg" aria-live="polite">
           {delta !== 0 && <>{delta > 0 ? '↑ +' : '↓ −'}{Math.abs(delta)} so với trước</>}
         </p>
         <ul className="mt-3 space-y-2">

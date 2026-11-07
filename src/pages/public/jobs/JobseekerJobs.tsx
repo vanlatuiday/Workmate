@@ -1,10 +1,9 @@
 import { useMemo } from 'react'
 import { useAdmin } from '@services/adminService'
-import { Link } from 'react-router-dom'
 import { SearchX } from 'lucide-react'
 import EmptyState from '@components/dashboard/EmptyState'
 import DiscoverGallery from '@components/discover/DiscoverGallery'
-import { ProfileTag, ClosingBand, DetailHead, GalleryIntro, PrimaryLink, SampleNote } from '@components/discover/parts'
+import { ProfileTag, ClosingBand, DetailHead, PrimaryLink, SampleNote } from '@components/discover/parts'
 import type { GalleryItem } from '@components/discover/types'
 import MatchScore from '@components/dashboard/MatchScore'
 import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
@@ -13,6 +12,8 @@ import type { DiscoverCompany } from './data'
 import { useSeekerCriteria } from '@context/profileStore'
 import { bestJobOf, companiesMatching, EMPTY_FILTERS, hasFilters, type MatchJob } from './catalog'
 import JobSearchBar from './JobSearchBar'
+import JobsHero from './JobsHero'
+import PositionChips from './PositionChips'
 import { useJobFilters } from './useJobFilters'
 
 type Item = GalleryItem & { company: DiscoverCompany; jobs: MatchJob[] }
@@ -44,7 +45,13 @@ export default function JobseekerJobs() {
 
   return (
     <>
-      <JobSearchBar filters={filters} onChange={setFilters} companies={items.length} jobs={jobCount} showNearMe />
+      <JobsHero
+        eyebrow="Công ty đang tuyển"
+        title="Chọn nơi làm trước, rồi chọn việc"
+        text="Mỗi ảnh là một công ty. Bấm vào ảnh để xem công ty và các việc đang tuyển."
+        stats={[[items.length, 'công ty'], [jobCount, 'việc']]}
+      />
+      <JobSearchBar filters={filters} onChange={setFilters} showNearMe />
       {items.length === 0 ? (
         <div className="shell py-section-sm">
           <EmptyState
@@ -63,13 +70,7 @@ export default function JobseekerJobs() {
         key={items.map((x) => x.id).join(',')}
         items={items}
         label="Công ty đang tuyển"
-        intro={
-          <GalleryIntro
-            eyebrow="Công ty đang tuyển"
-            title="Chọn nơi làm trước, rồi chọn việc"
-            text="Mỗi ảnh là một công ty. Bấm vào ảnh để xem công ty và các việc đang tuyển."
-          />
-        }
+        layout="jobs"
         renderDetail={({ company: c, jobs }) => <CompanyDetail company={c} jobs={jobs} filtered={hasFilters(filters)} />}
       />
       )}
@@ -90,48 +91,21 @@ function CompanyDetail({ company: c, jobs, filtered }: { company: DiscoverCompan
   return (
     <>
       <DetailHead kicker={`${c.industry} · ${c.district}`} title={c.name} />
-      <div className="mt-3">
-        <ProfileTag to={COMPANY_PUBLIC_HREF}>Trang doanh nghiệp</ProfileTag>
-      </div>
-      <p className="mt-4 leading-relaxed text-page-muted">{c.tagline}</p>
-
+      {/* Thẻ gọn (thấp hơn ảnh): mô tả công ty nằm ở trang công ty; độ phù hợp gói trong một hàng */}
       {best && (
-        <>
-          <h3 className="mt-6 text-xs font-medium uppercase tracking-[0.18em] text-page-muted">Độ phù hợp với bạn</h3>
-          <div className="mt-3">
-            <MatchScore score={best.outcome.score} />
-          </div>
-          <p className="mt-2 text-xs text-page-muted">Theo hồ sơ của bạn, với việc “{best.job.title}”.</p>
-        </>
+        <div className="mt-4 flex items-center justify-between gap-4" title={`Theo hồ sơ của bạn, với việc “${best.job.title}”`}>
+          <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-page-muted">Độ phù hợp</h3>
+          <MatchScore score={best.outcome.score} size="sm" />
+        </div>
       )}
 
-      <h3 className="mt-6 text-xs font-medium uppercase tracking-[0.18em] text-page-muted">{filtered ? 'Việc khớp' : 'Việc đang tuyển'}</h3>
-      {jobs.length ? (
-        <ul className="mt-2 divide-y divide-page-line border-y border-page-line">
-          {jobs.slice(0, filtered ? 3 : 2).map((j) => (
-            <li key={j.id}>
-              <Link
-                to={`/viec-lam/${j.id}`}
-                className="group block rounded-control py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg"
-              >
-                <span className="block font-medium transition-transform duration-500 ease-editorial group-hover:translate-x-1">
-                  {j.title}
-                </span>
-                <span className="mt-0.5 block text-sm text-page-muted">
-                  {j.salaryLabel} · {j.shiftLabel}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-2 text-sm text-page-muted">Chưa có tin đang mở.</p>
-      )}
+      <PositionChips jobs={jobs} max={2} more={false} moreHref={`/cong-ty/${c.id}`} heading={`${filtered ? 'Việc khớp' : 'Đang tuyển'} · ${jobs.length} vị trí`} className="mt-4" />
 
-      <div className="mt-6">
+      <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
         <PrimaryLink to={`/cong-ty/${c.id}`} state={{ from: '/viec-lam' }} curtain={c.name}>
           Xem công ty
         </PrimaryLink>
+        <ProfileTag to={COMPANY_PUBLIC_HREF}>Trang doanh nghiệp</ProfileTag>
       </div>
     </>
   )

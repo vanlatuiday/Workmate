@@ -44,12 +44,12 @@ export function DetailHead({ kicker, title }: { kicker: string; title: string })
   )
 }
 
-/** Danh sách cặp nhãn – giá trị */
-export function Facts({ rows }: { rows: [string, ReactNode][] }) {
+/** Danh sách cặp nhãn – giá trị. `dense`: bản gọn cho thẻ kính thấp ở /viec-lam */
+export function Facts({ rows, dense = false }: { rows: [string, ReactNode][]; dense?: boolean }) {
   return (
-    <dl className="mt-6 divide-y divide-page-line border-y border-page-line text-sm">
+    <dl className={cn('divide-y divide-page-line border-y border-page-line text-sm', dense ? 'mt-4' : 'mt-6')}>
       {rows.map(([k, v]) => (
-        <div key={k} className="flex justify-between gap-4 py-2.5">
+        <div key={k} className={cn('flex justify-between gap-4', dense ? 'py-2' : 'py-2.5')}>
           <dt className="text-page-muted">{k}</dt>
           <dd className="text-right">{v}</dd>
         </div>

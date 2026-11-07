@@ -349,7 +349,7 @@ html[data-page='home'] :focus-visible {
   .glass-liquid {
     position: relative;
     /* Rất trong: chỉ một lớp ngà mỏng; cảm giác "tấm kính" đến từ mép sáng + quầng sáng trong ở viền */
-    background-color: color-mix(in srgb, var(--wm-ivory) 18%, transparent);
+    background-color: color-mix(in srgb, var(--wm-ivory) var(--glass-alpha, 18%), transparent);
     -webkit-backdrop-filter: blur(12px) saturate(1.15) brightness(1.03);
     backdrop-filter: blur(12px) saturate(1.15) brightness(1.03);
     border: 1px solid color-mix(in srgb, var(--wm-ivory) 85%, transparent);
