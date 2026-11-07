@@ -7,6 +7,7 @@ import { join } from 'node:path'
 import { randomBytes } from 'node:crypto'
 import { PrismaClient } from '@prisma/client'
 import { hashSync } from 'bcryptjs'
+import { geo } from '../src/common/geo'
 
 const prisma = new PrismaClient()
 const d: any = JSON.parse(readFileSync(join(__dirname, 'seed-data.json'), 'utf8'))
@@ -17,29 +18,6 @@ let warnings = 0
 const warn = (msg: string) => {
   warnings++
   console.warn(`  [cảnh báo] ${msg}`)
-}
-
-/** Tọa độ gần đúng trung tâm các quận/huyện Đà Nẵng (chỉ để minh họa khoảng cách) */
-const DISTRICT_GEO: Record<string, { lat: number; lng: number }> = {
-  'Hải Châu': { lat: 16.0678, lng: 108.2208 },
-  'Thanh Khê': { lat: 16.0712, lng: 108.1887 },
-  'Sơn Trà': { lat: 16.0997, lng: 108.2455 },
-  'Ngũ Hành Sơn': { lat: 16.0036, lng: 108.2606 },
-  'Liên Chiểu': { lat: 16.0967, lng: 108.1442 },
-  'Cẩm Lệ': { lat: 16.0239, lng: 108.2036 },
-  'Hòa Vang': { lat: 15.9967, lng: 108.1167 },
-}
-
-/** Lệch nhỏ cố định theo id để các điểm cùng quận không chồng lên nhau */
-function jitter(id: string, base: number): number {
-  let h = 0
-  for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 9973
-  return base + ((h % 81) - 40) * 0.0001
-}
-
-function geo(district: string, id: string): { lat: number | null; lng: number | null } {
-  const g = DISTRICT_GEO[district.split(',')[0].trim()]
-  return g ? { lat: jitter(id, g.lat), lng: jitter(id + '#', g.lng) } : { lat: null, lng: null }
 }
 
 const JOB_TYPE: Record<string, string> = { 'full-time': 'full_time', 'part-time': 'part_time' }
@@ -144,12 +122,10 @@ async function main() {
   })
 
   // ── Tin tuyển dụng ──
-  // Kiểm duyệt: frontend có 'hidden' (quản trị ẩn) mà DB chỉ có pending/approved/rejected → 'hidden' thành 'rejected'
-  // với lý do 'Ẩn bởi quản trị' (nếu không có lý do riêng). Tin chưa có bản ghi kiểm duyệt = đã duyệt.
+  // Kiểm duyệt: khớp 1-1 với frontend (pending / approved / rejected / hidden). Tin chưa có bản ghi kiểm duyệt = đã duyệt.
   const modOf = (id: string) => {
     const m = admin.moderation[id]
     if (!m) return { moderation: 'approved', moderatedAt: new Date() }
-    if (m.status === 'hidden') return { moderation: 'rejected', moderationReason: m.reason || 'Ẩn bởi quản trị', moderatedAt: date(m.at) }
     return { moderation: m.status, moderationReason: m.reason ?? null, moderatedAt: m.status === 'pending' ? null : date(m.at) }
   }
   const mockById: Record<string, any> = Object.fromEntries(d.mockJobs.map((j: any) => [j.id, j]))

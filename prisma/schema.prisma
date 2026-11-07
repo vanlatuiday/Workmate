@@ -226,6 +226,8 @@ enum ModerationStatus {
   pending
   approved
   rejected
+  /// Quản trị viên ẩn một tin đã duyệt
+  hidden
 }
 
 model Job {
