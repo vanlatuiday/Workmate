@@ -31,10 +31,19 @@ function dayLabel(iso: string) {
   return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`
 }
 
-type Props = { viewer: Side; jobId: string; seekerId: string; onBack: () => void }
+type Props = {
+  viewer: Side
+  jobId: string
+  seekerId: string
+  onBack: () => void
+  /** Khung tin nhắn đang đóng → không coi tin mới là đã đọc */
+  paused?: boolean
+  /** Khung hai cột (từ md): danh sách luôn hiện nên ẩn nút quay lại */
+  hideBackOnWide?: boolean
+}
 
-/** Cột phải: đầu khung, vùng tin nhắn cuộn, trả lời nhanh và ô soạn. */
-export default function ChatPane({ viewer, jobId, seekerId, onBack }: Props) {
+/** Khung chat trong tin nhắn nổi: đầu khung, vùng tin nhắn cuộn, trả lời nhanh và ô soạn. */
+export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = false, hideBackOnWide = false }: Props) {
   const info = describeConversation(viewer, jobId, seekerId)
   const messages = useMessages(jobId, seekerId)
   const typing = useIsTyping(viewer, jobId, seekerId)
@@ -50,8 +59,8 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack }: Props) {
 
   // Đang mở là coi như đã đọc, kể cả khi tin mới đến
   useEffect(() => {
-    markConversationRead(viewer, jobId, seekerId)
-  }, [viewer, jobId, seekerId, lastId])
+    if (!paused) markConversationRead(viewer, jobId, seekerId)
+  }, [viewer, jobId, seekerId, lastId, paused])
 
   // Tự cuộn xuống cuối khi có tin mới / phía kia đang gõ
   useLayoutEffect(() => {
@@ -88,12 +97,11 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack }: Props) {
 
   return (
     <FadeIn className="flex h-full min-h-0 flex-col">
-      <header className="flex items-center gap-3 border-b border-page-line pb-4">
-        <button type="button" onClick={onBack} className={cn('flex items-center gap-1 rounded-control text-sm text-page-muted hover:text-page-fg lg:hidden', FOCUS)}>
+      <header className="flex items-center gap-2 border-b border-page-line pb-3">
+        <button type="button" onClick={onBack} aria-label="Quay lại danh sách" className={cn('shrink-0 rounded-full border border-page-line p-3 text-page-fg transition-colors duration-300 hover:border-page-fg', hideBackOnWide && 'md:hidden', FOCUS)}>
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          Quay lại
         </button>
-        <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-page-edge text-sm font-medium text-page-fg">
+        <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-page-edge text-sm font-medium text-page-fg">
           {info.initials}
         </span>
         <div className="min-w-0 flex-1">

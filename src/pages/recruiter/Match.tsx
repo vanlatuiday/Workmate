@@ -7,6 +7,7 @@ import { describeConversation } from '@pages/public/messages/describe'
 import { useConversations, useMyPairs } from '@services/connectionService'
 import { FOCUS } from '@utils/focus'
 import { formatRelativeTime } from '@utils/format'
+import MessageLink from '@components/messenger/MessageLink'
 
 const BTN = `inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
 const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
@@ -60,7 +61,7 @@ export default function RecruiterMatch() {
                   <div className="flex flex-wrap items-center gap-2 lg:flex-shrink-0">
                     <InterviewAction viewer="recruiter" jobId={p.jobId} seekerId={p.seekerId} compact />
                     <HireAction viewer="recruiter" jobId={p.jobId} seekerId={p.seekerId} compact />
-                    <Link to={`/tin-nhan?c=${p.jobId}|${p.seekerId}`} className={BTN_SOLID}>Nhắn tin</Link>
+                    <MessageLink convKey={`${p.jobId}|${p.seekerId}`} className={BTN_SOLID}>Nhắn tin</MessageLink>
                   </div>
                 </li>
               )

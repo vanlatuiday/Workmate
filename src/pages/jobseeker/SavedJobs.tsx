@@ -8,6 +8,7 @@ import { useAllJobs, seekerOutcome } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import MessageLink from '@components/messenger/MessageLink'
 
 const BTN = `inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
 const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
@@ -92,7 +93,7 @@ export default function SavedJobs() {
                         </button>
                       )}
                       {status === 'connected' && (
-                        <Link to={`/tin-nhan?c=${job.id}|${ME}`} className={BTN_SOLID}>Nhắn tin</Link>
+                        <MessageLink convKey={`${job.id}|${ME}`} className={BTN_SOLID}>Nhắn tin</MessageLink>
                       )}
                       <Link to="/match" className={BTN_LINE}>Xem ở Kết nối</Link>
                       <button

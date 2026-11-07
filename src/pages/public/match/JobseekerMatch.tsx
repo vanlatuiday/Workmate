@@ -36,6 +36,7 @@ import {
   type CriterionKey,
   type MatchOutcome,
 } from './score'
+import MessageLink from '@components/messenger/MessageLink'
 
 type SortKey = 'score' | 'salary' | 'distance'
 type TabKey = 'fit' | 'saved' | 'applied' | 'connected'
@@ -202,9 +203,9 @@ export default function JobseekerMatch() {
               <Check className="h-3.5 w-3.5" aria-hidden="true" />
               Đã kết nối
             </span>
-            <Link to={`/tin-nhan?c=${job.id}|${ME}`} className={BTN_SECONDARY}>
+            <MessageLink convKey={`${job.id}|${ME}`} className={BTN_SECONDARY}>
               Nhắn tin<span className="sr-only"> {job.title}</span>
-            </Link>
+            </MessageLink>
             <InterviewAction viewer="seeker" jobId={job.id} seekerId={ME} />
           </>
         )}

@@ -1,18 +1,16 @@
 import toast from 'react-hot-toast'
-import { Link } from 'react-router-dom'
 import { Bookmark, Check } from 'lucide-react'
 import { useMatchStore } from '@context/matchStore'
-import { useAreaLinks } from '@hooks/useAreaLinks'
 import { expressInterest, ME, useOnNewConnection, usePairStatuses, withdrawInterest } from '@services/connectionService'
 import type { MatchJob } from '@pages/public/jobs/catalog'
 import { BTN_PRIMARY, BTN_SECONDARY } from '@pages/public/match/parts'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import MessageLink from '@components/messenger/MessageLink'
 
 /** Hàng nút của người tìm việc: ứng tuyển / chờ phản hồi / nhắn tin + lưu tin. */
 export default function SeekerJobActions({ job }: { job: MatchJob }) {
   const { savedJobs, toggleSavedJob } = useMatchStore()
-  const links = useAreaLinks()
   const status = usePairStatuses('seeker')(job.id, ME)
   const saved = savedJobs.includes(job.id)
   const toastId = `ung-tuyen-${job.id}`
@@ -59,9 +57,9 @@ export default function SeekerJobActions({ job }: { job: MatchJob }) {
         </>
       )}
       {status === 'connected' && (
-        <Link to={links.messages(`c=${job.id}|${ME}`)} className={BTN_PRIMARY}>
+        <MessageLink convKey={`${job.id}|${ME}`} className={BTN_PRIMARY}>
           Nhắn tin
-        </Link>
+        </MessageLink>
       )}
       <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={BTN_SECONDARY}>
         <Bookmark className={cn('h-4 w-4', saved && 'fill-current')} aria-hidden="true" />

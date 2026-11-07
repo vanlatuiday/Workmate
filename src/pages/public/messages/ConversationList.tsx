@@ -15,7 +15,7 @@ type Props = {
   onSelect: (c: ConversationSummary) => void
 }
 
-/** Cột trái: ô lọc theo tên + danh sách hội thoại (tin cuối, giờ, chưa đọc). */
+/** Danh sách trong khung tin nhắn nổi (tiêu đề do khung giữ): ô lọc theo tên + danh sách hội thoại (tin cuối, giờ, chưa đọc). */
 export default function ConversationList({ viewer, conversations, activeKey, onSelect }: Props) {
   const [query, setQuery] = useState('')
 
@@ -28,9 +28,8 @@ export default function ConversationList({ viewer, conversations, activeKey, onS
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="px-1 pb-4">
-        <h1 className="font-display text-2xl font-semibold text-page-fg">Tin nhắn</h1>
-        <label className="relative mt-4 block">
+      <div className="pb-3">
+        <label className="relative block">
           <span className="sr-only">Lọc theo tên</span>
           <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-page-muted" />
           <input

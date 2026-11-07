@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
+import { useMessengerStore } from '@context/messengerStore'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 
@@ -35,6 +36,7 @@ const ITEM = cn(
  */
 export default function AccountMenu({ initial, area, profileHref, unreadMessages, unreadNotifications, onOpenProfile, onLogout, magnetic }: Props) {
   const [open, setOpen] = useState(false)
+  const openMessenger = useMessengerStore((s) => s.openMessenger)
   const wrapRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -141,12 +143,20 @@ export default function AccountMenu({ initial, area, profileHref, unreadMessages
           open ? 'visible translate-y-0 opacity-100' : 'invisible -translate-y-1 opacity-0',
         )}
       >
-        <Link role="menuitem" to="/tin-nhan" className={cn(ITEM, 'flex items-center justify-between')} onClick={() => close(false)}>
+        <button
+          type="button"
+          role="menuitem"
+          className={cn(ITEM, 'flex items-center justify-between')}
+          onClick={() => {
+            close(false)
+            openMessenger()
+          }}
+        >
           Tin nhắn
           {unreadMessages > 0 && (
             <span className="rounded-full bg-page-fg px-2 text-xs font-medium text-page-bg">{unreadMessages}</span>
           )}
-        </Link>
+        </button>
         <Link role="menuitem" to="/thong-bao" className={cn(ITEM, 'flex items-center justify-between')} onClick={() => close(false)}>
           Thông báo
           {unreadNotifications > 0 && (

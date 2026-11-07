@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Bookmark, Check } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
@@ -21,6 +21,7 @@ import { findAnyJob } from './jobs/lookup'
 import { companyOf } from './match/data'
 import { CriterionBars, ImproveHint } from './match/detailParts'
 import { BTN_PRIMARY, BTN_SECONDARY } from './match/parts'
+import MessageLink from '@components/messenger/MessageLink'
 
 const jobTypeLabel = (t: string) => JOB_TYPES.find((x) => x.value === t)?.label ?? t
 
@@ -73,9 +74,9 @@ function SeekerActions({ job }: { job: MatchJob }) {
         </>
       )}
       {status === 'connected' && (
-        <Link to={`/tin-nhan?c=${job.id}|${ME}`} className={BTN_PRIMARY}>
+        <MessageLink convKey={`${job.id}|${ME}`} className={BTN_PRIMARY}>
           Nhắn tin
-        </Link>
+        </MessageLink>
       )}
       <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={BTN_SECONDARY}>
         <Bookmark className={cn('h-4 w-4', saved && 'fill-current')} aria-hidden="true" />

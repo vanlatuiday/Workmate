@@ -11,6 +11,7 @@ import { expressInterest, ME, useHires, useMyPairs, useOnNewConnection, withdraw
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { formatRelativeTime } from '@utils/format'
+import MessageLink from '@components/messenger/MessageLink'
 
 const BTN = `inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
 const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
@@ -48,7 +49,7 @@ function Row({ item }: { item: PairItem }) {
       <div className="flex flex-wrap items-center gap-2 md:flex-shrink-0">
         {item.status === 'connected' && <InterviewAction viewer="seeker" jobId={item.jobId} seekerId={item.seekerId} compact />}
         {item.status === 'connected' && (
-          <Link to={`/tin-nhan?c=${item.jobId}|${item.seekerId}`} className={BTN_SOLID}>Nhắn tin</Link>
+          <MessageLink convKey={`${item.jobId}|${item.seekerId}`} className={BTN_SOLID}>Nhắn tin</MessageLink>
         )}
         {item.status === 'received' && (
           <button type="button" className={BTN_SOLID} onClick={() => expressInterest('seeker', item.jobId, item.seekerId)}>

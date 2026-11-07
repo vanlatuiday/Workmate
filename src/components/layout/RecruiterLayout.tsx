@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, PlusCircle, List, UserCheck,
-  Search, BookmarkCheck, Zap, MessageCircle, Calendar,
+  Search, BookmarkCheck, Zap, Calendar,
   Building2, Settings,
 } from 'lucide-react'
 import DashboardShell from './DashboardShell'
@@ -13,7 +13,6 @@ const navItems = [
   { label: 'Tìm ứng viên',       href: '/tuyen-dung/tim-ung-vien',       icon: Search },
   { label: 'Ứng viên đã lưu',    href: '/tuyen-dung/ung-vien-da-luu',    icon: BookmarkCheck },
   { label: 'Kết nối',           href: '/tuyen-dung/match',              icon: Zap, badge: 'Mới' },
-  { label: 'Tin nhắn',           href: '/tuyen-dung/tin-nhan',           icon: MessageCircle },
   { label: 'Lịch phỏng vấn',     href: '/tuyen-dung/lich-phong-van',     icon: Calendar },
   { label: 'Hồ sơ công ty',      href: '/tuyen-dung/ho-so-cong-ty',      icon: Building2 },
   { label: 'Cài đặt',            href: '/tuyen-dung/cai-dat',            icon: Settings },

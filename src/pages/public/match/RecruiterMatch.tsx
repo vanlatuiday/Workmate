@@ -25,6 +25,7 @@ import {
 } from './parts'
 import { DEFAULT_PRIORITY, scoreMatch, weightsOf, type CriterionResult } from './score'
 import { useAdmin } from '@services/adminService'
+import MessageLink from '@components/messenger/MessageLink'
 
 type TabKey = 'fit' | 'saved' | 'interested' | 'connected'
 
@@ -157,9 +158,9 @@ export default function RecruiterMatch() {
               <Check className="h-3.5 w-3.5" aria-hidden="true" />
               Đã kết nối
             </span>
-            <Link to={`/tin-nhan?c=${position.id}|${c.id}`} className={BTN_SECONDARY}>
+            <MessageLink convKey={`${position.id}|${c.id}`} className={BTN_SECONDARY}>
               Nhắn tin<span className="sr-only"> {c.name}</span>
-            </Link>
+            </MessageLink>
             <InterviewAction viewer="recruiter" jobId={position.id} seekerId={c.id} />
           </>
         )}

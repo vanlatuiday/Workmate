@@ -27,7 +27,6 @@ export function useAreaLinks() {
       /** Đang trong khung dashboard (bỏ phần trình bày riêng của trang công khai) */
       embedded: area !== 'public',
       job: (id: string) => (area === 'jobseeker' ? `/tim-viec/viec-lam/${id}` : `/viec-lam/${id}`),
-      messages: (query?: string) => withQuery(`${base}/tin-nhan`, query),
       schedule: () => `${base}/lich-phong-van`,
       match: () => `${base}/match`,
       notifications: () => `${base}/thong-bao`,

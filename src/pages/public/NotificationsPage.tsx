@@ -2,6 +2,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Bell, CalendarCheck, CalendarPlus, CalendarX, Handshake, Heart, BriefcaseBusiness, UserCheck, UserX, Undo2, HeartHandshake, Star, type LucideIcon } from 'lucide-react'
 import { EmptyState } from '@components/dashboard'
 import { useAuthStore } from '@context/authStore'
+import { useMessengerStore } from '@context/messengerStore'
 import {
   markAllNotificationsRead, markNotificationRead, useNotifications,
   type DemoNotification, type Side,
@@ -63,7 +64,6 @@ const targetOf = (n: DemoNotification) => {
   switch (n.kind) {
     case 'review': return '/ca-nhan'
     case 'interest': return '/match'
-    case 'connected': return `/tin-nhan?c=${n.jobId}|${n.seekerId}`
     case 'offer': case 'offer_withdrawn': case 'rejected': return '/tim-viec/ung-tuyen'
     case 'offer_accepted': case 'offer_declined': return '/tuyen-dung/match'
     default: return '/lich-phong-van'
@@ -90,6 +90,7 @@ export default function NotificationsPage() {
 function List({ viewer }: { viewer: Side }) {
   const items = useNotifications(viewer)
   const navigate = useNavigate()
+  const openMessenger = useMessengerStore((s) => s.openMessenger)
   const today = new Date().toDateString()
   const groups = [
     { label: 'Hôm nay', list: items.filter((n) => new Date(n.at).toDateString() === today) },
@@ -99,7 +100,9 @@ function List({ viewer }: { viewer: Side }) {
 
   const open = (n: DemoNotification) => {
     markNotificationRead(n.id)
-    navigate(targetOf(n))
+    // Thông báo "đã kết nối" mở thẳng khung tin nhắn nổi tại hội thoại đó
+    if (n.kind === 'connected') openMessenger(`${n.jobId}|${n.seekerId}`)
+    else navigate(targetOf(n))
   }
 
   return (

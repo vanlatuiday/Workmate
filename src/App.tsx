@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import Messenger from '@components/messenger/Messenger'
 
 // Layouts
 import PublicLayout from '@components/layout/PublicLayout'
@@ -70,6 +71,7 @@ import ProtectedRoute from '@components/common/ProtectedRoute'
 
 export default function App() {
   return (
+    <>
     <Routes>
       {/* Public routes */}
       <Route element={<PublicLayout />}>
@@ -157,5 +159,8 @@ export default function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    {/* Tin nhắn nổi: một bản duy nhất cho mọi trang */}
+    <Messenger />
+    </>
   )
 }

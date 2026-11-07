@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { Check, X, ChevronDown, Heart, Bookmark, EyeOff, Undo2, MapPin, CalendarCheck, Wallet, Users, MessageCircle } from 'lucide-react'
 import { PageHeader, Panel, StatusBadge, MatchScore, EmptyState, MockNotice } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import { MOCK_JOBS, MOCK_CANDIDATES, CRITERIA, type MockCandidate } from './mockData'
 import { FOCUS } from '@utils/focus'
+import MessageLink from '@components/messenger/MessageLink'
 
 const BTN = `inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition-colors duration-300 ${FOCUS}`
 const BTN_OUTLINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
@@ -135,10 +136,10 @@ export default function SuggestedCandidates() {
           {isMatch ? (
             <>
               <StatusBadge tone="strong">Đã kết nối — đã mở chat</StatusBadge>
-              <Link to="/tuyen-dung/tin-nhan" className={BTN_OUTLINE}>
+              <MessageLink className={BTN_OUTLINE}>
                 <MessageCircle className="h-4 w-4" aria-hidden="true" />
                 Mở tin nhắn
-              </Link>
+              </MessageLink>
               <button type="button" onClick={() => setInterested((s) => flip(s, c.id))} className={BTN_OUTLINE}>
                 <Heart className="h-4 w-4" aria-hidden="true" />
                 Bỏ quan tâm<span className="sr-only"> {c.name}</span>

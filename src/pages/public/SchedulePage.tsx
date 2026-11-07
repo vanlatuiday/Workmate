@@ -13,6 +13,7 @@ import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { Tabs } from './match/parts'
 import { describeConversation } from './messages/describe'
+import MessageLink from '@components/messenger/MessageLink'
 
 type TabKey = 'upcoming' | 'pending' | 'past'
 
@@ -195,9 +196,9 @@ function InterviewCard({ iv, viewer, isPast, onChoose, onCancel }: { iv: Intervi
           </button>
         )}
         {viewer === 'recruiter' && iv.status === 'confirmed' && <HireAction viewer="recruiter" jobId={iv.jobId} seekerId={iv.seekerId} compact />}
-        <Link to={`/tin-nhan?c=${iv.jobId}|${iv.seekerId}`} className={BTN_LINE}>
+        <MessageLink convKey={`${iv.jobId}|${iv.seekerId}`} className={BTN_LINE}>
           Nhắn tin<span className="sr-only"> {info.name}</span>
-        </Link>
+        </MessageLink>
       </div>
     </li>
   )

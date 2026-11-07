@@ -9,6 +9,7 @@ import { POSITIONS, visibleCandidatesOf } from '@pages/public/match/data'
 import { scoreMatch } from '@pages/public/match/score'
 import { expressInterest, useOnNewConnection, usePairStatuses } from '@services/connectionService'
 import { FOCUS } from '@utils/focus'
+import MessageLink from '@components/messenger/MessageLink'
 
 const BTN = `inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
 const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
@@ -87,7 +88,7 @@ export default function SavedCandidates() {
                             </button>
                           )}
                           {status === 'connected' && (
-                            <Link to={`/tin-nhan?c=${position.id}|${cand.id}`} className={BTN_SOLID}>Nhắn tin</Link>
+                            <MessageLink convKey={`${position.id}|${cand.id}`} className={BTN_SOLID}>Nhắn tin</MessageLink>
                           )}
                           <button
                             type="button"
