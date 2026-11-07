@@ -1,0 +1,2404 @@
+{
+  "exportedAt": "2026-11-07T22:28:19.328Z",
+  "demoAccounts": [
+    {
+      "username": "admin1",
+      "password": "123456",
+      "role": "jobseeker",
+      "label": "Người tìm việc"
+    },
+    {
+      "username": "admin2",
+      "password": "123456",
+      "role": "recruiter",
+      "label": "Nhà tuyển dụng"
+    },
+    {
+      "username": "admin3",
+      "password": "123456",
+      "role": "admin",
+      "label": "Quản trị viên"
+    }
+  ],
+  "companies": [
+    {
+      "id": "gio-song-han",
+      "name": "Quán Gió Sông Hàn",
+      "industry": "Cà phê",
+      "district": "Sơn Trà",
+      "size": "11-50",
+      "cover": {
+        "id": "1554118811-1e0d58224f24",
+        "alt": "Không gian quán cà phê nhiều cây xanh, quầy pha chế phía sau"
+      },
+      "more": {
+        "id": "1509042239860-f550ce710b93",
+        "alt": "Ba tách cà phê latte trên bàn gỗ"
+      },
+      "tagline": "Quán cà phê ven sông, đông khách nhất vào buổi tối.",
+      "why": "Ca tối ngắn, hợp với sinh viên học ban ngày.",
+      "about": "Quán nhỏ bên bờ đông sông Hàn, phục vụ cà phê pha máy và đồ uống theo mùa. Đội ngũ trẻ, phần lớn là sinh viên làm bán thời gian.",
+      "environment": [
+        "Được hướng dẫn pha chế từ đầu",
+        "Chọn ca theo tuần",
+        "Bữa nhẹ trong ca"
+      ]
+    },
+    {
+      "id": "bien-xanh",
+      "name": "Cửa hàng Biển Xanh",
+      "industry": "Bán lẻ thời trang",
+      "district": "Hải Châu",
+      "size": "11-50",
+      "cover": {
+        "id": "1441986300917-64674bd600d8",
+        "alt": "Cửa hàng quần áo với kệ gỗ và đèn treo"
+      },
+      "tagline": "Cửa hàng thời trang biển ở trung tâm thành phố.",
+      "why": "Việc cuối tuần, không cần kinh nghiệm bán hàng.",
+      "about": "Cửa hàng quần áo và phụ kiện đi biển, đông khách vào cuối tuần và mùa du lịch. Nhân viên mới được kèm trong hai ca đầu.",
+      "environment": [
+        "Không yêu cầu kinh nghiệm",
+        "Ca cố định cuối tuần",
+        "Giảm giá nhân viên"
+      ]
+    },
+    {
+      "id": "may-trang",
+      "name": "Công ty Sự kiện Mây Trắng",
+      "industry": "Tổ chức sự kiện",
+      "district": "Thanh Khê",
+      "size": "51-200",
+      "cover": {
+        "id": "1511795409834-ef04bbd61622",
+        "alt": "Bàn tiệc dài trang trí hoa và ly thủy tinh"
+      },
+      "tagline": "Tổ chức tiệc, khai trương và hội nghị khắp Đà Nẵng.",
+      "why": "Việc theo từng sự kiện, nhận ngày công rõ ràng.",
+      "about": "Đơn vị tổ chức sự kiện cho doanh nghiệp và tiệc gia đình. Cần thêm người vào các dịp cao điểm, làm theo lịch từng sự kiện.",
+      "environment": [
+        "Làm theo lịch sự kiện",
+        "Trả công theo ngày",
+        "Có trưởng nhóm hướng dẫn tại chỗ"
+      ]
+    },
+    {
+      "id": "canh-buom",
+      "name": "Studio Cánh Buồm",
+      "industry": "Marketing & sáng tạo",
+      "district": "Hải Châu",
+      "size": "1-10",
+      "cover": {
+        "id": "1522071820081-009f0129c71c",
+        "alt": "Nhóm người làm việc với máy tính quanh một bàn dài"
+      },
+      "more": {
+        "id": "1556761175-5973dc0f32e7",
+        "alt": "Một người trình bày trước nhóm đồng nghiệp trong văn phòng gạch"
+      },
+      "tagline": "Studio nhỏ làm nội dung và thương hiệu cho doanh nghiệp địa phương.",
+      "why": "Chỗ thực tập để có sản phẩm thật trong hồ sơ.",
+      "about": "Nhóm sáu người làm nội dung mạng xã hội, chụp ảnh sản phẩm và nhận diện thương hiệu. Thực tập sinh tham gia dự án thật ngay từ tuần đầu.",
+      "environment": [
+        "Làm dự án thật",
+        "Giờ giấc văn phòng",
+        "Có người kèm cặp"
+      ]
+    },
+    {
+      "id": "giao-nhanh",
+      "name": "Giao Nhanh Đà Thành",
+      "industry": "Giao nhận",
+      "district": "Cẩm Lệ",
+      "size": "51-200",
+      "cover": {
+        "id": "1586528116311-ad8dd3c8310d",
+        "alt": "Kho hàng với các kệ cao xếp đầy thùng hàng"
+      },
+      "tagline": "Giao hàng nội thành trong ngày cho các cửa hàng trực tuyến.",
+      "why": "Tự chọn ca sáng hoặc tối, có thưởng theo chuyến.",
+      "about": "Đơn vị giao nhận nội thành Đà Nẵng, kho chính ở Cẩm Lệ. Tài xế chọn ca theo tuần và nhận thêm thưởng theo số chuyến.",
+      "environment": [
+        "Chọn ca theo tuần",
+        "Thưởng theo chuyến",
+        "Cần xe máy riêng"
+      ]
+    },
+    {
+      "id": "hoa-sua",
+      "name": "Trung tâm Ngôn Ngữ Hoa Sữa",
+      "industry": "Giáo dục",
+      "district": "Ngũ Hành Sơn",
+      "size": "11-50",
+      "cover": {
+        "id": "1523240795612-9a054b0db644",
+        "alt": "Ba người cười nói bên máy tính trong thư viện"
+      },
+      "tagline": "Lớp tiếng Anh giao tiếp buổi tối cho người đi làm.",
+      "why": "Dạy buổi tối, trả theo giờ, hợp với người có chứng chỉ.",
+      "about": "Trung tâm nhỏ dạy tiếng Anh giao tiếp, lớp tối dưới 12 học viên. Giáo án có sẵn, gia sư mới được dự giờ trước khi đứng lớp.",
+      "environment": [
+        "Giáo án có sẵn",
+        "Lớp nhỏ",
+        "Dự giờ trước khi nhận lớp"
+      ]
+    },
+    {
+      "id": "song-vo",
+      "name": "Nhà hàng Sóng Vỗ",
+      "industry": "Nhà hàng",
+      "district": "Sơn Trà",
+      "size": "51-200",
+      "cover": {
+        "id": "1517248135467-4c7edcad34c4",
+        "alt": "Phòng ăn nhà hàng với bàn gỗ và đèn vàng"
+      },
+      "more": {
+        "id": "1414235077428-338989a2e8c0",
+        "alt": "Món ăn trình bày trên đĩa trắng giữa bàn tiệc"
+      },
+      "tagline": "Nhà hàng hải sản gần biển Mỹ Khê, đông nhất vào mùa hè.",
+      "why": "Việc thời vụ mùa cao điểm, ca chiều tối.",
+      "about": "Nhà hàng hải sản hơn trăm chỗ ngồi gần biển. Mỗi mùa hè tuyển thêm phục vụ theo mùa, có đào tạo ngắn trước khi vào ca.",
+      "environment": [
+        "Đào tạo trước khi vào ca",
+        "Bữa ăn trong ca",
+        "Ca chiều tối"
+      ]
+    }
+  ],
+  "demoCompany": {
+    "id": "song-han",
+    "name": "Nhóm Dịch Vụ Sông Hàn",
+    "industry": "Dịch vụ ăn uống và bán lẻ",
+    "district": "Hải Châu",
+    "size": "11-50",
+    "cover": {
+      "id": "1554118811-1e0d58224f24",
+      "alt": "Không gian quán cà phê nhiều cây xanh, quầy pha chế phía sau"
+    },
+    "tagline": "Quán cà phê, cửa hàng tiện lợi và tiệc cưới quanh trung tâm.",
+    "why": "Nhiều ca và nhiều loại việc để chọn.",
+    "about": "Chúng tôi vận hành một quán cà phê, một cửa hàng tiện lợi và nhận phục vụ tiệc cưới quanh khu vực trung tâm Đà Nẵng. Đội ngũ nhỏ, làm việc theo ca và cần người ở nhiều khung giờ khác nhau.",
+    "environment": [
+      "Quầy pha chế và khu phục vụ thoáng, làm việc đứng nhiều",
+      "Cửa hàng tiện lợi mở theo ca, có khu nghỉ cho nhân viên",
+      "Tiệc cưới làm việc tối, theo lịch sự kiện"
+    ]
+  },
+  "matchJobs": [
+    {
+      "id": "m1",
+      "companyId": "gio-song-han",
+      "title": "Pha chế ca tối",
+      "district": "Sơn Trà",
+      "distanceKm": 3.2,
+      "salaryLabel": "28.000–32.000đ/giờ",
+      "shiftLabel": "Tối T2–T6",
+      "skills": [
+        "Pha chế cơ bản",
+        "Giao tiếp khách hàng"
+      ],
+      "slots": [
+        "0-2",
+        "1-2",
+        "2-2",
+        "3-2",
+        "4-2"
+      ],
+      "salaryMinK": 28,
+      "salaryMaxK": 32,
+      "jobType": "part-time",
+      "photo": {
+        "id": "1442512595331-e89e73853f31",
+        "alt": "Tay rót nước nóng qua phễu lọc cà phê, bình rót cổ ngỗng bên cạnh"
+      }
+    },
+    {
+      "id": "m2",
+      "companyId": "gio-song-han",
+      "title": "Thu ngân cuối tuần",
+      "district": "Sơn Trà",
+      "distanceKm": 3.5,
+      "salaryLabel": "26.000–28.000đ/giờ",
+      "shiftLabel": "Sáng, chiều T7–CN",
+      "skills": [
+        "Thu ngân",
+        "Excel"
+      ],
+      "slots": [
+        "5-0",
+        "5-1",
+        "6-0",
+        "6-1"
+      ],
+      "salaryMinK": 26,
+      "salaryMaxK": 28,
+      "jobType": "part-time",
+      "photo": {
+        "id": "1556745757-8d76bdb6984b",
+        "alt": "Bàn tay đặt thẻ lên máy thanh toán ở quầy thu ngân"
+      }
+    },
+    {
+      "id": "m3",
+      "companyId": "bien-xanh",
+      "title": "Bán hàng cuối tuần",
+      "district": "Hải Châu",
+      "distanceKm": 1.5,
+      "salaryLabel": "25.000–28.000đ/giờ",
+      "shiftLabel": "Sáng, chiều T7–CN",
+      "skills": [
+        "Giao tiếp khách hàng",
+        "Bán hàng"
+      ],
+      "slots": [
+        "5-0",
+        "5-1",
+        "6-0",
+        "6-1"
+      ],
+      "salaryMinK": 25,
+      "salaryMaxK": 28,
+      "jobType": "part-time",
+      "photo": {
+        "id": "1441986300917-64674bd600d8",
+        "alt": "Cửa hàng quần áo với kệ gỗ và đèn treo"
+      }
+    },
+    {
+      "id": "m4",
+      "companyId": "bien-xanh",
+      "title": "Kiểm kho ban đêm",
+      "district": "Hải Châu",
+      "distanceKm": 2,
+      "salaryLabel": "22.000–24.000đ/giờ",
+      "shiftLabel": "Tối T7–CN",
+      "skills": [
+        "Kiểm kho",
+        "Excel"
+      ],
+      "slots": [
+        "5-2",
+        "6-2"
+      ],
+      "salaryMinK": 22,
+      "salaryMaxK": 24,
+      "jobType": "shift",
+      "photo": {
+        "id": "1586528116311-ad8dd3c8310d",
+        "alt": "Kho hàng với các kệ cao xếp đầy thùng hàng"
+      }
+    },
+    {
+      "id": "m5",
+      "companyId": "may-trang",
+      "title": "Phục vụ tiệc cưới",
+      "district": "Thanh Khê",
+      "distanceKm": 4.1,
+      "salaryLabel": "350.000đ/ngày",
+      "shiftLabel": "Tối T7",
+      "skills": [
+        "Giao tiếp khách hàng",
+        "Phục vụ bàn"
+      ],
+      "slots": [
+        "5-2"
+      ],
+      "salaryMinK": 40,
+      "salaryMaxK": 45,
+      "jobType": "event",
+      "photo": {
+        "id": "1511795409834-ef04bbd61622",
+        "alt": "Bàn tiệc dài trang trí hoa và ly thủy tinh"
+      }
+    },
+    {
+      "id": "m6",
+      "companyId": "may-trang",
+      "title": "Điều phối viên sự kiện",
+      "district": "Thanh Khê",
+      "distanceKm": 4.5,
+      "salaryLabel": "30.000–35.000đ/giờ",
+      "shiftLabel": "Sáng, chiều T7–CN",
+      "skills": [
+        "Giao tiếp khách hàng",
+        "Excel",
+        "Tiếng Anh giao tiếp",
+        "Điều phối nhóm"
+      ],
+      "slots": [
+        "5-0",
+        "5-1",
+        "6-0",
+        "6-1"
+      ],
+      "salaryMinK": 30,
+      "salaryMaxK": 35,
+      "jobType": "event",
+      "photo": {
+        "id": "1492684223066-81342ee5ff30",
+        "alt": "Giấy kim tuyến bay trong ánh đèn sân khấu"
+      }
+    },
+    {
+      "id": "m7",
+      "companyId": "canh-buom",
+      "title": "Trợ lý nội dung",
+      "district": "Hải Châu",
+      "distanceKm": 1,
+      "salaryLabel": "27.000–32.000đ/giờ",
+      "shiftLabel": "Sáng, chiều T3, T5",
+      "skills": [
+        "Viết nội dung",
+        "Canva",
+        "Thiết kế"
+      ],
+      "slots": [
+        "1-0",
+        "1-1",
+        "3-0",
+        "3-1"
+      ],
+      "salaryMinK": 27,
+      "salaryMaxK": 32,
+      "jobType": "freelance",
+      "photo": {
+        "id": "1455390582262-044cdead277a",
+        "alt": "Ngòi bút máy đang viết trên trang giấy"
+      }
+    },
+    {
+      "id": "m8",
+      "companyId": "canh-buom",
+      "title": "Hỗ trợ hành chính",
+      "district": "Hải Châu",
+      "distanceKm": 1.2,
+      "salaryLabel": "25.000–27.000đ/giờ",
+      "shiftLabel": "Tối T4–T7",
+      "skills": [
+        "Excel",
+        "Giao tiếp khách hàng"
+      ],
+      "slots": [
+        "2-2",
+        "3-2",
+        "4-2",
+        "5-2"
+      ],
+      "salaryMinK": 25,
+      "salaryMaxK": 27,
+      "jobType": "part-time",
+      "photo": {
+        "id": "1497366811353-6870744d04b2",
+        "alt": "Văn phòng trống với bàn họp dài và cửa kính"
+      }
+    },
+    {
+      "id": "m9",
+      "companyId": "giao-nhanh",
+      "title": "Giao hàng nội thành",
+      "district": "Cẩm Lệ",
+      "distanceKm": 7.5,
+      "salaryLabel": "22.000–30.000đ/giờ",
+      "shiftLabel": "Tối T2, T3",
+      "skills": [
+        "Lái xe máy",
+        "Biết đường Đà Nẵng"
+      ],
+      "slots": [
+        "0-2",
+        "1-2"
+      ],
+      "salaryMinK": 22,
+      "salaryMaxK": 30,
+      "jobType": "freelance",
+      "photo": {
+        "id": "1526367790999-0150786686a2",
+        "alt": "Người giao hàng đạp xe với thùng hàng sau lưng trên phố nhỏ"
+      }
+    },
+    {
+      "id": "m10",
+      "companyId": "hoa-sua",
+      "title": "Trợ giảng tiếng Anh",
+      "district": "Ngũ Hành Sơn",
+      "distanceKm": 8.8,
+      "salaryLabel": "35.000–40.000đ/giờ",
+      "shiftLabel": "Tối T3, T5",
+      "skills": [
+        "Tiếng Anh giao tiếp",
+        "Giao tiếp khách hàng",
+        "Sư phạm"
+      ],
+      "slots": [
+        "1-2",
+        "3-2"
+      ],
+      "salaryMinK": 35,
+      "salaryMaxK": 40,
+      "jobType": "part-time",
+      "photo": {
+        "id": "1503676260728-1c00da094a0b",
+        "alt": "Quả táo đặt trên chồng sách cạnh những cây bút màu"
+      }
+    },
+    {
+      "id": "m11",
+      "companyId": "hoa-sua",
+      "title": "Lễ tân trung tâm",
+      "district": "Ngũ Hành Sơn",
+      "distanceKm": 8.6,
+      "salaryLabel": "24.000–26.000đ/giờ",
+      "shiftLabel": "Tối T2, T4, T6",
+      "skills": [
+        "Giao tiếp khách hàng",
+        "Excel"
+      ],
+      "slots": [
+        "0-2",
+        "2-2",
+        "4-2"
+      ],
+      "salaryMinK": 24,
+      "salaryMaxK": 26,
+      "jobType": "full-time",
+      "photo": {
+        "id": "1497366754035-f200968a6e72",
+        "alt": "Hành lang văn phòng vách kính sáng sủa"
+      }
+    },
+    {
+      "id": "m12",
+      "companyId": "song-vo",
+      "title": "Phục vụ nhà hàng ca tối",
+      "district": "Sơn Trà",
+      "distanceKm": 4.6,
+      "salaryLabel": "24.000–27.000đ/giờ",
+      "shiftLabel": "Tối T6–CN",
+      "skills": [
+        "Phục vụ bàn",
+        "Giao tiếp khách hàng"
+      ],
+      "slots": [
+        "4-2",
+        "5-2",
+        "6-2"
+      ],
+      "salaryMinK": 24,
+      "salaryMaxK": 27,
+      "jobType": "shift",
+      "photo": {
+        "id": "1517248135467-4c7edcad34c4",
+        "alt": "Phòng ăn nhà hàng với bàn gỗ và đèn vàng"
+      }
+    },
+    {
+      "id": "m13",
+      "companyId": "song-vo",
+      "title": "Phụ bếp cuối tuần",
+      "district": "Sơn Trà",
+      "distanceKm": 4.8,
+      "salaryLabel": "22.000–25.000đ/giờ",
+      "shiftLabel": "Sáng, chiều T7–CN",
+      "skills": [
+        "Sơ chế thực phẩm",
+        "An toàn thực phẩm"
+      ],
+      "slots": [
+        "5-0",
+        "5-1",
+        "6-0",
+        "6-1"
+      ],
+      "salaryMinK": 22,
+      "salaryMaxK": 25,
+      "jobType": "part-time",
+      "photo": {
+        "id": "1466637574441-749b8f19452f",
+        "alt": "Dao và rau củ xếp trên thớt gỗ, trứng và nấm bên cạnh"
+      }
+    }
+  ],
+  "positions": [
+    {
+      "id": "j1",
+      "job": {
+        "id": "j1",
+        "title": "Nhân viên pha chế ca tối",
+        "jobType": "Theo ca",
+        "schedule": "Ca tối 17:00–22:00, T2–T7",
+        "salary": "30.000đ/giờ",
+        "postedAt": "12/10/2026",
+        "views": 214,
+        "suggested": 12,
+        "matches": 3,
+        "status": "open"
+      },
+      "req": {
+        "skills": [
+          "Pha chế cơ bản",
+          "Giao tiếp khách hàng"
+        ],
+        "slots": [
+          "0-2",
+          "1-2",
+          "2-2",
+          "3-2",
+          "4-2",
+          "5-2"
+        ],
+        "salaryMinK": 30,
+        "salaryMaxK": 32,
+        "jobType": "shift"
+      },
+      "radiusKm": 8
+    },
+    {
+      "id": "j2",
+      "job": {
+        "id": "j2",
+        "title": "Nhân viên bán hàng cuối tuần",
+        "jobType": "Bán thời gian",
+        "schedule": "Ca sáng và chiều, T7–CN",
+        "salary": "28.000đ/giờ",
+        "postedAt": "09/10/2026",
+        "views": 168,
+        "suggested": 9,
+        "matches": 2,
+        "status": "open"
+      },
+      "req": {
+        "skills": [
+          "Bán hàng",
+          "Giao tiếp khách hàng"
+        ],
+        "slots": [
+          "5-0",
+          "5-1",
+          "6-0",
+          "6-1"
+        ],
+        "salaryMinK": 28,
+        "salaryMaxK": 30,
+        "jobType": "part-time"
+      },
+      "radiusKm": 8
+    },
+    {
+      "id": "j3",
+      "job": {
+        "id": "j3",
+        "title": "Phục vụ sự kiện tiệc cưới",
+        "jobType": "Sự kiện",
+        "schedule": "Theo lịch sự kiện, tối T7",
+        "salary": "350.000đ/ngày",
+        "postedAt": "02/10/2026",
+        "views": 97,
+        "suggested": 5,
+        "matches": 1,
+        "status": "open"
+      },
+      "req": {
+        "skills": [
+          "Phục vụ bàn",
+          "Giao tiếp khách hàng"
+        ],
+        "slots": [
+          "5-2"
+        ],
+        "salaryMinK": 40,
+        "salaryMaxK": 45,
+        "jobType": "event"
+      },
+      "radiusKm": 8
+    },
+    {
+      "id": "j4",
+      "job": {
+        "id": "j4",
+        "title": "Thu ngân cửa hàng tiện lợi",
+        "jobType": "Toàn thời gian",
+        "schedule": "3 ca xoay vòng, 6 ngày/tuần",
+        "salary": "7.500.000đ/tháng",
+        "postedAt": "25/09/2026",
+        "views": 143,
+        "suggested": 7,
+        "matches": 0,
+        "status": "paused"
+      },
+      "req": {
+        "skills": [
+          "Thu ngân",
+          "Excel"
+        ],
+        "slots": [
+          "0-0",
+          "1-1",
+          "2-2",
+          "3-0",
+          "4-1",
+          "5-2"
+        ],
+        "salaryMinK": 34,
+        "salaryMaxK": 38,
+        "jobType": "full-time"
+      },
+      "radiusKm": 8
+    }
+  ],
+  "recruiterPositionJobs": [
+    {
+      "skills": [
+        "Pha chế cơ bản",
+        "Giao tiếp khách hàng"
+      ],
+      "slots": [
+        "0-2",
+        "1-2",
+        "2-2",
+        "3-2",
+        "4-2",
+        "5-2"
+      ],
+      "salaryMinK": 30,
+      "salaryMaxK": 32,
+      "jobType": "shift",
+      "id": "j1",
+      "companyId": "song-han",
+      "title": "Nhân viên pha chế ca tối",
+      "district": "Hải Châu",
+      "distanceKm": 1.6,
+      "salaryLabel": "30.000đ/giờ",
+      "shiftLabel": "Ca tối 17:00–22:00, T2–T7",
+      "photo": {
+        "id": "1501339847302-ac426a4a7cbb",
+        "alt": "Biển hiệu chữ CAFE phát sáng trong quán"
+      }
+    },
+    {
+      "skills": [
+        "Bán hàng",
+        "Giao tiếp khách hàng"
+      ],
+      "slots": [
+        "5-0",
+        "5-1",
+        "6-0",
+        "6-1"
+      ],
+      "salaryMinK": 28,
+      "salaryMaxK": 30,
+      "jobType": "part-time",
+      "id": "j2",
+      "companyId": "song-han",
+      "title": "Nhân viên bán hàng cuối tuần",
+      "district": "Hải Châu",
+      "distanceKm": 2.2,
+      "salaryLabel": "28.000đ/giờ",
+      "shiftLabel": "Ca sáng và chiều, T7–CN",
+      "photo": {
+        "id": "1441986300917-64674bd600d8",
+        "alt": "Cửa hàng quần áo với kệ gỗ và đèn treo"
+      }
+    },
+    {
+      "skills": [
+        "Phục vụ bàn",
+        "Giao tiếp khách hàng"
+      ],
+      "slots": [
+        "5-2"
+      ],
+      "salaryMinK": 40,
+      "salaryMaxK": 45,
+      "jobType": "event",
+      "id": "j3",
+      "companyId": "song-han",
+      "title": "Phục vụ sự kiện tiệc cưới",
+      "district": "Hải Châu",
+      "distanceKm": 3,
+      "salaryLabel": "350.000đ/ngày",
+      "shiftLabel": "Theo lịch sự kiện, tối T7",
+      "photo": {
+        "id": "1414235077428-338989a2e8c0",
+        "alt": "Món ăn trình bày trên đĩa trắng giữa bàn tiệc"
+      }
+    },
+    {
+      "skills": [
+        "Thu ngân",
+        "Excel"
+      ],
+      "slots": [
+        "0-0",
+        "1-1",
+        "2-2",
+        "3-0",
+        "4-1",
+        "5-2"
+      ],
+      "salaryMinK": 34,
+      "salaryMaxK": 38,
+      "jobType": "full-time",
+      "id": "j4",
+      "companyId": "song-han",
+      "title": "Thu ngân cửa hàng tiện lợi",
+      "district": "Hải Châu",
+      "distanceKm": 1.2,
+      "salaryLabel": "7.500.000đ/tháng",
+      "shiftLabel": "3 ca xoay vòng, 6 ngày/tuần",
+      "photo": {
+        "id": "1604719312566-8912e9227c6a",
+        "alt": "Lối đi giữa các kệ hàng trong cửa hàng tiện lợi"
+      }
+    }
+  ],
+  "seekerJobs": [
+    {
+      "id": "m1",
+      "companyId": "gio-song-han",
+      "title": "Pha chế ca tối",
+      "district": "Sơn Trà",
+      "distanceKm": 3.2,
+      "salaryLabel": "28.000–32.000đ/giờ",
+      "shiftLabel": "Tối T2–T6",
+      "skills": [
+        "Pha chế cơ bản",
+        "Giao tiếp khách hàng"
+      ],
+      "slots": [
+        "0-2",
+        "1-2",
+        "2-2",
+        "3-2",
+        "4-2"
+      ],
+      "salaryMinK": 28,
+      "salaryMaxK": 32,
+      "jobType": "part-time",
+      "photo": {
+        "id": "1442512595331-e89e73853f31",
+        "alt": "Tay rót nước nóng qua phễu lọc cà phê, bình rót cổ ngỗng bên cạnh"
+      }
+    },
+    {
+      "id": "m2",
+      "companyId": "gio-song-han",
+      "title": "Thu ngân cuối tuần",
+      "district": "Sơn Trà",
+      "distanceKm": 3.5,
+      "salaryLabel": "26.000–28.000đ/giờ",
+      "shiftLabel": "Sáng, chiều T7–CN",
+      "skills": [
+        "Thu ngân",
+        "Excel"
+      ],
+      "slots": [
+        "5-0",
+        "5-1",
+        "6-0",
+        "6-1"
+      ],
+      "salaryMinK": 26,
+      "salaryMaxK": 28,
+      "jobType": "part-time",
+      "photo": {
+        "id": "1556745757-8d76bdb6984b",
+        "alt": "Bàn tay đặt thẻ lên máy thanh toán ở quầy thu ngân"
+      }
+    },
+    {
+      "id": "m3",
+      "companyId": "bien-xanh",
+      "title": "Bán hàng cuối tuần",
+      "district": "Hải Châu",
+      "distanceKm": 1.5,
+      "salaryLabel": "25.000–28.000đ/giờ",
+      "shiftLabel": "Sáng, chiều T7–CN",
+      "skills": [
+        "Giao tiếp khách hàng",
+        "Bán hàng"
+      ],
+      "slots": [
+        "5-0",
+        "5-1",
+        "6-0",
+        "6-1"
+      ],
+      "salaryMinK": 25,
+      "salaryMaxK": 28,
+      "jobType": "part-time",
+      "photo": {
+        "id": "1441986300917-64674bd600d8",
+        "alt": "Cửa hàng quần áo với kệ gỗ và đèn treo"
+      }
+    },
+    {
+      "id": "m4",
+      "companyId": "bien-xanh",
+      "title": "Kiểm kho ban đêm",
+      "district": "Hải Châu",
+      "distanceKm": 2,
+      "salaryLabel": "22.000–24.000đ/giờ",
+      "shiftLabel": "Tối T7–CN",
+      "skills": [
+        "Kiểm kho",
+        "Excel"
+      ],
+      "slots": [
+        "5-2",
+        "6-2"
+      ],
+      "salaryMinK": 22,
+      "salaryMaxK": 24,
+      "jobType": "shift",
+      "photo": {
+        "id": "1586528116311-ad8dd3c8310d",
+        "alt": "Kho hàng với các kệ cao xếp đầy thùng hàng"
+      }
+    },
+    {
+      "id": "m5",
+      "companyId": "may-trang",
+      "title": "Phục vụ tiệc cưới",
+      "district": "Thanh Khê",
+      "distanceKm": 4.1,
+      "salaryLabel": "350.000đ/ngày",
+      "shiftLabel": "Tối T7",
+      "skills": [
+        "Giao tiếp khách hàng",
+        "Phục vụ bàn"
+      ],
+      "slots": [
+        "5-2"
+      ],
+      "salaryMinK": 40,
+      "salaryMaxK": 45,
+      "jobType": "event",
+      "photo": {
+        "id": "1511795409834-ef04bbd61622",
+        "alt": "Bàn tiệc dài trang trí hoa và ly thủy tinh"
+      }
+    },
+    {
+      "id": "m6",
+      "companyId": "may-trang",
+      "title": "Điều phối viên sự kiện",
+      "district": "Thanh Khê",
+      "distanceKm": 4.5,
+      "salaryLabel": "30.000–35.000đ/giờ",
+      "shiftLabel": "Sáng, chiều T7–CN",
+      "skills": [
+        "Giao tiếp khách hàng",
+        "Excel",
+        "Tiếng Anh giao tiếp",
+        "Điều phối nhóm"
+      ],
+      "slots": [
+        "5-0",
+        "5-1",
+        "6-0",
+        "6-1"
+      ],
+      "salaryMinK": 30,
+      "salaryMaxK": 35,
+      "jobType": "event",
+      "photo": {
+        "id": "1492684223066-81342ee5ff30",
+        "alt": "Giấy kim tuyến bay trong ánh đèn sân khấu"
+      }
+    },
+    {
+      "id": "m7",
+      "companyId": "canh-buom",
+      "title": "Trợ lý nội dung",
+      "district": "Hải Châu",
+      "distanceKm": 1,
+      "salaryLabel": "27.000–32.000đ/giờ",
+      "shiftLabel": "Sáng, chiều T3, T5",
+      "skills": [
+        "Viết nội dung",
+        "Canva",
+        "Thiết kế"
+      ],
+      "slots": [
+        "1-0",
+        "1-1",
+        "3-0",
+        "3-1"
+      ],
+      "salaryMinK": 27,
+      "salaryMaxK": 32,
+      "jobType": "freelance",
+      "photo": {
+        "id": "1455390582262-044cdead277a",
+        "alt": "Ngòi bút máy đang viết trên trang giấy"
+      }
+    },
+    {
+      "id": "m8",
+      "companyId": "canh-buom",
+      "title": "Hỗ trợ hành chính",
+      "district": "Hải Châu",
+      "distanceKm": 1.2,
+      "salaryLabel": "25.000–27.000đ/giờ",
+      "shiftLabel": "Tối T4–T7",
+      "skills": [
+        "Excel",
+        "Giao tiếp khách hàng"
+      ],
+      "slots": [
+        "2-2",
+        "3-2",
+        "4-2",
+        "5-2"
+      ],
+      "salaryMinK": 25,
+      "salaryMaxK": 27,
+      "jobType": "part-time",
+      "photo": {
+        "id": "1497366811353-6870744d04b2",
+        "alt": "Văn phòng trống với bàn họp dài và cửa kính"
+      }
+    },
+    {
+      "id": "m9",
+      "companyId": "giao-nhanh",
+      "title": "Giao hàng nội thành",
+      "district": "Cẩm Lệ",
+      "distanceKm": 7.5,
+      "salaryLabel": "22.000–30.000đ/giờ",
+      "shiftLabel": "Tối T2, T3",
+      "skills": [
+        "Lái xe máy",
+        "Biết đường Đà Nẵng"
+      ],
+      "slots": [
+        "0-2",
+        "1-2"
+      ],
+      "salaryMinK": 22,
+      "salaryMaxK": 30,
+      "jobType": "freelance",
+      "photo": {
+        "id": "1526367790999-0150786686a2",
+        "alt": "Người giao hàng đạp xe với thùng hàng sau lưng trên phố nhỏ"
+      }
+    },
+    {
+      "id": "m10",
+      "companyId": "hoa-sua",
+      "title": "Trợ giảng tiếng Anh",
+      "district": "Ngũ Hành Sơn",
+      "distanceKm": 8.8,
+      "salaryLabel": "35.000–40.000đ/giờ",
+      "shiftLabel": "Tối T3, T5",
+      "skills": [
+        "Tiếng Anh giao tiếp",
+        "Giao tiếp khách hàng",
+        "Sư phạm"
+      ],
+      "slots": [
+        "1-2",
+        "3-2"
+      ],
+      "salaryMinK": 35,
+      "salaryMaxK": 40,
+      "jobType": "part-time",
+      "photo": {
+        "id": "1503676260728-1c00da094a0b",
+        "alt": "Quả táo đặt trên chồng sách cạnh những cây bút màu"
+      }
+    },
+    {
+      "id": "m11",
+      "companyId": "hoa-sua",
+      "title": "Lễ tân trung tâm",
+      "district": "Ngũ Hành Sơn",
+      "distanceKm": 8.6,
+      "salaryLabel": "24.000–26.000đ/giờ",
+      "shiftLabel": "Tối T2, T4, T6",
+      "skills": [
+        "Giao tiếp khách hàng",
+        "Excel"
+      ],
+      "slots": [
+        "0-2",
+        "2-2",
+        "4-2"
+      ],
+      "salaryMinK": 24,
+      "salaryMaxK": 26,
+      "jobType": "full-time",
+      "photo": {
+        "id": "1497366754035-f200968a6e72",
+        "alt": "Hành lang văn phòng vách kính sáng sủa"
+      }
+    },
+    {
+      "id": "m12",
+      "companyId": "song-vo",
+      "title": "Phục vụ nhà hàng ca tối",
+      "district": "Sơn Trà",
+      "distanceKm": 4.6,
+      "salaryLabel": "24.000–27.000đ/giờ",
+      "shiftLabel": "Tối T6–CN",
+      "skills": [
+        "Phục vụ bàn",
+        "Giao tiếp khách hàng"
+      ],
+      "slots": [
+        "4-2",
+        "5-2",
+        "6-2"
+      ],
+      "salaryMinK": 24,
+      "salaryMaxK": 27,
+      "jobType": "shift",
+      "photo": {
+        "id": "1517248135467-4c7edcad34c4",
+        "alt": "Phòng ăn nhà hàng với bàn gỗ và đèn vàng"
+      }
+    },
+    {
+      "id": "m13",
+      "companyId": "song-vo",
+      "title": "Phụ bếp cuối tuần",
+      "district": "Sơn Trà",
+      "distanceKm": 4.8,
+      "salaryLabel": "22.000–25.000đ/giờ",
+      "shiftLabel": "Sáng, chiều T7–CN",
+      "skills": [
+        "Sơ chế thực phẩm",
+        "An toàn thực phẩm"
+      ],
+      "slots": [
+        "5-0",
+        "5-1",
+        "6-0",
+        "6-1"
+      ],
+      "salaryMinK": 22,
+      "salaryMaxK": 25,
+      "jobType": "part-time",
+      "photo": {
+        "id": "1466637574441-749b8f19452f",
+        "alt": "Dao và rau củ xếp trên thớt gỗ, trứng và nấm bên cạnh"
+      }
+    },
+    {
+      "skills": [
+        "Pha chế cơ bản",
+        "Giao tiếp khách hàng"
+      ],
+      "slots": [
+        "0-2",
+        "1-2",
+        "2-2",
+        "3-2",
+        "4-2",
+        "5-2"
+      ],
+      "salaryMinK": 30,
+      "salaryMaxK": 32,
+      "jobType": "shift",
+      "id": "j1",
+      "companyId": "song-han",
+      "title": "Nhân viên pha chế ca tối",
+      "district": "Hải Châu",
+      "distanceKm": 1.6,
+      "salaryLabel": "30.000đ/giờ",
+      "shiftLabel": "Ca tối 17:00–22:00, T2–T7",
+      "photo": {
+        "id": "1501339847302-ac426a4a7cbb",
+        "alt": "Biển hiệu chữ CAFE phát sáng trong quán"
+      }
+    },
+    {
+      "skills": [
+        "Bán hàng",
+        "Giao tiếp khách hàng"
+      ],
+      "slots": [
+        "5-0",
+        "5-1",
+        "6-0",
+        "6-1"
+      ],
+      "salaryMinK": 28,
+      "salaryMaxK": 30,
+      "jobType": "part-time",
+      "id": "j2",
+      "companyId": "song-han",
+      "title": "Nhân viên bán hàng cuối tuần",
+      "district": "Hải Châu",
+      "distanceKm": 2.2,
+      "salaryLabel": "28.000đ/giờ",
+      "shiftLabel": "Ca sáng và chiều, T7–CN",
+      "photo": {
+        "id": "1441986300917-64674bd600d8",
+        "alt": "Cửa hàng quần áo với kệ gỗ và đèn treo"
+      }
+    },
+    {
+      "skills": [
+        "Phục vụ bàn",
+        "Giao tiếp khách hàng"
+      ],
+      "slots": [
+        "5-2"
+      ],
+      "salaryMinK": 40,
+      "salaryMaxK": 45,
+      "jobType": "event",
+      "id": "j3",
+      "companyId": "song-han",
+      "title": "Phục vụ sự kiện tiệc cưới",
+      "district": "Hải Châu",
+      "distanceKm": 3,
+      "salaryLabel": "350.000đ/ngày",
+      "shiftLabel": "Theo lịch sự kiện, tối T7",
+      "photo": {
+        "id": "1414235077428-338989a2e8c0",
+        "alt": "Món ăn trình bày trên đĩa trắng giữa bàn tiệc"
+      }
+    },
+    {
+      "skills": [
+        "Thu ngân",
+        "Excel"
+      ],
+      "slots": [
+        "0-0",
+        "1-1",
+        "2-2",
+        "3-0",
+        "4-1",
+        "5-2"
+      ],
+      "salaryMinK": 34,
+      "salaryMaxK": 38,
+      "jobType": "full-time",
+      "id": "j4",
+      "companyId": "song-han",
+      "title": "Thu ngân cửa hàng tiện lợi",
+      "district": "Hải Châu",
+      "distanceKm": 1.2,
+      "salaryLabel": "7.500.000đ/tháng",
+      "shiftLabel": "3 ca xoay vòng, 6 ngày/tuần",
+      "photo": {
+        "id": "1604719312566-8912e9227c6a",
+        "alt": "Lối đi giữa các kệ hàng trong cửa hàng tiện lợi"
+      }
+    }
+  ],
+  "mockJobs": [
+    {
+      "id": "j1",
+      "title": "Nhân viên pha chế ca tối",
+      "jobType": "Theo ca",
+      "schedule": "Ca tối 17:00–22:00, T2–T7",
+      "salary": "30.000đ/giờ",
+      "postedAt": "12/10/2026",
+      "views": 214,
+      "suggested": 12,
+      "matches": 3,
+      "status": "open"
+    },
+    {
+      "id": "j2",
+      "title": "Nhân viên bán hàng cuối tuần",
+      "jobType": "Bán thời gian",
+      "schedule": "Ca sáng và chiều, T7–CN",
+      "salary": "28.000đ/giờ",
+      "postedAt": "09/10/2026",
+      "views": 168,
+      "suggested": 9,
+      "matches": 2,
+      "status": "open"
+    },
+    {
+      "id": "j3",
+      "title": "Phục vụ sự kiện tiệc cưới",
+      "jobType": "Sự kiện",
+      "schedule": "Theo lịch sự kiện, tối T7",
+      "salary": "350.000đ/ngày",
+      "postedAt": "02/10/2026",
+      "views": 97,
+      "suggested": 5,
+      "matches": 1,
+      "status": "open"
+    },
+    {
+      "id": "j4",
+      "title": "Thu ngân cửa hàng tiện lợi",
+      "jobType": "Toàn thời gian",
+      "schedule": "3 ca xoay vòng, 6 ngày/tuần",
+      "salary": "7.500.000đ/tháng",
+      "postedAt": "25/09/2026",
+      "views": 143,
+      "suggested": 7,
+      "matches": 0,
+      "status": "paused"
+    },
+    {
+      "id": "j5",
+      "title": "Cộng tác viên giao hàng nội thành",
+      "jobType": "Cộng tác viên",
+      "schedule": "Linh hoạt theo đơn",
+      "salary": "Hoa hồng",
+      "postedAt": "10/09/2026",
+      "views": 301,
+      "suggested": 0,
+      "matches": 4,
+      "status": "closed"
+    },
+    {
+      "id": "j6",
+      "title": "Trợ lý marketing thời vụ",
+      "jobType": "Thời vụ",
+      "schedule": "Chưa chốt lịch",
+      "salary": "Thỏa thuận",
+      "postedAt": "—",
+      "views": 0,
+      "suggested": 0,
+      "matches": 0,
+      "status": "draft"
+    }
+  ],
+  "candidates": [
+    {
+      "id": "u1",
+      "positionId": "j1",
+      "name": "Nguyễn T. H.",
+      "area": "Hải Châu",
+      "distanceKm": 1.8,
+      "summary": "Pha chế · 2 năm làm quán",
+      "availability": {
+        "kind": "ready",
+        "from": "01/12"
+      },
+      "criteria": {
+        "skills": [
+          "Pha chế cơ bản",
+          "Giao tiếp khách hàng",
+          "Barista"
+        ],
+        "slots": [
+          "0-2",
+          "1-2",
+          "2-2",
+          "3-2",
+          "4-2",
+          "5-2"
+        ],
+        "salaryMinK": 28,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "shift",
+          "part-time"
+        ]
+      },
+      "photo": {
+        "id": "1511920170033-f8396924c348",
+        "alt": "Tay cầm lọc của máy pha espresso đựng cà phê xay, bên cạnh ly latte"
+      }
+    },
+    {
+      "id": "u2",
+      "positionId": "j1",
+      "name": "Trần M. K.",
+      "area": "Thanh Khê",
+      "distanceKm": 3.2,
+      "summary": "Pha chế, thu ngân · 1 năm",
+      "availability": {
+        "kind": "ready",
+        "from": "05/12"
+      },
+      "criteria": {
+        "skills": [
+          "Pha chế cơ bản",
+          "Thu ngân"
+        ],
+        "slots": [
+          "0-2",
+          "1-2",
+          "2-2",
+          "3-2",
+          "4-2"
+        ],
+        "salaryMinK": 30,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "shift"
+        ]
+      },
+      "photo": {
+        "id": "1495474472287-4d71bcdd2085",
+        "alt": "Hai bàn tay cầm hai ly latte có hình lá trên bàn gỗ"
+      }
+    },
+    {
+      "id": "u3",
+      "positionId": "j1",
+      "name": "Lê Q. A.",
+      "area": "Sơn Trà",
+      "distanceKm": 5.6,
+      "summary": "Phục vụ · sinh viên năm 3",
+      "availability": {
+        "kind": "working"
+      },
+      "criteria": {
+        "skills": [
+          "Giao tiếp khách hàng",
+          "Phục vụ bàn"
+        ],
+        "slots": [
+          "0-2",
+          "1-2",
+          "2-2",
+          "3-2"
+        ],
+        "salaryMinK": 35,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "part-time"
+        ]
+      },
+      "photo": {
+        "id": "1414235077428-338989a2e8c0",
+        "alt": "Món ăn trình bày trên đĩa trắng giữa bàn phục vụ"
+      }
+    },
+    {
+      "id": "u4",
+      "positionId": "j1",
+      "name": "Phạm T. B.",
+      "area": "Liên Chiểu",
+      "distanceKm": 11.4,
+      "summary": "Pha chế · mới ra trường",
+      "availability": {
+        "kind": "ready",
+        "from": "10/12"
+      },
+      "criteria": {
+        "skills": [
+          "Pha chế cơ bản"
+        ],
+        "slots": [
+          "4-2",
+          "5-2"
+        ],
+        "salaryMinK": 35,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "full-time"
+        ]
+      },
+      "photo": {
+        "id": "1447933601403-0c6688de566e",
+        "alt": "Hạt cà phê rang phủ kín mặt ảnh"
+      }
+    },
+    {
+      "id": "u5",
+      "positionId": "j1",
+      "name": "Hồ N. Y.",
+      "area": "Hải Châu",
+      "distanceKm": 2.4,
+      "summary": "Giao tiếp · 6 tháng phục vụ cà phê",
+      "availability": {
+        "kind": "ready",
+        "from": "01/12"
+      },
+      "criteria": {
+        "skills": [
+          "Giao tiếp khách hàng",
+          "Phục vụ bàn"
+        ],
+        "slots": [
+          "0-2",
+          "1-2",
+          "2-2",
+          "3-2",
+          "4-2",
+          "5-2"
+        ],
+        "salaryMinK": 30,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "shift",
+          "part-time"
+        ]
+      },
+      "photo": {
+        "id": "1509042239860-f550ce710b93",
+        "alt": "Ba tách latte trên bàn gỗ cạnh chậu cây"
+      }
+    },
+    {
+      "id": "u6",
+      "positionId": "j2",
+      "name": "Võ H. N.",
+      "area": "Hải Châu",
+      "distanceKm": 2.1,
+      "summary": "Bán hàng · 1 năm ở cửa hàng quần áo",
+      "availability": {
+        "kind": "ready",
+        "from": "01/12"
+      },
+      "criteria": {
+        "skills": [
+          "Bán hàng",
+          "Giao tiếp khách hàng"
+        ],
+        "slots": [
+          "5-0",
+          "5-1",
+          "6-0",
+          "6-1"
+        ],
+        "salaryMinK": 28,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "part-time"
+        ]
+      },
+      "photo": {
+        "id": "1558769132-cb1aea458c5e",
+        "alt": "Quần áo len treo trên giá gỗ sáng màu"
+      }
+    },
+    {
+      "id": "u7",
+      "positionId": "j2",
+      "name": "Đặng L. T.",
+      "area": "Ngũ Hành Sơn",
+      "distanceKm": 6.3,
+      "summary": "Bán hàng · tiếng Anh giao tiếp",
+      "availability": {
+        "kind": "ready",
+        "from": "15/12"
+      },
+      "criteria": {
+        "skills": [
+          "Bán hàng",
+          "Tiếng Anh giao tiếp"
+        ],
+        "slots": [
+          "5-0",
+          "5-1",
+          "6-0"
+        ],
+        "salaryMinK": 30,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "part-time",
+          "flexible"
+        ]
+      },
+      "photo": {
+        "id": "1456513080510-7bf3a84b82f8",
+        "alt": "Cuốn sách mở trên bàn, giá sách phía sau"
+      }
+    },
+    {
+      "id": "u8",
+      "positionId": "j2",
+      "name": "Bùi A. Đ.",
+      "area": "Cẩm Lệ",
+      "distanceKm": 7.9,
+      "summary": "Bán hàng · mới bắt đầu",
+      "availability": {
+        "kind": "working"
+      },
+      "criteria": {
+        "skills": [
+          "Bán hàng"
+        ],
+        "slots": [
+          "5-0",
+          "6-1"
+        ],
+        "salaryMinK": 32,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "part-time"
+        ]
+      },
+      "photo": {
+        "id": "1472851294608-062f824d29cc",
+        "alt": "Bảng OPEN treo trước cửa tiệm"
+      }
+    },
+    {
+      "id": "u9",
+      "positionId": "j2",
+      "name": "Mai P. T.",
+      "area": "Thanh Khê",
+      "distanceKm": 3.6,
+      "summary": "Thu ngân · sinh viên, rảnh cuối tuần",
+      "availability": {
+        "kind": "ready",
+        "from": "01/12"
+      },
+      "criteria": {
+        "skills": [
+          "Giao tiếp khách hàng",
+          "Thu ngân"
+        ],
+        "slots": [
+          "5-0",
+          "5-1",
+          "6-0",
+          "6-1"
+        ],
+        "salaryMinK": 26,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "part-time",
+          "event"
+        ]
+      },
+      "photo": {
+        "id": "1556745757-8d76bdb6984b",
+        "alt": "Bàn tay đặt thẻ lên máy thanh toán ở quầy thu ngân"
+      }
+    },
+    {
+      "id": "u10",
+      "positionId": "j2",
+      "name": "Cao V. S.",
+      "area": "Sơn Trà",
+      "distanceKm": 9.8,
+      "summary": "Chăm sóc khách hàng · 6 tháng",
+      "availability": {
+        "kind": "ready",
+        "from": "20/12"
+      },
+      "criteria": {
+        "skills": [
+          "Giao tiếp khách hàng"
+        ],
+        "slots": [
+          "5-0",
+          "6-0"
+        ],
+        "salaryMinK": 30,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "full-time"
+        ]
+      },
+      "photo": {
+        "id": "1517842645767-c639042777db",
+        "alt": "Cuốn sổ tay và cây bút đặt trên bàn"
+      }
+    },
+    {
+      "id": "u11",
+      "positionId": "j3",
+      "name": "Hoàng M. P.",
+      "area": "Thanh Khê",
+      "distanceKm": 2.7,
+      "summary": "Phục vụ tiệc · 3 sự kiện",
+      "availability": {
+        "kind": "ready",
+        "from": "01/12"
+      },
+      "criteria": {
+        "skills": [
+          "Phục vụ bàn",
+          "Giao tiếp khách hàng"
+        ],
+        "slots": [
+          "5-2"
+        ],
+        "salaryMinK": 40,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "event",
+          "part-time"
+        ]
+      },
+      "photo": {
+        "id": "1555244162-803834f70033",
+        "alt": "Các khay đồ ăn bày trên bàn tiệc buffet"
+      }
+    },
+    {
+      "id": "u12",
+      "positionId": "j3",
+      "name": "Ngô T. V.",
+      "area": "Sơn Trà",
+      "distanceKm": 4.4,
+      "summary": "Phục vụ · cộng tác viên sự kiện",
+      "availability": {
+        "kind": "working"
+      },
+      "criteria": {
+        "skills": [
+          "Phục vụ bàn"
+        ],
+        "slots": [
+          "5-2"
+        ],
+        "salaryMinK": 50,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "event"
+        ]
+      },
+      "photo": {
+        "id": "1511795409834-ef04bbd61622",
+        "alt": "Bàn tiệc dài trang trí hoa và ly thủy tinh"
+      }
+    },
+    {
+      "id": "u13",
+      "positionId": "j3",
+      "name": "Lương B. C.",
+      "area": "Hải Châu",
+      "distanceKm": 3,
+      "summary": "Lễ tân · mới làm tiệc",
+      "availability": {
+        "kind": "ready",
+        "from": "08/12"
+      },
+      "criteria": {
+        "skills": [
+          "Giao tiếp khách hàng"
+        ],
+        "slots": [
+          "5-2"
+        ],
+        "salaryMinK": 40,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "event",
+          "freelance"
+        ]
+      },
+      "photo": {
+        "id": "1565688534245-05d6b5be184a",
+        "alt": "Những bàn tay trên tập giấy tờ trong buổi trao đổi"
+      }
+    },
+    {
+      "id": "u14",
+      "positionId": "j3",
+      "name": "Tạ H. M.",
+      "area": "Liên Chiểu",
+      "distanceKm": 12.5,
+      "summary": "Phục vụ nhà hàng · 1 năm",
+      "availability": {
+        "kind": "ready",
+        "from": "01/12"
+      },
+      "criteria": {
+        "skills": [
+          "Phục vụ bàn",
+          "Giao tiếp khách hàng"
+        ],
+        "slots": [
+          "6-2"
+        ],
+        "salaryMinK": 42,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "event"
+        ]
+      },
+      "photo": {
+        "id": "1517248135467-4c7edcad34c4",
+        "alt": "Phòng ăn nhà hàng với bàn gỗ và đèn vàng"
+      }
+    },
+    {
+      "id": "u15",
+      "positionId": "j3",
+      "name": "Đinh Q. K.",
+      "area": "Cẩm Lệ",
+      "distanceKm": 6,
+      "summary": "Sinh viên · chưa có kinh nghiệm",
+      "availability": {
+        "kind": "ready",
+        "from": "01/12"
+      },
+      "criteria": {
+        "skills": [
+          "Giao tiếp khách hàng"
+        ],
+        "slots": [
+          "5-2"
+        ],
+        "salaryMinK": 38,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "part-time"
+        ]
+      },
+      "photo": {
+        "id": "1434030216411-0b793f4b4173",
+        "alt": "Cánh tay đang viết vào cuốn sổ cạnh cốc sứ"
+      }
+    },
+    {
+      "id": "u16",
+      "positionId": "j4",
+      "name": "Đỗ K. L.",
+      "area": "Hải Châu",
+      "distanceKm": 1.2,
+      "summary": "Thu ngân · 2 năm ở siêu thị",
+      "availability": {
+        "kind": "ready",
+        "from": "01/12"
+      },
+      "criteria": {
+        "skills": [
+          "Thu ngân",
+          "Excel"
+        ],
+        "slots": [
+          "0-0",
+          "1-1",
+          "2-2",
+          "3-0",
+          "4-1",
+          "5-2"
+        ],
+        "salaryMinK": 34,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "full-time"
+        ]
+      },
+      "photo": {
+        "id": "1556745757-8d76bdb6984b",
+        "alt": "Bàn tay đặt thẻ lên máy thanh toán ở quầy thu ngân"
+      }
+    },
+    {
+      "id": "u17",
+      "positionId": "j4",
+      "name": "Phan N. H.",
+      "area": "Thanh Khê",
+      "distanceKm": 2.5,
+      "summary": "Thu ngân · kế toán cơ bản",
+      "availability": {
+        "kind": "ready",
+        "from": "12/12"
+      },
+      "criteria": {
+        "skills": [
+          "Thu ngân",
+          "Excel"
+        ],
+        "slots": [
+          "0-0",
+          "1-1",
+          "2-2",
+          "3-0",
+          "4-1"
+        ],
+        "salaryMinK": 36,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "full-time",
+          "shift"
+        ]
+      },
+      "photo": {
+        "id": "1488190211105-8b0e65b80b4e",
+        "alt": "Tay ghi chép vào sổ cạnh máy tính, cốc cà phê và kính"
+      }
+    },
+    {
+      "id": "u18",
+      "positionId": "j4",
+      "name": "Vũ T. D.",
+      "area": "Sơn Trà",
+      "distanceKm": 5.2,
+      "summary": "Bán hàng, thu ngân bán thời gian",
+      "availability": {
+        "kind": "working"
+      },
+      "criteria": {
+        "skills": [
+          "Thu ngân",
+          "Bán hàng"
+        ],
+        "slots": [
+          "0-0",
+          "1-1",
+          "2-2"
+        ],
+        "salaryMinK": 40,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "part-time"
+        ]
+      },
+      "photo": {
+        "id": "1558769132-cb1aea458c5e",
+        "alt": "Quần áo len treo trên giá gỗ sáng màu"
+      }
+    },
+    {
+      "id": "u19",
+      "positionId": "j4",
+      "name": "Lâm G. B.",
+      "area": "Cẩm Lệ",
+      "distanceKm": 7.4,
+      "summary": "Tiếng Anh · nhân viên kho",
+      "availability": {
+        "kind": "ready",
+        "from": "03/12"
+      },
+      "criteria": {
+        "skills": [
+          "Excel",
+          "Tiếng Anh giao tiếp"
+        ],
+        "slots": [
+          "0-0",
+          "1-1",
+          "2-2",
+          "3-0"
+        ],
+        "salaryMinK": 35,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "full-time"
+        ]
+      },
+      "photo": {
+        "id": "1586528116311-ad8dd3c8310d",
+        "alt": "Kho hàng với các kệ cao xếp đầy thùng hàng"
+      }
+    },
+    {
+      "id": "u20",
+      "positionId": "j4",
+      "name": "Trịnh M. A.",
+      "area": "Hải Châu",
+      "distanceKm": 3.8,
+      "summary": "Mới tốt nghiệp · muốn việc ổn định",
+      "availability": {
+        "kind": "ready",
+        "from": "01/12"
+      },
+      "criteria": {
+        "skills": [
+          "Thu ngân"
+        ],
+        "slots": [
+          "0-0",
+          "1-1",
+          "2-2",
+          "3-0",
+          "4-1",
+          "5-2"
+        ],
+        "salaryMinK": 34,
+        "maxDistanceKm": 8,
+        "jobTypes": [
+          "full-time",
+          "shift"
+        ]
+      },
+      "photo": {
+        "id": "1435527173128-983b87201f4d",
+        "alt": "Cuốn sổ lịch mở trên bàn làm việc"
+      }
+    }
+  ],
+  "profile": {
+    "fullName": "Nguyễn Minh Anh",
+    "phone": "0905 123 456",
+    "intro": "Sinh viên năm cuối ở Đà Nẵng, quen làm ca tối và cuối tuần. Thích việc cần giao tiếp và làm việc nhóm.",
+    "about": "Mình đã làm phục vụ quán cà phê và cộng tác viên sự kiện hơn hai năm. Mình đúng giờ, học nhanh, không ngại việc nặng vào cuối tuần. Mình muốn tìm công việc gần nhà để có thể làm đều đặn.",
+    "showAvatar": true,
+    "published": false,
+    "area": "Hải Châu, Đà Nẵng",
+    "jobTypes": [
+      "part-time",
+      "event"
+    ],
+    "salaryMin": 25000,
+    "maxDistanceKm": 5,
+    "skills": [
+      "Giao tiếp khách hàng",
+      "Pha chế cơ bản",
+      "Excel",
+      "Tiếng Anh giao tiếp"
+    ],
+    "experience": [
+      {
+        "id": "kn-1",
+        "title": "Nhân viên phục vụ",
+        "company": "Quán Cà Phê Hẻm Nhỏ",
+        "period": "06/2025 – 01/2026"
+      },
+      {
+        "id": "kn-2",
+        "title": "Cộng tác viên sự kiện",
+        "company": "Công ty Sự kiện Mây Trắng",
+        "period": "2024 – 2025"
+      }
+    ],
+    "availability": [
+      "0-2",
+      "1-2",
+      "2-2",
+      "3-2",
+      "4-2",
+      "5-0",
+      "5-1",
+      "6-0",
+      "6-1"
+    ]
+  },
+  "companyProfile": {
+    "name": "Nhóm Dịch Vụ Sông Hàn",
+    "industry": "Dịch vụ ăn uống và bán lẻ",
+    "district": "Hải Châu",
+    "size": "11-50",
+    "tagline": "Quán cà phê, cửa hàng tiện lợi và tiệc cưới quanh trung tâm.",
+    "about": "Chúng tôi vận hành một quán cà phê, một cửa hàng tiện lợi và nhận phục vụ tiệc cưới quanh khu vực trung tâm Đà Nẵng. Đội ngũ nhỏ, làm việc theo ca và cần người ở nhiều khung giờ khác nhau.",
+    "environment": [
+      "Quầy pha chế và khu phục vụ thoáng, làm việc đứng nhiều",
+      "Cửa hàng tiện lợi mở theo ca, có khu nghỉ cho nhân viên",
+      "Tiệc cưới làm việc tối, theo lịch sự kiện"
+    ],
+    "values": [
+      "Đúng giờ",
+      "Tôn trọng khách",
+      "Làm việc nhóm",
+      "Học nhanh"
+    ],
+    "policies": [
+      "Lương trả theo giờ hoặc theo ngày, rõ ràng từ đầu",
+      "Được hướng dẫn trước khi nhận ca đầu tiên",
+      "Nghỉ ca báo trước, không bị trừ nếu có lý do chính đáng"
+    ],
+    "culture": "Nói thẳng, giúp nhau trong giờ cao điểm, không để ai tự xoay xở một mình.",
+    "email": "tuyendung@songhan.example",
+    "phone": "0236 3 888 000",
+    "cover": {
+      "id": "1554118811-1e0d58224f24",
+      "alt": "Không gian quán cà phê nhiều cây xanh, quầy pha chế phía sau"
+    }
+  },
+  "demo": {
+    "interests": [
+      {
+        "from": "seeker",
+        "jobId": "j1",
+        "seekerId": "u1",
+        "at": "2026-11-07T17:28:19.303Z"
+      },
+      {
+        "from": "seeker",
+        "jobId": "j2",
+        "seekerId": "u6",
+        "at": "2026-11-07T18:28:19.303Z"
+      },
+      {
+        "from": "seeker",
+        "jobId": "j4",
+        "seekerId": "u16",
+        "at": "2026-11-07T19:28:19.303Z"
+      },
+      {
+        "from": "recruiter",
+        "jobId": "j1",
+        "seekerId": "me",
+        "at": "2026-11-07T20:28:19.303Z"
+      },
+      {
+        "from": "recruiter",
+        "jobId": "m6",
+        "seekerId": "me",
+        "at": "2026-11-07T20:58:19.303Z"
+      },
+      {
+        "from": "seeker",
+        "jobId": "m1",
+        "seekerId": "me",
+        "at": "2026-11-06T21:28:19.303Z"
+      },
+      {
+        "from": "recruiter",
+        "jobId": "m1",
+        "seekerId": "me",
+        "at": "2026-11-06T22:28:19.303Z"
+      },
+      {
+        "from": "seeker",
+        "jobId": "j1",
+        "seekerId": "u3",
+        "at": "2026-11-05T03:48:19.303Z"
+      },
+      {
+        "from": "recruiter",
+        "jobId": "j1",
+        "seekerId": "u3",
+        "at": "2026-11-05T05:28:19.303Z"
+      }
+    ],
+    "connections": [
+      {
+        "jobId": "m1",
+        "seekerId": "me",
+        "at": "2026-11-06T22:28:19.303Z"
+      },
+      {
+        "jobId": "j1",
+        "seekerId": "u3",
+        "at": "2026-11-05T05:28:19.303Z"
+      }
+    ],
+    "notifications": [
+      {
+        "id": "n-seed-1",
+        "to": "seeker",
+        "kind": "interest",
+        "jobId": "j1",
+        "seekerId": "me",
+        "at": "2026-11-07T20:28:19.303Z",
+        "read": false
+      },
+      {
+        "id": "n-seed-2",
+        "to": "seeker",
+        "kind": "interest",
+        "jobId": "m6",
+        "seekerId": "me",
+        "at": "2026-11-07T20:58:19.303Z",
+        "read": false
+      },
+      {
+        "id": "n-seed-3",
+        "to": "seeker",
+        "kind": "connected",
+        "jobId": "m1",
+        "seekerId": "me",
+        "at": "2026-11-06T22:28:19.303Z",
+        "read": true
+      },
+      {
+        "id": "n-seed-4",
+        "to": "recruiter",
+        "kind": "interest",
+        "jobId": "j1",
+        "seekerId": "u1",
+        "at": "2026-11-07T17:28:19.303Z",
+        "read": false
+      },
+      {
+        "id": "n-seed-5",
+        "to": "recruiter",
+        "kind": "interest",
+        "jobId": "j2",
+        "seekerId": "u6",
+        "at": "2026-11-07T18:28:19.303Z",
+        "read": false
+      },
+      {
+        "id": "n-seed-6",
+        "to": "recruiter",
+        "kind": "interest",
+        "jobId": "j4",
+        "seekerId": "u16",
+        "at": "2026-11-07T19:28:19.303Z",
+        "read": true
+      }
+    ],
+    "messages": [
+      {
+        "id": "msg-seed-1",
+        "jobId": "m1",
+        "seekerId": "me",
+        "from": "recruiter",
+        "text": "Chào bạn, cảm ơn đã kết nối với bên mình! Bạn có thể đi làm thử vào tuần sau không?",
+        "at": "2026-11-06T22:38:19.303Z"
+      },
+      {
+        "id": "msg-seed-2",
+        "jobId": "m1",
+        "seekerId": "me",
+        "from": "seeker",
+        "text": "Dạ em đi được ạ. Em nên đến lúc mấy giờ ạ?",
+        "at": "2026-11-06T22:48:19.303Z"
+      },
+      {
+        "id": "msg-seed-3",
+        "jobId": "m1",
+        "seekerId": "me",
+        "from": "recruiter",
+        "text": "Ca bên mình bắt đầu lúc 17:00, mỗi ca khoảng 5 tiếng. Bạn thấy ổn chứ?",
+        "at": "2026-11-07T21:28:19.303Z"
+      }
+    ],
+    "interviews": [
+      {
+        "id": "iv-seed-1",
+        "jobId": "m1",
+        "seekerId": "me",
+        "slots": [
+          "2026-11-10T08:00:00.000Z",
+          "2026-11-11T02:30:00.000Z"
+        ],
+        "chosen": "2026-11-10T08:00:00.000Z",
+        "mode": "onsite",
+        "place": "Quán Gió Sông Hàn, đường Trần Hưng Đạo, Sơn Trà",
+        "note": "Mang theo CMND, đến sớm 10 phút.",
+        "status": "confirmed",
+        "createdAt": "2026-11-07T21:38:19.303Z"
+      }
+    ],
+    "hires": [
+      {
+        "jobId": "j1",
+        "seekerId": "u3",
+        "status": "accepted",
+        "startDate": "2026-11-07",
+        "note": "Chào mừng bạn, hẹn gặp ở quán nhé!",
+        "at": "2026-11-06T13:08:19.327Z",
+        "updatedAt": "2026-11-06T14:48:19.327Z"
+      }
+    ],
+    "reviews": [
+      {
+        "jobId": "j1",
+        "seekerId": "u3",
+        "from": "seeker",
+        "stars": 5,
+        "tags": [
+          "Trả lương đúng hẹn",
+          "Môi trường thân thiện"
+        ],
+        "comment": "Quản lý hướng dẫn kỹ ngay từ ca đầu, lương trả đúng hẹn.",
+        "at": "2026-11-07T02:28:19.327Z"
+      },
+      {
+        "jobId": "j1",
+        "seekerId": "u3",
+        "from": "recruiter",
+        "stars": 4,
+        "tags": [
+          "Đúng giờ",
+          "Chăm chỉ"
+        ],
+        "comment": "Bạn nhận ca đều và làm việc nghiêm túc.",
+        "at": "2026-11-07T04:08:19.327Z"
+      },
+      {
+        "jobId": "j2",
+        "seekerId": "u6",
+        "from": "seeker",
+        "stars": 4,
+        "tags": [
+          "Đúng mô tả công việc"
+        ],
+        "comment": "Việc đúng như mô tả, ca làm ổn định.",
+        "at": "2026-11-01T16:28:19.327Z"
+      },
+      {
+        "jobId": "j4",
+        "seekerId": "u16",
+        "from": "seeker",
+        "stars": 5,
+        "tags": [
+          "Quản lý hướng dẫn tận tình",
+          "Môi trường thân thiện"
+        ],
+        "at": "2026-10-25T01:08:19.327Z"
+      }
+    ],
+    "lastRead": {
+      "seeker|m1|me": "2026-11-06T22:48:19.327Z"
+    },
+    "typing": {}
+  },
+  "admin": {
+    "moderation": {
+      "p-seed-1": {
+        "status": "pending",
+        "at": "2026-11-07T21:48:19.301Z"
+      },
+      "p-seed-2": {
+        "status": "pending",
+        "at": "2026-11-07T22:03:19.302Z"
+      },
+      "p-seed-3": {
+        "status": "pending",
+        "at": "2026-11-07T22:18:19.302Z"
+      }
+    },
+    "posted": [
+      {
+        "companyId": "song-han",
+        "district": "Hải Châu",
+        "distanceKm": 2,
+        "radiusKm": 8,
+        "quantity": 2,
+        "id": "p-seed-1",
+        "title": "Phụ quầy cà phê buổi sáng",
+        "salaryLabel": "27.000–30.000đ/giờ",
+        "shiftLabel": "Sáng T2–T6",
+        "skills": [
+          "Pha chế cơ bản",
+          "Giao tiếp khách hàng"
+        ],
+        "slots": [
+          "0-0",
+          "1-0",
+          "2-0",
+          "3-0",
+          "4-0"
+        ],
+        "salaryMinK": 27,
+        "salaryMaxK": 30,
+        "jobType": "part-time",
+        "photo": {
+          "id": "1442512595331-e89e73853f31",
+          "alt": "Pha cà phê bằng phễu lọc"
+        },
+        "description": "Hỗ trợ quầy pha chế giờ cao điểm buổi sáng, được hướng dẫn từ đầu.",
+        "postedAt": "2026-11-07T21:48:19.301Z"
+      },
+      {
+        "companyId": "song-han",
+        "district": "Hải Châu",
+        "distanceKm": 2,
+        "radiusKm": 8,
+        "quantity": 2,
+        "id": "p-seed-2",
+        "title": "Cộng tác viên bán hàng online tại nhà",
+        "salaryLabel": "15.000đ/giờ",
+        "shiftLabel": "Linh hoạt",
+        "skills": [],
+        "slots": [],
+        "salaryMinK": 15,
+        "salaryMaxK": 15,
+        "jobType": "freelance",
+        "photo": {
+          "id": "1497366811353-6870744d04b2",
+          "alt": "Văn phòng trống với bàn họp dài"
+        },
+        "description": "Việc nhẹ lương cao, chỉ cần đặt cọc 200.000đ để nhận hàng mẫu.",
+        "postedAt": "2026-11-07T22:03:19.302Z"
+      },
+      {
+        "companyId": "song-han",
+        "district": "Hải Châu",
+        "distanceKm": 2,
+        "radiusKm": 8,
+        "quantity": 2,
+        "id": "p-seed-3",
+        "title": "Phục vụ tiệc cuối tuần",
+        "salaryLabel": "350.000đ/ngày",
+        "shiftLabel": "Tối T7, CN",
+        "skills": [
+          "Phục vụ bàn"
+        ],
+        "slots": [
+          "5-2",
+          "6-2"
+        ],
+        "salaryMinK": 40,
+        "salaryMaxK": 45,
+        "jobType": "event",
+        "photo": {
+          "id": "1511795409834-ef04bbd61622",
+          "alt": "Bàn tiệc dài trang trí hoa"
+        },
+        "description": "",
+        "postedAt": "2026-11-07T22:18:19.302Z"
+      }
+    ],
+    "jobStatus": {},
+    "lockedCompanies": {},
+    "verifiedCompanies": {
+      "gio-song-han": true,
+      "bien-xanh": true,
+      "may-trang": true,
+      "hoa-sua": true
+    },
+    "lockedSeekers": {},
+    "reports": [
+      {
+        "id": "r-seed-1",
+        "target": "job",
+        "targetId": "m9",
+        "reason": "Sai thông tin",
+        "note": "Lương thực tế thấp hơn tin đăng.",
+        "by": "seeker",
+        "at": "2026-11-07T17:28:19.302Z",
+        "status": "open"
+      },
+      {
+        "id": "r-seed-2",
+        "target": "seeker",
+        "targetId": "u12",
+        "reason": "Không đến phỏng vấn",
+        "note": "Đã xác nhận lịch nhưng không đến, không báo.",
+        "by": "recruiter",
+        "at": "2026-11-07T19:28:19.302Z",
+        "status": "open"
+      },
+      {
+        "id": "r-seed-3",
+        "target": "job",
+        "targetId": "m7",
+        "reason": "Lừa đảo",
+        "note": "Yêu cầu nộp phí trước khi làm.",
+        "by": "guest",
+        "at": "2026-11-06T19:48:19.302Z",
+        "status": "dismissed",
+        "resolution": "Đã liên hệ công ty, không có phí. Báo cáo không đúng."
+      }
+    ],
+    "config": {
+      "weights": {
+        "skills": 35,
+        "schedule": 25,
+        "salary": 16,
+        "distance": 14,
+        "jobType": 10
+      },
+      "bannedWords": [
+        "đặt cọc",
+        "phí giữ chỗ",
+        "việc nhẹ lương cao",
+        "chuyển khoản trước"
+      ],
+      "minWageK": 20,
+      "defaultRadiusKm": 8,
+      "registrationOpen": true
+    }
+  },
+  "match": {
+    "view": "gallery",
+    "savedJobs": [],
+    "savedCandidates": [],
+    "skippedCandidates": []
+  },
+  "settings": {
+    "bySide": {
+      "seeker": {
+        "notify": {},
+        "emailDigest": "daily",
+        "visibility": "public"
+      },
+      "recruiter": {
+        "notify": {},
+        "emailDigest": "daily",
+        "visibility": "public"
+      }
+    }
+  }
+}

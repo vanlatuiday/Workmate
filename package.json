@@ -12,7 +12,10 @@
     "build": "nest build",
     "start": "node dist/main.js",
     "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:export-demo": "node prisma/export-demo.mjs",
+    "db:seed": "prisma db seed",
+    "db:reset": "prisma migrate reset --force"
   },
   "keywords": [],
   "author": "",
@@ -52,5 +55,8 @@
     "@prisma/engines@5.22.0": true,
     "@prisma/client@5.22.0": true,
     "@nestjs/core": false
+  },
+  "prisma": {
+    "seed": "ts-node --transpile-only prisma/seed.ts"
   }
 }
