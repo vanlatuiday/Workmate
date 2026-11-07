@@ -216,6 +216,10 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
   từng vai trò, lớp phủ than chì đặc. Vẫn giữ bảng màu charcoal/ivory, không màu nhấn, không glow,
   không bóng ngoài; có phương án đặc khi trình duyệt không hỗ trợ blur hoặc `prefers-reduced-transparency`.
   Kính mờ chỉ dùng trong dashboard, không đưa ra trang công khai.
+  **Ngoại lệ thứ hai (2026-11-07, chủ dự án duyệt):** Đăng nhập / Đăng ký / Quên mật khẩu
+  (`pages/public/auth/*`) theo `references/p11.mp4` — một thẻ kính **sáng** chia hai nửa trên nền ngà
+  có khối hình học màu nhạt; được phép: kính mờ, vệt sáng trắng nhẹ theo chuột, làm nhòe ngắn
+  (`filter: blur`) lúc hai nửa đổi chỗ. Mọi hiệu ứng có nhánh giảm chuyển động.
 - Dùng `#000` / `#fff` tuyệt đối.
 - Viết hex trực tiếp trong component — thêm vào `tokens.json` nếu thật sự cần màu mới.
 - Đánh số 01/02/03 cho nội dung không phải trình tự thật.

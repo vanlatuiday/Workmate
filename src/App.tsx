@@ -15,9 +15,7 @@ import CompaniesPage from '@pages/public/CompaniesPage'
 import CompanyDetailPage from '@pages/public/CompanyDetailPage'
 import PositionDetailPage from '@pages/public/PositionDetailPage'
 import BlogPage from '@pages/public/BlogPage'
-import LoginPage from '@pages/public/LoginPage'
-import ForgotPasswordPage from '@pages/public/ForgotPasswordPage'
-import RegisterPage from '@pages/public/RegisterPage'
+import AuthPage from '@pages/public/auth/AuthPage'
 import PersonalPage from '@pages/public/PersonalPage'
 import MatchPage from '@pages/public/MatchPage'
 import MessagesPage from '@pages/public/MessagesPage'
@@ -81,9 +79,10 @@ export default function App() {
         <Route path="/cong-ty" element={<CompaniesPage />} />
         <Route path="/cong-ty/:id" element={<CompanyDetailPage />} />
         <Route path="/cam-nang" element={<BlogPage />} />
-        <Route path="/dang-nhap" element={<LoginPage />} />
-        <Route path="/quen-mat-khau" element={<ForgotPasswordPage />} />
-        <Route path="/dang-ky" element={<RegisterPage />} />
+        {/* Đăng nhập / quên mật khẩu / đăng ký: cùng MỘT thẻ AuthPage (giữ nguyên khi chuyển qua lại) */}
+        <Route path="/dang-nhap" element={<AuthPage />} />
+        <Route path="/quen-mat-khau" element={<AuthPage />} />
+        <Route path="/dang-ky" element={<AuthPage />} />
         <Route path="/ca-nhan" element={<PersonalPage />} />
         <Route path="/match" element={<MatchPage />} />
         <Route path="/tin-nhan" element={<MessagesPage />} />

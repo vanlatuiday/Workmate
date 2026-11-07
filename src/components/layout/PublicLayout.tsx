@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate, useOutlet } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Menu, X, Briefcase } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useAuthStore } from '@context/authStore'
@@ -17,6 +17,7 @@ import { PERSONAL_HREF } from '@pages/public/personal/links'
 import RollText from '@components/motion/RollText'
 import { FOCUS } from '@utils/focus'
 import { useReducedMotion } from '@hooks/useReducedMotion'
+import { isAuthPath } from '@pages/public/auth/authShared'
 
 /** Mục điều hướng theo người đang xem. Khách thấy lời mời trung lập cho cả hai phía;
     đã đăng nhập thì chỉ thấy lối tắt tới việc của vai trò mình. */
@@ -59,6 +60,21 @@ function FrozenOutlet() {
   return frozen
 }
 
+/**
+ * Như FrozenOutlet nhưng cho nhóm Đăng nhập / Đăng ký / Quên mật khẩu: vẫn cập nhật khi
+ * chuyển qua lại giữa 3 route (thẻ giữ nguyên, không remount), nhưng đứng yên từ lúc đường
+ * dẫn rời nhóm — để hiệu ứng mờ đi vẫn thấy trang đăng nhập chứ không phải trang kế tiếp.
+ * Đọc đường dẫn bằng useLocation (không qua props): bản cũ AnimatePresence giữ lại có props cũ.
+ */
+function AuthOutlet() {
+  const outlet = useOutlet()
+  const { pathname } = useLocation()
+  // useOutlet() trả phần tử mới ở mỗi lần render nên không so sánh được → giữ bằng ref
+  const last = useRef(outlet)
+  if (isAuthPath(pathname)) last.current = outlet
+  return last.current
+}
+
 export default function PublicLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [overlayOpen, setOverlayOpen] = useState(false)
@@ -78,8 +94,8 @@ export default function PublicLayout() {
   // Theme ngà gắn vào header, footer và khung của TỪNG trang (không gắn lên wrapper),
   // nên trang cũ đang mờ dần vẫn giữ màu của chính nó.
   const dark = location.pathname === '/'
-  // Đăng nhập / Đăng ký: ẩn header cho trang tập trung vào form, chỉ giữ logo nhỏ để về trang chủ
-  const bare = location.pathname === '/dang-nhap' || location.pathname === '/dang-ky'
+  // Đăng nhập / Đăng ký / Quên mật khẩu: toàn màn hình — ẩn header và footer, chỉ giữ logo nhỏ để về trang chủ
+  const bare = isAuthPath(location.pathname)
   // Trang Cá nhân là "mặt bàn" tối → header/footer tối theo cho liền mạch
   const chrome = location.pathname === '/ca-nhan' || location.pathname === '/ho-so' ? 'theme-charcoal' : 'theme-ivory'
 
@@ -383,8 +399,9 @@ export default function PublicLayout() {
         <AnimatePresence mode="wait">
           {/* Trang đang mờ đi giữ nguyên className cũ (AnimatePresence giữ element cũ),
               nên theme ngà/tối của nó không bị đổi giữa chừng */}
-          <PageTransition key={location.pathname} className={dark ? undefined : 'theme-ivory flex-1'}>
-            <FrozenOutlet />
+          {/* 3 route đăng nhập chung một key 'auth' → chuyển qua lại không chạy hiệu ứng chuyển trang */}
+          <PageTransition key={bare ? 'auth' : location.pathname} className={dark ? undefined : 'theme-ivory flex-1'}>
+            {bare ? <AuthOutlet /> : <FrozenOutlet />}
             {/* Đứng sau FrozenOutlet: chạy khi trang mới đã dựng xong (kể cả pin của trang chủ) */}
             <RouteScroll />
           </PageTransition>
@@ -393,7 +410,8 @@ export default function PublicLayout() {
 
       <PageCurtain />
 
-      {/* Footer */}
+      {/* Footer (ẩn ở các trang đăng nhập toàn màn hình) */}
+      {!bare && (
       <footer className={cn('border-t bg-page-bg border-page-line', !dark && chrome)}>
         <div className="shell py-section-sm">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -448,6 +466,7 @@ export default function PublicLayout() {
           </div>
         </div>
       </footer>
+      )}
     </div>
   )
 }

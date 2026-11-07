@@ -312,3 +312,32 @@ html[data-page='home'] :focus-visible {
     radial-gradient(circle, transparent var(--hole), black calc(var(--hole) + 0.5px)) calc(var(--gap) / -2) calc(var(--gap) / -2) / var(--gap) var(--gap) round,
     linear-gradient(black, black) center / calc(100% - var(--gap)) calc(100% - var(--gap)) no-repeat;
 }
+
+/* ─── Đăng nhập / Đăng ký / Quên mật khẩu: thẻ kính SÁNG ────────────────────────
+   Ngoại lệ DESIGN.md (chủ dự án duyệt, chỉ pages/public/auth): ngà mờ + làm mờ nền phía sau,
+   viền than chì rất nhạt, không bóng ngoài. --auth-edge là màu đường gạch chân ô nhập, đặt đậm hơn
+   page-edge để vẫn ≥ 3:1 trên mọi chỗ của kính (kính hơi tối đi ở phía trên phiến màu xô thơm). */
+@layer components {
+  .glass-light {
+    --auth-edge: color-mix(in srgb, var(--wm-charcoal) 72%, var(--wm-ivory));
+    background-color: color-mix(in srgb, var(--wm-ivory) 72%, transparent);
+    -webkit-backdrop-filter: blur(24px) saturate(1.05);
+    backdrop-filter: blur(24px) saturate(1.05);
+    border: 1px solid color-mix(in srgb, var(--wm-charcoal) 12%, transparent);
+    box-shadow: inset 0 1px 0 var(--wm-ivory);
+  }
+  /* Vệt sáng trắng nhẹ theo chuột (AuthPage dời bằng transform) */
+  .auth-sheen {
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--wm-ivory) 90%, transparent), transparent);
+  }
+  @supports not (backdrop-filter: blur(1px)) {
+    .glass-light { background-color: color-mix(in srgb, var(--wm-ivory) 96%, transparent); }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .glass-light {
+      background-color: color-mix(in srgb, var(--wm-ivory) 96%, transparent);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+}
