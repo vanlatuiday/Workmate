@@ -1,0 +1,13 @@
+{
+  "identities": [
+    {
+      "name": "workmate",
+      "credentials": [{ "accessKey": "workmate", "secretKey": "workmate_dev_storage" }],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    },
+    {
+      "name": "anonymous",
+      "actions": ["Read:workmate-public"]
+    }
+  ]
+}

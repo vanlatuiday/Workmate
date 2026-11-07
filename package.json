@@ -15,7 +15,8 @@
     "db:studio": "prisma studio",
     "db:export-demo": "node prisma/export-demo.mjs",
     "db:seed": "prisma db seed",
-    "db:reset": "prisma migrate reset --force"
+    "db:reset": "prisma migrate reset --force",
+    "storage:init": "node storage/init.mjs"
   },
   "keywords": [],
   "author": "",

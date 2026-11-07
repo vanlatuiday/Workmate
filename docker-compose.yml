@@ -21,5 +21,21 @@ services:
       timeout: 3s
       retries: 10
 
+  # Kho lưu file (ảnh, CV) chạy trên máy: SeaweedFS, cùng chuẩn S3 với Cloudflare R2/AWS S3,
+  # nên khi đưa lên mạng chỉ đổi biến STORAGE_* trong .env, không sửa code.
+  # Hai bucket: workmate-public (ảnh, ai cũng xem được) và workmate-private (CV, chỉ mở bằng link tạm).
+  # Tạo bucket lần đầu: npm run storage:init. Tài khoản S3 ở storage/s3.json (chỉ dùng trên máy).
+  storage:
+    image: chrislusf/seaweedfs:4.50
+    container_name: workmate-storage
+    restart: unless-stopped
+    command: server -dir=/data -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json -ip.bind=0.0.0.0
+    ports:
+      - '8333:8333'
+    volumes:
+      - workmate-files:/data
+      - ./storage/s3.json:/etc/seaweedfs/s3.json:ro
+
 volumes:
   workmate-db:
+  workmate-files:

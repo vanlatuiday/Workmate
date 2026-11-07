@@ -60,4 +60,4 @@ nhắn/phỏng vấn mẫu — để web chạy thật mà vẫn có nội dung.
 ## Quyết định đã chốt (2026-11-08)
 1. Công ty nhiều người quản lý: giữ `company_members` (trước mắt 1 tài khoản/công ty).
 2. Khoảng cách: lưu toạ độ (lat, lng) cho hồ sơ và tin; tạm lấy toạ độ theo quận, sau nối bản đồ.
-3. File/ảnh: dùng dịch vụ lưu file kiểu S3 ngay từ đầu (chờ chọn nhà cung cấp).
+3. File/ảnh: chuẩn S3. Trên máy dùng SeaweedFS (Docker, 2 bucket workmate-public / workmate-private); lên mạng đổi sang R2/S3 qua biến STORAGE_* (2026-11-08: R2 đòi thẻ nên tạm hoãn; MinIO không còn ảnh Docker).
