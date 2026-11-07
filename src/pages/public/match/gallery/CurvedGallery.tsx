@@ -100,7 +100,7 @@ export default function CurvedGallery<T extends CurvedItem>({ items, label, rend
         return {
           el,
           frame: el.querySelector<HTMLElement>('[data-print]') ?? el,
-          img: el.querySelector('img'),
+          img: el.querySelector('[data-print] img'),
           caption: el.querySelector<HTMLElement>('[data-curve-caption]'),
           id,
           tex: known?.tex,
@@ -246,8 +246,18 @@ export default function CurvedGallery<T extends CurvedItem>({ items, label, rend
               type="button"
               aria-label={itemLabel(item)}
               onClick={(e) => onOpen(item, e.currentTarget)}
-              className={cn('group block w-full rounded-card text-left', FOCUS_FAR)}
+              className={cn('group relative isolate block w-full rounded-card text-left', FOCUS_FAR)}
             >
+              {/* Đổ bóng màu như trang Việc làm: bản ảnh nhỏ nhòe mạnh, lệch xuống dưới ảnh → ánh màu của ảnh hắt lên nền */}
+              <img
+                src={photoUrl(item.photo.id, 160)}
+                alt=""
+                aria-hidden
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+                className="pointer-events-none absolute inset-x-[8%] top-[18%] -z-10 aspect-[16/10] w-[84%] object-cover opacity-90 blur-[56px] saturate-150"
+              />
               <div data-print className="relative aspect-[16/10] overflow-hidden rounded-card bg-page-surface">
                 <img
                   src={photoUrl(item.photo.id, 960)}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Bookmark, Check, Clock, MapPin, UserCheck, UserX, Wallet } from 'lucide-react'
+import { Bookmark, Briefcase, Check, Clock, MapPin, UserCheck, UserX, Wallet, X } from 'lucide-react'
 import InterviewAction from '@components/interview/InterviewAction'
 import { EmptyState, MatchScore, MockNotice, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
@@ -15,12 +15,12 @@ import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { CANDIDATES, isSeekerVisibleTo, ME_CANDIDATE, visibleCandidatesOf, POSITIONS, type MatchCandidate, type MatchPosition } from './data'
 import CurvedGallery from './gallery/CurvedGallery'
-import MatchArches from './MatchArches'
+import MatchSearchBar, { BarSelect, ChipReset, LevelMenu } from './MatchSearchBar'
 import ReportButton from '@components/report/ReportButton'
 import MatchDetail from './MatchDetail'
 import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
-  Avatar, BTN_PRIMARY, BTN_SECONDARY, CheckList, filterByLevel, foldMatches, GalleryCaption, LevelFilter, MatchFrame, NameSearch, personInitials, Tabs, ViewToggle,
+  Avatar, BTN_PRIMARY, BTN_SECONDARY, CheckList, filterByLevel, foldMatches, GalleryCaption, MatchFrame, personInitials, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
 import { DEFAULT_PRIORITY, scoreMatch, weightsOf, type CriterionResult } from './score'
@@ -100,7 +100,8 @@ export default function RecruiterMatch() {
   }
   // Ô tìm theo tên ứng viên + kỹ năng, áp lên tab đang chọn (cả hai chế độ xem)
   const current = lists[tab].filter((x) => foldMatches([x.c.name, ...x.c.criteria.skills], query))
-  const shown = gallery ? filterByLevel(current, level, (x) => x.outcome.score) : current
+  // Lọc theo mức phù hợp áp cho cả danh sách lẫn bộ sưu tập
+  const shown = filterByLevel(current, level, (x) => x.outcome.score)
   const detail = open ? scored.find((x) => x.key === open.id) : undefined
 
   const jobTypeLabel = JOB_TYPES.find((t) => t.value === req.jobType)?.label ?? req.jobType
@@ -196,32 +197,46 @@ export default function RecruiterMatch() {
 
   return (
     <>
-    {gallery && <MatchArches />}
-    {/* relative z-10: nội dung nằm trên các khối vòm nền */}
     <div className="relative z-10">
     <MatchFrame title="Ứng viên hợp với từng vị trí" intro="Chọn một vị trí, danh sách ứng viên xếp theo mức phù hợp với yêu cầu của tin.">
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <label htmlFor="match-position" className="text-sm text-page-muted">Đang tìm ứng viên cho:</label>
-        <select
-          id="match-position"
-          value={positionId}
-          onChange={(e) => {
-            setPositionId(e.target.value)
-            setLevel('all')
-          }}
-          className={`max-w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`}
-        >
-          {positions.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.job.title}
-              {p.job.status === 'paused' ? ' (tạm dừng)' : ''}
-              {p.id === 'draft' ? ' (vừa đăng — chưa lưu)' : ''}
-            </option>
-          ))}
-        </select>
-        <NameSearch value={query} onChange={setQuery} label="Tìm theo tên ứng viên hoặc kỹ năng" placeholder="Tìm tên, kỹ năng…" />
-        <ViewToggle value={view} onChange={setView} />
-      </div>
+      <MatchSearchBar
+        query={query}
+        onQueryChange={setQuery}
+        placeholder="Tìm tên, kỹ năng…"
+        searchLabel="Tìm theo tên ứng viên hoặc kỹ năng"
+        activeCount={(query ? 1 : 0) + (level !== 'all' ? 1 : 0)}
+        segments={() => (
+          <BarSelect
+            icon={<Briefcase className="h-4 w-4" />}
+            label="Vị trí đang tuyển"
+            value={positionId}
+            onChange={(v) => {
+              setPositionId(v)
+              setLevel('all')
+            }}
+            className="sm:w-60"
+          >
+            {positions.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.job.title}
+                {p.job.status === 'paused' ? ' (tạm dừng)' : ''}
+                {p.id === 'draft' ? ' (vừa đăng — chưa lưu)' : ''}
+              </option>
+            ))}
+          </BarSelect>
+        )}
+        chips={(floating) => (
+          <>
+            <LevelMenu glass={floating} scores={current.map((x) => x.outcome.score)} value={level} onChange={setLevel} />
+            {(query || level !== 'all') && (
+              <ChipReset glass={floating} onClick={() => { setQuery(''); setLevel('all') }}>
+                <X className="h-4 w-4" aria-hidden="true" />
+                Đặt lại
+              </ChipReset>
+            )}
+          </>
+        )}
+      />
       <p className="mx-auto mt-3 max-w-3xl text-center text-sm leading-relaxed text-page-muted">
         Yêu cầu: kỹ năng {req.skills.join(', ')} · {job.schedule} · lương {job.salary} · loại việc {jobTypeLabel} · bán kính {position.radiusKm} km
       </p>
@@ -230,11 +245,9 @@ export default function RecruiterMatch() {
         <Tabs
           center
           toolbar={
-            gallery ? (
-              <div className="mt-4 flex justify-center">
-                <LevelFilter scores={current.map((x) => x.outcome.score)} value={level} onChange={setLevel} />
-              </div>
-            ) : undefined
+            <div className="mt-4 flex justify-center">
+              <ViewToggle value={view} onChange={setView} />
+            </div>
           }
           idPrefix="cands"
           label="Danh sách ứng viên"
@@ -292,7 +305,7 @@ export default function RecruiterMatch() {
             />
           ) : (
             <ul className="grid gap-4 md:grid-cols-2">
-              {current.map(({ c, key, outcome }) => {
+              {shown.map(({ c, key, outcome }) => {
                 return (
                   <li key={key} className="min-w-0">
                     <article className="flex h-full flex-col rounded-card border border-page-line bg-page-surface p-5 md:p-6">

@@ -1,7 +1,7 @@
 // Mảnh dùng chung của trang /match: khung trang, tabs, hàng ✓/✗, thẻ vị trí, vòng chữ tắt.
 // Trang yên tĩnh như dashboard: không chuyển động cuộn, chỉ đổi màu viền/nền khi hover.
 import { useRef, type KeyboardEvent, type ReactNode } from 'react'
-import { ArrowDownRight, Check, LayoutGrid, List, Search, X } from 'lucide-react'
+import { ArrowDownRight, Check, LayoutGrid, List, X } from 'lucide-react'
 import MatchScore from '@components/dashboard/MatchScore'
 import { Initials } from '@components/discover/detail/DetailBlocks'
 import type { MatchView } from '@context/matchStore'
@@ -224,24 +224,6 @@ export const foldMatches = (haystack: string[], query: string) => {
   return foldText(query).split(/\s+/).filter(Boolean).every((w) => hay.includes(w))
 }
 
-/** Ô tìm nhỏ cạnh hàng điều khiển: lọc danh sách theo chữ gõ */
-export function NameSearch({ value, onChange, label, placeholder }: { value: string; onChange: (v: string) => void; label: string; placeholder: string }) {
-  return (
-    <div className="relative">
-      <label htmlFor="match-search" className="sr-only">{label}</label>
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-page-muted" aria-hidden="true" />
-      <input
-        id="match-search"
-        type="search"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className={`w-56 max-w-full rounded-control border border-page-edge bg-page-surface py-2 pl-9 pr-3 text-sm text-page-fg placeholder:text-page-muted ${FOCUS}`}
-      />
-    </div>
-  )
-}
-
 /** Nhóm hai nút chuyển chế độ xem */
 export function ViewToggle({ value, onChange }: { value: MatchView; onChange: (v: MatchView) => void }) {
   const options: { id: MatchView; label: string; Icon: typeof List }[] = [
@@ -278,7 +260,7 @@ export function ViewToggle({ value, onChange }: { value: MatchView; onChange: (v
 export type LevelKey = 'all' | 'high' | 'good' | 'maybe' | 'low'
 
 /** Mức theo ngưỡng điểm, khớp nhãn của MatchScore (≥80 / ≥60 / ≥40 / dưới 40) */
-const LEVELS: { id: LevelKey; label: string; has: (score: number) => boolean }[] = [
+export const LEVELS: { id: LevelKey; label: string; has: (score: number) => boolean }[] = [
   { id: 'all', label: 'Tất cả', has: () => true },
   { id: 'high', label: 'Rất phù hợp', has: (s) => s >= 80 },
   { id: 'good', label: 'Phù hợp', has: (s) => s >= 60 && s < 80 },
@@ -290,36 +272,6 @@ const LEVELS: { id: LevelKey; label: string; has: (score: number) => boolean }[]
 export function filterByLevel<T>(items: T[], level: LevelKey, scoreOf: (item: T) => number) {
   const def = LEVELS.find((l) => l.id === level) ?? LEVELS[0]
   return items.filter((x) => def.has(scoreOf(x)))
-}
-
-/** Hàng pill lọc theo mức phù hợp; số đếm là chỉ số trên, mức không có mục nào thì ẩn. `scores` là điểm của cả danh sách đang xem. */
-export function LevelFilter({ scores, value, onChange }: { scores: number[]; value: LevelKey; onChange: (v: LevelKey) => void }) {
-  return (
-    <div role="group" aria-label="Lọc theo mức phù hợp" className="flex flex-wrap justify-center gap-2">
-      {LEVELS.map((l) => {
-        const count = scores.filter(l.has).length
-        // Mức đang chọn luôn hiện để người dùng còn đường quay lại
-        if (l.id !== 'all' && count === 0 && value !== l.id) return null
-        const on = value === l.id
-        return (
-          <button
-            key={l.id}
-            type="button"
-            aria-pressed={on}
-            onClick={() => onChange(l.id)}
-            className={cn(
-              'rounded-full border px-4 py-2 text-sm transition-colors duration-300',
-              on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
-              FOCUS,
-            )}
-          >
-            {l.label}
-            <sup className="tnum ml-1 text-[0.65em]">{count}</sup>
-          </button>
-        )
-      })}
-    </div>
-  )
 }
 
 // ─── Chữ dưới ảnh của Bộ sưu tập ────────────────────────────────────────────

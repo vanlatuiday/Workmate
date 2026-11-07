@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { ArrowDown, ArrowUp, Bookmark, Briefcase, Check, Clock, GripVertical, MapPin, SearchX, SlidersHorizontal, Wallet } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Bookmark, Briefcase, Check, Clock, GripVertical, MapPin, SearchX, SlidersHorizontal, Wallet, X } from 'lucide-react'
 import InterviewAction from '@components/interview/InterviewAction'
 import { EmptyState, MockNotice } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
@@ -20,12 +20,12 @@ import { useAllJobs } from '@pages/public/jobs/catalog'
 import { findAnyJob } from '@pages/public/jobs/lookup'
 import CurvedGallery from './gallery/CurvedGallery'
 import CriteriaDrawer from './CriteriaDrawer'
-import MatchArches from './MatchArches'
+import MatchSearchBar, { BarSelect, ChipReset, FilterMenu, LevelMenu } from './MatchSearchBar'
 import ReportButton from '@components/report/ReportButton'
 import MatchDetail from './MatchDetail'
 import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
-  BTN_PRIMARY, BTN_SECONDARY, filterByLevel, foldMatches, GalleryCaption, JobCard, LevelFilter, MatchFrame, NameSearch, Tabs, ViewToggle,
+  BTN_PRIMARY, BTN_SECONDARY, filterByLevel, foldMatches, GalleryCaption, JobCard, MatchFrame, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
 import {
@@ -51,6 +51,10 @@ function moveItem<T>(list: T[], from: number, to: number) {
 /** Chip nhỏ dưới ảnh ở Bộ sưu tập: chỉ hiện khi đối phương đã quan tâm hoặc đã kết nối */
 const chipOf = (status: string, receivedLabel: string) =>
   status === 'received' ? receivedLabel : status === 'connected' ? 'Đã kết nối' : undefined
+
+/** Mốc chip lương / khoảng cách ở thanh tìm */
+const SALARY_STEPS = [25, 30, 35, 40]
+const DISTANCE_STEPS = [3, 5, 10]
 
 const RANGE = `h-2 w-full cursor-pointer accent-page-fg ${FOCUS}`
 
@@ -120,7 +124,8 @@ export default function JobseekerMatch() {
     () => lists[tab].filter((x) => foldMatches([x.job.title, companyOf(x.job.companyId).name], query)),
     [lists, tab, query],
   )
-  const shown = gallery ? filterByLevel(current, level, (x) => x.outcome.score) : current
+  // Lọc theo mức phù hợp áp cho cả danh sách lẫn bộ sưu tập
+  const shown = filterByLevel(current, level, (x) => x.outcome.score)
   const detail = open ? scored.find((x) => x.job.id === open.id) : undefined
 
   // Sau khi đổi hạng bằng nút, trả focus về đúng nút vừa bấm (hàng đã đổi chỗ trong DOM)
@@ -220,51 +225,105 @@ export default function JobseekerMatch() {
     setAnnounce('Đã đặt lại thứ tự ưu tiên')
   }
 
+  // Chip đổi chính các tiêu chí chấm điểm (cùng state với ngăn Tiêu chí) nên danh sách tính lại ngay
+  const typesChanged = jobTypes.length !== base.jobTypes.length || jobTypes.some((t) => !base.jobTypes.includes(t))
+  const activeCount =
+    (query ? 1 : 0) + (level !== 'all' ? 1 : 0) + (salaryMinK !== base.salaryMinK ? 1 : 0) + (maxDistanceKm !== base.maxDistanceKm ? 1 : 0) + (typesChanged ? 1 : 0)
+  const dirty = activeCount > 0
+  const clearFilters = () => {
+    setQuery('')
+    setSalaryMinK(base.salaryMinK)
+    setMaxDistanceKm(base.maxDistanceKm)
+    setJobTypes(base.jobTypes)
+    setLevel('all')
+  }
+
   // Hàng điều khiển nằm giữa tablist và tabpanel
   const toolbar = (
-    <div className="mt-6 space-y-4 text-sm">
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <ViewToggle value={view} onChange={setView} />
-        <button
-          ref={criteriaBtn}
-          type="button"
-          aria-expanded={panelOpen}
-          aria-controls="match-criteria"
-          aria-haspopup="dialog"
-          onClick={() => setPanelOpen(true)}
-          className={cn(BTN_SECONDARY, '!px-3.5 !py-2')}
-        >
-          <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-          Tiêu chí
-        </button>
-        <NameSearch value={query} onChange={setQuery} label="Tìm theo tên việc hoặc công ty" placeholder="Tìm việc, công ty…" />
-        <div className="flex items-center gap-2">
-          <label htmlFor="match-sort" className="text-page-muted">Sắp xếp</label>
-          <select id="match-sort" value={sort} onChange={(e) => setSort(e.target.value as SortKey)}
-            className={`rounded-control border border-page-edge bg-page-surface px-3 py-2 text-page-fg ${FOCUS}`}>
-            <option value="score">Độ phù hợp</option>
-            <option value="salary">Lương cao</option>
-            <option value="distance">Gần nhất</option>
-          </select>
-        </div>
-      </div>
-      {gallery && (
-        <div className="flex justify-center">
-          <LevelFilter scores={current.map((x) => x.outcome.score)} value={level} onChange={setLevel} />
-        </div>
-      )}
+    <div className="mt-6 flex justify-center text-sm">
+      <ViewToggle value={view} onChange={setView} />
     </div>
   )
 
   return (
     <>
-    {gallery && <MatchArches />}
-    {/* relative z-10: nội dung nằm trên các khối vòm nền */}
     <div className="relative z-10">
     <MatchFrame
       title="Việc hợp với bạn, xếp theo điều bạn coi trọng"
       intro="Tiêu chí lấy sẵn từ hồ sơ. Đổi lương, khoảng cách hoặc thứ tự ưu tiên, danh sách tính lại ngay."
     >
+          <MatchSearchBar
+            query={query}
+            onQueryChange={setQuery}
+            placeholder="Tìm việc, công ty…"
+            searchLabel="Tìm theo tên việc hoặc công ty"
+            activeCount={activeCount}
+            segments={() => (
+              <BarSelect icon={<ArrowUpDown className="h-4 w-4" />} label="Sắp xếp" value={sort} onChange={(v) => setSort(v as SortKey)} className="sm:w-44">
+                <option value="score">Độ phù hợp</option>
+                <option value="salary">Lương cao</option>
+                <option value="distance">Gần nhất</option>
+              </BarSelect>
+            )}
+            action={(floating) => (
+              <button
+                ref={floating ? undefined : criteriaBtn}
+                type="button"
+                aria-expanded={panelOpen}
+                aria-controls="match-criteria"
+                aria-haspopup="dialog"
+                onClick={() => setPanelOpen(true)}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-page-fg px-6 py-2 text-sm font-medium text-page-bg transition-opacity duration-300 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-surface"
+              >
+                <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+                Tiêu chí
+              </button>
+            )}
+            chips={(floating) => (
+              <>
+                <FilterMenu
+                  glass={floating}
+                  multiple
+                  label={jobTypes.length === 0 ? 'Hình thức' : jobTypes.length === 1 ? (JOB_TYPES.find((t) => t.value === jobTypes[0])?.label ?? 'Hình thức') : `Hình thức · ${jobTypes.length}`}
+                  active={typesChanged}
+                  options={JOB_TYPES.map((t) => ({ value: t.value, label: t.label }))}
+                  selected={jobTypes}
+                  onSelect={(v) => toggleType(v as JobType)}
+                  footer={{ label: 'Theo hồ sơ', onClick: () => setJobTypes(base.jobTypes) }}
+                />
+                <FilterMenu
+                  glass={floating}
+                  label={`Lương từ ${salaryMinK}k`}
+                  active={salaryMinK !== base.salaryMinK}
+                  options={[
+                    { value: String(base.salaryMinK), label: `Theo hồ sơ · từ ${base.salaryMinK}k` },
+                    ...SALARY_STEPS.filter((k) => k !== base.salaryMinK).map((k) => ({ value: String(k), label: `Từ ${k}k` })),
+                  ]}
+                  selected={[String(salaryMinK)]}
+                  onSelect={(v) => setSalaryMinK(Number(v))}
+                />
+                <FilterMenu
+                  glass={floating}
+                  label={`Trong ${maxDistanceKm} km`}
+                  active={maxDistanceKm !== base.maxDistanceKm}
+                  options={[
+                    { value: String(base.maxDistanceKm), label: `Theo hồ sơ · ${base.maxDistanceKm} km` },
+                    ...DISTANCE_STEPS.filter((km) => km !== base.maxDistanceKm).map((km) => ({ value: String(km), label: `Trong ${km} km` })),
+                  ]}
+                  selected={[String(maxDistanceKm)]}
+                  onSelect={(v) => setMaxDistanceKm(Number(v))}
+                />
+                <LevelMenu glass={floating} scores={current.map((x) => x.outcome.score)} value={level} onChange={setLevel} />
+                {dirty && (
+                  <ChipReset glass={floating} onClick={clearFilters}>
+                    <X className="h-4 w-4" aria-hidden="true" />
+                    Đặt lại
+                  </ChipReset>
+                )}
+              </>
+            )}
+          />
+
           <Tabs
             center
             toolbar={toolbar}
@@ -326,7 +385,7 @@ export default function JobseekerMatch() {
               </div>
             ) : (
               <ul className="mx-auto max-w-3xl space-y-4">
-                {current.map(({ job, outcome }) => (
+                {shown.map(({ job, outcome }) => (
                   <li key={job.id}>
                     <JobCard job={job} outcome={outcome} actions={jobActions(job)} />
                   </li>
