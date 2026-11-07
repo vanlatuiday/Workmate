@@ -18,6 +18,7 @@ import RollText from '@components/motion/RollText'
 import { FOCUS } from '@utils/focus'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { isAuthPath } from '@pages/public/auth/authShared'
+import { scrollToHomeBanner } from '@components/home/IntroHero'
 
 /** Mục điều hướng theo người đang xem. Khách thấy lời mời trung lập cho cả hai phía;
     đã đăng nhập thì chỉ thấy lối tắt tới việc của vai trò mình. */
@@ -97,7 +98,7 @@ export default function PublicLayout() {
   // Đăng nhập / Đăng ký / Quên mật khẩu: toàn màn hình — ẩn header và footer, chỉ giữ logo nhỏ để về trang chủ
   const bare = isAuthPath(location.pathname)
   // Trang Cá nhân là "mặt bàn" tối → header/footer tối theo cho liền mạch
-  const chrome = location.pathname === '/ca-nhan' || location.pathname === '/ho-so' ? 'theme-charcoal' : 'theme-ivory'
+  const chrome = location.pathname === '/ca-nhan' ? 'theme-charcoal' : 'theme-ivory'
 
   // Đóng mọi menu khi chuyển trang
   useEffect(() => {
@@ -166,6 +167,10 @@ export default function PublicLayout() {
             {/* Logo */}
             <Link
               to="/"
+              // Đang ở trang chủ: cuộn mượt về banner thay vì tải lại trang
+              onClick={(e) => {
+                if (location.pathname === '/' && scrollToHomeBanner()) e.preventDefault()
+              }}
               data-brand-logo={dark ? '' : undefined}
               className={cn(
                 'justify-self-start flex items-center gap-2 font-display font-semibold text-xl tracking-tight text-page-fg rounded-control',
