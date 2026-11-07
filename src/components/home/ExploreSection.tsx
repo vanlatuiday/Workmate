@@ -82,7 +82,7 @@ export default function ExploreSection() {
   }, [recruiter, jobs, candidates, jobCopy, rcopy])
 
   return (
-    <section data-theme="ivory" className="shell pb-section" aria-labelledby="home-explore-title">
+    <section data-theme="ivory" className="relative z-10 shell pb-section" aria-labelledby="home-explore-title">
       <TextReveal
         id="home-explore-title"
         text={title}

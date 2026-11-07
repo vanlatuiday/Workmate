@@ -8,6 +8,7 @@ import { getSmoothScroll, scrollToY } from '@hooks/useSmoothScroll'
 import MaskedWords from '@components/motion/MaskedWords'
 import RollText from '@components/motion/RollText'
 import Magnetic from '@components/motion/Magnetic'
+import { useParticlesFailed } from '@components/motion/particleStatus'
 import { useAuthStore } from '@context/authStore'
 import { photoSrcSet, photoUrl } from '@components/discover/types'
 import { heroCopy, heroTags } from './content'
@@ -23,6 +24,26 @@ export type IntroHeroHandle = {
 
 /** Logo ở trạng thái intro rộng chừng này phần chiều ngang màn hình. */
 const INTRO_LOGO_WIDTH = { ratio: 0.5, max: 620, mobileRatio: 0.62 }
+
+/** Bề rộng (px) của logo ở trạng thái intro với màn hình rộng `vw` — dùng chung với lớp hạt. */
+export function introLogoWidth(vw: number) {
+  return Math.min(vw * (vw < 640 ? INTRO_LOGO_WIDTH.mobileRatio : INTRO_LOGO_WIDTH.ratio), INTRO_LOGO_WIDTH.max)
+}
+
+let webglOk: boolean | undefined
+/** Trình duyệt có WebGL không (kiểm tra đồng bộ, nhớ kết quả). Quyết định có dùng lớp hạt hay không. */
+export function supportsWebGL() {
+  if (webglOk === undefined) {
+    try {
+      const gl = document.createElement('canvas').getContext('webgl')
+      webglOk = !!gl
+      gl?.getExtension('WEBGL_lose_context')?.loseContext()
+    } catch {
+      webglOk = false
+    }
+  }
+  return webglOk
+}
 
 /** Thời gian (giây) trôi trọn qua intro khi lướt nhẹ. */
 const INTRO_GLIDE = 2.4
@@ -52,6 +73,8 @@ const fromBelowEase = (t: number) => 1 - Math.pow(1 - t, 4)
  */
 const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
   const reduced = useReducedMotion()
+  // Lớp hạt hỏng → dựng lại timeline với tween logo bay (logo header không bị ẩn)
+  const particlesFailed = useParticlesFailed()
   const wrapRef = useRef<HTMLElement>(null)
   const keywordRef = useRef<HTMLInputElement>(null)
   // Vị trí cuộn mà intro kết thúc — để focus/CTA nhảy thẳng tới
@@ -101,17 +124,17 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
         logo.style.transform = prev
         return rect
       }
-      const introScale = () => {
-        const vw = window.innerWidth
-        const ratio = vw < 640 ? INTRO_LOGO_WIDTH.mobileRatio : INTRO_LOGO_WIDTH.ratio
-        return Math.min(vw * ratio, INTRO_LOGO_WIDTH.max) / naturalRect().width
-      }
+      const introScale = () => introLogoWidth(window.innerWidth) / naturalRect().width
+      // Có lớp hạt (ParticleField): logo giữa màn hình do hạt ghép, logo header nằm yên
+      // và chỉ hiện dần khi hạt tan. Không có WebGL: logo thật bay từ giữa màn hình về header.
+      const particles = supportsWebGL() && !particlesFailed
 
       // Trạng thái ẩn ban đầu đặt bằng gsap.set, ngoài timeline. Nếu dùng fromTo bắt
       // đầu giữa timeline, mỗi lần ScrollTrigger refresh (đo lại layout) sẽ trả các
       // tween chưa tới lượt về trạng thái gốc → nav và hero hiện sẵn ngay ở intro.
       gsap.set('[data-hero-item]', { opacity: 0, y: 32 })
       gsap.set('[data-hero-title] [data-word]', { yPercent: 120, opacity: 0 })
+      if (particles) gsap.set(logo, { opacity: 0 })
 
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
@@ -135,21 +158,27 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
         },
       })
 
-      // 0 → 0.45: logo từ giữa màn hình về header.
+      // 0 → 0.45: logo từ giữa màn hình về header (bản không có hạt).
       // force3D: false — giữ transform 2D để trình duyệt vẽ lại chữ sắc nét ở
       // mỗi tỉ lệ; transform 3D sẽ phóng to một ảnh chụp cỡ nhỏ → logo bị mờ.
-      tl.fromTo(
-        logo,
-        {
-          x: () => window.innerWidth / 2 - (naturalRect().left + naturalRect().width / 2),
-          y: () => window.innerHeight / 2 - (naturalRect().top + naturalRect().height / 2),
-          scale: introScale,
-        },
-        { x: 0, y: 0, scale: 1, ease: 'power2.inOut', duration: 0.45, force3D: false },
-        0,
-      )
+      if (particles) {
+        // 0.3 → 0.45: logo header hiện dần khi hạt đã tan gần hết (cuộn ngược thì mờ đi)
+        tl.to(logo, { opacity: 1, duration: 0.15 }, 0.3)
+      } else {
+        tl.fromTo(
+          logo,
+          {
+            x: () => window.innerWidth / 2 - (naturalRect().left + naturalRect().width / 2),
+            y: () => window.innerHeight / 2 - (naturalRect().top + naturalRect().height / 2),
+            scale: introScale,
+          },
+          { x: 0, y: 0, scale: 1, ease: 'power2.inOut', duration: 0.45, force3D: false },
+          0,
+        )
+      }
+      tl
         .to('[data-scroll-hint]', { autoAlpha: 0, duration: 0.08 }, 0)
-        // Kết cấu WebGL chỉ thuộc về intro than chì — mờ đi trong lúc nền chuyển sang ngà
+        // Kết cấu WebGL chỉ thuộc về intro than chì — mờ đi khi cuộn khỏi intro (nền chỉ sáng nhẹ lên graphite, sang ngà khi phần 2 trượt lên)
         .to('[data-hero-canvas]', { opacity: 0, duration: 0.32 }, 0.08)
         // 0.38 → 0.9: nội dung hero
         .to(
@@ -179,18 +208,20 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
       const onFocusIn = (e: FocusEvent) => {
         if (!html.hasAttribute('data-intro')) return
         const target = e.target as Element
-        if (target.closest('[data-header-item], [data-hero-item]')) scrollToY(introEnd.current)
+        // Logo header cũng ẩn trong intro khi có lớp hạt
+        if (target.closest('[data-header-item], [data-hero-item], [data-brand-logo]')) scrollToY(introEnd.current)
       }
       document.addEventListener('focusin', onFocusIn)
 
       return () => {
         document.removeEventListener('focusin', onFocusIn)
         html.removeAttribute('data-intro')
+        if (particles) logo.style.opacity = ''
       }
     },
     // Đổi vai trò ngay trên trang chủ (đăng nhập/đăng xuất) → chữ hero được render lại thành
     // phần tử mới chưa bị giấu; dựng lại timeline để chúng cũng ẩn trong intro như lúc tải trang
-    { scope: wrapRef, dependencies: [reduced, audience], revertOnUpdate: true },
+    { scope: wrapRef, dependencies: [reduced, audience, particlesFailed], revertOnUpdate: true },
   )
 
   // Intro là MỘT khối: lướt nhẹ xuống là trôi một mạch tới hero, lướt lên từ hero là
@@ -313,19 +344,20 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
   return (
     <section
       ref={wrapRef}
-      // Intro nền than chì, hero nền ngà. Khi tắt chuyển động thì không có intro → ngà luôn.
+      // Intro nền than chì, sáng nhẹ lên graphite khi cuộn; chuyển sang ngà do phần 2 (data-theme ivory) lo khi trượt lên.
+      // Khi tắt chuyển động thì không có intro → ngà luôn.
       data-theme={reduced ? 'ivory' : 'charcoal'}
       aria-label="Tìm việc"
       // useHomeHeader: còn thấy khối này thì header chỉ có logo + nút menu
       data-home-hero
       className={reduced ? 'relative' : 'relative h-[200svh]'}
     >
-      {/* Mốc đổi nền than chì → ngà, chạy cùng lúc logo bay về header
-          (cuộn được 10% → 50% chiều cao màn hình). Xem useSectionThemes. */}
+      {/* Mốc đổi nền than chì → graphite (chỉ sáng lên nhẹ), chạy cùng lúc hạt tan
+          (cuộn được 10% → 50% chiều cao màn hình). Sang ngà do phần 2 lo. Xem useSectionThemes. */}
       {!reduced && (
         <div
           aria-hidden
-          data-theme="ivory"
+          data-theme="graphite"
           data-theme-start="top -10%"
           data-theme-end="top -50%"
           className="absolute inset-x-0 top-0 h-px"

@@ -29,7 +29,7 @@ export default function FinalCtaSection({ onFindJob }: Props) {
     'group inline-flex min-h-11 items-center gap-2 rounded-full bg-page-fg px-8 py-4 text-sm font-medium text-page-bg transition-opacity duration-300 hover:opacity-90'
 
   return (
-    <section data-theme="charcoal" className="shell py-section" aria-labelledby="home-final-title">
+    <section data-theme="charcoal" className="relative z-10 shell py-section" aria-labelledby="home-final-title">
       <TextReveal
         id="home-final-title"
         text={copy.title}

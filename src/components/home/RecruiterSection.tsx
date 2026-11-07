@@ -46,7 +46,7 @@ export default function RecruiterSection() {
   )
 
   return (
-    <section ref={ref} data-theme="ivory" className="shell pb-section" aria-labelledby="home-recruiter-title">
+    <section ref={ref} data-theme="ivory" className="relative z-10 shell pb-section" aria-labelledby="home-recruiter-title">
       <div ref={panelRef} className="grid overflow-hidden rounded-card bg-wm-charcoal text-wm-ivory md:grid-cols-2">
         <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-16">
           <TextReveal

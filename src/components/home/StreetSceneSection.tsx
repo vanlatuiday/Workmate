@@ -312,7 +312,7 @@ export default function StreetSceneSection() {
       data-theme="charcoal"
       data-theme-start="top 95%"
       data-theme-end="top 60%"
-      className="py-10 md:py-14"
+      className="relative z-10 py-10 md:py-14"
     >
       <div className="shell">
         <svg

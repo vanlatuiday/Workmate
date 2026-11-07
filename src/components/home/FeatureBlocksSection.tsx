@@ -226,10 +226,10 @@ export default function FeatureBlocksSection() {
   return (
     <section
       ref={ref}
-      data-theme="stone"
+      data-theme="ivory"
       data-theme-start="top 40%"
       data-theme-end="top 10%"
-      className="shell pt-section-sm pb-section-sm"
+      className="relative z-10 shell pt-section-sm pb-section-sm"
       aria-label={
         recruiter
           ? homeSectionsByRole.recruiter.blocksLabel

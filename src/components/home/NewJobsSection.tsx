@@ -315,8 +315,8 @@ export default function NewJobsSection() {
   return (
     <section
       ref={ref}
-      data-theme="stone"
-      className="overflow-hidden pt-section-sm pb-section-sm"
+      data-theme="ivory"
+      className="relative z-10 overflow-hidden pt-section-sm pb-section-sm"
       aria-labelledby="home-new-title"
     >
       <h2 id="home-new-title" className="sr-only">

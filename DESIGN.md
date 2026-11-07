@@ -12,6 +12,11 @@ colors:
   stone: "#D9D3C8"      # nền khu việc làm
   mist: "#E1DED5"       # bề mặt phụ (chỉ dùng có chủ đích)
   ivory: "#F3F0E9"      # nền sáng chính, chữ trên nền tối
+  lavender: "#A99CCB"   # màu nhấn: chỉ cho lớp hạt WebGL trang chủ (ParticleField)
+  ice: "#9FB7D6"        # màu nhấn (xanh băng nhạt): chỉ cho lớp hạt trang chủ
+  blush: "#D8A9A0"      # màu nhấn (hồng đào nhạt): chỉ cho lớp hạt trang chủ
+  violet: "#9B7BE0"     # màu nhấn (tím rõ): chỉ cho lớp hạt trang chủ
+  ember: "#E0705A"      # màu nhấn (đỏ cam ấm, rất ít): chỉ cho lớp hạt trang chủ
 
 # Màu theo ngữ cảnh — biến CSS, đổi theo section đang xem (Tailwind: *-page-*)
 semantic:
@@ -104,6 +109,13 @@ chuyển màu nền theo tiến trình cuộn.
 | `wm-stone` | `#D9D3C8` | Nền khu việc làm |
 | `wm-mist` | `#E1DED5` | Bề mặt phụ, chữ phụ trong menu |
 | `wm-ivory` | `#F3F0E9` | Nền sáng chính, chữ trên nền tối |
+| `wm-lavender` | `#A99CCB` | Màu nhấn, **chỉ** cho lớp hạt trang chủ (một phần hạt ánh tím). Không dùng cho chữ, nền, nút |
+| `wm-ice` | `#9FB7D6` | Màu nhấn xanh băng nhạt, **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
+| `wm-blush` | `#D8A9A0` | Màu nhấn hồng đào nhạt, **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
+| `wm-violet` | `#9B7BE0` | Màu nhấn tím rõ, **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
+| `wm-ember` | `#E0705A` | Màu nhấn đỏ cam ấm (rất ít hạt), **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
+
+Hạt màu chỉ hiện trên nền tối (intro, banner, section than chì/graphite); trên nền sáng hạt trở về đơn sắc theo màu chữ trang.
 
 Có sẵn dưới 3 dạng, cùng một nguồn `tokens.json`: class Tailwind `bg-wm-*`/`text-wm-*`,
 biến CSS `--wm-*`, và `THEMES` trong `useSectionThemes.ts`.

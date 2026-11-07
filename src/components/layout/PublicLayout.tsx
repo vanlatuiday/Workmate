@@ -413,7 +413,9 @@ export default function PublicLayout() {
       {/* Footer (ẩn ở các trang đăng nhập toàn màn hình) */}
       {!bare && (
       <footer className={cn('border-t bg-page-bg border-page-line', !dark && chrome)}>
-        <div className="shell py-section-sm">
+        {/* relative z-10: chữ footer nằm trên lớp hạt của trang chủ (canvas z-[5]); nền footer
+            không positioned nên vẫn nằm dưới hạt */}
+        <div className="shell py-section-sm relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">
               <Link
