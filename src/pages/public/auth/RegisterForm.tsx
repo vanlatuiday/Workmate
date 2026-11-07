@@ -3,15 +3,15 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import { Building2, KeyRound, Lock, Mail, Search, User } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { useAdmin } from '@services/adminService'
-import { buildDemoUser, getDemoAccountByRole } from '@constants/demoAccounts'
+import { apiErrorMessage, authService } from '@services/authService'
 import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
 import { AuthField, ErrorBox, Item, ShowPassButton, Stagger, SubmitButton, TEXT_LINK } from './shared'
 import { AUTH_PATHS, useFocusFirst, type AuthFormProps } from './authShared'
 
 /*
- * Đăng ký — chưa có backend nên sau khi gửi form sẽ đăng nhập vào tài khoản demo
- * tương ứng vai trò (xem constants/demoAccounts.ts). Là nửa "form" của AuthPage.
+ * Đăng ký — gọi backend thật (authService.register), thành công thì đăng nhập luôn.
+ * Là nửa "form" của AuthPage.
  */
 type Role = 'jobseeker' | 'recruiter'
 
@@ -36,7 +36,6 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
   const root = useRef<HTMLDivElement>(null)
   useFocusFirst(root, focus)
 
-  const demo = getDemoAccountByRole(role)
   // Quản trị viên có thể tạm dừng đăng ký (Cấu hình hệ thống)
   const registrationOpen = useAdmin((s) => s.config.registrationOpen)
 
@@ -50,11 +49,18 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
     }
     setError('')
     setLoading(true)
-    // TODO: thay bằng authService.register khi có backend. Tạm thời vào tài khoản demo.
-    await new Promise((r) => setTimeout(r, 600))
+    let res
+    try {
+      res = (await authService.register({ email: form.email.trim(), password: form.password, role, name: form.fullName.trim() })).data
+    } catch (err) {
+      setError(apiErrorMessage(err, 'Không tạo được tài khoản, vui lòng thử lại.'))
+      setLoading(false)
+      shake()
+      return
+    }
     // Thẻ mờ đi xong mới đổi trang
     await leave()
-    setUser(buildDemoUser(demo), 'mock-token')
+    setUser(res.user, res.token)
     navigate('/')
   }
 
@@ -175,11 +181,6 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
           <p className="text-xs text-page-muted">
             Bằng cách đăng ký, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật.
           </p>
-          {/* DEMO-ONLY: xóa khi có backend — ghi chú về tài khoản demo (bắt đầu) */}
-          <p className="mt-1.5 text-xs text-page-muted">
-            Bản demo: tài khoản sẽ vào {demo.label.toLowerCase()} ({demo.username}), chưa lưu thông tin bạn nhập.
-          </p>
-          {/* DEMO-ONLY: xóa khi có backend — ghi chú về tài khoản demo (kết thúc) */}
         </Item>
 
         <Item className="mt-3">

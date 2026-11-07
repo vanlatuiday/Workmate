@@ -1,29 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Info, KeyRound, Lock, User } from 'lucide-react'
-import { findDemoAccountByIdentifier, setDemoPassword, type DemoAccount } from '@constants/demoAccounts'
+import { apiErrorMessage, authService } from '@services/authService'
 import { AuthField, ErrorBox, Item, LINK_BTN, PRIMARY, ShowPassButton, Stagger, SubmitButton, TEXT_LINK } from './shared'
 import { AUTH_PATHS, useFocusFirst, type AuthFormProps } from './authShared'
 
 /*
  * Quên mật khẩu — 3 bước trong một form: nhập tài khoản → nhập mã + mật khẩu mới → xong.
  * Là nửa "form" của AuthPage (cùng thẻ kính với Đăng nhập / Đăng ký).
- * TẠM THỜI chạy hoàn toàn ở trình duyệt: mã 6 số sinh ngẫu nhiên và hiện ngay trên trang
- * (chưa có email thật). Khi có backend, thay bằng authService.forgotPassword / resetPassword.
+ * Gọi backend thật (authService.forgotPassword / resetPassword). Chưa có email thật nên ở môi trường
+ * phát triển máy chủ trả kèm `devCode` và trang hiện mã ngay (khối DEMO-ONLY bên dưới).
  */
 type Step = 'request' | 'verify' | 'done'
 const RESEND_SECONDS = 30
 const TITLES: Record<Step, string> = { request: 'Quên mật khẩu', verify: 'Nhập mã xác nhận', done: 'Đã đặt lại mật khẩu' }
 
-const newCode = () => String(Math.floor(100000 + Math.random() * 900000))
-
 export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
   const [step, setStep] = useState<Step>('request')
   const [identifier, setIdentifier] = useState('')
-  // Tài khoản khớp (undefined nếu không tồn tại — vẫn sang bước sau để không lộ thông tin)
-  const [account, setAccount] = useState<DemoAccount | undefined>()
+  // DEMO-ONLY: mã do máy chủ trả về khi chưa có email (không có nếu tài khoản không tồn tại hoặc máy chủ chạy production)
+  const [devCode, setDevCode] = useState('')
   const [code, setCode] = useState('')
-  const [sentCode, setSentCode] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [showPass, setShowPass] = useState(false)
@@ -53,21 +50,31 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
     }
     setError('')
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 600)) // độ trễ giả
-    const found = findDemoAccountByIdentifier(identifier)
-    setAccount(found)
-    setSentCode(found ? newCode() : '')
+    try {
+      const res = await authService.forgotPassword(identifier.trim())
+      setDevCode(res.data.devCode ?? '')
+    } catch (err) {
+      setError(apiErrorMessage(err))
+      setLoading(false)
+      shake()
+      return
+    }
     setCode(''); setPassword(''); setConfirm(''); setErrs({})
     setCooldown(RESEND_SECONDS)
     setLoading(false)
     setStep('verify')
   }
 
-  const resend = () => {
-    if (cooldown > 0) return
-    if (account) setSentCode(newCode())
+  const resend = async () => {
+    if (cooldown > 0 || loading) return
     setCode(''); setErrs({}); setError('')
     setCooldown(RESEND_SECONDS)
+    try {
+      const res = await authService.forgotPassword(identifier.trim())
+      setDevCode(res.data.devCode ?? '')
+    } catch (err) {
+      setError(apiErrorMessage(err))
+    }
   }
 
   const backToRequest = () => {
@@ -91,14 +98,14 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
       return
     }
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 600))
-    if (!account || code !== sentCode) {
-      setError('Mã không đúng hoặc đã hết hạn.')
+    try {
+      await authService.resetPassword(identifier.trim(), code, password)
+    } catch (err) {
+      setError(apiErrorMessage(err, 'Mã không đúng hoặc đã hết hạn.'))
       setLoading(false)
       shake()
       return
     }
-    setDemoPassword(account.username, password)
     setLoading(false)
     setStep('done')
   }
@@ -147,12 +154,12 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
             </Item>
 
             {/* DEMO-ONLY: xóa khi có backend — hiện mã ngay trên trang vì chưa có email thật (bắt đầu).
-                Chỉ hiện khi tài khoản có thật — nếu hiện cho mọi trường hợp thì chẳng còn gì để giấu */}
-            {account && (
+                Chỉ hiện khi máy chủ trả devCode (tài khoản có thật, không phải production) */}
+            {devCode && (
               <Item className="mt-3">
                 <div className="flex items-start gap-3 rounded-card border border-dashed border-page-line bg-page-surface p-3 text-sm text-page-muted">
                   <Info className="w-5 h-5 shrink-0" aria-hidden />
-                  <p>Bản demo (chưa có email thật): mã của bạn là <strong className="font-semibold text-page-fg tabular-nums tracking-widest">{sentCode}</strong></p>
+                  <p>Bản demo (chưa có email thật): mã của bạn là <strong className="font-semibold text-page-fg tabular-nums tracking-widest">{devCode}</strong></p>
                 </div>
               </Item>
             )}
@@ -226,7 +233,7 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
               <p className="text-base text-page-muted mt-3" role="status">Mật khẩu mới đã có hiệu lực. Hãy đăng nhập lại bằng mật khẩu này.</p>
             </Item>
             <Item className="mt-6">
-              <Link to={AUTH_PATHS.login} state={{ username: account?.username }} className={PRIMARY}>
+              <Link to={AUTH_PATHS.login} state={{ username: identifier.trim() }} className={PRIMARY}>
                 Đến trang đăng nhập
               </Link>
             </Item>

@@ -6,6 +6,10 @@ export interface User {
   email: string
   role: UserRole
   createdAt: string
+  /** Tên đăng nhập (tài khoản demo); đăng ký mới có thể không có */
+  username?: string | null
+  /** Họ tên người tìm việc / tên công ty / 'Quản trị viên' */
+  displayName?: string
 }
 
 // ─── Jobseeker ───────────────────────────────────────────────────────────────

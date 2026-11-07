@@ -16,9 +16,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    // 401 từ chính các form đăng nhập/đăng ký là "sai thông tin", không phải hết phiên:
+    // để form tự hiện lỗi. Đang ở trang đăng nhập rồi thì không chuyển trang nữa (tránh vòng lặp).
+    const url: string = err.config?.url ?? ''
+    const isAuthForm = /^\/auth\/(login|register|forgot-password|reset-password)/.test(url)
+    if (err.response?.status === 401 && !isAuthForm) {
       useAuthStore.getState().logout()
-      window.location.href = '/dang-nhap'
+      if (window.location.pathname !== '/dang-nhap') window.location.href = '/dang-nhap'
     }
     return Promise.reject(err)
   },

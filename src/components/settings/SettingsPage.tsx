@@ -7,7 +7,7 @@ import { useProfileStore } from '@context/profileStore'
 import { useAuthStore } from '@context/authStore'
 import type { Side } from '@context/demoStore'
 import { isNotifyOn, useSettingsStore, type EmailDigest, type NotificationKind, type ProfileVisibility } from '@context/settingsStore'
-import { clearPasswordOverrides, findDemoAccountByIdentifier, getEffectivePassword, setDemoPassword } from '@constants/demoAccounts'
+import { apiErrorMessage, authService } from '@services/authService'
 import { resetDemoData } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -127,26 +127,30 @@ export default function SettingsPage({ side }: { side: Side }) {
 
   const saved = () => toast.success('Đã lưu', { duration: 1500 })
 
-  const changePassword = (e: FormEvent) => {
+  const changePassword = async (e: FormEvent) => {
     e.preventDefault()
-    // Tài khoản demo đang đăng nhập (tên đăng nhập = phần trước @ của email)
-    const account = findDemoAccountByIdentifier(user?.email.split('@')[0] ?? '')
     const v = {
-      cur: !cur ? 'Vui lòng nhập mật khẩu hiện tại.' : account && cur !== getEffectivePassword(account) ? 'Mật khẩu hiện tại chưa đúng.' : undefined,
+      cur: !cur ? 'Vui lòng nhập mật khẩu hiện tại.' : undefined,
       next: next.length >= 6 ? undefined : 'Mật khẩu mới cần ít nhất 6 ký tự.',
       again: again === next ? undefined : 'Mật khẩu nhập lại chưa khớp.',
     }
     setErrs(v)
     if (v.cur || v.next || v.again) return
+    try {
+      await authService.changePassword(cur, next)
+    } catch (err) {
+      // Máy chủ báo "Mật khẩu hiện tại chưa đúng" thì gắn vào ô tương ứng
+      const msg = apiErrorMessage(err)
+      setErrs({ cur: msg.startsWith('Mật khẩu hiện tại') ? msg : undefined, next: msg.startsWith('Mật khẩu hiện tại') ? undefined : msg })
+      return
+    }
     setCur(''); setNext(''); setAgain('')
-    if (account) setDemoPassword(account.username, next)
     toast.success('Đã đổi mật khẩu')
   }
 
   const deleteAccount = () => {
     useSettingsStore.getState().reset()
     resetDemoData()
-    clearPasswordOverrides()
     useProfileStore.getState().reset()
     logout()
     navigate('/')
@@ -205,7 +209,7 @@ export default function SettingsPage({ side }: { side: Side }) {
 
         <Section title="Dữ liệu demo">
           <p className="mb-4 text-sm text-page-muted">Đưa hồ sơ người tìm việc, kết nối, tin nhắn, thông báo và lịch phỏng vấn về trạng thái ban đầu.</p>
-          <button type="button" className={BTN_LINE} onClick={() => { resetDemoData(); clearPasswordOverrides(); useProfileStore.getState().reset(); toast.success('Đã đặt lại dữ liệu demo') }}>Đặt lại dữ liệu demo</button>
+          <button type="button" className={BTN_LINE} onClick={() => { resetDemoData(); useProfileStore.getState().reset(); toast.success('Đã đặt lại dữ liệu demo') }}>Đặt lại dữ liệu demo</button>
         </Section>
 
         <Section title="Vùng nguy hiểm">

@@ -2,7 +2,8 @@ import { useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Building2, Lock, Search, ShieldCheck, User } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
-import { DEMO_ACCOUNTS, buildDemoUser, findDemoAccount, getEffectivePassword } from '@constants/demoAccounts'
+import { DEMO_ACCOUNTS } from '@constants/demoAccounts'
+import { apiErrorMessage, authService } from '@services/authService'
 import { canVisit } from '@constants/roles'
 import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
@@ -10,7 +11,7 @@ import { AuthField, ErrorBox, Item, ShowPassButton, Stagger, SubmitButton, TEXT_
 import { AUTH_PATHS, useFocusFirst, type AuthFormProps } from './authShared'
 
 /*
- * Đăng nhập — tạm dùng 3 tài khoản demo (xem constants/demoAccounts.ts).
+ * Đăng nhập — gọi backend thật (authService.login); chỉ còn 3 nút đăng nhập nhanh là của bản demo.
  * Là nửa "form" của AuthPage; thẻ kính, tiêu đề lớn bên kia và chuyển động do AuthPage lo.
  */
 
@@ -35,23 +36,23 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
   const root = useRef<HTMLDivElement>(null)
   useFocusFirst(root, focus)
 
-  // TODO: thay bằng authService.login khi có backend
   const login = async (username: string, password: string) => {
     setError('')
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 600)) // độ trễ giả
-    const account = findDemoAccount(username, password)
-    if (!account) {
-      setError('Tên đăng nhập hoặc mật khẩu không đúng.')
+    let res
+    try {
+      res = (await authService.login(username.trim(), password)).data
+    } catch (err) {
+      setError(apiErrorMessage(err, 'Không đăng nhập được, vui lòng thử lại.'))
       setLoading(false)
       shake()
       return
     }
     // Thẻ mờ đi xong mới đổi trang
     await leave()
-    setUser(buildDemoUser(account), 'mock-token')
+    setUser(res.user, res.token)
     // Quay lại trang đang xem dở nếu vai trò này được vào; còn lại về trang chủ (khu làm việc chỉ là nơi tổng hợp)
-    navigate(from && canVisit(account.role, from) ? from : '/', { replace: true })
+    navigate(from && canVisit(res.user.role, from) ? from : '/', { replace: true })
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -122,7 +123,7 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
           <div role="group" aria-label="Đăng nhập nhanh bằng tài khoản demo" className="flex flex-wrap items-center justify-center gap-2">
             {DEMO_ACCOUNTS.map((acc) => {
               const Icon = DEMO_ICONS[acc.role]
-              const password = getEffectivePassword(acc)
+              const password = acc.password
               return (
                 <button
                   key={acc.username}

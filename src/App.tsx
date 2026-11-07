@@ -1,6 +1,8 @@
-import { lazy } from 'react'
+import { lazy, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Messenger from '@components/messenger/Messenger'
+import { useAuthStore } from '@context/authStore'
+import { authService } from '@services/authService'
 
 // Layouts
 import PublicLayout from '@components/layout/PublicLayout'
@@ -70,6 +72,15 @@ const AdminConfig = lazy(() => import('@pages/admin/Config'))
 import ProtectedRoute from '@components/common/ProtectedRoute'
 
 export default function App() {
+  // Có token lưu sẵn: hỏi máy chủ một lần để làm mới thông tin người dùng (token hỏng/hết hạn → interceptor tự đăng xuất)
+  useEffect(() => {
+    if (!useAuthStore.getState().token) return
+    authService.me().then((res) => {
+      const { token, setUser } = useAuthStore.getState()
+      if (token) setUser(res.data, token)
+    }).catch(() => { /* 401 đã được xử lý ở interceptor; lỗi mạng thì giữ thông tin cũ */ })
+  }, [])
+
   return (
     <>
     <Routes>
