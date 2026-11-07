@@ -17,7 +17,7 @@ type Props = {
 /** Ô số liệu tổng quan (số lớn + nhãn). Dùng trong lưới ở trang Tổng quan. */
 export default function StatCard({ label, value, icon: Icon, href, hint }: Props) {
   const className = cn(
-    'block rounded-card border border-page-line bg-page-surface p-5 md:p-6',
+    'glass-card block rounded-card p-5 md:p-6',
     href && cn('transition-colors duration-300 hover:border-page-fg', FOCUS),
   )
   const body = (

@@ -18,5 +18,10 @@ const navItems = [
 ]
 
 export default function AdminLayout() {
-  return <DashboardShell navItems={navItems} roleLabel="Quản trị viên" homeHref="/admin" />
+  return (
+    <DashboardShell
+      navItems={navItems} roleLabel="Quản trị viên" homeHref="/admin"
+      background={{ id: '1497215842964-222b430dc094' }}
+    />
+  )
 }

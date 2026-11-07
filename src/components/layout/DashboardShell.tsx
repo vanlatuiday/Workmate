@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { Suspense, useEffect, useRef, useState } from 'react'
-import { Briefcase, Bell, LogOut, Menu, X, ChevronRight, type LucideIcon } from 'lucide-react'
+import { Suspense, useEffect, useRef, useState, type FormEvent } from 'react'
+import { Briefcase, Bell, LogOut, Menu, X, ChevronRight, Search, type LucideIcon } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { useUnreadCount } from '@services/connectionService'
 import { cn } from '@utils/cn'
@@ -21,12 +21,20 @@ type ShellProps = {
   roleLabel: string
   /** Đường dẫn trang Tổng quan — chỉ sáng khi khớp chính xác */
   homeHref: string
+  /** Ảnh nền Unsplash (chỉ phần id sau "photo-") — trang trí, theo vai trò */
+  background: { id: string }
+  /** Có = hiện ô tìm kiếm ở thanh trên; trả về URL đích khi gửi. Không truyền = ẩn ô */
+  searchHref?: (q: string) => string
+  searchPlaceholder?: string
 }
+
+/** Chỉ phần cần cho thanh bên / rail */
+type NavProps = Pick<ShellProps, 'navItems' | 'roleLabel' | 'homeHref'>
 
 
 const ITEM = 'flex w-full items-center gap-3 rounded-control px-3 py-2.5 text-sm transition-colors duration-300'
 
-type SidebarProps = ShellProps & {
+type SidebarProps = NavProps & {
   pathname: string
   /** Có = đang là drawer mobile */
   onClose?: () => void
@@ -38,7 +46,7 @@ function isActive(pathname: string, href: string, homeHref: string) {
   return pathname === href || pathname.startsWith(href + '/')
 }
 
-/** Thanh bên theme tối. Khai báo ở cấp file (không lồng trong component khác) để không bị remount. */
+/** Thanh bên có nhãn (theme tối) — chỉ dùng trong drawer mobile/tablet. Khai báo ở cấp file (không lồng trong component khác) để không bị remount. */
 function Sidebar({ navItems, roleLabel, homeHref, pathname, onClose }: SidebarProps) {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
@@ -49,7 +57,7 @@ function Sidebar({ navItems, roleLabel, homeHref, pathname, onClose }: SidebarPr
   }
 
   return (
-    <aside className="theme-charcoal flex h-full w-full flex-col">
+    <aside className="theme-charcoal flex h-full w-full flex-col border-r border-page-line">
       {/* Logo */}
       <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-page-line px-5">
         <Link to="/" className={cn('flex items-center gap-2 rounded-control font-display text-lg font-semibold', FOCUS)}>
@@ -131,6 +139,88 @@ function Sidebar({ navItems, roleLabel, homeHref, pathname, onClose }: SidebarPr
   )
 }
 
+const ICON_BTN =
+  'relative flex h-11 w-11 items-center justify-center rounded-full transition-colors duration-300'
+
+/** Tooltip CSS thuần: hiện bên phải khi hover hoặc focus bàn phím của phần tử cha (class group). */
+function RailTip({ children }: { children: string }) {
+  return (
+    <span
+      role="presentation"
+      className={cn(
+        'pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-control',
+        'border border-wm-ivory/20 bg-wm-charcoal px-3 py-1.5 text-xs font-medium text-wm-ivory',
+        'opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none',
+      )}
+    >
+      {children}
+    </span>
+  )
+}
+
+/**
+ * Thanh icon nổi bên trái (chỉ lg+). Tooltip cần tràn ra ngoài rail nên nav KHÔNG đặt overflow
+ * bình thường; chỉ khi màn hình thấp (<720px) mới cho cuộn dọc — lúc đó tooltip bị cắt
+ * (vẫn còn aria-label) vì overflow-y khác visible buộc overflow-x cũng bị cắt.
+ */
+function Rail({ navItems, homeHref, pathname }: Omit<NavProps, 'roleLabel'> & { pathname: string }) {
+  const navigate = useNavigate()
+  const logout = useAuthStore((s) => s.logout)
+  const handleLogout = () => {
+    logout()
+    navigate('/dang-nhap')
+  }
+  const idle = 'text-page-muted hover:bg-page-surface hover:text-page-fg'
+
+  return (
+    <aside className="glass-card relative z-30 flex h-full w-[72px] flex-col items-center rounded-full py-3">
+      <Link to="/" aria-label="Workmate — về trang chủ" className={cn('group', ICON_BTN, idle, FOCUS)}>
+        <Briefcase className="h-5 w-5" aria-hidden="true" />
+        <RailTip>Workmate</RailTip>
+      </Link>
+      <nav
+        aria-label="Menu chính"
+        className="mt-2 flex min-h-0 flex-1 flex-col items-center gap-1 [@media(max-height:719px)]:overflow-y-auto"
+      >
+        {navItems.map(({ label, href, icon: Icon, badge }) => {
+          const active = isActive(pathname, href, homeHref)
+          return (
+            <Link
+              key={href}
+              to={href}
+              aria-label={badge ? `${label} (${badge})` : label}
+              aria-current={active ? 'page' : undefined}
+              className={cn('group flex-shrink-0', ICON_BTN, active ? 'bg-page-fg text-page-bg' : idle, FOCUS)}
+            >
+              <Icon className="h-5 w-5" aria-hidden="true" />
+              {badge && (
+                <span
+                  className={cn(
+                    'absolute right-2 top-2 h-2 w-2 rounded-full border',
+                    active ? 'border-page-bg bg-page-bg' : 'border-page-bg bg-page-fg',
+                  )}
+                  aria-hidden="true"
+                />
+              )}
+              <RailTip>{label}</RailTip>
+            </Link>
+          )
+        })}
+      </nav>
+      <div className="mt-2 flex flex-col items-center gap-1 border-t border-page-line pt-2">
+        <Link to="/" aria-label="Về trang chủ" className={cn('group', ICON_BTN, idle, FOCUS)}>
+          <ChevronRight className="h-5 w-5" aria-hidden="true" />
+          <RailTip>Về trang chủ</RailTip>
+        </Link>
+        <button type="button" onClick={handleLogout} aria-label="Đăng xuất" className={cn('group', ICON_BTN, idle, FOCUS)}>
+          <LogOut className="h-5 w-5" aria-hidden="true" />
+          <RailTip>Đăng xuất</RailTip>
+        </button>
+      </div>
+    </aside>
+  )
+}
+
 /** Vạch tiến trình mảnh trên cùng khi trang đang tải (chỉ hiện nếu tải lâu hơn ~150ms) */
 function LoadingBar() {
   return (
@@ -141,16 +231,29 @@ function LoadingBar() {
 }
 
 /**
- * Khung dùng chung cho 3 dashboard: thanh bên tối + thanh trên và vùng nội dung theme ngà.
+ * Khung dùng chung cho 3 dashboard ("kính"): ảnh nền nội thất + rail icon nổi bên trái (lg+) +
+ * thanh trên trong suốt + thẻ kính. Dưới lg dùng drawer có nhãn.
  * Dashboard yên tĩnh: chỉ transition màu, drawer mobile trượt và nội dung hiện dần khi đổi trang
  * (tắt khi giảm chuyển động).
  */
-export default function DashboardShell({ navItems, roleLabel, homeHref }: ShellProps) {
+export default function DashboardShell({ navItems, roleLabel, homeHref, background, searchHref, searchPlaceholder }: ShellProps) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const location = useLocation()
   const mainRef = useRef<HTMLElement>(null)
   // Chấm trên chuông: chỉ hiện khi có thông báo chưa đọc của vai trò đang đăng nhập
-  const role = useAuthStore((s) => s.user?.role)
+  const user = useAuthStore((s) => s.user)
+  const role = user?.role
+  const navigate = useNavigate()
+  const [query, setQuery] = useState('')
+  const initial = (user?.email?.[0] ?? 'U').toUpperCase()
+  // Avatar dẫn tới trang cài đặt/hồ sơ của vai trò nếu có trong menu
+  const settingsHref = navItems.find((n) => n.href.endsWith('/cai-dat'))?.href
+  const onSearch = (e: FormEvent) => {
+    e.preventDefault()
+    const q = query.trim()
+    if (searchHref && q) navigate(searchHref(q))
+  }
+  const bgUrl = `https://images.unsplash.com/photo-${background.id}`
   const unreadSeeker = useUnreadCount('seeker')
   const unreadRecruiter = useUnreadCount('recruiter')
   const hasUnread = (role === 'jobseeker' ? unreadSeeker : role === 'recruiter' ? unreadRecruiter : 0) > 0
@@ -169,7 +272,18 @@ export default function DashboardShell({ navItems, roleLabel, homeHref }: ShellP
   const sidebarProps = { navItems, roleLabel, homeHref, pathname: location.pathname }
 
   return (
-    <div className="theme-ivory flex h-screen overflow-hidden">
+    <div className="theme-glass relative isolate flex h-screen overflow-hidden bg-wm-charcoal">
+      {/* Ảnh nền trang trí + lớp phủ than chì đặc (không gradient) để chữ luôn dễ đọc */}
+      <img
+        src={`${bgUrl}?w=1920&q=70&auto=format&fit=crop`}
+        srcSet={`${bgUrl}?w=800&q=70&auto=format&fit=crop 800w, ${bgUrl}?w=1920&q=70&auto=format&fit=crop 1920w`}
+        sizes="100vw"
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 -z-20 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 -z-10 bg-wm-charcoal/75" aria-hidden="true" />
+
       <a
         href="#dashboard-main"
         className={cn(
@@ -181,9 +295,9 @@ export default function DashboardShell({ navItems, roleLabel, homeHref }: ShellP
         Bỏ qua tới nội dung
       </a>
 
-      {/* Thanh bên desktop */}
-      <div className="hidden w-64 flex-shrink-0 lg:block">
-        <Sidebar {...sidebarProps} />
+      {/* Rail icon nổi (desktop) */}
+      <div className="hidden flex-shrink-0 p-4 pr-0 lg:block">
+        <Rail navItems={navItems} homeHref={homeHref} pathname={location.pathname} />
       </div>
 
       {/* Drawer mobile: luôn có trong DOM để trượt mượt; lúc đóng thì ẩn khỏi bàn phím/trình đọc màn hình */}
@@ -209,30 +323,75 @@ export default function DashboardShell({ navItems, roleLabel, homeHref }: ShellP
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {/* Thanh trên */}
-        <header className="flex h-16 flex-shrink-0 items-center justify-between border-b border-page-line bg-page-bg px-4 md:px-8">
+        {/* Thanh trên trong suốt: nhãn vai trò · tìm kiếm · chuông + avatar.
+            Căn cùng bề ngang max-w-6xl với nội dung để mép trái thẳng hàng tiêu đề trang;
+            lời chào đã có ở tiêu đề từng trang nên không lặp ở đây. */}
+        <header className="flex h-16 flex-shrink-0 items-center px-4 md:h-20 md:px-8">
+          <div className="mx-auto flex w-full max-w-6xl items-center gap-3 md:gap-6">
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
             aria-label="Mở menu"
             aria-expanded={drawerOpen}
-            className={cn('rounded-control p-2 transition-colors duration-300 hover:bg-page-surface lg:hidden', FOCUS)}
+            className={cn('rounded-full p-2.5 transition-colors duration-300 hover:bg-page-surface lg:hidden', FOCUS)}
           >
             <Menu className="h-5 w-5" aria-hidden="true" />
           </button>
-          <div className="flex-1" />
-          <Link
-            to="/thong-bao"
-            aria-label={hasUnread ? 'Thông báo (có thông báo chưa đọc)' : 'Thông báo'}
-            className={cn('relative rounded-control p-2 transition-colors duration-300 hover:bg-page-surface', FOCUS)}
-          >
-            <Bell className="h-5 w-5" aria-hidden="true" />
-            {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-page-fg" aria-hidden="true" />}
-          </Link>
+          <div className="min-w-0 md:w-56 md:flex-shrink-0">
+            <span className="glass-card inline-flex max-w-full items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
+              <Briefcase className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+              <span className="truncate">{roleLabel}</span>
+            </span>
+          </div>
+          {searchHref ? (
+            <form role="search" onSubmit={onSearch} className="mx-auto hidden w-full max-w-md md:block">
+              <label className="glass-card relative flex items-center rounded-full">
+                <span className="sr-only">Tìm kiếm</span>
+                <Search className="pointer-events-none absolute left-4 h-4 w-4 text-page-muted" aria-hidden="true" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={searchPlaceholder ?? 'Tìm kiếm…'}
+                  className={cn('w-full rounded-full bg-transparent py-2.5 pl-11 pr-4 text-sm text-page-fg placeholder:text-page-muted', FOCUS)}
+                />
+              </label>
+            </form>
+          ) : (
+            <div className="hidden flex-1 md:block" />
+          )}
+          <div className="ml-auto flex items-center gap-2 md:ml-0">
+            <Link
+              to="/thong-bao"
+              aria-label={hasUnread ? 'Thông báo (có thông báo chưa đọc)' : 'Thông báo'}
+              className={cn('glass-card relative flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-300 hover:border-page-fg', FOCUS)}
+            >
+              <Bell className="h-5 w-5" aria-hidden="true" />
+              {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-page-fg" aria-hidden="true" />}
+            </Link>
+            {settingsHref ? (
+              <Link
+                to={settingsHref}
+                aria-label={`Tài khoản ${user?.email ?? ''} — mở cài đặt`}
+                className={cn('flex h-10 w-10 items-center justify-center rounded-full bg-page-fg text-sm font-medium text-page-bg', FOCUS)}
+              >
+                {initial}
+              </Link>
+            ) : (
+              <span
+                role="img"
+                aria-label={`Tài khoản ${user?.email ?? ''}`}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-page-fg text-sm font-medium text-page-bg"
+              >
+                {initial}
+              </span>
+            )}
+          </div>
+          </div>
         </header>
 
         {/* Nội dung */}
-        <main id="dashboard-main" ref={mainRef} className="relative flex-1 overflow-y-auto p-4 md:p-8">
+        <main id="dashboard-main" ref={mainRef} className="relative flex-1 overflow-y-auto px-4 pb-4 pt-2 md:px-8 md:pb-8">
           {/* Trang được tải theo nhu cầu (xem App.tsx). RouteScroll nằm cùng Suspense
               để chỉ đặt vị trí cuộn khi nội dung trang đã có. */}
           <Suspense fallback={<LoadingBar />}>

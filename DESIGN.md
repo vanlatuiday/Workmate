@@ -211,6 +211,11 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
 
 **Không nên**
 - Thêm màu nhấn bão hòa (cam, đỏ, xanh lá, tím…), gradient màu, glow, glassmorphism, bóng đổ nặng.
+  **Ngoại lệ (2026-11-07, chủ dự án duyệt):** khung dashboard 3 vai trò dùng kính mờ trên nền ảnh
+  theo `references/p10.mp4` — `.theme-glass` + `.glass-card` (`styles/index.css`), ảnh nền riêng
+  từng vai trò, lớp phủ than chì đặc. Vẫn giữ bảng màu charcoal/ivory, không màu nhấn, không glow,
+  không bóng ngoài; có phương án đặc khi trình duyệt không hỗ trợ blur hoặc `prefers-reduced-transparency`.
+  Kính mờ chỉ dùng trong dashboard, không đưa ra trang công khai.
 - Dùng `#000` / `#fff` tuyệt đối.
 - Viết hex trực tiếp trong component — thêm vào `tokens.json` nếu thật sự cần màu mới.
 - Đánh số 01/02/03 cho nội dung không phải trình tự thật.
