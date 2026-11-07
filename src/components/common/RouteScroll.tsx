@@ -8,6 +8,17 @@ type Props = {
 
 const STORAGE_KEY = 'wm:scroll-positions'
 
+/**
+ * Trang mới muốn mở ở vị trí khác đầu trang (vd. trang chủ mở thẳng ở banner). Gắn với
+ * `location.key` của lượt điều hướng đó — RouteScroll có thể chạy lại (StrictMode, chuyển trang)
+ * nên không xóa khi đọc; lượt điều hướng khác có key khác nên tự bỏ qua.
+ */
+let initialOverride: { locationKey: string; y: number } | null = null
+/** Gọi trong layout effect của trang (chạy trước RouteScroll vì RouteScroll đứng sau trang). */
+export function setInitialScroll(locationKey: string, y: number) {
+  initialOverride = { locationKey, y }
+}
+
 /** Vị trí cuộn theo từng mục lịch sử, giữ qua cả lần tải lại trang. */
 const positions = new Map<string, number>(readStored())
 
@@ -51,6 +62,7 @@ export default function RouteScroll({ container }: Props) {
     key: location.key === 'default' ? `default:${location.pathname}` : location.key,
     hash: location.hash,
     restore: navigationType === 'POP',
+    locationKey: location.key,
   }))
 
   useLayoutEffect(() => {
@@ -59,8 +71,9 @@ export default function RouteScroll({ container }: Props) {
     const read = () => (el ? el.scrollTop : window.scrollY)
 
     const anchor = entry.hash && document.getElementById(decodeURIComponent(entry.hash.slice(1)))
+    const override = initialOverride?.locationKey === entry.locationKey ? initialOverride.y : null
     if (anchor) anchor.scrollIntoView()
-    else target.scrollTo(0, entry.restore ? (positions.get(entry.key) ?? 0) : 0)
+    else target.scrollTo(0, entry.restore ? (positions.get(entry.key) ?? 0) : (override ?? 0))
 
     // Chỉ ghi khi mục lịch sử hiện tại vẫn là trang này — tránh ghi đè vị trí
     // bằng giá trị bị trình duyệt kẹp lại lúc trang đang được thay.

@@ -1,8 +1,9 @@
 import { forwardRef, lazy, Suspense, useEffect, useImperativeHandle, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
 import { Search, MapPin, ArrowDown, ArrowUpRight } from 'lucide-react'
 
-import { gsap, useGSAP } from '@utils/gsap'
+import { gsap, ScrollTrigger, useGSAP } from '@utils/gsap'
+import { setInitialScroll } from '@components/common/RouteScroll'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { getSmoothScroll, scrollToY } from '@hooks/useSmoothScroll'
 import MaskedWords from '@components/motion/MaskedWords'
@@ -45,6 +46,35 @@ export function supportsWebGL() {
   return webglOk
 }
 
+/**
+ * Logo hạt là "phần demo": chỉ mở ở đó lần đầu vào trang web trong phiên (tab) này.
+ * Các lần sau (bấm Workmate từ trang khác, tải lại) mở thẳng ở banner; lướt lên vẫn thấy logo.
+ */
+const INTRO_SEEN_KEY = 'wm:intro-seen'
+function introSeen() {
+  try {
+    return sessionStorage.getItem(INTRO_SEEN_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+function markIntroSeen() {
+  try {
+    sessionStorage.setItem(INTRO_SEEN_KEY, '1')
+  } catch {
+    /* chế độ riêng tư chặn sessionStorage — coi như lần đầu */
+  }
+}
+
+/** Vị trí banner của trang chủ đang mở (0 = chưa có / không có intro) — cho logo header cuộn về. */
+let bannerY = 0
+/** Đang ở trang chủ: cuộn mượt về banner. Trả false nếu trang chủ chưa dựng intro. */
+export function scrollToHomeBanner() {
+  if (!bannerY) return false
+  scrollToY(bannerY, true)
+  return true
+}
+
 /** Thời gian (giây) trôi trọn qua intro khi lướt nhẹ. */
 const INTRO_GLIDE = 2.4
 /** Chuyển động bắt đầu ngay (không "đứng một nhịp" như kiểu tăng tốc từ 0) rồi chậm dần êm khi tới nơi. */
@@ -79,6 +109,18 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
   const keywordRef = useRef<HTMLInputElement>(null)
   // Vị trí cuộn mà intro kết thúc — để focus/CTA nhảy thẳng tới
   const introEnd = useRef(0)
+  // Quyết định một lần lúc mount: mở ở banner thay vì logo? (Back/Forward thì để RouteScroll trả về chỗ cũ)
+  const navigationType = useNavigationType()
+  const [locationKey] = useState(useLocation().key)
+  const [startAtBanner] = useState(() => introSeen() && navigationType !== 'POP')
+  // Chỉ nhảy lần đầu dựng timeline (đổi vai trò dựng lại timeline thì không nhảy nữa)
+  const startedAtBanner = useRef(false)
+  useEffect(() => {
+    markIntroSeen()
+    return () => {
+      bannerY = 0
+    }
+  }, [])
 
   const [keyword, setKeyword] = useState('')
   const [location, setLocation] = useState('')
@@ -146,6 +188,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
           invalidateOnRefresh: true,
           onRefresh: (self) => {
             introEnd.current = self.end
+            bannerY = self.end
           },
           onUpdate: (self) => {
             // Còn ở intro → các phần chưa hiện không nhận click (xem index.css)
@@ -203,6 +246,23 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
 
       // onUpdate chỉ chạy khi cuộn — lúc vừa mở trang phải tự đặt trạng thái intro
       if ((tl.scrollTrigger?.progress ?? 0) < 0.45) html.setAttribute('data-intro', '')
+
+      // Mở thẳng ở banner, ngay khung hình đầu (layout effect, trước khi vẽ): cuộn tới cuối intro,
+      // báo RouteScroll (chạy ngay sau) dùng vị trí này thay vì đầu trang, rồi cho timeline tới đích
+      // luôn — không để scrub tua lại hiệu ứng logo. Lenis khởi tạo sau đó, đọc đúng vị trí hiện tại.
+      const st = tl.scrollTrigger
+      const wrap = wrapRef.current
+      if (startAtBanner && st && wrap && !startedAtBanner.current) {
+        startedAtBanner.current = true
+        // Lúc này ScrollTrigger có thể chưa đo xong (end = 0) → tự tính: đáy khối intro chạm đáy màn hình
+        const end = Math.round(wrap.getBoundingClientRect().top + window.scrollY + wrap.offsetHeight - window.innerHeight)
+        introEnd.current = end
+        window.scrollTo(0, end)
+        setInitialScroll(locationKey, end)
+        ScrollTrigger.refresh()
+        st.getTween()?.progress(1)
+        tl.progress(1)
+      }
 
       // Bàn phím / trình đọc màn hình đi vào phần chưa hiện → cuộn qua intro để nó hiện ra
       const onFocusIn = (e: FocusEvent) => {
