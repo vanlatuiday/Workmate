@@ -1,0 +1,25 @@
+# Cơ sở dữ liệu cho môi trường máy cá nhân (dev). Chạy: `docker compose up -d` trong thư mục backend.
+# Dữ liệu nằm trong volume `workmate-db` — xóa sạch: `docker compose down -v`.
+# Mật khẩu dưới đây CHỈ dùng trên máy cá nhân; khi đưa lên mạng sẽ dùng mật khẩu riêng của nơi host.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: workmate-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: workmate
+      POSTGRES_PASSWORD: workmate_dev
+      POSTGRES_DB: workmate
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - '5432:5432'
+    volumes:
+      - workmate-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U workmate -d workmate']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  workmate-db:
