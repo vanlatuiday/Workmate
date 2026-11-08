@@ -4,7 +4,6 @@ import toast from 'react-hot-toast'
 import { AlertCircle, FileText, Image as ImageIcon, Upload, X } from 'lucide-react'
 import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { CV_MAX_COUNT, CV_TYPES, useCvStore, type CvMeta } from '@context/cvStore'
-import { getFile } from '@utils/fileStore'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 
@@ -23,23 +22,15 @@ function PreviewDialog({ cv, onClose }: { cv: CvMeta; onClose: () => void }) {
   const [missing, setMissing] = useState(false)
   const closeRef = useRef<HTMLButtonElement>(null)
 
-  // Lấy file từ IndexedDB → object URL; trả lại bộ nhớ khi đóng
+  // Xin máy chủ link xem tạm thời (5 phút) — file nằm ở kho riêng tư
+  const fileUrl = useCvStore((s) => s.fileUrl)
   useEffect(() => {
-    let objectUrl: string | null = null
     let alive = true
-    getFile(cv.id)
-      .then((blob) => {
-        if (!alive) return
-        if (!blob) return setMissing(true)
-        objectUrl = URL.createObjectURL(blob)
-        setUrl(objectUrl)
-      })
+    fileUrl(cv.id)
+      .then((u) => alive && setUrl(u))
       .catch(() => alive && setMissing(true))
-    return () => {
-      alive = false
-      if (objectUrl) URL.revokeObjectURL(objectUrl)
-    }
-  }, [cv.id])
+    return () => { alive = false }
+  }, [cv.id, fileUrl])
 
   useEffect(() => {
     closeRef.current?.focus()
@@ -58,7 +49,7 @@ function PreviewDialog({ cv, onClose }: { cv: CvMeta; onClose: () => void }) {
           </button>
         </div>
         <div className="min-h-0 flex-1 overflow-auto p-4">
-          {missing && <p className="py-12 text-center text-sm text-page-muted">Không tìm thấy nội dung file trên trình duyệt này.</p>}
+          {missing && <p className="py-12 text-center text-sm text-page-muted">Không mở được file, vui lòng thử lại.</p>}
           {!missing && !url && <p className="py-12 text-center text-sm text-page-muted">Đang tải…</p>}
           {url && (cv.type === 'application/pdf'
             ? <iframe title={`Xem trước ${cv.name}`} src={url} className="h-full min-h-[60vh] w-full rounded-control border border-page-line" />
@@ -72,36 +63,43 @@ function PreviewDialog({ cv, onClose }: { cv: CvMeta; onClose: () => void }) {
 
 /** Một dòng CV: tên (đổi tại chỗ), thông tin file, các nút thao tác */
 function CvRow({ cv, isDefault, onPreview }: { cv: CvMeta; isDefault: boolean; onPreview: () => void }) {
-  const { rename, setDefault, remove } = useCvStore()
+  const { rename, setDefault, remove, fileUrl } = useCvStore()
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(cv.name)
   const [confirming, setConfirming] = useState(false)
   const Icon = cv.type === 'application/pdf' ? FileText : ImageIcon
 
-  const saveName = () => {
-    rename(cv.id, draft)
+  const saveName = async () => {
     setEditing(false)
+    const err = await rename(cv.id, draft)
+    if (err) toast.error(err)
   }
   const onNameKey = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') saveName()
+    if (e.key === 'Enter') void saveName()
     if (e.key === 'Escape') { e.stopPropagation(); setEditing(false) }
   }
 
-  // Tải xuống: dựng object URL tạm rồi bấm một thẻ <a download>
+  // Tải xuống: link tạm thời có sẵn tên file, trình duyệt tự tải về
   const download = async () => {
-    const blob = await getFile(cv.id).catch(() => undefined)
-    if (!blob) return toast.error('Không tìm thấy nội dung file.')
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${cv.name}.${extOf(cv.type)}`
-    a.click()
-    URL.revokeObjectURL(url)
+    try {
+      const a = document.createElement('a')
+      a.href = await fileUrl(cv.id, true)
+      a.click()
+    } catch {
+      toast.error('Không tải được file, vui lòng thử lại.')
+    }
   }
 
   const doRemove = async () => {
-    await remove(cv.id)
+    const err = await remove(cv.id)
+    if (err) return toast.error(err)
     toast.success('Đã xóa CV')
+  }
+
+  const makeDefault = async () => {
+    const err = await setDefault(cv.id)
+    if (err) return toast.error(err)
+    toast.success('Đã đặt làm CV mặc định')
   }
 
   return (
@@ -114,7 +112,7 @@ function CvRow({ cv, isDefault, onPreview }: { cv: CvMeta; isDefault: boolean; o
           <div className="min-w-0">
             {editing ? (
               <input
-                autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={onNameKey} onBlur={saveName}
+                autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={onNameKey} onBlur={() => void saveName()}
                 aria-label="Tên CV (Enter để lưu, Esc để hủy)"
                 className={`w-full rounded-control border border-page-edge bg-page-surface px-3 py-1.5 text-sm text-page-fg ${FOCUS}`}
               />
@@ -134,7 +132,7 @@ function CvRow({ cv, isDefault, onPreview }: { cv: CvMeta; isDefault: boolean; o
           <button type="button" className={BTN_LINE} onClick={onPreview}>Xem<span className="sr-only"> {cv.name}</span></button>
           <button type="button" className={BTN_LINE} onClick={download}>Tải xuống<span className="sr-only"> {cv.name}</span></button>
           <button type="button" className={BTN_LINE} onClick={() => { setDraft(cv.name); setEditing(true) }}>Đổi tên<span className="sr-only"> {cv.name}</span></button>
-          {!isDefault && <button type="button" className={BTN_LINE} onClick={() => { setDefault(cv.id); toast.success('Đã đặt làm CV mặc định') }}>Đặt làm mặc định</button>}
+          {!isDefault && <button type="button" className={BTN_LINE} onClick={() => void makeDefault()}>Đặt làm mặc định</button>}
           <button type="button" className={BTN_LINE} onClick={() => setConfirming(true)}>Xóa<span className="sr-only"> {cv.name}</span></button>
         </div>
       </div>
@@ -157,19 +155,30 @@ export default function CVManager() {
   const items = useCvStore((s) => s.items)
   const defaultId = useCvStore((s) => s.defaultId)
   const add = useCvStore((s) => s.add)
+  const loaded = useCvStore((s) => s.loaded)
+  const load = useCvStore((s) => s.load)
   const [error, setError] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)
   const [previewId, setPreviewId] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const preview = items.find((x) => x.id === previewId) ?? null
+  const [uploading, setUploading] = useState(false)
+
+  // Nạp lại danh sách mỗi lần mở trang (có thể đã đổi ở máy khác)
+  useEffect(() => { void load() }, [load])
 
   // Thêm lần lượt từng file; dừng ở lỗi đầu tiên để người dùng đọc được
   const upload = async (files: FileList | File[]) => {
     setError(null)
-    for (const f of Array.from(files)) {
-      const err = await add(f)
-      if (err) return setError(err)
-      toast.success(`Đã tải lên “${f.name}”`)
+    setUploading(true)
+    try {
+      for (const f of Array.from(files)) {
+        const err = await add(f)
+        if (err) return setError(err)
+        toast.success(`Đã tải lên “${f.name}”`)
+      }
+    } finally {
+      setUploading(false)
     }
   }
   const onDrop = (e: DragEvent) => {
@@ -191,7 +200,7 @@ export default function CVManager() {
         >
           <Upload className="mb-3 h-6 w-6 text-page-muted" aria-hidden="true" />
           <p className="text-sm text-page-fg">Kéo file vào đây hoặc</p>
-          <button type="button" className={`${BTN_SOLID} mt-3`} onClick={() => inputRef.current?.click()}>Chọn file</button>
+          <button type="button" className={`${BTN_SOLID} mt-3 disabled:opacity-60`} disabled={uploading} onClick={() => inputRef.current?.click()}>{uploading ? 'Đang tải lên…' : 'Chọn file'}</button>
           <input ref={inputRef} type="file" multiple accept={CV_TYPES.join(',')} className="sr-only" tabIndex={-1} aria-label="Chọn file CV"
             onChange={(e) => { if (e.target.files) void upload(e.target.files); e.target.value = '' }} />
           <p className="mt-3 text-xs text-page-muted">PDF hoặc ảnh, tối đa 5MB, tối đa {CV_MAX_COUNT} CV.</p>
@@ -203,7 +212,9 @@ export default function CVManager() {
         )}
       </Panel>
 
-      {items.length === 0 ? (
+      {!loaded && items.length === 0 ? (
+        <p className="py-12 text-center text-sm text-page-muted">Đang tải danh sách CV…</p>
+      ) : items.length === 0 ? (
         <EmptyState icon={FileText} title="Chưa có CV nào" description="Tải CV đầu tiên lên để dùng khi ứng tuyển." />
       ) : (
         <Panel title={`CV của bạn (${items.length}/${CV_MAX_COUNT})`}>
@@ -213,7 +224,7 @@ export default function CVManager() {
         </Panel>
       )}
 
-      <p className="mt-4 text-xs text-page-muted">File chỉ lưu trên trình duyệt này (bản mẫu, chưa tải lên máy chủ).</p>
+      <p className="mt-4 text-xs text-page-muted">CV lưu riêng tư trên Workmate: chỉ bạn và doanh nghiệp đã kết nối với bạn xem được.</p>
       {preview && <PreviewDialog cv={preview} onClose={() => setPreviewId(null)} />}
     </div>
   )
