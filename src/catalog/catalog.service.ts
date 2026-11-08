@@ -6,7 +6,7 @@ import { PrismaService } from '../prisma/prisma.service'
 import type { CatalogCompany, CatalogJob, CatalogPhoto, CatalogResponse, JobTypeLabel } from './catalog.types'
 
 /** Enum Prisma → chuỗi frontend (full_time → 'full-time') */
-const JOB_TYPE_LABEL: Record<Job['jobType'], JobTypeLabel> = {
+export const JOB_TYPE_LABEL: Record<Job['jobType'], JobTypeLabel> = {
   full_time: 'full-time', part_time: 'part-time', shift: 'shift', seasonal: 'seasonal',
   flexible: 'flexible', event: 'event', freelance: 'freelance',
 }
