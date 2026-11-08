@@ -129,7 +129,7 @@ export default function SettingsPage({ side }: { side: Side }) {
     e.preventDefault()
     const v = {
       cur: !cur ? 'Vui lòng nhập mật khẩu hiện tại.' : undefined,
-      next: next.length >= 6 ? undefined : 'Mật khẩu mới cần ít nhất 6 ký tự.',
+      next: next.length >= 8 ? undefined : 'Mật khẩu mới cần ít nhất 8 ký tự.',
       again: again === next ? undefined : 'Mật khẩu nhập lại chưa khớp.',
     }
     setErrs(v)
@@ -165,7 +165,7 @@ export default function SettingsPage({ side }: { side: Side }) {
           <form onSubmit={changePassword} noValidate className="flex flex-col gap-4 border-t border-page-line pt-6">
             <h3 className="font-medium text-page-fg">Đổi mật khẩu</h3>
             <PasswordField label="Mật khẩu hiện tại" value={cur} onChange={setCur} error={errs.cur} autoComplete="current-password" />
-            <PasswordField label="Mật khẩu mới (ít nhất 6 ký tự)" value={next} onChange={setNext} error={errs.next} autoComplete="new-password" />
+            <PasswordField label="Mật khẩu mới (ít nhất 8 ký tự)" value={next} onChange={setNext} error={errs.next} autoComplete="new-password" />
             <PasswordField label="Nhập lại mật khẩu mới" value={again} onChange={setAgain} error={errs.again} autoComplete="new-password" />
             <div><button type="submit" className={BTN_SOLID}>Đổi mật khẩu</button></div>
           </form>

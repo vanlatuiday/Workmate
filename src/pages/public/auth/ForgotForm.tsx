@@ -88,7 +88,7 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
     if (loading) return
     const v = {
       code: /^\d{6}$/.test(code) ? undefined : 'Mã gồm đúng 6 chữ số.',
-      password: password.length >= 6 ? undefined : 'Mật khẩu mới cần ít nhất 6 ký tự.',
+      password: password.length >= 8 ? undefined : 'Mật khẩu mới cần ít nhất 8 ký tự.',
       confirm: confirm === password ? undefined : 'Mật khẩu nhập lại chưa khớp.',
     }
     setErrs(v)
@@ -187,7 +187,7 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
               <Item>
                 <AuthField
                   id="fp-password"
-                  label="Mật khẩu mới (ít nhất 6 ký tự)"
+                  label="Mật khẩu mới (ít nhất 8 ký tự)"
                   icon={Lock}
                   type={showPass ? 'text' : 'password'}
                   autoComplete="new-password"
