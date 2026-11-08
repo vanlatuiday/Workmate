@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 /**
  * Kho file chuẩn S3 (trên máy: SeaweedFS; lên mạng: R2/S3 — chỉ đổi biến STORAGE_*).
@@ -17,7 +18,8 @@ export class StorageService {
     },
   })
   private publicBucket = process.env.STORAGE_BUCKET_PUBLIC ?? 'workmate-public'
-  private publicBase = (process.env.STORAGE_PUBLIC_URL ?? '').replace(/\/$/, '')
+  private privateBucket = process.env.STORAGE_BUCKET_PRIVATE ?? 'workmate-private'
+  private publicBase =(process.env.STORAGE_PUBLIC_URL ?? '').replace(/\/$/, '')
 
   /** Tải file lên bucket công khai, trả về URL xem được */
   async putPublic(key: string, body: Buffer, contentType: string): Promise<string> {
@@ -35,9 +37,33 @@ export class StorageService {
   }
 
   /** Xóa file công khai; lỗi chỉ ghi log vì không đáng chặn thao tác chính */
-  async deletePublic(key: string): Promise<void> {
+  deletePublic(key: string): Promise<void> {
+    return this.remove(this.publicBucket, key)
+  }
+
+  /** Tải file lên bucket riêng tư (CV) — chỉ xem được qua link ký tạm thời */
+  async putPrivate(key: string, body: Buffer, contentType: string): Promise<void> {
+    await this.s3.send(new PutObjectCommand({ Bucket: this.privateBucket, Key: key, Body: body, ContentType: contentType }))
+  }
+
+  deletePrivate(key: string): Promise<void> {
+    return this.remove(this.privateBucket, key)
+  }
+
+  /**
+   * Link xem/tải file riêng tư, hết hạn sau `seconds` giây.
+   * `download` = true → trình duyệt tải về với tên `filename`; false → mở xem ngay (PDF/ảnh).
+   */
+  signedUrl(key: string, filename: string, download: boolean, seconds = 300): Promise<string> {
+    // Tên file có dấu tiếng Việt: dùng filename* (RFC 5987), kèm tên ASCII dự phòng
+    const ascii = filename.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^\w.\- ]/g, '_')
+    const disposition = `${download ? 'attachment' : 'inline'}; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(filename)}`
+    return getSignedUrl(this.s3, new GetObjectCommand({ Bucket: this.privateBucket, Key: key, ResponseContentDisposition: disposition }), { expiresIn: seconds })
+  }
+
+  private async remove(Bucket: string, key: string): Promise<void> {
     try {
-      await this.s3.send(new DeleteObjectCommand({ Bucket: this.publicBucket, Key: key }))
+      await this.s3.send(new DeleteObjectCommand({ Bucket, Key: key }))
     } catch (e) {
       console.warn(`Không xóa được file ${key}:`, (e as Error).message)
     }
