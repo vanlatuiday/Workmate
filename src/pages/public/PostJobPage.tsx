@@ -7,7 +7,9 @@ import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useCurtainNavigate } from '@components/motion/PageCurtain'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
-import { submitJob, updateJob, useAdmin } from '@services/adminService'
+import { createJob, updateJob } from '@services/catalogService'
+import { apiErrorMessage } from '@services/authService'
+import { useCatalogStore } from '@context/catalogStore'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import type { JobType } from '@/types'
@@ -64,7 +66,7 @@ export default function PostJobPage() {
   // Chế độ sửa: /dang-tin?sua=<id>, chỉ nhận tin đã đăng của công ty demo; id lạ hoặc tin có sẵn thì rơi về đăng tin mới
   const editId = useSearchParams()[0].get('sua')
   const [editing] = useState(() =>
-    editId ? useAdmin.getState().posted.find((j) => j.id === editId && j.companyId === DEMO_COMPANY.id) : undefined,
+    editId ? useCatalogStore.getState().jobs.find((j) => j.id === editId && j.companyId === DEMO_COMPANY.id) : undefined,
   )
   const [title, setTitle] = useState(editing?.title ?? '')
   const [jobType, setJobType] = useState<JobType | ''>(editing?.jobType ?? '')
@@ -76,7 +78,7 @@ export default function PostJobPage() {
   const [skills, setSkills] = useState<string[]>(editing?.skills ?? [])
   const [custom, setCustom] = useState('')
   // Bán kính mặc định lấy từ Cấu hình hệ thống
-  const [radius, setRadius] = useState(() => editing?.radiusKm ?? useAdmin.getState().config.defaultRadiusKm)
+  const [radius, setRadius] = useState(() => editing?.radiusKm ?? useCatalogStore.getState().config.defaultRadiusKm)
   const [desc, setDesc] = useState(editing?.description ?? '')
   const [photoIndex, setPhotoIndex] = useState(() => Math.max(0, PHOTOS.findIndex((p) => p.id === editing?.photo.id)))
   const [posted, setPosted] = useState(false)
@@ -120,20 +122,32 @@ export default function PostJobPage() {
     return () => { t.kill() }
   }, [ready, reduced])
 
-  const submit = () => {
+  const submit = async () => {
     if (!ready || posted) return
+    setPosted(true)
     // Thẻ xem trước nhấc lên; dùng y/scale để không đụng tween x của con dấu
     if (!reduced && card.current) gsap.to(card.current, { y: -12, scale: 1.02, duration: 0.4, ease: 'power2.out', overwrite: false })
+    // Gửi lên máy chủ (khoảng cách do máy chủ tính theo quận)
     const fields = {
-      title: title.trim(), district, distanceKm: editing?.distanceKm ?? 1.5, salaryLabel, shiftLabel: scheduleText(slots),
+      title: title.trim(), district, salaryLabel, shiftLabel: scheduleText(slots),
       skills, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: req.jobType, photo: PHOTOS[photoIndex],
       description: desc.trim(), quantity: headcount, radiusKm: radius,
     }
     // Sửa tin: lưu đè, tin quay lại hàng chờ duyệt rồi về danh sách tin (không sang /match)
+    // Máy chủ từ chối (thiếu quyền, dữ liệu sai…) → báo lỗi, cho bấm lại
+    const fail = (err: unknown) => {
+      if (card.current) gsap.to(card.current, { y: 0, scale: 1, duration: reduced ? 0 : 0.3 })
+      toast.error(apiErrorMessage(err, 'Chưa gửi được tin, vui lòng thử lại.'))
+      setPosted(false)
+    }
     if (editing) {
-      updateJob(editing.id, fields)
+      try {
+        await updateJob(editing.id, { ...fields, jobType: fields.jobType as JobType })
+      } catch (err) {
+        fail(err)
+        return
+      }
       toast.success('Đã lưu, tin chờ quản trị viên duyệt lại')
-      setPosted(true)
       timer.current = window.setTimeout(() => curtainTo('/tuyen-dung/tin-dang', 'Tin tuyển dụng'), 600)
       return
     }
@@ -147,9 +161,13 @@ export default function PostJobPage() {
       radiusKm: radius,
     }
     // Gửi vào hàng chờ duyệt của quản trị viên; tin chỉ hiện công khai sau khi được duyệt
-    submitJob({ companyId: DEMO_COMPANY.id, ...fields })
+    try {
+      await createJob({ ...fields, jobType: fields.jobType as JobType })
+    } catch (err) {
+      fail(err)
+      return
+    }
     toast.success('Tin đã gửi, chờ quản trị viên duyệt')
-    setPosted(true)
     timer.current = window.setTimeout(() => curtainTo('/match', title.trim(), { draftPosition: draft }), 600)
   }
 

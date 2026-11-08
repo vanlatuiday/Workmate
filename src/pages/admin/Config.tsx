@@ -4,7 +4,9 @@ import { X } from 'lucide-react'
 import { PageHeader, Panel } from '@components/dashboard'
 import { BTN_PRIMARY, BTN_SECONDARY, ConfirmDialog, FIELD } from '@components/admin/parts'
 import { CRITERION_LABELS, type CriterionKey } from '@pages/public/match/score'
-import { DEFAULT_CONFIG, resetAdminData, updateConfig, useAdmin, type SystemConfig } from '@services/adminService'
+import { DEFAULT_CONFIG, resetAdminData, updateConfig, type SystemConfig } from '@services/adminService'
+import { useCatalogStore } from '@context/catalogStore'
+import { apiErrorMessage } from '@services/authService'
 import { FOCUS } from '@utils/focus'
 
 const KEYS = Object.keys(CRITERION_LABELS) as CriterionKey[]
@@ -12,7 +14,7 @@ type Confirm = 'defaults' | 'reset' | null
 
 /** /admin/cau-hinh — cấu hình hệ thống; chỉnh trong form cục bộ, bấm "Lưu thay đổi" mới áp dụng. */
 export default function Config() {
-  const saved = useAdmin((s) => s.config)
+  const saved = useCatalogStore((s) => s.config)
   const [form, setForm] = useState<SystemConfig>(saved)
   const [word, setWord] = useState('')
   const [confirm, setConfirm] = useState<Confirm>(null)
@@ -29,10 +31,14 @@ export default function Config() {
     setWord('')
   }
 
-  const save = () => {
+  const save = async () => {
     if (!weightsOk) return
-    updateConfig(form)
-    toast.success('Đã lưu cấu hình')
+    try {
+      await updateConfig(form)
+      toast.success('Đã lưu cấu hình')
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'Chưa lưu được cấu hình.'))
+    }
   }
 
   const numField = (key: 'minWageK' | 'defaultRadiusKm', label: string, unit: string, hint: string) => (

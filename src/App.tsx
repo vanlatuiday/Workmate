@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Messenger from '@components/messenger/Messenger'
 import { useAuthStore } from '@context/authStore'
 import { authService } from '@services/authService'
+import { loadCatalog } from '@services/catalogService'
 
 // Layouts
 import PublicLayout from '@components/layout/PublicLayout'
@@ -80,6 +81,13 @@ export default function App() {
       if (token) setUser(res.data, token)
     }).catch(() => { /* 401 đã được xử lý ở interceptor; lỗi mạng thì giữ thông tin cũ */ })
   }, [])
+
+  // Danh mục tin / công ty / cấu hình theo người đang xem: nạp khi mở web và nạp lại mỗi khi đăng nhập/đăng xuất/đổi tài khoản
+  const userId = useAuthStore((s) => s.user?.id)
+  const role = useAuthStore((s) => s.user?.role)
+  useEffect(() => {
+    void loadCatalog(role === 'admin')
+  }, [userId, role])
 
   return (
     <>

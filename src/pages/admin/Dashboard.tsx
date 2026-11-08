@@ -4,7 +4,7 @@ import { PageHeader, Panel, StatCard, StatusBadge, MockNotice } from '@component
 import { useDemoStore } from '@context/demoStore'
 import { COMPANIES } from '@pages/public/jobs/data'
 import { DEMO_COMPANY } from '@pages/public/match/data'
-import { useAdmin, useAdminJobs } from '@services/adminService'
+import { useAdmin, useAdminJobs, useCompanyFlags } from '@services/adminService'
 import { mockUsers, newUsersPerDay, overviewStats, ROLE_LABELS } from './mockData'
 import { FOCUS } from '@utils/focus'
 
@@ -26,7 +26,7 @@ export default function AdminDashboard() {
   // Số liệu thật từ kho quản trị + kho kết nối (người dùng và đăng ký mới vẫn là mẫu)
   const jobRows = useAdminJobs()
   const reports = useAdmin((st) => st.reports)
-  const verified = useAdmin((st) => st.verifiedCompanies)
+  const { verified } = useCompanyFlags()
   const connections = useDemoStore((st) => st.connections)
   const pendingJobs = jobRows.filter((r) => r.status === 'pending')
   const flaggedPending = pendingJobs.filter((r) => r.flags.length).length

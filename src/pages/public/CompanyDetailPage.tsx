@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { useAuthStore } from '@context/authStore'
+import { useCatalogStore } from '@context/catalogStore'
 import { useSettingsStore } from '@context/settingsStore'
 import { Facts, PrimaryLink, ProfileTag, TextLink } from '@components/discover/parts'
 import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
@@ -23,8 +24,10 @@ import { companyOf, DEMO_COMPANY } from './match/data'
  */
 export default function CompanyDetailPage() {
   const { id } = useParams()
-  // Công ty của doanh nghiệp demo nằm ngoài COMPANIES: lấy qua companyOf để nhận cả phần đã sửa ở Hồ sơ công ty
-  const company = findCompany(id) ?? (id === DEMO_COMPANY.id ? companyOf(id) : undefined)
+  useCatalogStore((s) => s.companies) // cập nhật khi danh mục nạp xong từ máy chủ
+  // Công ty của doanh nghiệp demo: lấy qua companyOf để nhận cả phần đã sửa ở Hồ sơ công ty
+  const found = findCompany(id)
+  const company = found && found.id === DEMO_COMPANY.id ? companyOf(found.id) : found
   const role = useAuthStore((s) => s.user?.role)
   // Doanh nghiệp demo tắt "Công khai trang công ty": chỉ chính họ (và quản trị viên) còn xem được trang
   const companyHidden = useSettingsStore((s) => s.bySide.recruiter.visibility === 'hidden')

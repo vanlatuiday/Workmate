@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Building2, KeyRound, Lock, Mail, Search, User } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
-import { useAdmin } from '@services/adminService'
+import { useCatalogStore } from '@context/catalogStore'
 import { apiErrorMessage, authService } from '@services/authService'
 import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
@@ -37,7 +37,7 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
   useFocusFirst(root, focus)
 
   // Quản trị viên có thể tạm dừng đăng ký (Cấu hình hệ thống)
-  const registrationOpen = useAdmin((s) => s.config.registrationOpen)
+  const registrationOpen = useCatalogStore((s) => s.config.registrationOpen)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

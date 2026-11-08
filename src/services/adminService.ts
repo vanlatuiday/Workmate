@@ -1,12 +1,18 @@
 // Lớp dịch vụ cho khu quản trị + các quy tắc hiển thị áp lên toàn web. Đọc/ghi `@context/adminStore`;
-// khi có backend, đổi ruột sang API, giữ chữ ký.
-import { useAdminStore, type JobOpenStatus, type ModerationStatus, type PostedJob, type SystemConfig } from '@context/adminStore'
-import { candidatesOf, RECRUITER_POSITION_JOBS, SEEKER_JOBS, type MatchCandidate, type MatchJob } from '@pages/public/match/data'
+// tin / công ty / cấu hình đọc từ `@context/catalogStore` (nạp từ API), thao tác ghi gọi `@services/catalogService`.
+import { useMemo } from 'react'
+import { useAdminStore } from '@context/adminStore'
+import { useCatalogStore, type CatalogJob, type JobOpenStatus, type ModerationStatus, type SystemConfig } from '@context/catalogStore'
+import { candidatesOf, type MatchCandidate, type MatchJob } from '@pages/public/match/data'
 import { scoreMatch } from '@pages/public/match/score'
 import { useDemoStore } from '@context/demoStore'
+import toast from 'react-hot-toast'
+import * as catalogApi from './catalogService'
+import { apiErrorMessage } from './authService'
 
-export type { JobOpenStatus, ModerationStatus, PostedJob, Report, ReportStatus, ReportTarget, SystemConfig } from '@context/adminStore'
-export { DEFAULT_CONFIG } from '@context/adminStore'
+export type { JobOpenStatus, ModerationStatus, SystemConfig } from '@context/catalogStore'
+export type { Report, ReportStatus, ReportTarget } from '@context/adminStore'
+export { DEFAULT_CONFIG } from '@context/catalogStore'
 
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase()
 
@@ -23,41 +29,26 @@ export function flagsOf(job: MatchJob & { description?: string }, config: System
   return flags
 }
 
-/** Trạng thái kiểm duyệt của một tin: tin có sẵn mặc định "approved", tin mới đăng mặc định "pending" */
-function statusOf(s: ReturnType<typeof useAdminStore.getState>, jobId: string, posted: boolean): ModerationStatus {
-  return s.moderation[jobId]?.status ?? (posted ? 'pending' : 'approved')
-}
-
-/** Tin có được hiện công khai không: đã duyệt, công ty không bị khóa và nhà tuyển dụng đang mở tin */
-function visible(s: ReturnType<typeof useAdminStore.getState>, job: MatchJob, posted: boolean) {
-  return statusOf(s, job.id, posted) === 'approved' && !s.lockedCompanies[job.companyId] && (s.jobStatus[job.id] ?? 'open') === 'open'
-}
-
-/** Mọi tin đang hiện công khai (tin có sẵn + tin mới đã duyệt) — đọc tức thời */
+/** Mọi tin đang hiện công khai (đã duyệt, đang mở, công ty không bị khóa) — đọc tức thời từ danh mục */
 export function getVisibleJobs(): MatchJob[] {
-  const s = useAdminStore.getState()
-  return [...SEEKER_JOBS.filter((j) => visible(s, j, false)), ...s.posted.filter((j) => visible(s, j, true))]
+  return useCatalogStore.getState().jobs.filter((j) => j.visible)
 }
 
-/** Hook: như getVisibleJobs nhưng tự cập nhật khi quản trị viên duyệt/ẩn/khóa */
+/** Hook: như getVisibleJobs nhưng tự cập nhật khi danh mục đổi (nạp lại, quản trị duyệt/ẩn/khóa) */
 export function useVisibleJobs(): MatchJob[] {
-  const moderation = useAdminStore((s) => s.moderation)
-  const posted = useAdminStore((s) => s.posted)
-  const locked = useAdminStore((s) => s.lockedCompanies)
-  const jobStatus = useAdminStore((s) => s.jobStatus)
-  void moderation
-  void jobStatus
-  void posted
-  void locked
-  return getVisibleJobs()
+  const jobs = useCatalogStore((s) => s.jobs)
+  return useMemo(() => jobs.filter((j) => j.visible), [jobs])
 }
 
 /** Người tìm việc có bị khóa không (ẩn khỏi danh sách của doanh nghiệp) */
 export const isSeekerLocked = (seekerId: string) => !!useAdminStore.getState().lockedSeekers[seekerId]
 
+/** Tin do người dùng đăng (id sinh tự động) khác với tin mẫu có sẵn (m1…, j1…, p-seed-…) */
+const isSampleId = (id: string) => /^([mj]\d+|p-seed-\d+)$/.test(id)
+
 export interface AdminJobRow {
-  job: MatchJob & Partial<Pick<PostedJob, 'description' | 'quantity' | 'postedAt'>>
-  /** Tin mới đăng qua /dang-tin */
+  job: CatalogJob
+  /** Tin do nhà tuyển dụng đăng (không phải tin mẫu) */
   posted: boolean
   status: ModerationStatus
   reason?: string
@@ -67,47 +58,58 @@ export interface AdminJobRow {
   companyLocked: boolean
 }
 
-/** Hook: mọi tin (kể cả ẩn/chờ/từ chối) kèm trạng thái + cờ — cho Kiểm duyệt và Tin tuyển dụng */
+/** Hook: mọi tin (kể cả ẩn/chờ/từ chối) kèm trạng thái + cờ — cho Kiểm duyệt và Tin tuyển dụng.
+ *  Quản trị viên: lấy từ GET /admin/jobs; chưa nạp được thì tự tính từ danh mục. */
 export function useAdminJobs(): AdminJobRow[] {
-  const s = useAdminStore()
-  const row = (job: AdminJobRow['job'], posted: boolean): AdminJobRow => ({
-    job,
-    posted,
-    status: statusOf(s, job.id, posted),
-    reason: s.moderation[job.id]?.reason,
-    jobStatus: s.jobStatus[job.id] ?? 'open',
-    flags: flagsOf(job, s.config),
-    companyLocked: !!s.lockedCompanies[job.companyId],
-  })
-  return [...s.posted.map((j) => row(j, true)), ...SEEKER_JOBS.map((j) => row(j, false))]
+  const adminRows = useCatalogStore((s) => s.adminRows)
+  const jobs = useCatalogStore((s) => s.jobs)
+  const companies = useCatalogStore((s) => s.companies)
+  const config = useCatalogStore((s) => s.config)
+  return useMemo(() => {
+    const rows = adminRows ?? jobs.map((job) => ({ job, flags: flagsOf(job, config), companyLocked: !!companies.find((c) => c.id === job.companyId)?.locked }))
+    return rows.map((r) => ({
+      job: r.job, posted: !isSampleId(r.job.id), status: r.job.moderation, reason: r.job.moderationReason,
+      jobStatus: r.job.status, flags: r.flags, companyLocked: r.companyLocked,
+    }))
+  }, [adminRows, jobs, companies, config])
+}
+
+/** Hook: danh sách công ty + hai bảng tra nhanh theo id (đã xác minh / bị khóa) */
+export function useCompanyFlags(): { verified: Record<string, boolean>; locked: Record<string, boolean> } {
+  const companies = useCatalogStore((s) => s.companies)
+  return useMemo(
+    () => ({
+      verified: Object.fromEntries(companies.map((c) => [c.id, c.verified])),
+      locked: Object.fromEntries(companies.map((c) => [c.id, c.locked])),
+    }),
+    [companies],
+  )
 }
 
 export interface CompanyJobRow {
-  job: MatchJob & Partial<Pick<PostedJob, 'description' | 'quantity' | 'postedAt'>>
-  /** Tin mới đăng qua /dang-tin (còn lại là tin có sẵn j1–j4) */
+  job: CatalogJob
+  /** Tin có thể sửa qua /dang-tin (mọi tin của công ty — máy chủ cho sửa tin của chính công ty) */
   posted: boolean
   /** Kiểm duyệt của quản trị viên */
   status: ModerationStatus
   reason?: string
   /** Trạng thái đăng tuyển do nhà tuyển dụng đặt */
   jobStatus: JobOpenStatus
-  /** Ngày đăng (ISO) — chỉ tin mới đăng có */
+  /** Ngày đăng (ISO) */
   postedAt?: string
 }
 
-/** Hook: tin của một công ty (j1–j4 + tin đã đăng), tin mới đăng lên đầu — cho trang Tin tuyển dụng / Tổng quan */
+/** Hook: tin của một công ty (mọi trạng thái, đã nạp theo tài khoản nhà tuyển dụng), mới nhất lên đầu */
 export function useCompanyJobs(companyId: string): CompanyJobRow[] {
-  const s = useAdminStore()
-  const row = (job: CompanyJobRow['job'], posted: boolean): CompanyJobRow => ({
-    job,
-    posted,
-    status: statusOf(s, job.id, posted),
-    reason: s.moderation[job.id]?.reason,
-    jobStatus: s.jobStatus[job.id] ?? 'open',
-    postedAt: posted ? (job as PostedJob).postedAt : undefined,
-  })
-  const mine = s.posted.filter((j) => j.companyId === companyId).sort((a, b) => b.postedAt.localeCompare(a.postedAt))
-  return [...mine.map((j) => row(j, true)), ...RECRUITER_POSITION_JOBS.filter((j) => j.companyId === companyId).map((j) => row(j, false))]
+  const jobs = useCatalogStore((s) => s.jobs)
+  return useMemo(
+    () =>
+      jobs
+        .filter((j) => j.companyId === companyId)
+        .sort((a, b) => b.postedAt.localeCompare(a.postedAt))
+        .map((job) => ({ job, posted: true, status: job.moderation, reason: job.moderationReason, jobStatus: job.status, postedAt: job.postedAt })),
+    [jobs, companyId],
+  )
 }
 
 /** Điểm tối thiểu để tính là "ứng viên phù hợp" (khớp mức "Phù hợp" ở /match) */
@@ -148,25 +150,27 @@ export function useJobNumbers(jobs: MatchJob[]): Record<string, JobNumbers> {
   )
 }
 
-/** Nhà tuyển dụng đổi trạng thái đăng tuyển: mở / tạm dừng / đã đóng */
-export const setJobStatus = (jobId: string, status: JobOpenStatus) => useAdminStore.getState().setJobStatus(jobId, status)
+/** Bọc thao tác ghi gọi máy chủ: nơi gọi không cần chờ; máy chủ từ chối / mất kết nối thì báo lỗi bằng toast */
+const reportErrors =
+  <A extends unknown[]>(fn: (...a: A) => Promise<void>) =>
+  (...a: A): Promise<void> =>
+    fn(...a).catch((err: unknown) => {
+      toast.error(apiErrorMessage(err, 'Chưa lưu được thay đổi, vui lòng thử lại.'))
+    })
 
-/** Gửi tin mới từ /dang-tin vào hàng chờ duyệt; trả về id */
-export const submitJob = (job: Omit<PostedJob, 'id' | 'postedAt'>) => useAdminStore.getState().submitJob(job)
-/** Lưu chỉnh sửa một tin đã đăng; tin quay lại hàng chờ duyệt */
-export const updateJob = (jobId: string, patch: Parameters<ReturnType<typeof useAdminStore.getState>['updateJob']>[1]) =>
-  useAdminStore.getState().updateJob(jobId, patch)
-export const setModeration = (jobId: string, status: ModerationStatus, reason?: string) =>
-  useAdminStore.getState().setModeration(jobId, status, reason)
-export const setCompanyLocked = (id: string, locked: boolean) => useAdminStore.getState().setCompanyLocked(id, locked)
-export const setCompanyVerified = (id: string, v: boolean) => useAdminStore.getState().setCompanyVerified(id, v)
+/** Nhà tuyển dụng đổi trạng thái đăng tuyển: mở / tạm dừng / đã đóng */
+export const setJobStatus = reportErrors(catalogApi.setJobStatus)
+/** Quản trị: duyệt / từ chối / ẩn / khôi phục tin */
+export const setModeration = reportErrors(catalogApi.setModeration)
+export const setCompanyLocked = reportErrors((id: string, locked: boolean) => catalogApi.patchCompany(id, { locked }))
+export const setCompanyVerified = reportErrors((id: string, verified: boolean) => catalogApi.patchCompany(id, { verified }))
 export const setSeekerLocked = (id: string, locked: boolean) => useAdminStore.getState().setSeekerLocked(id, locked)
 export const fileReport = (r: Parameters<ReturnType<typeof useAdminStore.getState>['fileReport']>[0]) =>
   useAdminStore.getState().fileReport(r)
 export const resolveReport = (...a: Parameters<ReturnType<typeof useAdminStore.getState>['resolveReport']>) =>
   useAdminStore.getState().resolveReport(...a)
-export const updateConfig = (patch: Partial<SystemConfig>) => useAdminStore.getState().updateConfig(patch)
+export const updateConfig = (patch: Partial<SystemConfig>) => catalogApi.saveConfig(patch)
 export const resetAdminData = () => useAdminStore.getState().reset()
 
-/** Hook đọc thẳng các phần của kho quản trị (danh sách khóa/xác minh, báo cáo, cấu hình) */
+/** Hook đọc thẳng các phần của kho quản trị (báo cáo, ứng viên bị khóa) */
 export const useAdmin = useAdminStore

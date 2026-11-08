@@ -2,8 +2,8 @@
 // người tìm việc (Việc làm, trang công ty, Kết nối, dashboard "Việc phù hợp"/"Tổng quan").
 // Đứng riêng để tránh vòng import giữa `jobs/data.ts` và `match/data.ts`.
 import type { JobType } from '@/types'
-import { COMPANIES, type DiscoverCompany } from './data'
-import { companyOf, DEMO_COMPANY, type MatchJob } from '@pages/public/match/data'
+import type { DiscoverCompany } from './data'
+import { allCompanies, companyOf, type MatchJob } from '@pages/public/match/data'
 import { getVisibleJobs, useVisibleJobs } from '@services/adminService'
 import { getSeekerCriteria } from '@context/profileStore'
 import { scoreMatch, type MatchOutcome } from '@pages/public/match/score'
@@ -11,8 +11,8 @@ import { scoreMatch, type MatchOutcome } from '@pages/public/match/score'
 export type { MatchJob }
 
 /**
- * Mọi việc người tìm việc thấy được (đọc tức thời): việc của công ty mẫu + tin của doanh nghiệp demo
- * + tin mới đã được duyệt; bỏ tin bị ẩn/từ chối/chờ duyệt và tin của công ty bị khóa (adminService).
+ * Mọi việc người tìm việc thấy được (đọc tức thời từ danh mục): chỉ tin đã duyệt, đang mở và công ty không bị khóa
+ * (cờ `visible` do máy chủ tính).
  * Trong component dùng `useAllJobs()` để tự cập nhật khi quản trị viên thay đổi.
  */
 export const getAllJobs = (): MatchJob[] => getVisibleJobs()
@@ -114,11 +114,11 @@ export function jobMatches(job: MatchJob, f: JobFilters): boolean {
   return true
 }
 
-/** Công ty (trong COMPANIES + công ty demo) có ít nhất một việc khớp, kèm các việc khớp */
+/** Công ty (trong danh mục) có ít nhất một việc khớp, kèm các việc khớp */
 export function companiesMatching(f: JobFilters, companies?: DiscoverCompany[]): { company: DiscoverCompany; jobs: MatchJob[] }[] {
-  // Mặc định: công ty mẫu + công ty demo (có tin mới đã duyệt). Công ty bị khóa / không còn tin nào
+  // Mặc định: mọi công ty trong danh mục (kể cả công ty demo). Công ty bị khóa / không còn tin nào
   // đang hiện thì bỏ khỏi danh sách.
-  const list = companies ?? [...COMPANIES, companyOf(DEMO_COMPANY.id)]
+  const list = companies ?? allCompanies()
   return list
     .map((company) => ({ company, all: jobsOfCompany(company.id), jobs: jobsOfCompany(company.id).filter((j) => jobMatches(j, f)) }))
     .filter((x) => x.all.length > 0 && (!hasFilters(f) || x.jobs.length > 0))

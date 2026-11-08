@@ -2,7 +2,7 @@
 // Mỗi tiêu chí chấm 0–1, nhân trọng số rồi cộng lại thành phần trăm.
 // Đổi thứ tự ưu tiên = gán lại trọng số theo hạng (RANK_WEIGHTS) rồi tính lại.
 import type { JobType } from '@/types'
-import { useAdminStore } from '@context/adminStore'
+import { useCatalogStore } from '@context/catalogStore'
 
 export type CriterionKey = 'skills' | 'schedule' | 'salary' | 'distance' | 'jobType'
 
@@ -121,7 +121,7 @@ export function scoreMatch(
     { key: 'jobType', value: jobTypeOk ? 1 : 0, ok: jobTypeOk, note: jobTypeOk ? 'Loại việc' : 'Khác loại việc' },
   ]
 
-  const w = priority ? weightsOf(priority) : useAdminStore.getState().config.weights
+  const w = priority ? weightsOf(priority) : useCatalogStore.getState().config.weights
   const score = Math.round(results.reduce((sum, r) => sum + r.value * w[r.key], 0))
   return { score, results, missingSkills }
 }

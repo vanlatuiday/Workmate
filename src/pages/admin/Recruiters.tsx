@@ -6,7 +6,7 @@ import DetailDrawer from '@components/admin/DetailDrawer'
 import { BTN_PRIMARY, BTN_SECONDARY, ConfirmDialog, FIELD, norm, STATUS_LABEL } from '@components/admin/parts'
 import { COMPANIES, type DiscoverCompany } from '@pages/public/jobs/data'
 import { companyOf, DEMO_COMPANY } from '@pages/public/match/data'
-import { setCompanyLocked, setCompanyVerified, useAdmin, useAdminJobs } from '@services/adminService'
+import { setCompanyLocked, setCompanyVerified, useAdminJobs, useCompanyFlags } from '@services/adminService'
 import { FOCUS } from '@utils/focus'
 
 type Filter = 'all' | 'verified' | 'unverified' | 'locked'
@@ -20,8 +20,7 @@ const FILTERS: { id: Filter; label: string }[] = [
 /** /admin/nha-tuyen-dung — danh sách công ty; khung chi tiết để gắn nhãn xác minh và khóa. */
 export default function Recruiters() {
   const jobRows = useAdminJobs()
-  const verified = useAdmin((s) => s.verifiedCompanies)
-  const locked = useAdmin((s) => s.lockedCompanies)
+  const { verified, locked } = useCompanyFlags()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
   const [openId, setOpenId] = useState<string | null>(null)

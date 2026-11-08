@@ -3,7 +3,7 @@ import toast from 'react-hot-toast'
 import { Bookmark, Check } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { useMatchStore } from '@context/matchStore'
-import { useAdminStore } from '@context/adminStore'
+import { useCatalogStore } from '@context/catalogStore'
 import { expressInterest, ME, useOnNewConnection, usePairStatuses, withdrawInterest } from '@services/connectionService'
 import { JOB_TYPES } from '@constants/index'
 import { Facts, PrimaryLink, TextLink } from '@components/discover/parts'
@@ -93,7 +93,7 @@ export default function JobDetailPage() {
   const role = useAuthStore((s) => s.user?.role)
   const visibleJobs = useAllJobs()
   // Cùng trọng số mà seekerOutcome dùng (Cấu hình hệ thống) để thanh tiêu chí khớp điểm tổng
-  const weights = useAdminStore((s) => s.config.weights)
+  const weights = useCatalogStore((s) => s.config.weights)
 
   const shown = visibleJobs.find((j) => j.id === id)
   // Tin đã ẩn/từ chối vẫn xem được (liên kết cũ) nhưng không ứng tuyển được

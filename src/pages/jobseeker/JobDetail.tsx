@@ -5,7 +5,7 @@ import { photoUrl } from '@components/discover/types'
 import { TagList } from '@components/discover/detail/DetailBlocks'
 import SeekerJobActions from '@components/discover/detail/SeekerJobActions'
 import ReportButton from '@components/report/ReportButton'
-import { useAdminStore } from '@context/adminStore'
+import { useCatalogStore } from '@context/catalogStore'
 import { JOB_TYPES } from '@constants/index'
 import { useAreaLinks } from '@hooks/useAreaLinks'
 import { jobsOfCompany, seekerOutcome, useAllJobs } from '@pages/public/jobs/catalog'
@@ -28,7 +28,7 @@ export default function JobseekerJobDetail() {
   const links = useAreaLinks()
   const visibleJobs = useAllJobs()
   // Cùng trọng số mà seekerOutcome dùng (Cấu hình hệ thống) để thanh tiêu chí khớp điểm tổng
-  const weights = useAdminStore((s) => s.config.weights)
+  const weights = useCatalogStore((s) => s.config.weights)
 
   const shown = visibleJobs.find((j) => j.id === id)
   // Tin đã ẩn/từ chối vẫn xem được (liên kết cũ) nhưng không ứng tuyển được

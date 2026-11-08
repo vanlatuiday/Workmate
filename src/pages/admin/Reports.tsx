@@ -5,8 +5,9 @@ import { EmptyState, PageHeader, StatusBadge } from '@components/dashboard'
 import { BTN_PRIMARY, BTN_SECONDARY, ConfirmDialog, ReasonDialog, STATUS_LABEL } from '@components/admin/parts'
 import { CANDIDATES, ME_CANDIDATE, companyOf } from '@pages/public/match/data'
 import { findAnyJob } from '@pages/public/jobs/lookup'
+import { useCatalogStore } from '@context/catalogStore'
 import {
-  resolveReport, setCompanyLocked, setModeration, setSeekerLocked, useAdmin,
+  resolveReport, setCompanyLocked, setModeration, setSeekerLocked, useAdmin, useCompanyFlags,
   type Report,
 } from '@services/adminService'
 import { cn } from '@utils/cn'
@@ -26,8 +27,10 @@ const fmtTime = (iso: string) =>
 /** /admin/bao-cao — hàng chờ báo cáo vi phạm từ người dùng. */
 export default function Reports() {
   const reports = useAdmin((s) => s.reports)
-  const moderation = useAdmin((s) => s.moderation)
-  const lockedCompanies = useAdmin((s) => s.lockedCompanies)
+  // Kiểm duyệt + khóa công ty nay ở danh mục (máy chủ)
+  const catalogJobs = useCatalogStore((s) => s.jobs)
+  const moderation = useMemo(() => Object.fromEntries(catalogJobs.map((j) => [j.id, { status: j.moderation }])), [catalogJobs])
+  const { locked: lockedCompanies } = useCompanyFlags()
   const lockedSeekers = useAdmin((s) => s.lockedSeekers)
   const [tab, setTab] = useState<Tab>('open')
   const [action, setAction] = useState<Action | null>(null)

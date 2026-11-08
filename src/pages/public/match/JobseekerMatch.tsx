@@ -14,7 +14,7 @@ import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import type { JobType } from '@/types'
 import { companyOf, SEEKER_JOBS, type MatchJob } from './data'
-import { useAdminStore } from '@context/adminStore'
+import { useCatalogStore } from '@context/catalogStore'
 import { useSeekerCriteria } from '@context/profileStore'
 import { useAllJobs } from '@pages/public/jobs/catalog'
 import { findAnyJob } from '@pages/public/jobs/lookup'
@@ -93,12 +93,14 @@ export default function JobseekerMatch() {
 
   // Chấm điểm lại mỗi khi tiêu chí hoặc thứ tự ưu tiên đổi
   const allJobs = useAllJobs()
-  const posted = useAdminStore((s) => s.posted)
+  // Danh mục từ máy chủ đã gồm cả tin bị ẩn/tạm dừng/đóng mà người này có quan hệ
+  const catalogJobs = useCatalogStore((s) => s.jobs)
   // Mọi việc kể cả tin đã bị ẩn/tạm dừng/đóng: để Đã lưu / Đã ứng tuyển / Đã kết nối không mất việc đã có quan hệ
   const pool = useMemo(() => {
     const seen = new Set(allJobs.map((j) => j.id))
-    return [...allJobs, ...[...SEEKER_JOBS, ...posted].filter((j) => !seen.has(j.id))]
-  }, [allJobs, posted])
+    const rest = [...catalogJobs, ...SEEKER_JOBS].filter((j) => !seen.has(j.id) && (seen.add(j.id), true))
+    return [...allJobs, ...rest]
+  }, [allJobs, catalogJobs])
   const visibleIds = useMemo(() => new Set(allJobs.map((j) => j.id)), [allJobs])
   const scored = useMemo(() => {
     const seeker = { ...base, salaryMinK, maxDistanceKm, jobTypes }
