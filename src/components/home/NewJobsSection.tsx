@@ -5,7 +5,8 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { photoSrcSet, photoUrl } from '@components/discover/types'
 import { JOB_TYPES } from '@constants/index'
 import { useAllJobs } from '@pages/public/jobs/catalog'
-import { DEMO_COMPANY, companyOf, type MatchJob } from '@pages/public/match/data'
+import { companyOf, type MatchJob } from '@pages/public/match/data'
+import { useCompanyStore } from '@context/companyStore'
 import { useCompanyJobs, useJobNumbers, type CompanyJobRow } from '@services/adminService'
 import { gsap, ScrollTrigger, useGSAP } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
@@ -130,7 +131,7 @@ export default function NewJobsSection() {
   const role = useHomeRole()
   const recruiter = role === 'recruiter'
   const jobs = useAllJobs().slice(-6)
-  const rows = useCompanyJobs(DEMO_COMPANY.id).slice(0, 6)
+  const rows = useCompanyJobs(useCompanyStore((s) => s.id)).slice(0, 6)
   const numbers = useJobNumbers(rows.map((r) => r.job))
   const copy = recruiter ? mine : homeSections.fresh
   const phrase = `${copy.title.toUpperCase()}`

@@ -13,7 +13,8 @@ import { useCatalogStore } from '@context/catalogStore'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import type { JobType } from '@/types'
-import { CANDIDATES, DEMO_COMPANY, MATCH_JOBS, type MatchPosition } from './match/data'
+import { CANDIDATES, MATCH_JOBS, useCandidates } from './match/data'
+import { useCompanyStore } from '@context/companyStore'
 import { scoreMatch } from './match/score'
 import { COMPANY } from './personal/companyData'
 import ShiftGrid from './post/ShiftGrid'
@@ -66,7 +67,7 @@ export default function PostJobPage() {
   // Chế độ sửa: /dang-tin?sua=<id>, chỉ nhận tin đã đăng của công ty demo; id lạ hoặc tin có sẵn thì rơi về đăng tin mới
   const editId = useSearchParams()[0].get('sua')
   const [editing] = useState(() =>
-    editId ? useCatalogStore.getState().jobs.find((j) => j.id === editId && j.companyId === DEMO_COMPANY.id) : undefined,
+    editId ? useCatalogStore.getState().jobs.find((j) => j.id === editId && j.companyId === useCompanyStore.getState().id) : undefined,
   )
   const [title, setTitle] = useState(editing?.title ?? '')
   const [jobType, setJobType] = useState<JobType | ''>(editing?.jobType ?? '')
@@ -90,7 +91,6 @@ export default function PostJobPage() {
   useEffect(() => () => window.clearTimeout(timer.current), [])
 
   const salaryLabel = minK === maxK ? `${minK}.000đ/giờ` : `${minK}.000–${maxK}.000đ/giờ`
-  const typeLabel = JOB_TYPES.find((t) => t.value === jobType)?.label ?? ''
   const req = { skills, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: (jobType || 'part-time') as JobType }
 
   const addSkill = (s: string) => {
@@ -98,16 +98,17 @@ export default function PostJobPage() {
     if (v && !skills.some((x) => x.toLowerCase() === v.toLowerCase())) setSkills([...skills, v])
   }
 
+  const candidates = useCandidates()
   // Chấm mọi ứng viên (bỏ trùng tên, bỏ người xa quá gấp đôi bán kính), đếm người từ 60%
   const { matched, total, top } = useMemo(() => {
     const seen = new Set<string>()
-    const list = CANDIDATES.filter((c) => !seen.has(c.name) && seen.add(c.name) && c.distanceKm <= radius * 2).map((c) => ({
+    const list = candidates.filter((c) => !seen.has(c.name) && seen.add(c.name) && c.distanceKm <= radius * 2).map((c) => ({
       name: c.name,
       score: scoreMatch(c.criteria, req, c.distanceKm).score,
     }))
     const ok = list.filter((x) => x.score >= MATCH_MIN).sort((a, b) => b.score - a.score)
     return { matched: ok.length, total: list.length, top: ok.slice(0, 3) }
-  }, [skills, slots, minK, maxK, jobType, radius])
+  }, [candidates, skills, slots, minK, maxK, jobType, radius])
 
   const missing = [!title.trim() && 'tên vị trí', !jobType && 'hình thức', slots.length === 0 && 'ít nhất một ca', skills.length === 0 && 'ít nhất một kỹ năng'].filter(Boolean)
   const ready = missing.length === 0
@@ -151,15 +152,6 @@ export default function PostJobPage() {
       timer.current = window.setTimeout(() => curtainTo('/tuyen-dung/tin-dang', 'Tin tuyển dụng'), 600)
       return
     }
-    const draft: MatchPosition = {
-      id: 'draft',
-      job: {
-        id: 'draft', title: title.trim(), jobType: typeLabel, schedule: scheduleText(slots), salary: salaryLabel,
-        postedAt: '', views: 0, suggested: 0, matches: 0, status: 'open',
-      },
-      req,
-      radiusKm: radius,
-    }
     // Gửi vào hàng chờ duyệt của quản trị viên; tin chỉ hiện công khai sau khi được duyệt
     try {
       await createJob({ ...fields, jobType: fields.jobType as JobType })
@@ -168,7 +160,7 @@ export default function PostJobPage() {
       return
     }
     toast.success('Tin đã gửi, chờ quản trị viên duyệt')
-    timer.current = window.setTimeout(() => curtainTo('/match', title.trim(), { draftPosition: draft }), 600)
+    timer.current = window.setTimeout(() => curtainTo('/tuyen-dung/tin-dang', 'Tin tuyển dụng'), 600)
   }
 
   return (

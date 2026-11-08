@@ -22,7 +22,7 @@ export default function JobseekerDashboard() {
   // Số liệu thật từ kho dùng chung (demoStore + matchStore)
   const pairs = useMyPairs('seeker')
   const savedCount = useMatchStore((s) => s.savedJobs.length)
-  const interviews = useInterviews('seeker')
+  const interviews = useInterviews()
   const now = new Date().toISOString()
   const upcoming = interviews.filter((iv) => iv.status === 'confirmed' && (iv.chosen ?? iv.slots[0]) > now).length
   const appliedCount = pairs.filter((p) => p.status === 'sent' || p.status === 'connected').length

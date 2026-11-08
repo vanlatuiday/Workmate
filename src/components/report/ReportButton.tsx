@@ -4,17 +4,18 @@ import { Flag } from 'lucide-react'
 import DialogShell from '@components/interview/DialogShell'
 import { useAuthStore } from '@context/authStore'
 import { fileReport, type ReportTarget } from '@services/adminService'
+import { apiErrorMessage } from '@services/authService'
 import { FOCUS } from '@utils/focus'
 
 // Nút "Báo cáo" kín đáo ở cuối khung chi tiết: chọn lý do + ghi chú → vào hàng chờ của quản trị viên.
 
-const REASONS: Record<ReportTarget, string[]> = {
+const REASONS: Record<Exclude<ReportTarget, 'company'>, string[]> = {
   job: ['Lừa đảo', 'Sai thông tin', 'Nội dung không phù hợp', 'Khác'],
   seeker: ['Hồ sơ giả', 'Không đến phỏng vấn', 'Quấy rối', 'Khác'],
 }
 
 type Props = {
-  target: ReportTarget
+  target: Exclude<ReportTarget, 'company'>
   /** Id tin (jobId) hoặc id người tìm việc */
   targetId: string
   /** Tên hiển thị trong hộp thoại */
@@ -28,13 +29,20 @@ function ReportDialog({ target, targetId, name, onClose }: Omit<Props, 'classNam
   const role = useAuthStore((s) => s.user?.role)
   const [reason, setReason] = useState('')
   const [note, setNote] = useState('')
+  const [sending, setSending] = useState(false)
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!reason) return
-    fileReport({ target, targetId, reason, note: note.trim() || undefined, by: role === 'jobseeker' ? 'seeker' : role === 'recruiter' ? 'recruiter' : 'guest' })
-    toast.success('Đã gửi báo cáo, quản trị viên sẽ xem xét')
-    onClose()
+    if (!reason || sending) return
+    setSending(true)
+    try {
+      await fileReport({ target, targetId, reason, note: note.trim() || undefined, by: role === 'jobseeker' ? 'seeker' : role === 'recruiter' ? 'recruiter' : 'guest' })
+      toast.success('Đã gửi báo cáo, quản trị viên sẽ xem xét')
+      onClose()
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'Chưa gửi được báo cáo, vui lòng thử lại.'))
+      setSending(false)
+    }
   }
 
   return (

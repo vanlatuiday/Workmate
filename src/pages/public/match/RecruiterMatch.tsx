@@ -1,19 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Bookmark, Briefcase, Check, Clock, MapPin, UserCheck, UserX, Wallet, X } from 'lucide-react'
 import InterviewAction from '@components/interview/InterviewAction'
-import { EmptyState, MatchScore, MockNotice, StatusBadge } from '@components/dashboard'
+import { EmptyState, MatchScore, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
-import { useDemoStore } from '@context/demoStore'
-import { useSettingsStore } from '@context/settingsStore'
-import { expressInterest, getPairStatus, RECRUITER_JOBS, resetDemoData, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
+import { expressInterest, getPairStatus, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { SEEKER_PUBLIC_HREF } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
-import { CANDIDATES, isSeekerVisibleTo, ME_CANDIDATE, visibleCandidatesOf, POSITIONS, type MatchCandidate, type MatchPosition } from './data'
+import { availabilityLabel, useCandidates, usePositions, type MatchCandidate, type MatchPosition } from './data'
 import CurvedGallery from './gallery/CurvedGallery'
 import MatchSearchBar, { BarSelect, ChipReset, LevelMenu } from './MatchSearchBar'
 import ReportButton from '@components/report/ReportButton'
@@ -24,7 +22,6 @@ import {
   type LevelKey,
 } from './parts'
 import { DEFAULT_PRIORITY, scoreMatch, weightsOf, type CriterionResult } from './score'
-import { useAdmin } from '@services/adminService'
 import MessageLink from '@components/messenger/MessageLink'
 
 type TabKey = 'fit' | 'saved' | 'interested' | 'connected'
@@ -38,24 +35,31 @@ function recruiterNote(r: CriterionResult) {
 
 /** Nhà tuyển dụng: chọn vị trí, xem ứng viên xếp theo điểm, mời / lưu / bỏ qua. */
 export default function RecruiterMatch() {
+  const positions = usePositions()
+  if (!positions.length) {
+    return (
+      <div className="shell py-section-sm">
+        <EmptyState
+          icon={Briefcase}
+          title="Chưa có tin đang hiển thị"
+          description="Ứng viên phù hợp hiện ở đây khi có tin đang mở đã được duyệt."
+          action={<Link to="/dang-tin" className={BTN_PRIMARY}>Đăng tin</Link>}
+        />
+      </div>
+    )
+  }
+  return <RecruiterMatchBoard positions={positions} />
+}
+
+function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
   const { savedCandidates, skippedCandidates, toggleSavedCandidate, skipCandidate, unskipCandidates } = useMatchStore()
   const statusOf = usePairStatuses('recruiter')
+  const candidates = useCandidates()
   const view = useMatchStore((s) => s.view)
   const setView = useMatchStore((s) => s.setView)
   const gallery = view === 'gallery'
   // Lenis chỉ chạy ở Bộ sưu tập (canvas WebGL cần cuộn mượt đồng bộ); chế độ Danh sách giữ cuộn thường
   useSmoothScroll(gallery)
-  // Tin vừa soạn ở /dang-tin (chưa lưu, tải lại là mất) nằm đầu danh sách vị trí
-  // Tin vừa đăng (chuyền qua state lúc chuyển trang, không lưu): đọc một lần rồi xóa khỏi
-  // history — nếu không, trình duyệt giữ state qua F5 và tin "chưa lưu" vẫn còn sau khi tải lại
-  const locState = useLocation().state as { draftPosition?: MatchPosition } | null
-  const [draft] = useState(() => locState?.draftPosition)
-  useEffect(() => {
-    if (window.history.state?.usr?.draftPosition) {
-      window.history.replaceState({ ...window.history.state, usr: null }, '')
-    }
-  }, [])
-  const positions = useMemo(() => (draft ? [draft, ...POSITIONS] : POSITIONS), [draft])
   const [positionId, setPositionId] = useState(positions[0].id)
   const [tab, setTab] = useState<TabKey>('fit')
   const [query, setQuery] = useState('')
@@ -68,28 +72,18 @@ export default function RecruiterMatch() {
 
   // Kết nối mới (kể cả do ứng viên đáp lại sau vài giây) → báo thành công
   useOnNewConnection((c) => {
-    if (!RECRUITER_JOBS.includes(c.jobId) && c.jobId !== 'draft') return
     const pos = positions.find((p) => p.id === c.jobId)
-    const cd = [...CANDIDATES, ME_CANDIDATE].find((x) => x.id === c.seekerId)
+    const cd = candidates.find((x) => x.id === c.seekerId)
     if (pos && cd) toast.success(`Kết nối thành công với ${cd.name} — ${pos.job.title}`)
   })
-
-  const lockedSeekers = useAdmin((s) => s.lockedSeekers)
-  // Quyền riêng tư của người tìm việc demo: đổi cài đặt hoặc kết nối thì danh sách tính lại
-  const seekerVisibility = useSettingsStore((s) => s.bySide.seeker.visibility)
-  const connections = useDemoStore((s) => s.connections)
 
   // Chấm điểm ứng viên của vị trí đang chọn (ưu tiên mặc định), cao trước
   const scored = useMemo(
     () =>
-      (position.id === 'draft'
-        ? [...CANDIDATES, ME_CANDIDATE].filter((c, i, all) => all.findIndex((x) => x.name === c.name) === i && !lockedSeekers[c.id] && (c.id !== ME_CANDIDATE.id || isSeekerVisibleTo(position.id)))
-        : visibleCandidatesOf(position.id)
-      )
+      candidates
         .map((c) => ({ c, key: candidateKey(position.id, c.id), outcome: scoreMatch(c.criteria, req, c.distanceKm) }))
         .sort((a, b) => b.outcome.score - a.outcome.score),
-    // lockedSeekers: đổi khi quản trị viên khóa/mở khóa ứng viên (candidatesOf đọc thẳng kho); quyền riêng tư: xem isSeekerVisibleTo
-    [position.id, req, lockedSeekers, seekerVisibility, connections],
+    [candidates, position.id, req],
   )
 
   const skipped = scored.filter((x) => skippedCandidates.includes(x.key))
@@ -191,7 +185,7 @@ export default function RecruiterMatch() {
 
   const availabilityBadge = (c: MatchCandidate) =>
     c.availability.kind === 'ready' ? (
-      <StatusBadge tone="strong">Sẵn sàng từ {c.availability.from}</StatusBadge>
+      <StatusBadge tone="strong">{availabilityLabel(c.availability)}</StatusBadge>
     ) : (
       <StatusBadge tone="muted">Đang đi làm</StatusBadge>
     )
@@ -221,7 +215,6 @@ export default function RecruiterMatch() {
               <option key={p.id} value={p.id}>
                 {p.job.title}
                 {p.job.status === 'paused' ? ' (tạm dừng)' : ''}
-                {p.id === 'draft' ? ' (vừa đăng — chưa lưu)' : ''}
               </option>
             ))}
           </BarSelect>
@@ -346,16 +339,6 @@ export default function RecruiterMatch() {
         </Tabs>
       </div>
 
-      <div className="mx-auto mt-8 flex justify-center">
-        <MockNotice />
-        <button
-          type="button"
-          onClick={() => { resetDemoData(); toast('Đã đặt lại dữ liệu demo') }}
-          className={`ml-4 rounded-control text-xs text-page-muted underline underline-offset-4 hover:text-page-fg ${FOCUS}`}
-        >
-          Đặt lại dữ liệu demo
-        </button>
-      </div>
     </MatchFrame>
     </div>
 
@@ -379,7 +362,7 @@ export default function RecruiterMatch() {
                 { icon: Wallet, label: 'Lương mong muốn', value: <><span className="tnum">{c.criteria.salaryMinK}.000</span>đ/giờ</> },
                 { icon: Clock, label: 'Lịch rảnh', value: <><span className="tnum">{matched}/{req.slots.length}</span> ca khớp</> },
                 { icon: MapPin, label: 'Khoảng cách', value: `${c.distanceKm} km` },
-                { icon: UserCheck, label: 'Trạng thái', value: c.availability.kind === 'ready' ? `Sẵn sàng từ ${c.availability.from}` : 'Đang đi làm' },
+                { icon: UserCheck, label: 'Trạng thái', value: availabilityLabel(c.availability) },
               ]}
             />
           </div>

@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { ClipboardList } from 'lucide-react'
-import { EmptyState, MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { HireStatusChip, OfferCard } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import { describeConversation } from '@pages/public/messages/describe'
-import { useDemoStore } from '@context/demoStore'
+import { useConnectionStore } from '@context/connectionStore'
 import { expressInterest, ME, useHires, useMyPairs, useOnNewConnection, withdrawInterest, type PairItem } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -28,7 +28,7 @@ const TABS: { id: Tab; label: string }[] = [
 function Row({ item }: { item: PairItem }) {
   const info = describeConversation('seeker', item.jobId, item.seekerId)
   // Kết nối do doanh nghiệp quan tâm trước (mình chưa từng ứng tuyển) thì không nói "ứng tuyển"
-  const applied = useDemoStore((s) => s.interests.some((i) => i.jobId === item.jobId && i.seekerId === item.seekerId && i.from === 'seeker'))
+  const applied = useConnectionStore((s) => s.interests.some((i) => i.jobId === item.jobId && i.seekerId === item.seekerId && i.from === 'seeker'))
   const verb = item.status === 'received' ? 'quan tâm' : applied ? 'ứng tuyển' : 'cập nhật'
   return (
     <li className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 md:flex-row md:items-center md:justify-between">
@@ -77,7 +77,7 @@ function Row({ item }: { item: PairItem }) {
 export default function Applications() {
   const pairs = useMyPairs('seeker')
   // Lời mời nhận việc còn chờ mình xác nhận
-  const offers = useHires('seeker').filter((h) => h.status === 'offered')
+  const offers = useHires().filter((h) => h.status === 'offered')
   const [tab, setTab] = useState<Tab>('all')
 
   useOnNewConnection((c) => {
@@ -144,7 +144,6 @@ export default function Applications() {
         </Panel>
       )}
 
-      <div className="mt-6"><MockNotice /></div>
     </div>
   )
 }

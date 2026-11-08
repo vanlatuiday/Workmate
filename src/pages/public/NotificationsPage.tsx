@@ -70,7 +70,7 @@ const targetOf = (n: DemoNotification) => {
   }
 }
 
-/** /thong-bao — danh sách thông báo của tài khoản demo (kho demo, chưa có backend). */
+/** /thong-bao — danh sách thông báo của tài khoản đang đăng nhập. */
 export default function NotificationsPage() {
   const role = useAuthStore((s) => s.user?.role)
   if (!role) return <Navigate to="/dang-nhap" state={{ from: '/thong-bao' }} />

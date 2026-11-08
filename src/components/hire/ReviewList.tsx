@@ -1,11 +1,7 @@
 import { Star } from 'lucide-react'
-import { companyOf, candidatesOf } from '@pages/public/match/data'
-import { findAnyJob } from '@pages/public/jobs/lookup'
-import { useProfileStore } from '@context/profileStore'
-import { ME, reviewStats, useReviews, type Review } from '@services/connectionService'
+import { reviewStats, useCompanyReviews, useSeekerReviews, type ReviewItem } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { formatRelativeTime } from '@utils/format'
-import { abbreviateName } from './format'
 
 /** Hàng sao (chỉ hiển thị): sao đầy theo số điểm, có nhãn chữ cho trình đọc màn hình */
 export function Stars({ value, className }: { value: number; className?: string }) {
@@ -21,12 +17,11 @@ export function Stars({ value, className }: { value: number; className?: string 
 const LATEST = 4
 
 /** Một khối "Đánh giá": điểm trung bình + số lượng + vài đánh giá mới nhất; trống thì có dòng giải thích */
-function ReviewBlock({ title, reviews, nameOf, emptyText, hideTitle }: {
+function ReviewBlock({ title, reviews, emptyText, hideTitle }: {
   title: string
   /** Ẩn tiêu đề nhìn thấy (trang đã có tiêu đề riêng), vẫn giữ cho trình đọc màn hình */
   hideTitle?: boolean
-  reviews: Review[]
-  nameOf: (r: Review) => string
+  reviews: ReviewItem[]
   emptyText: string
 }) {
   const { average, count } = reviewStats(reviews)
@@ -44,11 +39,11 @@ function ReviewBlock({ title, reviews, nameOf, emptyText, hideTitle }: {
           </p>
           <ul className="mt-4 divide-y divide-page-line border-y border-page-line">
             {reviews.slice(0, LATEST).map((r) => (
-              <li key={`${r.jobId}|${r.seekerId}|${r.from}`} className="py-4">
+              <li key={`${r.jobId}|${r.at}`} className="py-4">
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                   <span className="flex items-center gap-2.5">
                     <Stars value={r.stars} />
-                    <span className="text-sm font-medium text-page-fg">{nameOf(r)}</span>
+                    <span className="text-sm font-medium text-page-fg">{r.authorName}</span>
                   </span>
                   <span className="text-xs text-page-muted">{formatRelativeTime(r.at)}</span>
                 </div>
@@ -71,18 +66,13 @@ function ReviewBlock({ title, reviews, nameOf, emptyText, hideTitle }: {
 
 /** Đánh giá từ người đã làm về một công ty (người viết = người tìm việc, tên rút gọn) */
 export function CompanyReviews({ companyId, className, hideTitle }: { companyId: string; className?: string; hideTitle?: boolean }) {
-  const all = useReviews()
-  const myName = useProfileStore((s) => s.profile.fullName)
-  const reviews = all.filter((r) => r.from === 'seeker' && findAnyJob(r.jobId)?.companyId === companyId)
-  const nameOf = (r: Review) =>
-    r.seekerId === ME ? abbreviateName(myName) : abbreviateName(candidatesOf(r.jobId).find((c) => c.id === r.seekerId)?.name ?? 'Người tìm việc')
+  const reviews = useCompanyReviews(companyId)
   return (
     <div className={className}>
       <ReviewBlock
         title="Đánh giá từ người đã làm"
         hideTitle={hideTitle}
         reviews={reviews}
-        nameOf={nameOf}
         emptyText="Chưa có đánh giá nào. Đánh giá xuất hiện sau khi người tìm việc đã đi làm tại đây."
       />
     </div>
@@ -91,18 +81,12 @@ export function CompanyReviews({ companyId, className, hideTitle }: { companyId:
 
 /** Đánh giá từ doanh nghiệp về một người tìm việc (người viết = tên công ty) */
 export function SeekerReviews({ seekerId, className }: { seekerId: string; className?: string }) {
-  const all = useReviews()
-  const reviews = all.filter((r) => r.from === 'recruiter' && r.seekerId === seekerId)
-  const nameOf = (r: Review) => {
-    const cid = findAnyJob(r.jobId)?.companyId
-    return cid ? companyOf(cid).name : 'Doanh nghiệp'
-  }
+  const reviews = useSeekerReviews(seekerId)
   return (
     <div className={className}>
       <ReviewBlock
         title="Đánh giá từ doanh nghiệp"
         reviews={reviews}
-        nameOf={nameOf}
         emptyText="Chưa có đánh giá nào. Đánh giá xuất hiện sau khi người tìm việc hoàn thành một đợt làm việc."
       />
     </div>

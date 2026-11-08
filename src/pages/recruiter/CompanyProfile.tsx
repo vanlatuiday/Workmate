@@ -2,7 +2,9 @@ import { useId, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { AlertCircle, Plus, X } from 'lucide-react'
-import { MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { useCatalogStore } from '@context/catalogStore'
+import { apiErrorMessage } from '@services/authService'
 import { photoUrl } from '@components/discover/types'
 import { COVER_CHOICES, useCompanyStore, type CompanyProfile as Profile } from '@context/companyStore'
 import { cn } from '@utils/cn'
@@ -67,19 +69,24 @@ function ListEditor({ label, items, onChange, placeholder }: { label: string; it
   )
 }
 
-/** Hồ sơ công ty: sửa bằng state cục bộ, bấm "Lưu thay đổi" mới ghi vào kho (trang công khai đọc từ kho). */
+/** Hồ sơ công ty: sửa bằng state cục bộ, bấm "Lưu thay đổi" mới gửi lên máy chủ. */
 export default function CompanyProfile() {
   const profile = useCompanyStore((s) => s.profile)
   const update = useCompanyStore((s) => s.update)
-  const reset = useCompanyStore((s) => s.reset)
   const [form, setForm] = useState<Profile>(profile)
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({})
-  const [confirmReset, setConfirmReset] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   const dirty = JSON.stringify(form) !== JSON.stringify(profile)
+  // Hồ sơ nạp xong từ máy chủ sau khi trang đã mở: đưa vào form
+  const [synced, setSynced] = useState(profile)
+  if (synced !== profile) {
+    setSynced(profile)
+    setForm(profile)
+  }
   const set = <K extends keyof Profile>(k: K, v: Profile[K]) => setForm((f) => ({ ...f, [k]: v }))
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault()
     const next = {
       name: form.name.trim() ? undefined : 'Vui lòng nhập tên công ty.',
@@ -87,18 +94,19 @@ export default function CompanyProfile() {
     }
     setErrors(next)
     if (next.name || next.email) return
-    update({ ...form, name: form.name.trim(), email: form.email.trim() })
-    toast.success('Đã lưu hồ sơ công ty')
+    setSaving(true)
+    try {
+      await update({ ...form, name: form.name.trim(), email: form.email.trim() })
+      // Trang công khai đọc từ danh mục
+      await useCatalogStore.getState().load()
+      toast.success('Đã lưu hồ sơ công ty')
+    } catch (err) {
+      toast.error(apiErrorMessage(err, 'Chưa lưu được hồ sơ công ty, vui lòng thử lại.'))
+    } finally {
+      setSaving(false)
+    }
   }
   const cancel = () => { setForm(profile); setErrors({}) }
-  const doReset = () => {
-    reset()
-    // Lấy lại giá trị mặc định từ kho để form khớp
-    setForm(useCompanyStore.getState().profile)
-    setErrors({})
-    setConfirmReset(false)
-    toast.success('Đã khôi phục hồ sơ mặc định')
-  }
 
   return (
     <div>
@@ -188,21 +196,10 @@ export default function CompanyProfile() {
 
           {/* Thanh hành động */}
           <div className="flex flex-wrap items-center gap-3">
-            <button type="submit" className={BTN_SOLID}>Lưu thay đổi</button>
+            <button type="submit" disabled={saving} className={`${BTN_SOLID} disabled:opacity-50`}>{saving ? 'Đang lưu…' : 'Lưu thay đổi'}</button>
             <button type="button" onClick={cancel} disabled={!dirty} className={`${BTN_LINE} disabled:opacity-50`}>Hủy</button>
-            <button type="button" onClick={() => setConfirmReset(true)} className={BTN_LINE}>Khôi phục mặc định</button>
             {dirty && <span role="status" className="text-sm text-page-muted">Có thay đổi chưa lưu</span>}
           </div>
-          {confirmReset && (
-            <div role="alertdialog" aria-label="Xác nhận khôi phục mặc định" className="flex flex-col gap-3 rounded-card border border-page-fg p-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-page-fg">Khôi phục toàn bộ hồ sơ về nội dung mẫu ban đầu?</p>
-              <div className="flex gap-2">
-                <button type="button" autoFocus className={BTN_SOLID} onClick={doReset}>Khôi phục</button>
-                <button type="button" className={BTN_LINE} onClick={() => setConfirmReset(false)}>Hủy</button>
-              </div>
-            </div>
-          )}
-          <MockNotice />
         </form>
 
         {/* Xem trước thẻ công ty như ở trang Việc làm */}

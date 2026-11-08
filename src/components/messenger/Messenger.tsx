@@ -66,8 +66,8 @@ export default function Messenger() {
 
 function MessengerInner({ viewer }: { viewer: Side }) {
   const { open, activeKey, openMessenger, closeMessenger, setActiveKey } = useMessengerStore()
-  const unread = useUnreadMessages(viewer)
-  const conversations = useConversations(viewer)
+  const unread = useUnreadMessages()
+  const conversations = useConversations()
   const { pathname, state } = useLocation()
   const reduced = useReducedMotion()
   // Từ md: hai cột (danh sách | chat), tự mở hội thoại đầu khi chưa chọn

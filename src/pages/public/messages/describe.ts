@@ -1,6 +1,8 @@
-import { COMPANY_PUBLIC_HREF, SEEKER_PUBLIC_HREF } from '@pages/public/personal/links'
+import { SEEKER_PUBLIC_HREF } from '@pages/public/personal/links'
 import type { Side } from '@services/connectionService'
-import { candidatesOf, companyOf, POSITIONS } from '../match/data'
+import { useConnectionStore, convKey } from '@context/connectionStore'
+import { useCatalogStore } from '@context/catalogStore'
+import { candidatesOf } from '../match/data'
 import { findAnyJob } from '../jobs/lookup'
 
 export interface ConversationInfo {
@@ -20,13 +22,14 @@ const initialsOf = (name: string) =>
  * người tìm việc thấy công ty + vị trí; doanh nghiệp thấy ứng viên + vị trí.
  */
 export function describeConversation(viewer: Side, jobId: string, seekerId: string): ConversationInfo {
+  const conv = useConnectionStore.getState().conversations.find((c) => c.key === convKey(jobId, seekerId))
+  const job = findAnyJob(jobId)
+  const subtitle = conv?.jobTitle ?? job?.title ?? 'Vị trí đã đóng'
   if (viewer === 'seeker') {
-    const job = findAnyJob(jobId)
-    const name = job ? companyOf(job.companyId).name : 'Doanh nghiệp'
-    return { name, subtitle: job?.title ?? 'Vị trí đã đóng', initials: initialsOf(name), profileHref: COMPANY_PUBLIC_HREF, profileLabel: 'Xem công ty' }
+    const companyId = conv?.peer.companyId ?? job?.companyId
+    const name = conv?.peer.name ?? useCatalogStore.getState().companies.find((c) => c.id === companyId)?.name ?? 'Doanh nghiệp'
+    return { name, subtitle, initials: initialsOf(name), profileHref: companyId ? `/cong-ty/${companyId}` : '/cong-ty', profileLabel: 'Xem công ty' }
   }
-  const position = POSITIONS.find((p) => p.id === jobId)
-  const cand = candidatesOf(jobId).find((c) => c.id === seekerId)
-  const name = cand?.name ?? 'Ứng viên'
-  return { name, subtitle: position?.job.title ?? 'Vị trí đã đóng', initials: initialsOf(name), profileHref: SEEKER_PUBLIC_HREF, profileLabel: 'Xem hồ sơ' }
+  const name = conv?.peer.name ?? candidatesOf().find((c) => c.id === seekerId)?.name ?? 'Ứng viên'
+  return { name, subtitle, initials: initialsOf(name), profileHref: SEEKER_PUBLIC_HREF, profileLabel: 'Xem hồ sơ' }
 }

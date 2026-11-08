@@ -1,11 +1,9 @@
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Bookmark } from 'lucide-react'
-import { EmptyState, MatchScore, MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { EmptyState, MatchScore, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
-import { useDemoStore } from '@context/demoStore'
-import { useSettingsStore } from '@context/settingsStore'
-import { POSITIONS, visibleCandidatesOf } from '@pages/public/match/data'
+import { useCandidates, usePositions } from '@pages/public/match/data'
 import { scoreMatch } from '@pages/public/match/score'
 import { expressInterest, useOnNewConnection, usePairStatuses } from '@services/connectionService'
 import { FOCUS } from '@utils/focus'
@@ -20,19 +18,18 @@ export default function SavedCandidates() {
   const savedCandidates = useMatchStore((s) => s.savedCandidates)
   const toggleSaved = useMatchStore((s) => s.toggleSavedCandidate)
   const statusOf = usePairStatuses('recruiter')
-  // Quyền riêng tư của người tìm việc demo: đăng ký để danh sách cập nhật khi đổi cài đặt hoặc kết nối
-  useSettingsStore((s) => s.bySide.seeker.visibility)
-  useDemoStore((s) => s.connections)
+  const positions = usePositions()
+  const candidates = useCandidates()
 
   useOnNewConnection(() => toast.success('Kết nối thành công'))
 
   // Khóa dạng `positionId:candidateId` → nhóm theo tin; bỏ khóa không còn khớp dữ liệu
-  const groups = POSITIONS.map((position) => ({
+  const groups = positions.map((position) => ({
     position,
     rows: savedCandidates.flatMap((key) => {
       const i = key.indexOf(':')
       if (key.slice(0, i) !== position.id) return []
-      const cand = visibleCandidatesOf(position.id).find((c) => c.id === key.slice(i + 1))
+      const cand = candidates.find((c) => c.id === key.slice(i + 1))
       return cand ? [{ key, cand, score: scoreMatch(cand.criteria, position.req, cand.distanceKm).score }] : []
     }),
   })).filter((g) => g.rows.length > 0)
@@ -111,7 +108,6 @@ export default function SavedCandidates() {
         </div>
       )}
 
-      <div className="mt-6"><MockNotice /></div>
     </div>
   )
 }

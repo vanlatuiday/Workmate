@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Bookmark, MapPin } from 'lucide-react'
-import { EmptyState, MatchScore, MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { EmptyState, MatchScore, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
 import { expressInterest, ME, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
 import { useAllJobs, seekerOutcome } from '@pages/public/jobs/catalog'
@@ -115,7 +115,6 @@ export default function SavedJobs() {
         </Panel>
       )}
 
-      <div className="mt-6"><MockNotice /></div>
     </div>
   )
 }

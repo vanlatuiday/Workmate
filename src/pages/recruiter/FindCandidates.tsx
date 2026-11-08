@@ -1,14 +1,11 @@
 import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Bookmark, BookmarkCheck, MapPin, Search, UserSearch } from 'lucide-react'
-import { EmptyState, MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
-import { useDemoStore } from '@context/demoStore'
-import { useSettingsStore } from '@context/settingsStore'
-import { CANDIDATES, isSeekerVisibleTo, ME_CANDIDATE, POSITIONS, type MatchCandidate } from '@pages/public/match/data'
+import { availabilityLabel, useCandidates, usePositions, type MatchCandidate, type MatchPosition } from '@pages/public/match/data'
 import { scoreMatch } from '@pages/public/match/score'
 import { expressInterest, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
-import { useAdmin } from '@services/adminService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 
@@ -21,13 +18,6 @@ const BTN_LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase().trim()
 const initialsOf = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join('')
 
-// Toàn bộ ứng viên: bỏ trùng theo tên (một người có thể hợp nhiều tin) + người tìm việc demo
-const ALL_CANDIDATES: MatchCandidate[] = [
-  ...CANDIDATES.filter((c, i, a) => a.findIndex((x) => norm(x.name) === norm(c.name)) === i),
-  ME_CANDIDATE,
-]
-const ALL_SKILLS = [...new Set(ALL_CANDIDATES.flatMap((c) => c.criteria.skills))].sort((a, b) => a.localeCompare(b, 'vi'))
-const AREAS = [...new Set(ALL_CANDIDATES.map((c) => c.area))].sort((a, b) => a.localeCompare(b, 'vi'))
 const SESSIONS = [
   { id: 0, label: 'Sáng' },
   { id: 1, label: 'Chiều' },
@@ -44,16 +34,16 @@ const STATUS_LABEL: Record<Exclude<PairStatus, 'none'>, string> = {
   connected: 'Đã kết nối',
 }
 
-function CandidateCard({ c }: { c: MatchCandidate }) {
+function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPosition[] }) {
   const statusOf = usePairStatuses('recruiter')
   const savedCandidates = useMatchStore((s) => s.savedCandidates)
   const toggleSaved = useMatchStore((s) => s.toggleSavedCandidate)
   const [open, setOpen] = useState(false)
 
   // Tin hợp nhất với ứng viên này
-  const scored = POSITIONS.map((p) => ({ p, score: scoreMatch(c.criteria, p.req, c.distanceKm).score })).sort((a, b) => b.score - a.score)
+  const scored = positions.map((p) => ({ p, score: scoreMatch(c.criteria, p.req, c.distanceKm).score })).sort((a, b) => b.score - a.score)
   const best = scored[0]
-  const states = POSITIONS.map((p) => ({ p, st: statusOf(p.id, c.id) }))
+  const states = positions.map((p) => ({ p, st: statusOf(p.id, c.id) }))
   // Chỉ chọn được tin chưa quan tâm / chưa kết nối; mặc định tin hợp nhất trong số đó
   const choosable = scored.filter(({ p }) => ['none', 'received'].includes(statusOf(p.id, c.id)))
   const [picked, setPicked] = useState(choosable[0]?.p.id ?? best.p.id)
@@ -65,7 +55,7 @@ function CandidateCard({ c }: { c: MatchCandidate }) {
 
   const send = () => {
     if (!pickedId) return
-    const title = POSITIONS.find((p) => p.id === pickedId)?.job.title
+    const title = positions.find((p) => p.id === pickedId)?.job.title
     const connecting = statusOf(pickedId, c.id) === 'received'
     expressInterest('recruiter', pickedId, c.id)
     if (!connecting) toast.success(`Đã quan tâm ${c.name} — ${title}`)
@@ -87,7 +77,7 @@ function CandidateCard({ c }: { c: MatchCandidate }) {
           </p>
         </div>
         <StatusBadge tone={ready ? 'default' : 'muted'}>
-          {c.availability.kind === 'ready' ? `Sẵn sàng từ ${c.availability.from}` : 'Đang đi làm'}
+          {availabilityLabel(c.availability)}
         </StatusBadge>
       </div>
 
@@ -159,11 +149,11 @@ export default function FindCandidates() {
   const [skills, setSkills] = useState<string[]>([])
   const [sessions, setSessions] = useState<number[]>([])
   const [salaryCap, setSalaryCap] = useState(0)
-  // Ứng viên bị quản trị viên khóa không hiện cho doanh nghiệp
-  const lockedSeekers = useAdmin((s) => s.lockedSeekers)
-  // Quyền riêng tư của người tìm việc demo: đổi cài đặt hoặc kết nối thì danh sách tính lại
-  const seekerVisibility = useSettingsStore((s) => s.bySide.seeker.visibility)
-  const connections = useDemoStore((s) => s.connections)
+  // Máy chủ đã lọc người bị khóa và hồ sơ không cho phép tiếp cận
+  const ALL_CANDIDATES = useCandidates()
+  const positions = usePositions()
+  const ALL_SKILLS = useMemo(() => [...new Set(ALL_CANDIDATES.flatMap((c) => c.criteria.skills))].sort((a, b) => a.localeCompare(b, 'vi')), [ALL_CANDIDATES])
+  const AREAS = useMemo(() => [...new Set(ALL_CANDIDATES.map((c) => c.area).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'vi')), [ALL_CANDIDATES])
 
   useOnNewConnection((c) => {
     const cand = ALL_CANDIDATES.find((x) => x.id === c.seekerId)
@@ -174,15 +164,13 @@ export default function FindCandidates() {
     const nq = norm(q)
     return ALL_CANDIDATES.filter(
       (c) =>
-        !lockedSeekers[c.id] &&
-        (c.id !== ME_CANDIDATE.id || isSeekerVisibleTo()) &&
         (!nq || norm(c.name).includes(nq) || c.criteria.skills.some((s) => norm(s).includes(nq))) &&
         (!area || c.area === area) &&
         skills.every((s) => c.criteria.skills.includes(s)) &&
         sessions.every((s) => freeIn(c, s)) &&
         (!salaryCap || c.criteria.salaryMinK <= salaryCap),
     )
-  }, [q, area, skills, sessions, salaryCap, lockedSeekers, seekerVisibility, connections])
+  }, [ALL_CANDIDATES, q, area, skills, sessions, salaryCap])
 
   const toggle = <T,>(arr: T[], v: T) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v])
   const hasFilter = !!(q || area || skills.length || sessions.length || salaryCap)
@@ -255,7 +243,9 @@ export default function FindCandidates() {
         </div>
       </Panel>
 
-      {list.length === 0 ? (
+      {positions.length === 0 ? (
+        <EmptyState icon={Search} title="Chưa có tin đang hiển thị" description="Cần có tin đang mở đã được duyệt để quan tâm ứng viên." />
+      ) : list.length === 0 ? (
         <EmptyState
           icon={UserSearch}
           title="Không có ứng viên phù hợp"
@@ -264,11 +254,10 @@ export default function FindCandidates() {
         />
       ) : (
         <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {list.map((c) => <CandidateCard key={c.id} c={c} />)}
+          {list.map((c) => <CandidateCard key={c.id} c={c} positions={positions} />)}
         </ul>
       )}
 
-      <div className="mt-6"><MockNotice /></div>
     </div>
   )
 }

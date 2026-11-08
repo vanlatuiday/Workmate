@@ -26,7 +26,7 @@ const BTN = cn('inline-flex items-center justify-center rounded-full border px-4
 const BTN_SOLID = cn(BTN, 'border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg')
 const BTN_LINE = cn(BTN, 'border-page-line text-page-fg hover:border-page-fg')
 
-/** /lich-phong-van — lịch phỏng vấn của tài khoản demo (kho demo, chưa có backend). */
+/** /lich-phong-van — lịch phỏng vấn của tài khoản đang đăng nhập. */
 export default function SchedulePage() {
   const role = useAuthStore((s) => s.user?.role)
   if (!role) return <Navigate to="/dang-nhap" state={{ from: '/lich-phong-van' }} />
@@ -44,7 +44,7 @@ export default function SchedulePage() {
 }
 
 function Schedule({ viewer }: { viewer: Side }) {
-  const all = useInterviews(viewer)
+  const all = useInterviews()
   const reduced = useReducedMotion()
   const [tab, setTab] = useState<TabKey>('upcoming')
   const [choosing, setChoosing] = useState<Interview | null>(null)

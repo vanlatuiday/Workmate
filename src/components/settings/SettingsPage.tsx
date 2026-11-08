@@ -3,12 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { AlertCircle } from 'lucide-react'
 import { PageHeader, Panel } from '@components/dashboard'
-import { useProfileStore } from '@context/profileStore'
 import { useAuthStore } from '@context/authStore'
-import type { Side } from '@context/demoStore'
+import type { Side } from '@context/connectionStore'
 import { isNotifyOn, useSettingsStore, type EmailDigest, type NotificationKind, type ProfileVisibility } from '@context/settingsStore'
 import { apiErrorMessage, authService } from '@services/authService'
-import { resetDemoData } from '@services/connectionService'
+import { setNotifyPref } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 
@@ -109,14 +108,13 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   return <Panel title={title}>{children}</Panel>
 }
 
-/** Cài đặt dùng chung hai phía: tài khoản, thông báo, riêng tư, dữ liệu demo, xóa tài khoản (bản mẫu, lưu localStorage). */
+/** Cài đặt dùng chung hai phía: tài khoản, thông báo, riêng tư (lưu trên máy chủ), xóa tài khoản (bản mẫu). */
 export default function SettingsPage({ side }: { side: Side }) {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const settings = useSettingsStore((s) => s.bySide[side])
   const update = useSettingsStore((s) => s.update)
-  const setNotify = useSettingsStore((s) => s.setNotify)
 
   const [cur, setCur] = useState('')
   const [next, setNext] = useState('')
@@ -149,12 +147,9 @@ export default function SettingsPage({ side }: { side: Side }) {
   }
 
   const deleteAccount = () => {
-    useSettingsStore.getState().reset()
-    resetDemoData()
-    useProfileStore.getState().reset()
     logout()
     navigate('/')
-    toast.success('Đã xóa tài khoản (bản mẫu)')
+    toast('Đã đăng xuất. Xóa tài khoản thật chưa có.')
   }
 
   return (
@@ -179,7 +174,7 @@ export default function SettingsPage({ side }: { side: Side }) {
         <Section title="Thông báo">
           <ul className="divide-y divide-page-line">
             {NOTIFY[side].map((n) => (
-              <Switch key={n.kind} label={n.label} checked={isNotifyOn(settings, n.kind)} onChange={(on) => { setNotify(side, n.kind, on); saved() }} />
+              <Switch key={n.kind} label={n.label} checked={isNotifyOn(settings, n.kind)} onChange={(on) => { void setNotifyPref(side, n.kind, on); saved() }} />
             ))}
           </ul>
           <div className="mt-6 border-t border-page-line pt-6">
@@ -207,13 +202,8 @@ export default function SettingsPage({ side }: { side: Side }) {
           )}
         </Section>
 
-        <Section title="Dữ liệu demo">
-          <p className="mb-4 text-sm text-page-muted">Đưa hồ sơ người tìm việc, kết nối, tin nhắn, thông báo và lịch phỏng vấn về trạng thái ban đầu.</p>
-          <button type="button" className={BTN_LINE} onClick={() => { resetDemoData(); useProfileStore.getState().reset(); toast.success('Đã đặt lại dữ liệu demo') }}>Đặt lại dữ liệu demo</button>
-        </Section>
-
         <Section title="Vùng nguy hiểm">
-          <p className="mb-4 text-sm text-page-muted">Xóa tài khoản sẽ đặt lại cài đặt, dữ liệu demo và đăng xuất bạn.</p>
+          <p className="mb-4 text-sm text-page-muted">Chức năng xóa tài khoản đang là bản mẫu: hiện chỉ đăng xuất bạn, dữ liệu vẫn còn trên máy chủ.</p>
           {!deleting ? (
             <button type="button" className={BTN_LINE} onClick={() => setDeleting(true)}>Xóa tài khoản</button>
           ) : (

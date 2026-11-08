@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { ArrowDown, ArrowUp, ArrowUpDown, Bookmark, Briefcase, Check, Clock, GripVertical, MapPin, SearchX, SlidersHorizontal, Wallet, X } from 'lucide-react'
 import InterviewAction from '@components/interview/InterviewAction'
-import { EmptyState, MockNotice } from '@components/dashboard'
+import { EmptyState } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
-import { expressInterest, getPairStatus, ME, resetDemoData, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
+import { expressInterest, getPairStatus, ME, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
@@ -396,17 +396,6 @@ export default function JobseekerMatch() {
               </ul>
             )}
           </Tabs>
-
-          <div className="mx-auto mt-8 flex justify-center">
-            <MockNotice />
-            <button
-              type="button"
-              onClick={() => { resetDemoData(); toast('Đã đặt lại dữ liệu demo') }}
-              className={`ml-4 rounded-control text-xs text-page-muted underline underline-offset-4 hover:text-page-fg ${FOCUS}`}
-            >
-              Đặt lại dữ liệu demo
-            </button>
-          </div>
     </MatchFrame>
     </div>
 

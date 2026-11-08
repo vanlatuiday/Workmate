@@ -4,13 +4,13 @@ import { X } from 'lucide-react'
 import { PageHeader, Panel } from '@components/dashboard'
 import { BTN_PRIMARY, BTN_SECONDARY, ConfirmDialog, FIELD } from '@components/admin/parts'
 import { CRITERION_LABELS, type CriterionKey } from '@pages/public/match/score'
-import { DEFAULT_CONFIG, resetAdminData, updateConfig, type SystemConfig } from '@services/adminService'
+import { DEFAULT_CONFIG, updateConfig, type SystemConfig } from '@services/adminService'
 import { useCatalogStore } from '@context/catalogStore'
 import { apiErrorMessage } from '@services/authService'
 import { FOCUS } from '@utils/focus'
 
 const KEYS = Object.keys(CRITERION_LABELS) as CriterionKey[]
-type Confirm = 'defaults' | 'reset' | null
+type Confirm = 'defaults' | null
 
 /** /admin/cau-hinh — cấu hình hệ thống; chỉnh trong form cục bộ, bấm "Lưu thay đổi" mới áp dụng. */
 export default function Config() {
@@ -135,7 +135,6 @@ export default function Config() {
 
       <div className="flex flex-wrap gap-3">
         <button type="button" onClick={() => setConfirm('defaults')} className={BTN_SECONDARY}>Khôi phục mặc định</button>
-        <button type="button" onClick={() => setConfirm('reset')} className={BTN_SECONDARY}>Đặt lại dữ liệu quản trị</button>
       </div>
 
       {confirm === 'defaults' && (
@@ -143,13 +142,6 @@ export default function Config() {
           title="Khôi phục mặc định" confirmLabel="Khôi phục" onCancel={() => setConfirm(null)}
           message="Đưa mọi cấu hình về giá trị ban đầu? Báo cáo và trạng thái kiểm duyệt giữ nguyên."
           onConfirm={() => { updateConfig(DEFAULT_CONFIG); setForm(DEFAULT_CONFIG); setConfirm(null); toast.success('Đã khôi phục cấu hình mặc định') }}
-        />
-      )}
-      {confirm === 'reset' && (
-        <ConfirmDialog
-          title="Đặt lại dữ liệu quản trị" confirmLabel="Đặt lại" onCancel={() => setConfirm(null)}
-          message="Xóa mọi thao tác quản trị (duyệt, ẩn, khóa, xác minh, báo cáo, cấu hình) và quay về dữ liệu mẫu ban đầu?"
-          onConfirm={() => { resetAdminData(); setForm(DEFAULT_CONFIG); setConfirm(null); toast.success('Đã đặt lại dữ liệu quản trị') }}
         />
       )}
     </div>

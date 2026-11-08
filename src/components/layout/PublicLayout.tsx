@@ -83,8 +83,8 @@ export default function PublicLayout() {
   const location = useLocation()
   const reduced = useReducedMotion()
   // Tin nhắn chưa đọc (gọi hook luôn; admin không có hội thoại → 0)
-  const unreadAsSeeker = useUnreadMessages('seeker')
-  const unreadAsRecruiter = useUnreadMessages('recruiter')
+  const unreadAsSeeker = useUnreadMessages()
+  const unreadAsRecruiter = useUnreadMessages()
   const notifAsSeeker = useUnreadCount('seeker')
   const notifAsRecruiter = useUnreadCount('recruiter')
   const unreadNotifications = user?.role === 'jobseeker' ? notifAsSeeker : user?.role === 'recruiter' ? notifAsRecruiter : 0

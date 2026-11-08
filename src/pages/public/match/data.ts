@@ -8,14 +8,13 @@ import { getSeekerCriteria, useProfileStore } from '@context/profileStore'
 import { MOCK_JOBS, type MockJob } from '@pages/recruiter/mockData'
 import type { Photo } from '@components/discover/types'
 import { COMPANY } from '@pages/public/personal/companyData'
-import { ME } from '@services/connectionService'
+import { ME } from '@context/connectionStore'
 import type { JobType } from '@/types'
 import type { JobRequirement, SeekerCriteria } from './score'
+import { useMemo } from 'react'
 import { useCompanyStore } from '@context/companyStore'
-import { useAdminStore } from '@context/adminStore'
-import { useCatalogStore } from '@context/catalogStore'
-import { useDemoStore } from '@context/demoStore'
-import { useSettingsStore } from '@context/settingsStore'
+import { useCandidateStore } from '@context/candidateStore'
+import { useCatalogStore, type CatalogJob } from '@context/catalogStore'
 
 /** Tạo danh sách khóa ca từ các ngày và buổi */
 const slots = (days: number[], sessions: number[]) => days.flatMap((d) => sessions.map((s) => `${d}-${s}`))
@@ -109,17 +108,12 @@ function baseCompany(id: string): DiscoverCompany | undefined {
 export function companyOf(id: string): DiscoverCompany {
   const base = baseCompany(id)
   if (!base) throw new Error(`Không có công ty "${id}"`)
-  // Công ty của doanh nghiệp demo: ghép thông tin đã sửa ở "Hồ sơ công ty" (companyStore)
-  if (id === DEMO_COMPANY.id) {
-    const p = useCompanyStore.getState().profile
-    return { ...base, name: p.name, industry: p.industry, district: p.district, size: p.size, tagline: p.tagline, about: p.about, environment: p.environment, cover: p.cover }
-  }
   return base
 }
 
-/** Mọi công ty trong danh mục (kể cả công ty demo, đã ghép hồ sơ đã sửa) */
+/** Mọi công ty trong danh mục */
 export function allCompanies(): DiscoverCompany[] {
-  return useCatalogStore.getState().companies.map((c) => (c.id === DEMO_COMPANY.id ? companyOf(c.id) : c))
+  return useCatalogStore.getState().companies
 }
 
 // ─── Phía doanh nghiệp ──────────────────────────────────────────────────────
@@ -139,6 +133,7 @@ const POSITION_REQ: Record<string, JobRequirement> = {
   j4: { skills: ['Thu ngân', 'Excel'], slots: ['0-0', '1-1', '2-2', '3-0', '4-1', '5-2'], salaryMinK: 34, salaryMaxK: 38, jobType: 'full-time' },
 }
 
+/** Vị trí mẫu j1–j4: chỉ để dựng danh mục dự phòng khi máy chủ tắt. Vị trí thật dùng `usePositions` */
 export const POSITIONS: MatchPosition[] = MOCK_JOBS.filter((j) => j.id in POSITION_REQ).map((job) => ({
   id: job.id,
   job,
@@ -170,7 +165,11 @@ export const RECRUITER_POSITION_JOBS: MatchJob[] = POSITIONS.map((p) => ({
 /** Mọi việc người tìm việc thấy ở /match */
 export const SEEKER_JOBS: MatchJob[] = [...MATCH_JOBS, ...RECRUITER_POSITION_JOBS]
 
-export type Availability = { kind: 'ready'; from: string } | { kind: 'working' }
+/** `from`: ngày sẵn sàng nếu biết (hồ sơ thật chưa có trường này) */
+export type Availability = { kind: 'ready'; from?: string } | { kind: 'working' }
+
+export const availabilityLabel = (a: Availability) =>
+  a.kind === 'working' ? 'Đang đi làm' : a.from ? `Sẵn sàng từ ${a.from}` : 'Sẵn sàng'
 
 export interface MatchCandidate {
   id: string
@@ -265,26 +264,25 @@ export const ME_CANDIDATE: MatchCandidate = {
   photo: { id: '1517248135467-4c7edcad34c4', alt: 'Phòng ăn nhà hàng với bàn gỗ và đèn vàng' },
 }
 
-/** Ứng viên của một vị trí: ứng viên mẫu của vị trí đó + người tìm việc demo */
-/** Ứng viên của một tin — bỏ người đã bị quản trị viên khóa */
-export const candidatesOf = (positionId: string): MatchCandidate[] =>
-  [...CANDIDATES.filter((c) => c.positionId === positionId), ME_CANDIDATE].filter(
-    (c) => !useAdminStore.getState().lockedSeekers[c.id],
-  )
+/** Ứng viên doanh nghiệp được thấy (máy chủ đã lọc người bị khóa và hồ sơ không cho phép) — chấm điểm theo từng tin */
+export const candidatesOf = (): MatchCandidate[] => useCandidateStore.getState().list
 
-/** Người tìm việc demo có hiện với doanh nghiệp theo cài đặt "Quyền riêng tư" không.
- * public: luôn hiện · hidden: không bao giờ · connected: chỉ khi đã kết nối với tin `jobId`
- * (không truyền `jobId` = hiện nếu đã kết nối với ít nhất một tin của doanh nghiệp).
- * Chỉ dùng cho danh sách ứng viên/tìm kiếm — không dùng để dán nhãn kết nối, tin nhắn, lịch hẹn có sẵn.
- * Hàm đọc thẳng kho: component gọi nó cần đăng ký `visibility` và `connections` để cập nhật. */
-export function isSeekerVisibleTo(jobId?: string): boolean {
-  const visibility = useSettingsStore.getState().bySide.seeker.visibility
-  if (visibility === 'public') return true
-  if (visibility === 'hidden') return false
-  const connections = useDemoStore.getState().connections
-  return connections.some((c) => c.seekerId === ME && (jobId ? c.jobId === jobId : POSITIONS.some((p) => p.id === c.jobId)))
+/** Hook: danh sách ứng viên, tự cập nhật khi nạp xong */
+export const useCandidates = (): MatchCandidate[] => useCandidateStore((s) => s.list)
+
+const toPosition = (j: CatalogJob): MatchPosition => ({
+  id: j.id,
+  job: {
+    id: j.id, title: j.title, jobType: j.jobType, schedule: j.shiftLabel, salary: j.salaryLabel, postedAt: j.postedAt,
+    views: 0, suggested: 0, matches: 0, status: j.status,
+  },
+  req: j,
+  radiusKm: j.radiusKm,
+})
+
+/** Hook: các tin đang hiển thị của công ty mình — những tin còn nhận được ứng viên */
+export function usePositions(): MatchPosition[] {
+  const jobs = useCatalogStore((s) => s.jobs)
+  const companyId = useCompanyStore((s) => s.id)
+  return useMemo(() => jobs.filter((j) => j.companyId === companyId && j.visible).map(toPosition), [jobs, companyId])
 }
-
-/** Ứng viên của một tin như doanh nghiệp được thấy: như `candidatesOf` nhưng tôn trọng quyền riêng tư của người tìm việc demo */
-export const visibleCandidatesOf = (positionId: string): MatchCandidate[] =>
-  candidatesOf(positionId).filter((c) => c.id !== ME_CANDIDATE.id || isSeekerVisibleTo(positionId))

@@ -1,7 +1,7 @@
 import { useMemo, type ReactNode } from 'react'
 import { PageHeader, Panel, StatCard } from '@components/dashboard'
 import { JOB_TYPES } from '@constants/index'
-import { useDemoStore } from '@context/demoStore'
+import { useConnectionStore } from '@context/connectionStore'
 import { useAdmin, useAdminJobs, useVisibleJobs } from '@services/adminService'
 import { newUsersPerDay } from './mockData'
 
@@ -50,10 +50,10 @@ const Empty = ({ children }: { children: ReactNode }) => <p className="text-sm t
 
 /** /admin/thong-ke */
 export default function Stats() {
-  const interests = useDemoStore((s) => s.interests)
-  const connections = useDemoStore((s) => s.connections)
-  const interviews = useDemoStore((s) => s.interviews)
-  const hires = useDemoStore((s) => s.hires)
+  const interests = useConnectionStore((s) => s.interests)
+  const connections = useConnectionStore((s) => s.connections)
+  const interviews = useConnectionStore((s) => s.interviews)
+  const hires = useConnectionStore((s) => s.hires)
   const reports = useAdmin((s) => s.reports)
   const visible = useVisibleJobs()
   const adminJobs = useAdminJobs()

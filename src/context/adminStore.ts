@@ -1,11 +1,10 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import api from '@services/api'
 
-// KHO QUẢN TRỊ (demo) — lưu localStorage (`workmate-admin`). Còn lại ở đây: báo cáo vi phạm và ứng viên bị khóa
-// (chưa có API). Phần tin tuyển dụng, kiểm duyệt, khóa/xác minh doanh nghiệp và cấu hình hệ thống đã chuyển
+// KHO QUẢN TRỊ — báo cáo vi phạm và ứng viên bị khóa, lưu trên máy chủ. Phần tin tuyển dụng, kiểm duyệt, khóa/xác minh doanh nghiệp và cấu hình hệ thống đã chuyển
 // sang máy chủ — xem `@context/catalogStore` và `@services/catalogService`. Đọc qua `@services/adminService`.
 
-export type ReportTarget = 'job' | 'seeker'
+export type ReportTarget = 'job' | 'seeker' | 'company'
 export type ReportStatus = 'open' | 'dismissed' | 'actioned'
 
 export interface Report {
@@ -23,7 +22,6 @@ export interface Report {
   resolution?: string
 }
 
-const now = () => new Date().toISOString()
 const ago = (min: number) => new Date(Date.now() - min * 60_000).toISOString()
 
 function seedReports(): Report[] {
@@ -39,38 +37,31 @@ interface AdminState {
   lockedSeekers: Record<string, boolean>
   reports: Report[]
 
-  setSeekerLocked: (seekerId: string, locked: boolean) => void
-  fileReport: (r: Omit<Report, 'id' | 'at' | 'status'>) => void
-  resolveReport: (id: string, status: Exclude<ReportStatus, 'open'>, resolution?: string) => void
-  reset: () => void
+  setSeekerLocked: (seekerId: string, locked: boolean) => Promise<void>
+  /** Ai cũng gửi được, kể cả khách — nơi gọi hiện lỗi nếu máy chủ từ chối */
+  fileReport: (r: Omit<Report, 'id' | 'at' | 'status'>) => Promise<void>
+  resolveReport: (id: string, status: Exclude<ReportStatus, 'open'>, resolution?: string) => Promise<void>
+  loadReports: () => Promise<void>
 }
 
-function seed() {
-  return { lockedSeekers: {}, reports: seedReports() }
-}
+// Giá trị ban đầu giữ dữ liệu mẫu cho script `db:export-demo` của backend; quản trị viên luôn nạp lại từ máy chủ
+export const useAdminStore = create<AdminState>()((set) => ({
+  lockedSeekers: {},
+  reports: seedReports(),
 
-let seq = 0
-
-export const useAdminStore = create<AdminState>()(
-  persist(
-    (set) => ({
-      ...seed(),
-
-      setSeekerLocked: (seekerId, locked) => set((s) => ({ lockedSeekers: { ...s.lockedSeekers, [seekerId]: locked } })),
-      fileReport: (r) =>
-        set((s) => ({ reports: [{ ...r, id: `r${Date.now().toString(36)}${(seq++).toString(36)}`, at: now(), status: 'open' }, ...s.reports] })),
-      resolveReport: (id, status, resolution) => set((s) => ({ reports: s.reports.map((r) => (r.id === id ? { ...r, status, resolution } : r)) })),
-      reset: () => set(seed()),
-    }),
-    {
-      name: 'workmate-admin',
-      version: 3,
-      // v3: tin, kiểm duyệt, khóa/xác minh công ty, cấu hình đã chuyển sang máy chủ → bỏ khỏi localStorage
-      migrate: (persisted) => {
-        const old = (persisted ?? {}) as { lockedSeekers?: Record<string, boolean>; reports?: Report[] }
-        return { lockedSeekers: old.lockedSeekers ?? {}, reports: old.reports ?? seedReports() } as unknown as AdminState
-      },
-      partialize: (s) => ({ lockedSeekers: s.lockedSeekers, reports: s.reports }),
-    },
-  ),
-)
+  setSeekerLocked: async (seekerId, locked) => {
+    await api.patch(`/admin/seekers/${encodeURIComponent(seekerId)}`, { locked })
+    set((s) => ({ lockedSeekers: { ...s.lockedSeekers, [seekerId]: locked } }))
+  },
+  fileReport: async ({ target, targetId, reason, note }) => {
+    await api.post('/reports', { target, targetId, reason, note })
+  },
+  resolveReport: async (id, status, resolution) => {
+    const { data } = await api.patch<Report>(`/admin/reports/${encodeURIComponent(id)}`, { status, resolution })
+    set((s) => ({ reports: s.reports.map((r) => (r.id === id ? data : r)) }))
+  },
+  loadReports: async () => {
+    const { data } = await api.get<Report[]>('/admin/reports')
+    set({ reports: data })
+  },
+}))

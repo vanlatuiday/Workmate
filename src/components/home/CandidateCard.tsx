@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { MapPin } from 'lucide-react'
 
 import { photoSrcSet, photoUrl } from '@components/discover/types'
-import type { MatchCandidate } from '@pages/public/match/data'
+import { availabilityLabel, type MatchCandidate } from '@pages/public/match/data'
 import Tilt from '@components/motion/Tilt'
 import { cn } from '@utils/cn'
 
@@ -12,7 +12,7 @@ import { cn } from '@utils/cn'
  * `<li data-job-card>` để dùng chung hiệu ứng hiện dần `useCardsEnter`.
  */
 export default function CandidateCard({ candidate: c, className }: { candidate: MatchCandidate; className?: string }) {
-  const availability = c.availability.kind === 'ready' ? `Sẵn sàng từ ${c.availability.from}` : 'Đang đi làm'
+  const availability = availabilityLabel(c.availability)
 
   return (
     <li data-job-card className={className}>

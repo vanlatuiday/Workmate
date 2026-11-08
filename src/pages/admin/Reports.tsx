@@ -3,7 +3,7 @@ import toast from 'react-hot-toast'
 import { Flag } from 'lucide-react'
 import { EmptyState, PageHeader, StatusBadge } from '@components/dashboard'
 import { BTN_PRIMARY, BTN_SECONDARY, ConfirmDialog, ReasonDialog, STATUS_LABEL } from '@components/admin/parts'
-import { CANDIDATES, ME_CANDIDATE, companyOf } from '@pages/public/match/data'
+import { candidatesOf, companyOf } from '@pages/public/match/data'
 import { findAnyJob } from '@pages/public/jobs/lookup'
 import { useCatalogStore } from '@context/catalogStore'
 import {
@@ -29,6 +29,7 @@ export default function Reports() {
   const reports = useAdmin((s) => s.reports)
   // Kiểm duyệt + khóa công ty nay ở danh mục (máy chủ)
   const catalogJobs = useCatalogStore((s) => s.jobs)
+  const companies = useCatalogStore((s) => s.companies)
   const moderation = useMemo(() => Object.fromEntries(catalogJobs.map((j) => [j.id, { status: j.moderation }])), [catalogJobs])
   const { locked: lockedCompanies } = useCompanyFlags()
   const lockedSeekers = useAdmin((s) => s.lockedSeekers)
@@ -52,7 +53,16 @@ export default function Reports() {
       ]
       return { name: job.title, sub: company, badges, companyId: job.companyId, jobId: job.id }
     }
-    const c = r.targetId === ME_CANDIDATE.id ? ME_CANDIDATE : CANDIDATES.find((x) => x.id === r.targetId)
+    if (r.target === 'company') {
+      const company = companies.find((x) => x.id === r.targetId)
+      return {
+        name: company ? `Công ty ${company.name}` : `Công ty ${r.targetId} (không còn trong dữ liệu)`,
+        sub: company?.district ?? '',
+        badges: lockedCompanies[r.targetId] ? ['Công ty bị khóa'] : [],
+        companyId: r.targetId,
+      }
+    }
+    const c = candidatesOf().find((x) => x.id === r.targetId)
     return {
       name: c ? `Ứng viên ${c.name}` : `Ứng viên ${r.targetId} (không còn trong dữ liệu)`,
       sub: c?.area ?? '',
@@ -73,9 +83,9 @@ export default function Reports() {
       resolveReport(r.id, 'actioned', `Đã ẩn tin. ${resolution ?? ''}`.trim())
       toast.success(`Đã ẩn tin "${s.name}"`)
     } else if (kind === 'lock') {
-      if (r.target === 'job' && s.companyId) {
+      if (r.target !== 'seeker' && s.companyId) {
         setCompanyLocked(s.companyId, true)
-        resolveReport(r.id, 'actioned', `Đã khóa công ty ${s.sub}.`)
+        resolveReport(r.id, 'actioned', `Đã khóa công ty ${r.target === 'company' ? s.name : s.sub}.`)
       } else {
         setSeekerLocked(r.targetId, true)
         resolveReport(r.id, 'actioned', `Đã khóa ${s.name}.`)
@@ -113,7 +123,7 @@ export default function Reports() {
                 <li key={r.id} className="rounded-card border border-page-line bg-page-surface p-5 md:p-6">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
-                      <p className="text-xs text-page-muted">{r.target === 'job' ? 'Tin tuyển dụng' : 'Ứng viên'}</p>
+                      <p className="text-xs text-page-muted">{r.target === 'job' ? 'Tin tuyển dụng' : r.target === 'company' ? 'Công ty' : 'Ứng viên'}</p>
                       <h2 className="font-display text-lg font-medium text-page-fg">{s.name}</h2>
                       {s.sub && <p className="mt-0.5 text-sm text-page-muted">{s.sub}</p>}
                     </div>
@@ -135,9 +145,9 @@ export default function Reports() {
                           Ẩn tin<span className="sr-only"> {s.name}</span>
                         </button>
                       )}
-                      {((r.target === 'job' && s.companyId && !lockedCompanies[s.companyId]) || (r.target === 'seeker' && !lockedSeekers[r.targetId])) && (
+                      {((r.target !== 'seeker' && s.companyId && !lockedCompanies[s.companyId]) || (r.target === 'seeker' && !lockedSeekers[r.targetId])) && (
                         <button type="button" onClick={() => setAction({ kind: 'lock', report: r })} className={BTN_PRIMARY}>
-                          {r.target === 'job' ? 'Khóa công ty' : 'Khóa ứng viên'}<span className="sr-only"> {s.name}</span>
+                          {r.target !== 'seeker' ? 'Khóa công ty' : 'Khóa ứng viên'}<span className="sr-only"> {s.name}</span>
                         </button>
                       )}
                     </div>
@@ -164,8 +174,8 @@ export default function Reports() {
       )}
       {action?.kind === 'lock' && (
         <ConfirmDialog
-          title={action.report.target === 'job' ? 'Khóa công ty' : 'Khóa ứng viên'}
-          message={action.report.target === 'job'
+          title={action.report.target !== 'seeker' ? 'Khóa công ty' : 'Khóa ứng viên'}
+          message={action.report.target !== 'seeker'
             ? `Khóa công ty đăng tin "${subjectName}"? Mọi tin của công ty sẽ bị ẩn.`
             : `Khóa ${subjectName}? Ứng viên sẽ không còn hiện cho doanh nghiệp.`}
           confirmLabel="Khóa"

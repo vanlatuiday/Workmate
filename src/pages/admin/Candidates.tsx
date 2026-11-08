@@ -1,13 +1,13 @@
 import { useId, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Lock, LockOpen, Search, UserCircle } from 'lucide-react'
-import { EmptyState, MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import DetailDrawer from '@components/admin/DetailDrawer'
 import { BTN_PRIMARY, BTN_SECONDARY, ConfirmDialog, FIELD, norm } from '@components/admin/parts'
 import { JOB_TYPES } from '@constants/index'
-import { useDemoStore } from '@context/demoStore'
+import { useConnectionStore } from '@context/connectionStore'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
-import { CANDIDATES, ME_CANDIDATE, type MatchCandidate } from '@pages/public/match/data'
+import { availabilityLabel, useCandidates, type MatchCandidate } from '@pages/public/match/data'
 import { setSeekerLocked, useAdmin } from '@services/adminService'
 import { FOCUS } from '@utils/focus'
 
@@ -19,13 +19,7 @@ const FILTERS: { id: Filter; label: string }[] = [
   { id: 'locked', label: 'Bị khóa' },
 ]
 
-// Toàn bộ ứng viên: bỏ trùng theo tên (một người có thể hợp nhiều tin) + người tìm việc demo
-const ALL: MatchCandidate[] = [
-  ...CANDIDATES.filter((c, i, a) => a.findIndex((x) => norm(x.name) === norm(c.name)) === i),
-  ME_CANDIDATE,
-]
-
-const availabilityText = (c: MatchCandidate) => (c.availability.kind === 'ready' ? `Sẵn sàng từ ${c.availability.from}` : 'Đang đi làm')
+const availabilityText = (c: MatchCandidate) => availabilityLabel(c.availability)
 
 /** Tóm tắt lịch rảnh: "T2 sáng+tối, T3 tối" */
 function scheduleText(slots: string[]) {
@@ -39,8 +33,9 @@ function scheduleText(slots: string[]) {
 
 /** /admin/ung-vien — danh sách ứng viên; khung chi tiết để xem hồ sơ và khóa / mở khóa. */
 export default function Candidates() {
+  const ALL = useCandidates()
   const locked = useAdmin((s) => s.lockedSeekers)
-  const connections = useDemoStore((s) => s.connections)
+  const connections = useConnectionStore((s) => s.connections)
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
   const [openId, setOpenId] = useState<string | null>(null)
@@ -59,7 +54,7 @@ export default function Candidates() {
           (filter === 'locked' && locked[c.id])) &&
         (!nq || norm(c.name).includes(nq) || norm(c.area).includes(nq) || c.criteria.skills.some((s) => norm(s).includes(nq))),
     )
-  }, [query, filter, locked])
+  }, [ALL, query, filter, locked])
 
   const open = openId ? ALL.find((c) => c.id === openId) : undefined
 
@@ -146,7 +141,6 @@ export default function Candidates() {
         </Panel>
       )}
 
-      <MockNotice />
 
       {open && (
         <DetailDrawer

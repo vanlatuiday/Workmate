@@ -5,7 +5,8 @@ import { useAdminStore } from '@context/adminStore'
 import { useCatalogStore, type CatalogJob, type JobOpenStatus, type ModerationStatus, type SystemConfig } from '@context/catalogStore'
 import { candidatesOf, type MatchCandidate, type MatchJob } from '@pages/public/match/data'
 import { scoreMatch } from '@pages/public/match/score'
-import { useDemoStore } from '@context/demoStore'
+import { useConnectionStore } from '@context/connectionStore'
+import { useCandidateStore } from '@context/candidateStore'
 import toast from 'react-hot-toast'
 import * as catalogApi from './catalogService'
 import { apiErrorMessage } from './authService'
@@ -117,7 +118,7 @@ export const FIT_MIN_SCORE = 60
 
 /** Ứng viên đạt ≥ FIT_MIN_SCORE với một tin, điểm cao trước (cùng cách chấm với /match phía doanh nghiệp) */
 export function fitCandidatesOf(job: MatchJob): { c: MatchCandidate; score: number }[] {
-  return candidatesOf(job.id)
+  return candidatesOf()
     .map((c) => ({ c, score: scoreMatch(c.criteria, job, c.distanceKm).score }))
     .filter((x) => x.score >= FIT_MIN_SCORE)
     .sort((a, b) => b.score - a.score)
@@ -132,12 +133,11 @@ export interface JobNumbers {
   connected: number
 }
 
-/** Hook: số liệu từng tin lấy từ kho demo dùng chung — khớp với /match và Kết nối */
+/** Hook: số liệu từng tin — khớp với /match và Kết nối */
 export function useJobNumbers(jobs: MatchJob[]): Record<string, JobNumbers> {
-  const interests = useDemoStore((s) => s.interests)
-  const connections = useDemoStore((s) => s.connections)
-  const locked = useAdminStore((s) => s.lockedSeekers)
-  void locked // candidatesOf đọc thẳng kho quản trị; đăng ký để cập nhật khi khóa/mở khóa ứng viên
+  const interests = useConnectionStore((s) => s.interests)
+  const connections = useConnectionStore((s) => s.connections)
+  useCandidateStore((s) => s.list) // fitCandidatesOf đọc thẳng kho ứng viên; đăng ký để tính lại khi nạp xong
   return Object.fromEntries(
     jobs.map((j) => [
       j.id,
@@ -164,13 +164,12 @@ export const setJobStatus = reportErrors(catalogApi.setJobStatus)
 export const setModeration = reportErrors(catalogApi.setModeration)
 export const setCompanyLocked = reportErrors((id: string, locked: boolean) => catalogApi.patchCompany(id, { locked }))
 export const setCompanyVerified = reportErrors((id: string, verified: boolean) => catalogApi.patchCompany(id, { verified }))
-export const setSeekerLocked = (id: string, locked: boolean) => useAdminStore.getState().setSeekerLocked(id, locked)
+export const setSeekerLocked = reportErrors((id: string, locked: boolean) => useAdminStore.getState().setSeekerLocked(id, locked))
 export const fileReport = (r: Parameters<ReturnType<typeof useAdminStore.getState>['fileReport']>[0]) =>
   useAdminStore.getState().fileReport(r)
-export const resolveReport = (...a: Parameters<ReturnType<typeof useAdminStore.getState>['resolveReport']>) =>
-  useAdminStore.getState().resolveReport(...a)
+export const resolveReport = reportErrors((...a: Parameters<ReturnType<typeof useAdminStore.getState>['resolveReport']>) =>
+  useAdminStore.getState().resolveReport(...a))
 export const updateConfig = (patch: Partial<SystemConfig>) => catalogApi.saveConfig(patch)
-export const resetAdminData = () => useAdminStore.getState().reset()
 
 /** Hook đọc thẳng các phần của kho quản trị (báo cáo, ứng viên bị khóa) */
 export const useAdmin = useAdminStore

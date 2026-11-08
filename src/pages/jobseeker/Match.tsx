@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Zap } from 'lucide-react'
-import { EmptyState, MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { HireAction } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import { describeConversation } from '@pages/public/messages/describe'
@@ -17,7 +17,7 @@ const BTN_LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 /** Kết nối (người tìm việc): các việc đã được hai bên đồng ý, kèm tin nhắn cuối và phỏng vấn. */
 export default function JobseekerMatch() {
   const connected = useMyPairs('seeker').filter((p) => p.status === 'connected')
-  const conversations = useConversations('seeker')
+  const conversations = useConversations()
 
   return (
     <div>
@@ -74,7 +74,6 @@ export default function JobseekerMatch() {
         </Panel>
       )}
 
-      <div className="mt-6"><MockNotice /></div>
     </div>
   )
 }

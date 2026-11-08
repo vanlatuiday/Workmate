@@ -4,7 +4,7 @@ import { Plus, Search, Pencil, Pause, Play, Users, Handshake, FileText, Heart, X
 import { PageHeader, Panel, StatusBadge, EmptyState } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import { setJobStatus, useCompanyJobs, useJobNumbers, type CompanyJobRow } from '@services/adminService'
-import { DEMO_COMPANY, POSITIONS } from '@pages/public/match/data'
+import { useCompanyStore } from '@context/companyStore'
 import { formatRelativeTime } from '@utils/format'
 import { FOCUS } from '@utils/focus'
 
@@ -45,7 +45,7 @@ const lockedNote = (r: CompanyJobRow) =>
       : 'Tin không còn hiển thị, chưa thể thao tác. Đăng tin mới để thay thế.'
 
 export default function JobListings() {
-  const rows = useCompanyJobs(DEMO_COMPANY.id)
+  const rows = useCompanyJobs(useCompanyStore((s) => s.id))
   const numbers = useJobNumbers(rows.map((r) => r.job))
   const [tab, setTab] = useState<Tab>('all')
   const [query, setQuery] = useState('')
@@ -73,9 +73,7 @@ export default function JobListings() {
   const q = query.trim().toLowerCase()
   const shown = rows.filter((r) => (tab === 'all' || combinedOf(r) === tab) && (!q || r.job.title.toLowerCase().includes(q)))
 
-  /** Ngày đăng: tin mới đăng theo thời điểm; tin có sẵn theo ngày ghi trong dữ liệu mẫu */
-  const postedText = (r: CompanyJobRow) =>
-    r.postedAt ? formatRelativeTime(r.postedAt) : (POSITIONS.find((p) => p.id === r.job.id)?.job.postedAt ?? '—')
+  const postedText = (r: CompanyJobRow) => (r.postedAt ? formatRelativeTime(r.postedAt) : '—')
 
   /** Cụm hành động của một tin (dùng cho cả bảng và thẻ) */
   const actions = (r: CompanyJobRow) => {
@@ -147,7 +145,6 @@ export default function JobListings() {
           </Link>
         }
       />
-      <p className="text-xs text-page-muted">Dữ liệu demo trên trình duyệt này — dùng chung với Kết nối và trang Ghép việc.</p>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div role="group" aria-label="Lọc theo trạng thái" className="flex flex-wrap gap-2">

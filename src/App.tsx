@@ -5,6 +5,7 @@ import { useAuthStore } from '@context/authStore'
 import { authService } from '@services/authService'
 import { loadCatalog } from '@services/catalogService'
 import { loadProfile } from '@services/profileService'
+import { loadSessionData } from '@services/sessionData'
 import { useCvStore } from '@context/cvStore'
 
 // Layouts
@@ -93,6 +94,8 @@ export default function App() {
     void loadProfile()
     // CV chỉ nạp trên trang Quản lý CV; đổi tài khoản / đăng xuất thì xóa danh sách cũ khỏi bộ nhớ
     useCvStore.getState().clear()
+    // Kết nối, tin nhắn, thông báo, đã lưu, cài đặt… của tài khoản này (và mở socket)
+    loadSessionData(role)
   }, [userId, role])
 
   return (

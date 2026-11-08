@@ -2,9 +2,10 @@ import { Link } from 'react-router-dom'
 import { Briefcase, UserCheck, Handshake, CalendarClock, Plus, Video, MapPin, Heart, CalendarX } from 'lucide-react'
 import { PageHeader, Panel, StatCard, StatusBadge, MatchScore, EmptyState } from '@components/dashboard'
 import { useCompanyJobs, useJobNumbers, type CompanyJobRow } from '@services/adminService'
-import { useDemoStore } from '@context/demoStore'
+import { useConnectionStore } from '@context/connectionStore'
 import { useHires, useInterviews, usePairStatuses } from '@services/connectionService'
-import { CANDIDATES, DEMO_COMPANY, ME_CANDIDATE } from '@pages/public/match/data'
+import { useCandidates } from '@pages/public/match/data'
+import { useCompanyStore } from '@context/companyStore'
 import { scoreMatch } from '@pages/public/match/score'
 import { findAnyJob } from '@pages/public/jobs/lookup'
 import { fmtSlot, MODE_LABEL } from '@components/interview/format'
@@ -24,16 +25,16 @@ function badgeOf(r: CompanyJobRow): { label: string; tone: 'strong' | 'default' 
   return { label: 'Đang mở', tone: 'strong' }
 }
 
-const candidateOf = (seekerId: string) => [...CANDIDATES, ME_CANDIDATE].find((c) => c.id === seekerId)
-
 export default function RecruiterDashboard() {
-  const rows = useCompanyJobs(DEMO_COMPANY.id)
+  const rows = useCompanyJobs(useCompanyStore((s) => s.id))
+  const candidates = useCandidates()
+  const candidateOf = (seekerId: string) => candidates.find((c) => c.id === seekerId)
   // Người đã xác nhận đi làm — thước đo chính của Workmate
-  const working = useHires('recruiter').filter((h) => h.status === 'accepted').length
+  const working = useHires().filter((h) => h.status === 'accepted').length
   const numbers = useJobNumbers(rows.map((r) => r.job))
-  const interviews = useInterviews('recruiter')
-  const interests = useDemoStore((s) => s.interests)
-  const connections = useDemoStore((s) => s.connections)
+  const interviews = useInterviews()
+  const interests = useConnectionStore((s) => s.interests)
+  const connections = useConnectionStore((s) => s.connections)
   const statusOf = usePairStatuses('recruiter')
 
   const jobIds = new Set(rows.map((r) => r.job.id))
@@ -82,7 +83,6 @@ export default function RecruiterDashboard() {
           </Link>
         }
       />
-      <p className="text-xs text-page-muted">Dữ liệu demo trên trình duyệt này — dùng chung với Kết nối và trang Ghép việc.</p>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Tin đang mở" value={openRows.length} icon={Briefcase} href="/tuyen-dung/tin-dang" hint={`Trên tổng ${rows.length} tin`} />

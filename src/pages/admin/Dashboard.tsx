@@ -1,9 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Users, Building2, FileText, Handshake, ChevronRight } from 'lucide-react'
 import { PageHeader, Panel, StatCard, StatusBadge, MockNotice } from '@components/dashboard'
-import { useDemoStore } from '@context/demoStore'
-import { COMPANIES } from '@pages/public/jobs/data'
-import { DEMO_COMPANY } from '@pages/public/match/data'
+import { useConnectionStore } from '@context/connectionStore'
 import { useAdmin, useAdminJobs, useCompanyFlags } from '@services/adminService'
 import { mockUsers, newUsersPerDay, overviewStats, ROLE_LABELS } from './mockData'
 import { FOCUS } from '@utils/focus'
@@ -19,7 +17,6 @@ const chartSummary =
 const recentSignups = mockUsers.slice(0, 5)
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
-const COMPANY_IDS = [...COMPANIES.map((c) => c.id), DEMO_COMPANY.id]
 
 export default function AdminDashboard() {
   const s = overviewStats
@@ -27,11 +24,11 @@ export default function AdminDashboard() {
   const jobRows = useAdminJobs()
   const reports = useAdmin((st) => st.reports)
   const { verified } = useCompanyFlags()
-  const connections = useDemoStore((st) => st.connections)
+  const connections = useConnectionStore((st) => st.connections)
   const pendingJobs = jobRows.filter((r) => r.status === 'pending')
   const flaggedPending = pendingJobs.filter((r) => r.flags.length).length
   const openReports = reports.filter((r) => r.status === 'open').length
-  const unverified = COMPANY_IDS.filter((id) => !verified[id]).length
+  const unverified = Object.values(verified).filter((v) => !v).length
   const weekMatches = connections.filter((c) => Date.now() - +new Date(c.at) <= WEEK_MS).length
   const todoItems = [
     { id: 't1', label: `${unverified} nhà tuyển dụng chưa xác minh`, detail: 'Xem hồ sơ và gắn nhãn xác minh', href: '/admin/xac-minh', n: unverified },

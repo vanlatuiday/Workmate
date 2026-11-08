@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+// DỮ LIỆU MẪU GỐC — app không còn dùng (đã chuyển sang `connectionStore` + API). Giữ lại vì script
+// `db:export-demo` của backend đọc phần seed() ở đây để sinh seed-data.json.
 // KHO DỮ LIỆU DEMO DÙNG CHUNG — đóng vai backend tạm, lưu localStorage (key `workmate-demo`).
 // Mọi trang đọc/ghi qua đây (thông qua `@services/connectionService`) để hai phía thấy cùng một dữ liệu:
 // người tìm việc ứng tuyển → doanh nghiệp thấy; hai bên cùng quan tâm → thành kết nối + thông báo.

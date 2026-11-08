@@ -4,7 +4,7 @@ import { ArrowLeft, SendHorizontal } from 'lucide-react'
 import { HireStatusChip } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import { useReducedMotion } from '@hooks/useReducedMotion'
-import { markConversationRead, useActiveInterview, useHire, sendMessage, useIsTyping, useMessages, type Side } from '@services/connectionService'
+import { markConversationRead, notifyTyping, useActiveInterview, useHire, sendMessage, useIsTyping, useMessages, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { describeConversation } from './describe'
@@ -54,7 +54,10 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   // Tin có sẵn lúc mở hội thoại thì không trượt lên; chỉ tin đến sau mới có hiệu ứng
-  const initialIds = useRef(new Set(messages.map((m) => m.id)))
+  const initialIds = useRef(new Set<string>())
+  // Tin tải về sau khi mở (lần đầu có dữ liệu) cũng tính là tin có sẵn
+  if (!initialIds.current.size) messages.forEach((m) => initialIds.current.add(m.id))
+  const lastTyping = useRef(0)
   const lastId = messages[messages.length - 1]?.id
 
   // Đang mở là coi như đã đọc, kể cả khi tin mới đến
@@ -79,8 +82,9 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
   const send = (text: string) => {
     const body = text.trim()
     if (!body) return
-    sendMessage(viewer, jobId, seekerId, body)
     setDraft('')
+    // Chưa gửi được thì trả lại nội dung vào ô soạn (nếu người dùng chưa gõ gì mới)
+    void sendMessage(viewer, jobId, seekerId, body).then((ok) => { if (!ok) setDraft((d) => d || body) })
   }
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -189,7 +193,14 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
               ref={inputRef}
               rows={1}
               value={draft}
-              onChange={(e) => setDraft(e.target.value)}
+              onChange={(e) => {
+                setDraft(e.target.value)
+                // Báo "đang gõ" tối đa 2 giây một lần
+                if (e.target.value && Date.now() - lastTyping.current > 2000) {
+                  lastTyping.current = Date.now()
+                  notifyTyping(jobId, seekerId)
+                }
+              }}
               onKeyDown={onKeyDown}
               placeholder="Nhập tin nhắn… (Enter để gửi, Shift+Enter xuống dòng)"
               className={cn('block w-full resize-none rounded-card border border-page-edge bg-page-bg px-4 py-2.5 text-sm text-page-fg placeholder:text-page-muted', FOCUS)}
