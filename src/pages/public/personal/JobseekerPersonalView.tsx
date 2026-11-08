@@ -1,10 +1,11 @@
+import { useEffect } from 'react'
 import PersonalArchive from '@components/archive/PersonalArchive'
 import type { ArchiveEntry } from '@components/archive/types'
 import { SeekerReviews } from '@components/hire'
-import { ME } from '@services/connectionService'
+import { ME, useMyPairs } from '@services/connectionService'
 import { SampleNote } from '@components/discover/parts'
 import { JOB_TYPES } from '@constants/index'
-import { RECENT_APPLICATIONS } from '@pages/jobseeker/mockData'
+import { useCvStore } from '@context/cvStore'
 import { useProfileStore, type SeekerProfile } from '@context/profileStore'
 import PersonalIntro from './PersonalIntro'
 import { ActionNote, ActionPrimary, ActionText, Actions, EmptyNote, Section, TagList, WeekGrid } from './parts'
@@ -12,7 +13,7 @@ import { ActionNote, ActionPrimary, ActionText, Actions, EmptyNote, Section, Tag
 const EDIT_HREF = '/tim-viec/ho-so'
 
 type Opts = { owner: boolean }
-type BuildOpts = Opts & { P: SeekerProfile }
+type BuildOpts = Opts & { P: SeekerProfile; cvCount: number; applied: number }
 
 /** Gợi ý bổ sung chỉ hiện với chủ hồ sơ */
 const invite = (owner: boolean) => (owner ? { to: EDIT_HREF, label: 'Bổ sung trong hồ sơ' } : undefined)
@@ -34,7 +35,7 @@ function SeekerActions({ owner }: Opts) {
 }
 
 /** Dựng 6 tấm hồ sơ người tìm việc; `owner` chỉ đổi hành động và thông tin nhạy cảm. */
-function buildSeekerEntries({ owner, P }: BuildOpts): ArchiveEntry[] {
+function buildSeekerEntries({ owner, P, cvCount, applied }: BuildOpts): ArchiveEntry[] {
   const AVAILABLE = new Set(P.availability)
   const typeLabels = P.jobTypes.map((t) => JOB_TYPES.find((j) => j.value === t)?.label ?? t)
   const salaryText = `từ ${P.salaryMin.toLocaleString('vi-VN')}đ/giờ`
@@ -60,10 +61,17 @@ function buildSeekerEntries({ owner, P }: BuildOpts): ArchiveEntry[] {
             <TagList items={typeLabels} />
           </Section>
           <Section title="Số điện thoại">
-            {owner ? <p>{P.phone}</p> : <p className="text-page-muted">Thông tin được ẩn</p>}
+            {owner ? <p>{P.phone || 'Chưa cập nhật'}</p> : <p className="text-page-muted">Thông tin được ẩn</p>}
           </Section>
-          <Section title="Giới thiệu ngắn">
-            <EmptyNote invite={inv}>Chưa có phần giới thiệu.</EmptyNote>
+          <Section title="Giới thiệu">
+            {P.intro || P.about ? (
+              <>
+                {P.intro && <p>{P.intro}</p>}
+                {P.about && <p className="mt-2 whitespace-pre-line">{P.about}</p>}
+              </>
+            ) : (
+              <EmptyNote invite={inv}>Chưa có phần giới thiệu.</EmptyNote>
+            )}
           </Section>
         </>
       ),
@@ -180,12 +188,14 @@ function buildSeekerEntries({ owner, P }: BuildOpts): ArchiveEntry[] {
       cursor: 'Mở',
       content: (
         <>
-          <Section title="CV, học vấn, chứng chỉ">
-            <EmptyNote invite={inv}>Chưa có CV, học vấn hay chứng chỉ.</EmptyNote>
+          <Section title="CV">
+            {owner
+              ? (cvCount ? <p>{cvCount} CV đã tải lên</p> : <EmptyNote invite={{ to: '/tim-viec/cv', label: 'Tải CV lên' }}>Chưa có CV.</EmptyNote>)
+              : <p className="text-page-muted">Doanh nghiệp xem được sau khi hai bên kết nối</p>}
           </Section>
           {owner && (
-            <Section title="Đơn đã ứng tuyển gần đây">
-              <p>{RECENT_APPLICATIONS.length} đơn</p>
+            <Section title="Đơn đã ứng tuyển">
+              <p>{applied} đơn</p>
             </Section>
           )}
         </>
@@ -198,10 +208,17 @@ function buildSeekerEntries({ owner, P }: BuildOpts): ArchiveEntry[] {
 /** Người tìm việc: hồ sơ của tôi (owner) hoặc bản công khai (người xem). */
 export default function JobseekerPersonalView({ owner }: Opts) {
   const P = useProfileStore((s) => s.profile)
+  const cvCount = useCvStore((s) => s.items.length)
+  const cvLoaded = useCvStore((s) => s.loaded)
+  const loadCvs = useCvStore((s) => s.load)
+  const applied = useMyPairs('seeker').filter((p) => p.status === 'sent' || p.status === 'connected').length
+  useEffect(() => {
+    if (owner && !cvLoaded) void loadCvs()
+  }, [owner, cvLoaded, loadCvs])
   return (
     <>
       <PersonalArchive
-        entries={buildSeekerEntries({ owner, P })}
+        entries={buildSeekerEntries({ owner, P, cvCount, applied })}
         label="Hồ sơ người tìm việc"
         eyebrow="Hồ sơ cá nhân"
         intro={
@@ -221,7 +238,7 @@ export default function JobseekerPersonalView({ owner }: Opts) {
       <div className="shell pb-section-sm">
         <SeekerReviews seekerId={ME} className="mx-auto max-w-2xl" />
       </div>
-      <SampleNote>Hồ sơ trên trang này là dữ liệu mẫu, dùng chung với khu tìm việc. Ảnh minh họa từ Unsplash.</SampleNote>
+      <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
     </>
   )
 }

@@ -9,7 +9,6 @@ import { expressInterest, getPairStatus, ME, usePairStatuses, useOnNewConnection
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
-import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import type { JobType } from '@/types'
@@ -216,7 +215,7 @@ export default function JobseekerMatch() {
           {saved ? 'Đã lưu' : 'Lưu'}
           <span className="sr-only"> {job.title}</span>
         </button>
-        <Link to={COMPANY_PUBLIC_HREF} className={BTN_SECONDARY}>
+        <Link to={`/cong-ty/${job.companyId}`} className={BTN_SECONDARY}>
           Xem công ty<span className="sr-only"> {companyOf(job.companyId).name}</span>
         </Link>
       </>

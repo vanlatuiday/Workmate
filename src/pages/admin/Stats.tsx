@@ -2,19 +2,9 @@ import { useMemo, type ReactNode } from 'react'
 import { PageHeader, Panel, StatCard } from '@components/dashboard'
 import { JOB_TYPES } from '@constants/index'
 import { useConnectionStore } from '@context/connectionStore'
-import { useAdmin, useAdminJobs, useVisibleJobs } from '@services/adminService'
-import { newUsersPerDay } from './mockData'
+import { useAdmin, useAdminJobs, useSignupsPerDay, useVisibleJobs } from '@services/adminService'
 
-// Thống kê: số liệu lấy từ kho dữ liệu thật của demo (kết nối, phỏng vấn, tin đang hiện, báo cáo).
-// Riêng "người dùng mới" là MẪU (chưa có API người dùng). Biểu đồ vẽ bằng div, màu chỉ page-fg/page-line.
-
-/** 7 ngày trước 17/10 (mẫu) để đủ 14 ngày */
-const EARLIER_SAMPLE = [
-  { day: 'T7', date: '10/10', count: 47 }, { day: 'CN', date: '11/10', count: 33 }, { day: 'T2', date: '12/10', count: 78 },
-  { day: 'T3', date: '13/10', count: 82 }, { day: 'T4', date: '14/10', count: 90 }, { day: 'T5', date: '15/10', count: 85 },
-  { day: 'T6', date: '16/10', count: 66 },
-]
-const USERS_14 = [...EARLIER_SAMPLE, ...newUsersPerDay]
+// Thống kê toàn hệ thống. Biểu đồ vẽ bằng div, màu chỉ page-fg/page-line.
 
 const pct = (n: number, total: number) => (total ? Math.round((n / total) * 100) : 0)
 
@@ -50,6 +40,7 @@ const Empty = ({ children }: { children: ReactNode }) => <p className="text-sm t
 
 /** /admin/thong-ke */
 export default function Stats() {
+  const USERS_14 = useSignupsPerDay(14)
   const interests = useConnectionStore((s) => s.interests)
   const connections = useConnectionStore((s) => s.connections)
   const interviews = useConnectionStore((s) => s.interviews)
@@ -93,7 +84,7 @@ export default function Stats() {
 
   const flagged = adminJobs.filter((r) => r.flags.length).length
   const openReports = reports.filter((r) => r.status === 'open').length
-  const maxUsers = Math.max(...USERS_14.map((d) => d.count))
+  const maxUsers = Math.max(1, ...USERS_14.map((d) => d.count))
   const totalUsers = USERS_14.reduce((s, d) => s + d.count, 0)
   const top = funnel[0].value
 
@@ -115,7 +106,7 @@ export default function Stats() {
         />
       </Panel>
 
-      <Panel title="Người dùng mới 14 ngày (số liệu mẫu)">
+      <Panel title="Người dùng mới 14 ngày">
         <div role="img" aria-label={`Người dùng mới 14 ngày gần nhất, tổng ${totalUsers}. ${USERS_14.map((d) => `${d.date}: ${d.count}`).join('; ')}`}>
           <div aria-hidden="true" className="flex h-44 items-end gap-1 sm:gap-2">
             {USERS_14.map((d) => (
@@ -131,7 +122,6 @@ export default function Stats() {
             ))}
           </div>
         </div>
-        <p className="mt-2 text-xs text-page-muted">Ngày trong tháng 10/2026; 7 ngày đầu là số liệu mẫu bổ sung.</p>
       </Panel>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

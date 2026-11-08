@@ -45,7 +45,7 @@ export default function Reports() {
       const job = findAnyJob(r.targetId)
       if (!job) return { name: `Tin ${r.targetId} (không còn trong dữ liệu)`, sub: '', badges: [] as string[], companyId: undefined }
       let company = ''
-      try { company = companyOf(job.companyId).name } catch { /* công ty không có trong dữ liệu mẫu */ }
+      try { company = companyOf(job.companyId).name } catch { /* công ty không còn trong danh mục */ }
       const st = moderation[job.id]?.status
       const badges = [
         ...(st && st !== 'approved' ? [STATUS_LABEL[st]] : []),

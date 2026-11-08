@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom'
-import { JOB_STATUS_LABELS } from '@pages/recruiter/mockData'
+import { STATUS_LABEL } from '@components/admin/parts'
 import { Facts, PrimaryLink, TextLink } from '@components/discover/parts'
 import DetailHero from '@components/discover/detail/DetailHero'
 import DetailLayout from '@components/discover/detail/DetailLayout'
@@ -7,38 +7,44 @@ import DetailNotFound from '@components/discover/detail/NotFound'
 import BackLink from '@components/discover/detail/BackLink'
 import CandidateCard from '@components/discover/detail/CandidateCard'
 import { TextBlock } from '@components/discover/detail/DetailBlocks'
-import ReportButton from '@components/report/ReportButton'
-import { candidatesOf, findPosition } from './jobs/data'
+import { JOB_TYPES } from '@constants/index'
+import { useCandidateStore } from '@context/candidateStore'
+import { useCatalogStore } from '@context/catalogStore'
+import { useCompanyStore } from '@context/companyStore'
+import { JOB_STATUS_LABELS } from '@pages/recruiter/mockData'
+import { FIT_MIN_SCORE, fitCandidatesOf } from '@services/adminService'
 
-/** /vi-tri/:id — chi tiết một tin tuyển dụng, dành cho nhà tuyển dụng (dữ liệu mẫu). */
+const MAX_SHOWN = 20
+
+/** /vi-tri/:id — chi tiết một tin của công ty mình, kèm ứng viên phù hợp. */
 export default function PositionDetailPage() {
   const { id } = useParams()
-  const position = findPosition(id)
+  const companyId = useCompanyStore((s) => s.id)
+  const job = useCatalogStore((s) => s.jobs.find((j) => j.id === id))
+  useCandidateStore((s) => s.list) // fitCandidatesOf đọc thẳng kho; đăng ký để tính lại khi nạp xong
 
-  if (!position) {
-    return (
-      <DetailNotFound
-        title="Không tìm thấy vị trí"
-        text="Tin này không có trong dữ liệu mẫu hoặc đường dẫn đã thay đổi."
-      />
-    )
+  if (!companyId) return <p role="status" className="shell py-section-sm text-sm text-page-muted">Đang tải…</p>
+  if (!job || job.companyId !== companyId) {
+    return <DetailNotFound title="Không tìm thấy vị trí" text="Tin này không thuộc công ty của bạn hoặc đường dẫn đã thay đổi." />
   }
 
-  const p = position
-  const candidates = p.status === 'draft' ? [] : candidatesOf(p.id)
+  const candidates = fitCandidatesOf(job)
+  const statusLabel = job.moderation === 'approved' ? JOB_STATUS_LABELS[job.status] : STATUS_LABEL[job.moderation]
+  const typeLabel = JOB_TYPES.find((t) => t.value === job.jobType)?.label ?? job.jobType
 
   const aside = (
     <>
-      <p className="max-w-sm text-base md:text-lg leading-relaxed">{p.need}</p>
+      {job.description && <p className="max-w-sm whitespace-pre-line text-base leading-relaxed md:text-lg">{job.description}</p>}
       <Facts
         rows={[
-          ['Trạng thái', JOB_STATUS_LABELS[p.status]],
-          ['Loại việc', p.jobType],
-          ['Lịch', p.schedule],
-          ['Lương', p.salary],
-          ['Lượt xem', p.views],
+          ['Trạng thái', statusLabel],
+          ['Loại việc', typeLabel],
+          ['Lịch', job.shiftLabel],
+          ['Lương', job.salaryLabel],
+          ['Cần tuyển', `${job.quantity} người`],
         ]}
       />
+      {job.moderationReason && <p className="mt-4 text-sm text-page-muted">Lý do từ quản trị viên: {job.moderationReason}</p>}
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">
         <PrimaryLink to="/tuyen-dung/tin-dang">Quản lý tin</PrimaryLink>
         <TextLink to="/viec-lam">Các vị trí khác</TextLink>
@@ -48,35 +54,35 @@ export default function PositionDetailPage() {
 
   return (
     <article className="pb-section-sm">
-      <DetailHero back={<BackLink />} eyebrow={`${JOB_STATUS_LABELS[p.status]} · ${p.jobType}`} title={p.title} photo={p.photo} />
+      <DetailHero back={<BackLink />} eyebrow={`${statusLabel} · ${typeLabel}`} title={job.title} photo={job.photo} />
 
       <DetailLayout aside={aside}>
+        {!job.visible && (
+          <p className="rounded-card border border-page-line p-4 text-sm text-page-muted">
+            Tin này chưa hiển thị với người tìm việc nên chưa thể quan tâm ứng viên cho tin này.
+          </p>
+        )}
         {candidates.length ? (
           <>
-            <TextBlock title="Ứng viên gợi ý">
+            <TextBlock title="Ứng viên phù hợp">
               <p className="leading-relaxed text-page-muted">
-                {candidates.length} ứng viên khớp với tin này, xếp theo mức phù hợp. Tên viết tắt, thông tin liên hệ chỉ mở sau khi hai bên quan tâm nhau.
+                {candidates.length} ứng viên đạt từ {FIT_MIN_SCORE}% với tin này, xếp theo mức phù hợp. Họ tên đầy đủ và liên hệ chỉ mở sau khi hai bên kết nối.
               </p>
             </TextBlock>
-            {candidates.map((c) => (
-              <CandidateCard key={c.id} c={c} jobId={p.id} />
+            {candidates.slice(0, MAX_SHOWN).map(({ c, score }) => (
+              <CandidateCard key={c.id} c={c} score={score} slots={job.slots} />
             ))}
           </>
         ) : (
-          <TextBlock title="Chưa có ứng viên gợi ý">
-            <p className="max-w-xl text-base md:text-lg leading-relaxed">
-              {p.status === 'draft'
-                ? 'Tin này vẫn là bản nháp. Chốt lịch làm và mức lương, rồi đăng tin để Workmate bắt đầu gợi ý ứng viên.'
-                : 'Chưa có ứng viên phù hợp với tin này. Thử mở rộng lịch làm hoặc nới tiêu chí không bắt buộc để có thêm gợi ý.'}
+          <TextBlock title="Chưa có ứng viên phù hợp">
+            <p className="max-w-xl text-base leading-relaxed md:text-lg">
+              Chưa có ai đạt từ {FIT_MIN_SCORE}% với tin này. Thử mở rộng lịch làm hoặc nới yêu cầu kỹ năng để có thêm người phù hợp.
             </p>
             <div className="mt-6">
-              <PrimaryLink to="/tuyen-dung/tin-dang">{p.status === 'draft' ? 'Hoàn thiện tin' : 'Chỉnh sửa tin'}</PrimaryLink>
+              <PrimaryLink to="/tuyen-dung/tin-dang">Chỉnh sửa tin</PrimaryLink>
             </div>
           </TextBlock>
         )}
-
-        <p className="text-xs text-page-muted">Tin tuyển dụng và hồ sơ ứng viên là dữ liệu mẫu. Ảnh minh họa từ Unsplash.</p>
-        <div><ReportButton target="job" targetId={p.id} name={p.title} /></div>
       </DetailLayout>
     </article>
   )

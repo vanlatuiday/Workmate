@@ -171,5 +171,21 @@ export const resolveReport = reportErrors((...a: Parameters<ReturnType<typeof us
   useAdminStore.getState().resolveReport(...a))
 export const updateConfig = (patch: Partial<SystemConfig>) => catalogApi.saveConfig(patch)
 
+const WEEKDAY = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
+const pad2 = (n: number) => String(n).padStart(2, '0')
+
+/** Hook: số tài khoản đăng ký mới mỗi ngày trong `days` ngày gần nhất (theo giờ máy người xem), cũ trước mới sau */
+export function useSignupsPerDay(days: number): { day: string; date: string; count: number }[] {
+  const users = useAdminStore((s) => s.users)
+  return useMemo(() => {
+    const today = new Date()
+    return Array.from({ length: days }, (_, i) => {
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (days - 1 - i))
+      const count = users.filter((u) => new Date(u.createdAt).toDateString() === d.toDateString()).length
+      return { day: WEEKDAY[d.getDay()], date: `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`, count }
+    })
+  }, [users, days])
+}
+
 /** Hook đọc thẳng các phần của kho quản trị (báo cáo, ứng viên bị khóa) */
 export const useAdmin = useAdminStore

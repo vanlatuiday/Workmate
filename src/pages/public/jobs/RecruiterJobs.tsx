@@ -6,37 +6,42 @@ import { FOCUS } from '@utils/focus'
 import DiscoverGallery from '@components/discover/DiscoverGallery'
 import { ClosingBand, DetailHead, Facts, PrimaryLink, SampleNote, TextLink } from '@components/discover/parts'
 import type { GalleryItem } from '@components/discover/types'
+import { STATUS_LABEL } from '@components/admin/parts'
+import { useCandidateStore } from '@context/candidateStore'
+import { useCompanyStore } from '@context/companyStore'
+import type { CatalogJob } from '@context/catalogStore'
 import { JOB_STATUS_LABELS } from '@pages/recruiter/mockData'
-import { POSITIONS, type Position } from './data'
+import { fitCandidatesOf, useCompanyJobs } from '@services/adminService'
 import JobsHero from './JobsHero'
 import JobSearchBar from './JobSearchBar'
 import { EMPTY_FILTERS, type JobFilters } from './catalog'
 import { useJobFilters } from './useJobFilters'
 
-type Item = GalleryItem & { position: Position }
+type Item = GalleryItem & { position: CatalogJob; statusLabel: string; typeLabel: string }
 
-/** Mọi trạng thái đều mở trang chi tiết vị trí; việc quản lý/sửa nằm ở "Quản lý tin" */
-const targetOf = (p: Position) => `/vi-tri/${p.id}`
+/** Tin đang hiện trước, rồi tới tin đang chờ duyệt / tạm dừng */
+const rank = (j: CatalogJob) => (j.visible ? 0 : j.moderation === 'pending' ? 1 : 2)
 
-const ITEMS: Item[] = POSITIONS.map((p) => ({
+const toItem = (p: CatalogJob): Item => ({
   id: p.id,
   title: p.title,
-  href: targetOf(p),
+  href: `/vi-tri/${p.id}`,
   photo: p.photo,
   cursor: 'Xem',
   linkLabel: `Xem chi tiết vị trí ${p.title}`,
   position: p,
-}))
+  statusLabel: p.moderation === 'approved' ? JOB_STATUS_LABELS[p.status] : STATUS_LABEL[p.moderation],
+  typeLabel: JOB_TYPES.find((t) => t.value === p.jobType)?.label ?? p.jobType,
+})
 
 /** Bỏ dấu + chữ thường để gõ "pha che" vẫn khớp "pha chế" */
 const fold = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase()
 
-/** Lọc tin của nhà tuyển dụng: từ khóa khớp tên/lịch/loại việc; loại việc so theo nhãn tiếng Việt */
-function matches({ position: p }: Item, f: JobFilters) {
-  const typeLabel = JOB_TYPES.find((t) => t.value === f.type)?.label
-  if (typeLabel && p.jobType !== typeLabel) return false
+/** Lọc tin của nhà tuyển dụng: từ khóa khớp tên/lịch/loại việc */
+function matches({ position: p, typeLabel }: Item, f: JobFilters) {
+  if (f.type && p.jobType !== f.type) return false
   const q = fold(f.q.trim())
-  return !q || fold(`${p.title} ${p.schedule} ${p.jobType} ${p.need}`).includes(q)
+  return !q || fold(`${p.title} ${p.shiftLabel} ${typeLabel} ${p.description}`).includes(q)
 }
 
 /**
@@ -45,17 +50,26 @@ function matches({ position: p }: Item, f: JobFilters) {
  */
 export default function RecruiterJobs() {
   const { filters, setFilters } = useJobFilters()
-  const items = useMemo(() => ITEMS.filter((x) => matches(x, filters)), [filters])
+  const rows = useCompanyJobs(useCompanyStore((s) => s.id))
+  const candidates = useCandidateStore((s) => s.list)
+  const all = useMemo(() => rows.map((r) => r.job).sort((a, b) => rank(a) - rank(b)).map(toItem), [rows])
+  const items = useMemo(() => all.filter((x) => matches(x, filters)), [all, filters])
+  // fitCandidatesOf đọc thẳng kho ứng viên: tính lại khi danh sách nạp xong
+  const fitCount = useMemo(() => new Map(all.map((x) => [x.id, fitCandidatesOf(x.position).length])), [all, candidates])
   return (
     <>
       <JobsHero
         eyebrow="Tin của bạn"
         title="Những vị trí bạn đang cần người"
-        text="Mỗi ảnh là một tin tuyển dụng. Bấm vào ảnh để xem chi tiết tin và ứng viên phù hợp."
+        text="Mỗi ảnh là một tin của công ty bạn. Bấm vào ảnh để xem chi tiết tin và ứng viên phù hợp."
         stats={[[items.length, 'vị trí']]}
       />
       <JobSearchBar filters={filters} onChange={setFilters} showDistrict={false} showSalary={false} placeholder="Tên vị trí, lịch làm…" />
-      {items.length === 0 ? (
+      {all.length === 0 ? (
+        <div className="shell py-section-sm">
+          <EmptyState icon={SearchX} title="Chưa có tin nào" description="Đăng tin đầu tiên để Workmate gợi ý ứng viên khớp lịch gần nơi làm." />
+        </div>
+      ) : items.length === 0 ? (
         <div className="shell py-section-sm">
           <EmptyState
             icon={SearchX}
@@ -74,21 +88,21 @@ export default function RecruiterJobs() {
         items={items}
         label="Vị trí bạn đang tuyển"
         layout="jobs"
-        renderDetail={({ position: p }) => (
+        renderDetail={({ position: p, statusLabel, typeLabel, href }) => (
           <>
-            <DetailHead kicker={`${JOB_STATUS_LABELS[p.status]} · ${p.jobType}`} title={p.title} />
-            <p className="mt-3 text-sm leading-relaxed">{p.need}</p>
+            <DetailHead kicker={`${statusLabel} · ${typeLabel}`} title={p.title} />
+            {p.description && <p className="mt-3 line-clamp-3 text-sm leading-relaxed">{p.description}</p>}
             <Facts
               dense
               rows={[
-                ['Lịch', p.schedule],
-                ['Lương', p.salary],
-                ['Lượt xem', p.views],
-                ['Ứng viên gợi ý', p.suggested],
+                ['Lịch', p.shiftLabel],
+                ['Lương', p.salaryLabel],
+                ['Cần tuyển', `${p.quantity} người`],
+                ['Ứng viên phù hợp', fitCount.get(p.id) ?? 0],
               ]}
             />
             <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
-              <PrimaryLink to={targetOf(p)} curtain={p.title} state={{ from: '/viec-lam' }}>
+              <PrimaryLink to={href} curtain={p.title} state={{ from: '/viec-lam' }}>
                 Xem vị trí
               </PrimaryLink>
               <TextLink to="/tuyen-dung/tin-dang">Quản lý tin</TextLink>
@@ -103,7 +117,7 @@ export default function RecruiterJobs() {
       >
         <PrimaryLink to="/dang-tin">Đăng tin mới</PrimaryLink>
       </ClosingBand>
-      <SampleNote>Tin tuyển dụng và số liệu trên trang này là dữ liệu mẫu, giống khu tuyển dụng. Ảnh minh họa từ Unsplash.</SampleNote>
+      <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
     </>
   )
 }

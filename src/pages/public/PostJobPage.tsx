@@ -61,7 +61,7 @@ function scheduleText(slots: string[]) {
   }).filter(Boolean).join(', ')
 }
 
-/** /dang-tin — NTD soạn tin, xem trước và số ứng viên phù hợp theo thời gian thực (dữ liệu mẫu; tin gửi đi chờ quản trị viên duyệt). */
+/** /dang-tin — NTD soạn tin, xem trước và số ứng viên phù hợp theo thời gian thực (tin gửi đi chờ quản trị viên duyệt). */
 export default function PostJobPage() {
   const curtainTo = useCurtainNavigate()
   // Chế độ sửa: /dang-tin?sua=<id>, chỉ nhận tin đã đăng của công ty demo; id lạ hoặc tin có sẵn thì rơi về đăng tin mới

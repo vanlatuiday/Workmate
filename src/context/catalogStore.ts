@@ -45,6 +45,8 @@ export interface CatalogJob {
 export interface CatalogCompany extends DiscoverCompany {
   verified: boolean
   locked: boolean
+  /** Doanh nghiệp đã tắt "Công khai trang công ty" */
+  hidden?: boolean
 }
 
 /** Cấu hình hệ thống. Phần công khai ai cũng có; `bannedWords` chỉ có khi quản trị viên đã nạp /admin/config */

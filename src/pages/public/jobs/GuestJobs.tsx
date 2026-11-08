@@ -5,7 +5,6 @@ import EmptyState from '@components/dashboard/EmptyState'
 import DiscoverGallery from '@components/discover/DiscoverGallery'
 import { ProfileTag, ClosingBand, DetailHead, PrimaryLink, SampleNote, TextLink } from '@components/discover/parts'
 import type { GalleryItem } from '@components/discover/types'
-import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
 import { FOCUS } from '@utils/focus'
 import type { DiscoverCompany } from './data'
 import { companiesMatching, EMPTY_FILTERS, type MatchJob } from './catalog'
@@ -72,7 +71,7 @@ export default function GuestJobs() {
           <>
             <DetailHead kicker={`${c.industry} · ${c.district}`} title={c.name} />
             <div className="mt-3">
-              <ProfileTag to={COMPANY_PUBLIC_HREF}>Trang doanh nghiệp</ProfileTag>
+              <ProfileTag to={`/cong-ty/${c.id}`}>Trang doanh nghiệp</ProfileTag>
             </div>
             {/* Thẻ gọn (thấp hơn ảnh): chỉ giữ lý do đáng xem; mô tả, quy mô nằm ở trang công ty */}
             <p className="mt-3 text-sm leading-relaxed">{c.why}</p>
@@ -94,7 +93,7 @@ export default function GuestJobs() {
         <PrimaryLink to="/dang-ky?role=jobseeker">Tôi tìm việc</PrimaryLink>
         <TextLink to="/dang-ky?role=recruiter">Tôi cần tuyển người</TextLink>
       </ClosingBand>
-      <SampleNote>Công ty và tin tuyển dụng trên trang này là dữ liệu mẫu. Ảnh minh họa từ Unsplash.</SampleNote>
+      <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
     </>
   )
 }

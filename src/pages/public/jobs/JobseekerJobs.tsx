@@ -3,10 +3,9 @@ import { useCatalogStore } from '@context/catalogStore'
 import { SearchX } from 'lucide-react'
 import EmptyState from '@components/dashboard/EmptyState'
 import DiscoverGallery from '@components/discover/DiscoverGallery'
-import { ProfileTag, ClosingBand, DetailHead, PrimaryLink, SampleNote } from '@components/discover/parts'
+import { ClosingBand, DetailHead, PrimaryLink, SampleNote } from '@components/discover/parts'
 import type { GalleryItem } from '@components/discover/types'
 import MatchScore from '@components/dashboard/MatchScore'
-import { COMPANY_PUBLIC_HREF } from '@pages/public/personal/links'
 import { FOCUS } from '@utils/focus'
 import type { DiscoverCompany } from './data'
 import { useSeekerCriteria } from '@context/profileStore'
@@ -80,7 +79,7 @@ export default function JobseekerJobs() {
       >
         <PrimaryLink to="/tim-viec/phu-hop">Xem việc phù hợp</PrimaryLink>
       </ClosingBand>
-      <SampleNote>Công ty và tin tuyển dụng trên trang này là dữ liệu mẫu. Ảnh minh họa từ Unsplash.</SampleNote>
+      <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
     </>
   )
 }
@@ -105,7 +104,6 @@ function CompanyDetail({ company: c, jobs, filtered }: { company: DiscoverCompan
         <PrimaryLink to={`/cong-ty/${c.id}`} state={{ from: '/viec-lam' }} curtain={c.name}>
           Xem công ty
         </PrimaryLink>
-        <ProfileTag to={COMPANY_PUBLIC_HREF}>Trang doanh nghiệp</ProfileTag>
       </div>
     </>
   )

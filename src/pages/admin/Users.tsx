@@ -1,15 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Search, Lock, LockOpen, UsersRound } from 'lucide-react'
-import { PageHeader, StatusBadge, EmptyState, MockNotice } from '@components/dashboard'
+import { PageHeader, StatusBadge, EmptyState } from '@components/dashboard'
 import type { UserRole } from '@/types'
-import {
-  mockUsers, ROLE_LABELS, USER_STATUS_LABELS,
-  type AdminUser, type UserStatus,
-} from './mockData'
-import { COMPANIES } from '@pages/public/jobs/data'
-import { CANDIDATES, DEMO_COMPANY, ME_CANDIDATE, companyOf } from '@pages/public/match/data'
-import { norm } from '@components/admin/parts'
-import { setCompanyLocked, setSeekerLocked } from '@services/adminService'
+import { ROLE_LABELS } from './mockData'
+import { useAdminStore, type AdminUser } from '@context/adminStore'
+import { apiErrorMessage } from '@services/authService'
 import { FOCUS } from '@utils/focus'
 
 const FIELD =
@@ -19,23 +14,11 @@ const BTN_SECONDARY =
 const BTN_PRIMARY =
   `rounded-full bg-page-fg px-3.5 py-1.5 text-xs font-medium text-page-bg ${FOCUS}`
 
-const STATUS_TONE: Record<UserStatus, 'strong' | 'default' | 'muted'> = {
-  active: 'default',
-  unverified: 'muted',
-  locked: 'strong',
-}
+type UserStatus = AdminUser['status']
 
-/** Tài khoản khớp (theo tên) một ứng viên / công ty trong hệ thống thì khóa thật; không khớp thì chỉ đổi trạng thái mẫu */
-function syncLock(u: AdminUser, locked: boolean) {
-  const name = norm(u.name)
-  if (u.role === 'jobseeker') {
-    const c = [...CANDIDATES, ME_CANDIDATE].find((x) => norm(x.name) === name)
-    if (c) setSeekerLocked(c.id, locked)
-  } else if (u.role === 'recruiter') {
-    const id = [...COMPANIES.map((c) => c.id), DEMO_COMPANY.id].find((cid) => norm(companyOf(cid).name) === name)
-    if (id) setCompanyLocked(id, locked)
-  }
-}
+const STATUS_TONE: Record<UserStatus, 'strong' | 'default'> = { active: 'default', locked: 'strong' }
+const USER_STATUS_LABELS: Record<UserStatus, string> = { active: 'Hoạt động', locked: 'Đã khóa' }
+const joinedAt = (u: AdminUser) => new Date(u.createdAt).toLocaleDateString('vi-VN')
 
 /** Nút Khóa / Mở khóa; bấm Khóa lần 1 hiện xác nhận ngay tại hàng. */
 function RowAction({
@@ -87,8 +70,8 @@ function RowAction({
 }
 
 export default function Users() {
-  // Dữ liệu mẫu — thay bằng API. Chỉ 12 dòng nên không phân trang.
-  const [users, setUsers] = useState<AdminUser[]>(mockUsers)
+  const users = useAdminStore((s) => s.users)
+  const setUserLocked = useAdminStore((s) => s.setUserLocked)
   const [query, setQuery] = useState('')
   const [role, setRole] = useState<'all' | UserRole>('all')
   const [status, setStatus] = useState<'all' | UserStatus>('all')
@@ -105,19 +88,15 @@ export default function Users() {
     )
   }, [users, query, role, status])
 
-  const toggleLock = (u: AdminUser) => {
+  const toggleLock = async (u: AdminUser) => {
     const locking = u.status !== 'locked'
-    syncLock(u, locking)
-    // Khóa: nhớ trạng thái cũ; mở khóa: khôi phục đúng trạng thái đó
-    setUsers((prev) =>
-      prev.map((x) => {
-        if (x.id !== u.id) return x
-        if (locking) return { ...x, status: 'locked', prevStatus: x.status === 'unverified' ? 'unverified' : 'active' }
-        return { ...x, status: x.prevStatus ?? 'active', prevStatus: undefined }
-      }),
-    )
     setConfirmId(null)
-    setNotice(locking ? `Đã khóa tài khoản ${u.name}.` : `Đã mở khóa tài khoản ${u.name}.`)
+    try {
+      await setUserLocked(u.id, locking)
+      setNotice(`${locking ? 'Đã khóa' : 'Đã mở khóa'} tài khoản ${u.name.replace(/\.$/, '')}.`)
+    } catch (err) {
+      setNotice(apiErrorMessage(err, `Chưa đổi được trạng thái tài khoản ${u.name}.`))
+    }
   }
 
   const actionFor = (u: AdminUser) => (
@@ -126,7 +105,7 @@ export default function Users() {
       confirming={confirmId === u.id}
       onAsk={() => setConfirmId(u.id)}
       onCancel={() => setConfirmId(null)}
-      onToggle={() => toggleLock(u)}
+      onToggle={() => void toggleLock(u)}
     />
   )
 
@@ -189,7 +168,6 @@ export default function Users() {
                   <th scope="col" className="px-4 py-3 font-medium">Vai trò</th>
                   <th scope="col" className="px-4 py-3 font-medium">Ngày tham gia</th>
                   <th scope="col" className="px-4 py-3 font-medium">Trạng thái</th>
-                  <th scope="col" className="px-4 py-3 font-medium">Hoạt động gần nhất</th>
                   <th scope="col" className="px-4 py-3 font-medium">Hành động</th>
                 </tr>
               </thead>
@@ -201,9 +179,8 @@ export default function Users() {
                       <span className="block text-xs text-page-muted">{u.email}</span>
                     </th>
                     <td className="px-4 py-3 text-page-fg">{ROLE_LABELS[u.role]}</td>
-                    <td className="tnum px-4 py-3 text-page-muted">{u.joinedAt}</td>
+                    <td className="tnum px-4 py-3 text-page-muted">{joinedAt(u)}</td>
                     <td className="px-4 py-3"><StatusBadge tone={STATUS_TONE[u.status]}>{USER_STATUS_LABELS[u.status]}</StatusBadge></td>
-                    <td className="px-4 py-3 text-page-muted">{u.lastActive}</td>
                     <td className="px-4 py-3">{actionFor(u)}</td>
                   </tr>
                 ))}
@@ -224,8 +201,7 @@ export default function Users() {
                 </div>
                 <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
                   <div><dt className="text-page-muted">Vai trò</dt><dd className="text-page-fg">{ROLE_LABELS[u.role]}</dd></div>
-                  <div><dt className="text-page-muted">Ngày tham gia</dt><dd className="text-page-fg">{u.joinedAt}</dd></div>
-                  <div className="col-span-2"><dt className="text-page-muted">Hoạt động gần nhất</dt><dd className="text-page-fg">{u.lastActive}</dd></div>
+                  <div><dt className="text-page-muted">Ngày tham gia</dt><dd className="text-page-fg">{joinedAt(u)}</dd></div>
                 </dl>
                 <div className="mt-3">{actionFor(u)}</div>
               </li>
@@ -234,7 +210,6 @@ export default function Users() {
         </>
       )}
 
-      <div className="mt-6"><MockNotice /></div>
     </div>
   )
 }

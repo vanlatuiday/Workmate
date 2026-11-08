@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ShieldCheck } from 'lucide-react'
-import { EmptyState, MockNotice, PageHeader } from '@components/dashboard'
+import { EmptyState, PageHeader } from '@components/dashboard'
 import { FlagList, JobActions, JobStatusBadges } from '@components/admin/parts'
 import { companyOf } from '@pages/public/match/data'
 import { useAdminJobs, type AdminJobRow } from '@services/adminService'
@@ -96,7 +96,6 @@ export default function Moderation() {
         <ul className="space-y-4">{list.map((r) => <ModerationCard key={r.job.id} row={r} />)}</ul>
       )}
 
-      <MockNotice />
     </div>
   )
 }

@@ -1,11 +1,11 @@
 import { useId, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Building2, Lock, LockOpen, Search, ShieldCheck } from 'lucide-react'
-import { EmptyState, MockNotice, PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import DetailDrawer from '@components/admin/DetailDrawer'
 import { BTN_PRIMARY, BTN_SECONDARY, ConfirmDialog, FIELD, norm, STATUS_LABEL } from '@components/admin/parts'
-import { COMPANIES, type DiscoverCompany } from '@pages/public/jobs/data'
-import { companyOf, DEMO_COMPANY } from '@pages/public/match/data'
+import type { DiscoverCompany } from '@pages/public/jobs/data'
+import { useCatalogStore } from '@context/catalogStore'
 import { setCompanyLocked, setCompanyVerified, useAdminJobs, useCompanyFlags } from '@services/adminService'
 import { FOCUS } from '@utils/focus'
 
@@ -27,8 +27,7 @@ export default function Recruiters() {
   const [confirmLock, setConfirmLock] = useState(false)
   const uid = useId()
 
-  // Công ty mẫu + công ty của doanh nghiệp demo (tên lấy từ Hồ sơ công ty)
-  const companies: DiscoverCompany[] = useMemo(() => [...COMPANIES, companyOf(DEMO_COMPANY.id)], [])
+  const companies: DiscoverCompany[] = useCatalogStore((s) => s.companies)
 
   const stats = (id: string) => {
     const mine = jobRows.filter((r) => r.job.companyId === id)
@@ -142,7 +141,6 @@ export default function Recruiters() {
         </Panel>
       )}
 
-      <MockNotice />
 
       {open && (
         <DetailDrawer

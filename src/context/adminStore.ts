@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import api from '@services/api'
+import type { UserRole } from '@/types'
 
 // KHO QUẢN TRỊ — báo cáo vi phạm và ứng viên bị khóa, lưu trên máy chủ. Phần tin tuyển dụng, kiểm duyệt, khóa/xác minh doanh nghiệp và cấu hình hệ thống đã chuyển
 // sang máy chủ — xem `@context/catalogStore` và `@services/catalogService`. Đọc qua `@services/adminService`.
@@ -32,7 +33,21 @@ function seedReports(): Report[] {
   ]
 }
 
+export interface AdminUser {
+  id: string
+  name: string
+  email: string
+  role: UserRole
+  status: 'active' | 'locked'
+  /** ISO */
+  createdAt: string
+}
+
 interface AdminState {
+  users: AdminUser[]
+  loadUsers: () => Promise<void>
+  /** Khóa / mở khóa bất kỳ tài khoản nào trừ quản trị viên */
+  setUserLocked: (userId: string, locked: boolean) => Promise<void>
   /** Người tìm việc bị khóa */
   lockedSeekers: Record<string, boolean>
   reports: Report[]
@@ -46,12 +61,27 @@ interface AdminState {
 
 // Giá trị ban đầu giữ dữ liệu mẫu cho script `db:export-demo` của backend; quản trị viên luôn nạp lại từ máy chủ
 export const useAdminStore = create<AdminState>()((set) => ({
+  users: [],
+  loadUsers: async () => {
+    const { data } = await api.get<AdminUser[]>('/admin/users')
+    set({ users: data })
+  },
+  setUserLocked: async (userId, locked) => {
+    await api.patch(`/admin/users/${encodeURIComponent(userId)}`, { locked })
+    set((s) => ({
+      users: s.users.map((u) => (u.id === userId ? { ...u, status: locked ? 'locked' : 'active' } : u)),
+      lockedSeekers: { ...s.lockedSeekers, [userId]: locked },
+    }))
+  },
   lockedSeekers: {},
   reports: seedReports(),
 
   setSeekerLocked: async (seekerId, locked) => {
     await api.patch(`/admin/seekers/${encodeURIComponent(seekerId)}`, { locked })
-    set((s) => ({ lockedSeekers: { ...s.lockedSeekers, [seekerId]: locked } }))
+    set((s) => ({
+      lockedSeekers: { ...s.lockedSeekers, [seekerId]: locked },
+      users: s.users.map((u) => (u.id === seekerId ? { ...u, status: locked ? 'locked' : 'active' } : u)),
+    }))
   },
   fileReport: async ({ target, targetId, reason, note }) => {
     await api.post('/reports', { target, targetId, reason, note })

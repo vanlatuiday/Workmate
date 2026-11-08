@@ -1,26 +1,23 @@
 import { Link } from 'react-router-dom'
 import { Users, Building2, FileText, Handshake, ChevronRight } from 'lucide-react'
-import { PageHeader, Panel, StatCard, StatusBadge, MockNotice } from '@components/dashboard'
+import { PageHeader, Panel, StatCard, StatusBadge } from '@components/dashboard'
 import { useConnectionStore } from '@context/connectionStore'
-import { useAdmin, useAdminJobs, useCompanyFlags } from '@services/adminService'
-import { mockUsers, newUsersPerDay, overviewStats, ROLE_LABELS } from './mockData'
+import { useAdmin, useAdminJobs, useCompanyFlags, useSignupsPerDay } from '@services/adminService'
+import { ROLE_LABELS } from './mockData'
 import { FOCUS } from '@utils/focus'
 
-
-const maxNew = Math.max(...newUsersPerDay.map((d) => d.count))
-const totalNew = newUsersPerDay.reduce((s, d) => s + d.count, 0)
-const chartSummary =
-  `Người dùng mới 7 ngày gần nhất, tổng ${totalNew}. ` +
-  newUsersPerDay.map((d) => `${d.date}: ${d.count}`).join('; ')
-
-// Dữ liệu mẫu — thay bằng API
-const recentSignups = mockUsers.slice(0, 5)
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
 
 export default function AdminDashboard() {
-  const s = overviewStats
-  // Số liệu thật từ kho quản trị + kho kết nối (người dùng và đăng ký mới vẫn là mẫu)
+  const users = useAdmin((st) => st.users)
+  const recentSignups = users.slice(0, 5)
+  const seekerCount = users.filter((u) => u.role === 'jobseeker').length
+  const recruiterCount = users.filter((u) => u.role === 'recruiter').length
+  const newUsersPerDay = useSignupsPerDay(7)
+  const maxNew = Math.max(1, ...newUsersPerDay.map((d) => d.count))
+  const totalNew = newUsersPerDay.reduce((n, d) => n + d.count, 0)
+  const chartSummary = `Người dùng mới 7 ngày gần nhất, tổng ${totalNew}. ${newUsersPerDay.map((d) => `${d.date}: ${d.count}`).join('; ')}`
   const jobRows = useAdminJobs()
   const reports = useAdmin((st) => st.reports)
   const { verified } = useCompanyFlags()
@@ -40,7 +37,7 @@ export default function AdminDashboard() {
       <PageHeader title="Tổng quan" description="Tình hình hệ thống Workmate và những việc cần xử lý hôm nay." />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard label="Người dùng" value={s.totalUsers.toLocaleString('vi-VN')} icon={Users} hint={s.usersHint} />
+        <StatCard label="Người dùng" value={users.length.toLocaleString('vi-VN')} icon={Users} hint={`${seekerCount} người tìm việc, ${recruiterCount} nhà tuyển dụng`} />
         <StatCard label="NTD chưa xác minh" value={unverified} icon={Building2} href="/admin/xac-minh" hint="Công ty chưa có nhãn xác minh" />
         <StatCard label="Tin chờ kiểm duyệt" value={pendingJobs.length} icon={FileText} href="/admin/kiem-duyet" hint={`${flaggedPending} tin bị gắn cờ`} />
         <StatCard label="Kết nối 7 ngày qua" value={weekMatches} icon={Handshake} hint={`${openReports} báo cáo đang mở`} />
@@ -76,7 +73,7 @@ export default function AdminDashboard() {
               <li key={u.id} className="flex items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-page-fg">{u.name}</p>
-                  <p className="text-xs text-page-muted">{u.joinedAt}</p>
+                  <p className="text-xs text-page-muted">{new Date(u.createdAt).toLocaleDateString('vi-VN')}</p>
                 </div>
                 <StatusBadge tone="muted">{ROLE_LABELS[u.role]}</StatusBadge>
               </li>
@@ -104,9 +101,6 @@ export default function AdminDashboard() {
         </div>
       </Panel>
 
-      <div className="mt-6">
-        <MockNotice />
-      </div>
     </div>
   )
 }

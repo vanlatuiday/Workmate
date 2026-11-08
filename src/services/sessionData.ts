@@ -20,6 +20,7 @@ export function loadSessionData(role: string | undefined) {
     void quiet(loadAdminPairs())
     void quiet(loadAdminSeekers())
     void quiet(useAdminStore.getState().loadReports())
+    void quiet(useAdminStore.getState().loadUsers())
     return
   }
   void quiet(startConnections())

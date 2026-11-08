@@ -1,17 +1,16 @@
-// /cong-ty — lưới công ty (dữ liệu mẫu từ jobs/data.ts)
+// /cong-ty — lưới các công ty đang công khai
 import { Link } from 'react-router-dom'
 import { photoUrl } from '@components/discover/types'
 import { FOCUS } from '@utils/focus'
 import ContentPage from './content/ContentPage'
 import { useCatalogStore } from '@context/catalogStore'
-import { DEMO_COMPANY } from './match/data'
 import { jobsOfCompany } from './jobs/catalog'
 
 export default function CompaniesPage() {
   // Danh mục công ty từ máy chủ (công ty demo vẫn không nằm trong lưới này như trước)
-  const companies = useCatalogStore((s) => s.companies).filter((c) => c.id !== DEMO_COMPANY.id)
+  const companies = useCatalogStore((s) => s.companies).filter((c) => !c.hidden)
   return (
-    <ContentPage eyebrow="Công ty" title="Nơi bạn có thể làm việc." intro="Các công ty đang tuyển tại Đà Nẵng (dữ liệu mẫu).">
+    <ContentPage eyebrow="Công ty" title="Nơi bạn có thể làm việc." intro="Các công ty đang tuyển tại Đà Nẵng.">
       <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {companies.map((c) => (
           <li key={c.id}>

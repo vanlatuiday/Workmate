@@ -2,9 +2,10 @@ import { useId, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Bookmark, BookmarkCheck, ChevronDown, MapPin, SearchX } from 'lucide-react'
 import { JOB_TYPES } from '@constants/index'
-import { EmptyState, MatchScore, MockNotice, PageHeader } from '@components/dashboard'
+import { EmptyState, MatchScore, PageHeader } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import type { JobType } from '@/types'
+import { useMatchStore } from '@context/matchStore'
 import { useSeekerCriteria } from '@context/profileStore'
 import { useAllJobs, seekerOutcome, type MatchJob } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
@@ -115,7 +116,8 @@ export default function RecommendedJobs() {
   const [type, setType] = useState<'all' | JobType>('all')
   const [minScore, setMinScore] = useState(0)
   const [sort, setSort] = useState<SortKey>('match')
-  const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
+  const savedJobs = useMatchStore((s) => s.savedJobs)
+  const toggleSave = useMatchStore((s) => s.toggleSavedJob)
   const typeId = useId()
   const scoreId = useId()
   const sortId = useId()
@@ -136,13 +138,6 @@ export default function RecommendedJobs() {
     )
   }, [scored, type, minScore, sort])
 
-  const toggleSave = (id: string) =>
-    setSavedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
 
   const reset = () => {
     setType('all')
@@ -192,12 +187,11 @@ export default function RecommendedJobs() {
       ) : (
         <div className="space-y-4">
           {jobs.map(({ job, outcome }) => (
-            <JobCard key={job.id} job={job} outcome={outcome} saved={savedIds.has(job.id)} onToggleSave={() => toggleSave(job.id)} />
+            <JobCard key={job.id} job={job} outcome={outcome} saved={savedJobs.includes(job.id)} onToggleSave={() => toggleSave(job.id)} />
           ))}
         </div>
       )}
 
-      <div className="mt-6"><MockNotice /></div>
     </div>
   )
 }

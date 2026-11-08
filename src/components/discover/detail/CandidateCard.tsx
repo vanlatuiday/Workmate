@@ -1,59 +1,53 @@
-import { ProfileTag } from '../parts'
-import { SEEKER_PUBLIC_HREF } from '@pages/public/personal/links'
 import { Link } from 'react-router-dom'
 import Reveal from '@components/motion/Reveal'
-import type { MockCandidate } from '@pages/recruiter/mockData'
-import { Initials, TagList } from './DetailBlocks'
+import type { MatchCandidate } from '@pages/public/match/data'
+import { candidateHref } from '@pages/public/personal/links'
 import { FOCUS } from '@utils/focus'
+import { Initials, TagList } from './DetailBlocks'
 
+const initialsOf = (name: string) => name.replace(/\./g, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
 
-/** Thẻ ứng viên gợi ý của một tin (dữ liệu mẫu, tên viết tắt như khu tuyển dụng). */
-export default function CandidateCard({ c, jobId }: { c: MockCandidate; jobId: string }) {
-  const initials = c.name
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .replace(/\./g, '')
-    .slice(0, 2)
+/** Thẻ ứng viên phù hợp với một tin; tên đầy đủ chỉ mở sau khi hai bên kết nối */
+export default function CandidateCard({ c, score, slots }: { c: MatchCandidate; score: number; slots: string[] }) {
+  const matched = slots.filter((s) => c.criteria.slots.includes(s)).length
   return (
     <Reveal>
       <article className="rounded-card border border-page-line bg-page-bg p-6 md:p-8">
         <div className="flex items-center gap-4">
-          <Initials text={initials} />
+          <Initials text={initialsOf(c.name)} />
           <div className="min-w-0">
             <h3 className="font-display text-lg font-semibold">{c.name}</h3>
             <p className="text-sm text-page-muted">
-              {c.area} · cách {c.distanceKm} km
+              {c.area || 'Chưa nêu khu vực'} · cách {c.distanceKm} km
             </p>
           </div>
           <p className="ml-auto shrink-0 text-right text-sm">
-            <span className="block font-display text-lg font-semibold">{c.score}%</span>
-            <span className="text-xs text-page-muted">phù hợp (mẫu)</span>
+            <span className="block font-display text-lg font-semibold">{score}%</span>
+            <span className="text-xs text-page-muted">phù hợp</span>
           </p>
         </div>
-        <div className="mt-5">
-          <TagList items={c.skills} />
-        </div>
+        {c.criteria.skills.length > 0 && (
+          <div className="mt-5">
+            <TagList items={c.criteria.skills} />
+          </div>
+        )}
         <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-2 text-sm">
           <div>
             <dt className="text-page-muted">Khớp lịch</dt>
-            <dd>
-              Khớp {c.matchedShifts}/{c.totalShifts} ca
-            </dd>
+            <dd>Khớp {matched}/{slots.length} ca</dd>
           </div>
           <div>
             <dt className="text-page-muted">Lương mong muốn</dt>
-            <dd>{c.expectedSalary}</dd>
+            <dd>từ {c.criteria.salaryMinK}.000đ/giờ</dd>
           </div>
         </dl>
         <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
-        <ProfileTag to={SEEKER_PUBLIC_HREF}>Hồ sơ ứng viên</ProfileTag>
-        <Link
-          to={`/tuyen-dung/ung-vien-phu-hop?job=${jobId}`}
-          className={`link-underline inline-block rounded-control text-sm text-page-muted hover:text-page-fg ${FOCUS}`}
-        >
-          Xem trong khu tuyển dụng
-        </Link>
+          <Link to={candidateHref(c.id)} className={`link-underline inline-block rounded-control text-sm font-medium ${FOCUS}`}>
+            Xem hồ sơ<span className="sr-only"> {c.name}</span>
+          </Link>
+          <Link to="/match" className={`link-underline inline-block rounded-control text-sm text-page-muted hover:text-page-fg ${FOCUS}`}>
+            Mở trang Kết nối
+          </Link>
         </div>
       </article>
     </Reveal>

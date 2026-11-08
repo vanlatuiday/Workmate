@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Bookmark, CalendarCheck, ClipboardList, MapPin, Zap } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { JOB_TYPES } from '@constants/index'
-import { EmptyState, MatchScore, MockNotice, PageHeader, Panel, StatCard, StatusBadge } from '@components/dashboard'
+import { EmptyState, MatchScore, PageHeader, Panel, StatCard, StatusBadge } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
 import { useInterviews, useMyPairs } from '@services/connectionService'
 import { describeConversation } from '@pages/public/messages/describe'
@@ -10,16 +10,15 @@ import { formatRelativeTime } from '@utils/format'
 import { useAllJobs, seekerOutcome } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { FOCUS } from '@utils/focus'
+import { useProfileStore } from '@context/profileStore'
+import { completeness } from '@pages/public/profile/useProfileDraft'
 
 const LINK = `underline underline-offset-4 text-page-fg hover:text-page-muted transition-colors duration-300 rounded-control ${FOCUS}`
 
-// Mức hoàn thiện hồ sơ mẫu
-const PROFILE_PERCENT = 80
-
 export default function JobseekerDashboard() {
   const { user } = useAuthStore()
-  const name = user?.email?.split('@')[0] ?? 'bạn'
-  // Số liệu thật từ kho dùng chung (demoStore + matchStore)
+  const name = user?.displayName ?? user?.email?.split('@')[0] ?? 'bạn'
+  const PROFILE_PERCENT = completeness({ ...useProfileStore((s) => s.profile), avatarUrl: useProfileStore((s) => s.avatarUrl) })
   const pairs = useMyPairs('seeker')
   const savedCount = useMatchStore((s) => s.savedJobs.length)
   const interviews = useInterviews()
@@ -128,7 +127,6 @@ export default function JobseekerDashboard() {
         )}
       </Panel>
 
-      <div className="mt-6"><MockNotice /></div>
     </div>
   )
 }

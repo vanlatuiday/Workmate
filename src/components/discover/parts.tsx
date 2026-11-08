@@ -95,7 +95,7 @@ export function TextLink({ to, children }: { to: string; children: string }) {
   )
 }
 
-/** Ghi chú dữ liệu mẫu — đặt cuối trang */
+/** Ghi chú nhỏ cuối trang (nguồn ảnh…) */
 export function SampleNote({ children }: { children: ReactNode }) {
   return <p className="shell pb-section-sm text-xs text-page-muted">{children}</p>
 }

@@ -1,20 +1,20 @@
-import { useState } from 'react'
 import PersonalArchive from '@components/archive/PersonalArchive'
 import type { ArchiveEntry } from '@components/archive/types'
 import { CompanyReviews } from '@components/hire'
-import { DEMO_COMPANY } from '@pages/public/match/data'
-import { useCompanyStore } from '@context/companyStore'
+import { useCompanyStore, type CompanyProfile } from '@context/companyStore'
+import type { CatalogJob } from '@context/catalogStore'
+import { useCompanyJobs } from '@services/adminService'
 import { Facts, SampleNote } from '@components/discover/parts'
-import { JOB_STATUS_LABELS, MOCK_JOBS } from '@pages/recruiter/mockData'
+import { JOB_TYPES } from '@constants/index'
 import PersonalIntro from './PersonalIntro'
-import { COMPANY as C } from './companyData'
-import { ActionNote, ActionPrimary, ActionText, Actions, PlainList, Section, TagList } from './parts'
+import { ActionPrimary, ActionText, Actions, EmptyNote, PlainList, Section, TagList } from './parts'
 import { Link } from 'react-router-dom'
 import { FOCUS } from '@utils/focus'
 
 type Opts = { owner: boolean }
+type BuildOpts = Opts & { P: CompanyProfile; openJobs: CatalogJob[] }
 
-const OPEN_JOBS = MOCK_JOBS.filter((j) => j.status === 'open')
+const EDIT_HREF = '/tuyen-dung/ho-so-cong-ty'
 
 /** Hành động cuối tấm: chủ → quản lý tin / hồ sơ công ty; người xem → quay lại việc làm */
 function CompanyActions({ owner }: Opts) {
@@ -22,9 +22,8 @@ function CompanyActions({ owner }: Opts) {
     <>
       <Actions>
         <ActionPrimary to="/tuyen-dung/tin-dang">Quản lý tin</ActionPrimary>
-        <ActionText to="/tuyen-dung/ho-so-cong-ty">Hồ sơ công ty</ActionText>
+        <ActionText to={EDIT_HREF}>Hồ sơ công ty</ActionText>
       </Actions>
-      <ActionNote>Phần chỉnh sửa hồ sơ công ty đang được xây trong khu tuyển dụng.</ActionNote>
     </>
   ) : (
     <Actions>
@@ -33,28 +32,13 @@ function CompanyActions({ owner }: Opts) {
   )
 }
 
-/** Nút "Gửi lời nhắn" giả lập: chỉ báo chưa hoạt động, không giả vờ đã gửi */
-function MessageDemo() {
-  const [shown, setShown] = useState(false)
-  return (
-    <div className="mt-6">
-      <button
-        type="button"
-        onClick={() => setShown(true)}
-        className={`rounded-full border border-page-fg px-5 py-2.5 text-sm font-medium transition-colors duration-300 hover:bg-page-fg hover:text-page-bg ${FOCUS}`}
-      >
-        Gửi lời nhắn
-      </button>
-      <p role="status" className="mt-2 text-sm text-page-muted">
-        {shown ? 'Chức năng nhắn tin chưa hoạt động (bản demo).' : ''}
-      </p>
-    </div>
-  )
-}
-
 /** Dựng 6 tấm doanh nghiệp; `owner` chỉ đổi hành động và đích của link vị trí. */
-function buildCompanyEntries({ owner }: Opts): ArchiveEntry[] {
+function buildCompanyEntries({ owner, P, openJobs }: BuildOpts): ArchiveEntry[] {
   const actions = <CompanyActions owner={owner} />
+  const inv = owner ? { to: EDIT_HREF, label: 'Bổ sung trong hồ sơ công ty' } : undefined
+  const list = (items: string[], empty: string) => (items.length ? <PlainList items={items} /> : <EmptyNote invite={inv}>{empty}</EmptyNote>)
+  // Kỹ năng thật sự đang cần: gom từ các tin đang mở
+  const skillsWanted = [...new Set(openJobs.flatMap((j) => j.skills))]
   return [
     {
       id: 'chung-toi-la-ai',
@@ -65,13 +49,13 @@ function buildCompanyEntries({ owner }: Opts): ArchiveEntry[] {
       cursor: 'Mở',
       content: (
         <>
-          <p className="font-display text-xl font-semibold">{C.name}</p>
-          <p className="mt-3 leading-relaxed">{C.intro}</p>
+          <p className="font-display text-xl font-semibold">{P.name}</p>
+          {P.about ? <p className="mt-3 whitespace-pre-line leading-relaxed">{P.about}</p> : <div className="mt-3"><EmptyNote invite={inv}>Chưa có phần giới thiệu.</EmptyNote></div>}
           <Facts
             rows={[
-              ['Lĩnh vực', C.industry],
-              ['Địa điểm', C.location],
-              ['Người phụ trách tuyển dụng', `${C.recruiter.title} · ${C.recruiter.email}`],
+              ['Lĩnh vực', P.industry || 'Chưa nêu'],
+              ['Địa điểm', P.district ? `${P.district}, Đà Nẵng` : 'Chưa nêu'],
+              ['Quy mô', `${P.size} người`],
             ]}
           />
         </>
@@ -88,10 +72,7 @@ function buildCompanyEntries({ owner }: Opts): ArchiveEntry[] {
       content: (
         <>
           <Section title="Môi trường làm việc">
-            <PlainList items={C.environment} />
-          </Section>
-          <Section title="Cách tổ chức công việc">
-            <PlainList items={C.workOrganization} />
+            {list(P.environment, 'Chưa mô tả môi trường làm việc.')}
           </Section>
         </>
       ),
@@ -107,13 +88,13 @@ function buildCompanyEntries({ owner }: Opts): ArchiveEntry[] {
       content: (
         <>
           <Section title="Văn hóa">
-            <p>{C.culture}</p>
+            {P.culture ? <p>{P.culture}</p> : <EmptyNote invite={inv}>Chưa mô tả văn hóa.</EmptyNote>}
           </Section>
           <Section title="Giá trị">
-            <TagList items={C.values} />
+            {P.values.length ? <TagList items={P.values} /> : <EmptyNote invite={inv}>Chưa nêu giá trị.</EmptyNote>}
           </Section>
           <Section title="Chính sách cho nhân viên">
-            <PlainList items={C.policies} />
+            {list(P.policies, 'Chưa nêu chính sách.')}
           </Section>
         </>
       ),
@@ -127,21 +108,22 @@ function buildCompanyEntries({ owner }: Opts): ArchiveEntry[] {
       photo: { id: '1484480974693-6ca0a78fb36b', alt: 'Người đang viết danh sách công việc vào sổ' },
       cursor: 'Mở',
       content: (
-        <ul className="divide-y divide-page-line border-y border-page-line">
-          {OPEN_JOBS.map((j) => (
-            <li key={j.id} className="py-3">
-              <Link
-                to={owner ? `/vi-tri/${j.id}` : '/viec-lam'}
-                className={`link-underline rounded-control font-medium ${FOCUS}`}
-              >
-                {j.title}
-              </Link>
-              <p className="mt-1 text-sm text-page-muted">
-                {JOB_STATUS_LABELS[j.status]} · {j.jobType} · {j.schedule} · {j.salary}
-              </p>
-            </li>
-          ))}
-        </ul>
+        openJobs.length ? (
+          <ul className="divide-y divide-page-line border-y border-page-line">
+            {openJobs.map((j) => (
+              <li key={j.id} className="py-3">
+                <Link to={owner ? `/vi-tri/${j.id}` : `/viec-lam/${j.id}`} className={`link-underline rounded-control font-medium ${FOCUS}`}>
+                  {j.title}
+                </Link>
+                <p className="mt-1 text-sm text-page-muted">
+                  {JOB_TYPES.find((t) => t.value === j.jobType)?.label ?? j.jobType} · {j.shiftLabel} · {j.salaryLabel}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <EmptyNote invite={owner ? { to: '/dang-tin', label: 'Đăng tin tuyển dụng' } : undefined}>Hiện chưa có vị trí đang mở.</EmptyNote>
+        )
       ),
       actions,
     },
@@ -153,14 +135,9 @@ function buildCompanyEntries({ owner }: Opts): ArchiveEntry[] {
       photo: { id: '1521791136064-7986c2920216', alt: 'Hai người bắt tay nhau trong buổi gặp' },
       cursor: 'Mở',
       content: (
-        <>
-          <Section title="Kỹ năng quan tâm">
-            <TagList items={C.skillsWanted} />
-          </Section>
-          <Section title="Tiêu chí ưu tiên">
-            <PlainList items={C.priorities} />
-          </Section>
-        </>
+        <Section title="Kỹ năng đang cần">
+          {skillsWanted.length ? <TagList items={skillsWanted} /> : <EmptyNote>Kỹ năng lấy từ các tin đang mở; hiện chưa có tin nào.</EmptyNote>}
+        </Section>
       ),
       actions,
     },
@@ -172,43 +149,42 @@ function buildCompanyEntries({ owner }: Opts): ArchiveEntry[] {
       photo: { id: '1455390582262-044cdead277a', alt: 'Cây bút đang viết thư trên giấy' },
       cursor: 'Mở',
       content: (
-        <>
-          <Facts rows={C.contacts} />
-          <MessageDemo />
-        </>
+        <Facts rows={[['Email', P.email || 'Chưa nêu'], ['Điện thoại', P.phone || 'Chưa nêu']]} />
       ),
       actions,
     },
   ]
 }
 
-/** Nhà tuyển dụng: doanh nghiệp của tôi (owner) hoặc trang doanh nghiệp mẫu (người xem). */
+/** Nhà tuyển dụng: doanh nghiệp của tôi (owner) hoặc xem thử bản người tìm việc thấy. */
 export default function RecruiterPersonalView({ owner }: Opts) {
   const myCompanyId = useCompanyStore((s) => s.id)
+  const P = useCompanyStore((s) => s.profile)
+  const openJobs = useCompanyJobs(myCompanyId).map((r) => r.job).filter((j) => j.visible)
   return (
     <>
       <PersonalArchive
-        entries={buildCompanyEntries({ owner })}
+        entries={buildCompanyEntries({ owner, P, openJobs })}
         label="Trang doanh nghiệp"
         eyebrow="Doanh nghiệp"
         intro={
           <PersonalIntro
             eyebrow="Phía sau doanh nghiệp"
-            title={owner ? 'Doanh nghiệp của tôi' : C.name}
+            title={owner ? 'Doanh nghiệp của tôi' : P.name}
             text={
               owner
                 ? 'Sáu phần mà người tìm việc sẽ thấy khi xem công ty bạn. Bấm từng tấm ảnh để xem.'
                 : 'Sáu phần giới thiệu doanh nghiệp: con người, nơi làm việc và những vị trí đang mở.'
             }
-            mode={owner ? 'Trang của bạn' : `Bạn đang xem trang công khai của ${C.name}`}
+            mode={owner ? 'Trang của bạn' : `Bạn đang xem trang công khai của ${P.name}`}
             back={owner ? undefined : { to: '/viec-lam', label: 'Quay lại việc làm' }}
           />
         }
       />
       <div className="shell pb-section-sm">
-        <CompanyReviews companyId={myCompanyId || DEMO_COMPANY.id} className="mx-auto max-w-2xl" />
+        <CompanyReviews companyId={myCompanyId} className="mx-auto max-w-2xl" />
       </div>
-      <SampleNote>Thông tin doanh nghiệp là dữ liệu mẫu, sẽ thay bằng dữ liệu thật. Ảnh minh họa từ Unsplash.</SampleNote>
+      <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
     </>
   )
 }

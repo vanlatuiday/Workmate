@@ -12,7 +12,7 @@ import RecruiterJobs from './jobs/RecruiterJobs'
  *   khách / quản trị  → các nơi đang tuyển (GuestJobs)
  *   người tìm việc    → công ty đang tuyển + việc tiêu biểu (JobseekerJobs)
  *   nhà tuyển dụng    → các vị trí của chính mình (RecruiterJobs)
- * Hệ thống ảnh + cuộn dùng chung ở components/discover; dữ liệu mẫu ở ./jobs/data.ts.
+ * Hệ thống ảnh + cuộn dùng chung ở components/discover; dữ liệu từ danh mục trên máy chủ.
  */
 export default function JobsPage() {
   useSmoothScroll()

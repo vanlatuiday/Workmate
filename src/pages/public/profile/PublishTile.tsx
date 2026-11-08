@@ -9,7 +9,7 @@ export default function PublishTile({ api }: { api: ProfileApi }) {
   const toggle = () => {
     const next = !profile.published
     set('published', next)
-    if (next) toast.success('Đã công khai (bản mẫu, chưa lưu)')
+    if (next) toast.success('Đã công khai hồ sơ')
   }
   return (
     <Group title="Công khai" index={7}>

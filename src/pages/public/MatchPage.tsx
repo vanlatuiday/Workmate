@@ -11,7 +11,7 @@ import RecruiterMatch from './match/RecruiterMatch'
  *   người tìm việc   → việc hợp với hồ sơ, tự xếp ưu tiên (JobseekerMatch)
  *   nhà tuyển dụng   → ứng viên hợp từng vị trí (RecruiterMatch)
  *   quản trị         → chỉ một lời nhắn, MATCH không dành cho quản trị
- * Trang yên tĩnh như dashboard: không cuộn mượt, không con trỏ tùy biến. Dữ liệu mẫu ở ./match/data.ts.
+ * Trang yên tĩnh như dashboard: không cuộn mượt, không con trỏ tùy biến.
  */
 export default function MatchPage() {
   const role = useAuthStore((s) => s.user?.role)

@@ -150,7 +150,6 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
           ))}
           {top.length === 0 && <li className="text-sm text-page-muted">Chưa có ứng viên nào đủ gần và đủ khớp.</li>}
         </ul>
-        <p className="mt-4 text-xs text-page-muted">Dữ liệu mẫu</p>
       </section>
     </div>
   )

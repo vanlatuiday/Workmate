@@ -1,6 +1,6 @@
 import { useId, useMemo, useState } from 'react'
 import { FileText, Search } from 'lucide-react'
-import { EmptyState, MockNotice, PageHeader, Panel } from '@components/dashboard'
+import { EmptyState, PageHeader, Panel } from '@components/dashboard'
 import DetailDrawer from '@components/admin/DetailDrawer'
 import { BTN_SECONDARY, FIELD, FlagList, JobActions, JobStatusBadges, norm, STATUS_LABEL } from '@components/admin/parts'
 import { JOB_TYPES } from '@constants/index'
@@ -189,7 +189,6 @@ export default function Jobs() {
         </Panel>
       )}
 
-      <MockNotice />
 
       {open && (
         <DetailDrawer

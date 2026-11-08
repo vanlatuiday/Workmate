@@ -86,7 +86,7 @@ function SeekerActions({ job }: { job: MatchJob }) {
   )
 }
 
-/** /viec-lam/:id — chi tiết một việc làm (dữ liệu mẫu). Nút và điểm phù hợp theo vai trò. */
+/** /viec-lam/:id — chi tiết một việc làm. Nút và điểm phù hợp theo vai trò. */
 export default function JobDetailPage() {
   const { id } = useParams()
   const location = useLocation()
@@ -103,7 +103,7 @@ export default function JobDetailPage() {
     return (
       <DetailNotFound
         title="Không tìm thấy việc làm"
-        text="Tin này không có trong dữ liệu mẫu hoặc đường dẫn đã thay đổi."
+        text="Tin này không có trên Workmate hoặc đường dẫn đã thay đổi."
       />
     )
   }
@@ -190,7 +190,7 @@ export default function JobDetailPage() {
           </TextBlock>
         )}
 
-        <p className="text-xs text-page-muted">Tin tuyển dụng và thông tin công ty là dữ liệu mẫu. Ảnh minh họa từ Unsplash.</p>
+        <p className="text-xs text-page-muted">Ảnh minh họa từ Unsplash.</p>
         {role && (
           <div>
             <ReportButton target="job" targetId={job.id} name={job.title} />

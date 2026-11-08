@@ -1,7 +1,7 @@
 import { useId, useState, type FormEvent } from 'react'
 import { Plus, X } from 'lucide-react'
 import { JOB_TYPES } from '@constants/index'
-import { MockNotice, PageHeader, Panel } from '@components/dashboard'
+import { PageHeader, Panel } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import type { JobType } from '@/types'
 import { useProfileStore } from '@context/profileStore'
@@ -299,7 +299,6 @@ export default function Profile() {
         </button>
         <p role="status" className="text-sm text-page-muted">{saved ? 'Đã lưu trên trình duyệt này' : ''}</p>
       </div>
-      <div className="mt-4"><MockNotice /></div>
     </form>
   )
 }
