@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service'
 import type { InviteInterviewDto } from './connections.dto'
 import { PairService } from './pair.service'
 
-const view = (iv: Interview) => ({
+export const interviewView = (iv: Interview) => ({
   id: iv.id, jobId: iv.jobId, seekerId: iv.seekerId, slots: iv.slots.map((s) => s.toISOString()),
   ...(iv.chosen ? { chosen: iv.chosen.toISOString() } : {}),
   mode: iv.mode, place: iv.place, ...(iv.note ? { note: iv.note } : {}), status: iv.status, createdAt: iv.createdAt.toISOString(),
@@ -22,7 +22,7 @@ export class InterviewsService {
   async list(user: AuthUser) {
     const rows = await this.prisma.interview.findMany({ where: this.pairs.scope(user) })
     const when = (iv: Interview) => (iv.chosen ?? iv.slots[0]).getTime()
-    return rows.sort((a, b) => when(a) - when(b)).map(view)
+    return rows.sort((a, b) => when(a) - when(b)).map(interviewView)
   }
 
   /** Doanh nghiệp mời — cần đã kết nối, mỗi cặp chỉ một lời mời còn hiệu lực */
@@ -38,7 +38,7 @@ export class InterviewsService {
       const iv = await tx.interview.create({ data: { jobId, seekerId, slots, mode: dto.mode, place: dto.place, note: dto.note || null, createdAt: fx.at } })
       await fx.notify('seeker', 'interview_invited')
       await fx.system('recruiter', 'Đã gửi lời mời phỏng vấn — chọn một khung giờ phù hợp nhé.')
-      return view(iv)
+      return interviewView(iv)
     })
   }
 
@@ -61,7 +61,7 @@ export class InterviewsService {
       const updated = await tx.interview.update({ where: { id }, data: { status: 'confirmed', chosen } })
       await fx.notify('recruiter', 'interview_confirmed')
       await fx.system('seeker', `Đã xác nhận lịch phỏng vấn: ${whenLabel(chosen)}.`)
-      return view(updated)
+      return interviewView(updated)
     })
   }
 
@@ -73,7 +73,7 @@ export class InterviewsService {
       const updated = await tx.interview.update({ where: { id }, data: { status: 'declined' } })
       await fx.notify('recruiter', 'interview_declined')
       await fx.system('seeker', 'Đã từ chối lời mời phỏng vấn.')
-      return view(updated)
+      return interviewView(updated)
     })
   }
 
@@ -86,7 +86,7 @@ export class InterviewsService {
       const updated = await tx.interview.update({ where: { id }, data: { status: 'cancelled' } })
       await fx.notify('seeker', 'interview_cancelled')
       await fx.system('recruiter', 'Đã hủy lịch phỏng vấn.')
-      return view(updated)
+      return interviewView(updated)
     })
   }
 }

@@ -6,7 +6,7 @@ import type { OfferDto } from './connections.dto'
 import { dayOf, fmtDay, isRealDay, todayVN } from './dates'
 import { PairService, type PairEffects, type Tx } from './pair.service'
 
-const view = (h: Hire) => ({
+export const hireView = (h: Hire) => ({
   jobId: h.jobId, seekerId: h.seekerId, status: h.status,
   ...(h.startDate ? { startDate: dayOf(h.startDate) } : {}),
   ...(h.note ? { note: h.note } : {}), ...(h.reason ? { reason: h.reason } : {}),
@@ -21,7 +21,7 @@ export class HiresService {
   /** Mọi bản ghi của tôi, mới cập nhật trước */
   async list(user: AuthUser) {
     const rows = await this.prisma.hire.findMany({ where: this.pairs.scope(user), orderBy: { updatedAt: 'desc' } })
-    return rows.map(view)
+    return rows.map(hireView)
   }
 
   /** Cặp đã kết nối và chưa có bản ghi nhận việc */
@@ -43,7 +43,7 @@ export class HiresService {
       })
       await fx.notify('seeker', 'offer')
       await fx.system('recruiter', `Bên mình rất muốn nhận bạn vào làm, bắt đầu từ ${fmtDay(startDate)}. Bạn xem lời mời và xác nhận giúp mình nhé.`)
-      return view(hire)
+      return hireView(hire)
     })
   }
 
@@ -54,7 +54,7 @@ export class HiresService {
       const hire = await tx.hire.create({ data: { jobId, seekerId, status: 'rejected', reason: reason || null, at: fx.at } })
       await fx.notify('seeker', 'rejected')
       await fx.system('recruiter', 'Cảm ơn bạn đã quan tâm, lần này bên mình chưa thấy phù hợp. Chúc bạn sớm tìm được công việc ưng ý.')
-      return view(hire)
+      return hireView(hire)
     })
   }
 
@@ -70,7 +70,7 @@ export class HiresService {
       if (cur?.status !== 'offered') throw new ConflictException('Không có lời mời nhận việc đang chờ')
       const hire = await tx.hire.update({ where: { jobId_seekerId: { jobId, seekerId } }, data })
       await after(fx, hire)
-      return view(hire)
+      return hireView(hire)
     })
   }
 

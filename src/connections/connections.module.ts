@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common'
 import { AuthModule } from '../auth/auth.module'
 import {
-  CandidateMarksController, ConnectionsController, HiresController, InterviewsController, MessagesController,
+  AdminPairsController, CandidateMarksController, CandidatesController, ConnectionsController, HiresController, InterviewsController, MessagesController,
   NotificationsController, ReviewsController, SavedJobsController,
 } from './connections.controller'
+import { CandidatesService } from './candidates.service'
 import { ConnectionsService } from './connections.service'
 import { HiresService } from './hires.service'
 import { InterviewsService } from './interviews.service'
@@ -19,7 +20,8 @@ import { ReviewsService } from './reviews.service'
   controllers: [
     ConnectionsController, SavedJobsController, CandidateMarksController, MessagesController,
     InterviewsController, HiresController, ReviewsController, NotificationsController,
+    CandidatesController, AdminPairsController,
   ],
-  providers: [RealtimeGateway, PairService, ConnectionsService, MessagesService, InterviewsService, HiresService, ReviewsService, NotificationsService],
+  providers: [RealtimeGateway, PairService, CandidatesService, ConnectionsService, MessagesService, InterviewsService, HiresService, ReviewsService, NotificationsService],
 })
 export class ConnectionsModule {}

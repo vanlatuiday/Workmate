@@ -34,6 +34,10 @@ export class RealtimeGateway implements OnGatewayConnection {
     if (userIds.length) this.server.to(userIds.map((id) => `user:${id}`)).emit(event, payload)
   }
 
+  disconnectUser(userId: string) {
+    this.server.in(`user:${userId}`).disconnectSockets(true)
+  }
+
   /** Chỉ chuyển tiếp khi người gửi thuộc đúng một phía của kết nối này */
   @SubscribeMessage('typing')
   async typing(@ConnectedSocket() client: Socket, @MessageBody() body: { jobId?: unknown; seekerId?: unknown }) {

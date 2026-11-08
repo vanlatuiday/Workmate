@@ -4,6 +4,8 @@ import { CurrentUser, type AuthUser } from '../auth/current-user.decorator'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { Roles } from '../auth/roles.decorator'
 import { RolesGuard } from '../auth/roles.guard'
+import { IsBoolean } from 'class-validator'
+import { CandidatesService } from './candidates.service'
 import { ConfirmInterviewDto, InviteInterviewDto, OfferDto, ReasonDto, ReviewDto, SendMessageDto } from './connections.dto'
 import { ConnectionsService } from './connections.service'
 import { HiresService } from './hires.service'
@@ -252,5 +254,45 @@ export class NotificationsController {
   @Patch(':id/read')
   read(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     return this.notifications.markRead(user, id)
+  }
+}
+
+/** Ứng viên doanh nghiệp được thấy (khác đường dẫn với CV: recruiter/candidates/:seekerId/cv) */
+@Controller('recruiter/candidates')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('recruiter')
+export class CandidatesController {
+  constructor(private candidates: CandidatesService) {}
+
+  @Get()
+  list(@CurrentUser() user: AuthUser) {
+    return this.candidates.forRecruiter(user)
+  }
+}
+
+class SeekerLockDto {
+  @IsBoolean()
+  locked!: boolean
+}
+
+@Controller('admin')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin')
+export class AdminPairsController {
+  constructor(private candidates: CandidatesService) {}
+
+  @Get('seekers')
+  seekers() {
+    return this.candidates.forAdmin()
+  }
+
+  @Patch('seekers/:id')
+  lock(@Param('id') id: string, @Body() dto: SeekerLockDto) {
+    return this.candidates.setLocked(id, dto.locked)
+  }
+
+  @Get('pairs')
+  pairs() {
+    return this.candidates.allPairs()
   }
 }
