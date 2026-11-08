@@ -41,10 +41,7 @@ export class ReviewsService {
   /** Đánh giá về một người tìm việc: chính họ, admin, hoặc doanh nghiệp được phép xem hồ sơ */
   async ofSeeker(user: AuthUser, seekerId: string) {
     if (user.role === 'jobseeker' && user.id !== seekerId) throw new ForbiddenException('Không có quyền xem')
-    if (user.role === 'recruiter') {
-      const connected = await this.prisma.connection.count({ where: { seekerId, job: { company: { members: { some: { userId: user.id } } } } } })
-      if (!connected) await this.pairs.assertDiscoverable(this.prisma, seekerId)
-    }
+    if (user.role === 'recruiter') await this.pairs.assertRecruiterCanView(user.id, seekerId)
     const rows = await this.prisma.review.findMany({
       where: { from: 'recruiter', seekerId },
       include: { job: { select: { company: { select: { name: true } } } } },

@@ -268,6 +268,11 @@ export class CandidatesController {
   list(@CurrentUser() user: AuthUser) {
     return this.candidates.forRecruiter(user)
   }
+
+  @Get(':seekerId/profile')
+  profile(@CurrentUser() user: AuthUser, @Param('seekerId') seekerId: string) {
+    return this.candidates.profile(user, seekerId)
+  }
 }
 
 class SeekerLockDto {

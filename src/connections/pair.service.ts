@@ -84,6 +84,17 @@ export class PairService {
     if (!s || !s.published || s.user.status !== 'active' || visibility !== 'public') throw new NotFoundException('Không tìm thấy ứng viên')
   }
 
+  /** Doanh nghiệp được xem hồ sơ: đã kết nối, ứng viên đã ứng tuyển tin của mình, hoặc hồ sơ cho phép tiếp cận */
+  async assertRecruiterCanView(recruiterId: string, seekerId: string) {
+    const job = { company: { members: { some: { userId: recruiterId } } } }
+    const [connected, applied] = await Promise.all([
+      this.prisma.connection.count({ where: { seekerId, job } }),
+      this.prisma.interest.count({ where: { seekerId, from: 'seeker', job } }),
+    ])
+    if (!connected && !applied) await this.assertDiscoverable(this.prisma, seekerId)
+    return { connected: connected > 0 }
+  }
+
   /**
    * Chạy thao tác trong giao dịch, giữ khóa theo cặp để hai phía bấm cùng lúc không bị lệch
    * (vd. cùng quan tâm mà không ai thấy ai nên mất kết nối). Commit xong mới đẩy socket.

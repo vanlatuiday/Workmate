@@ -6,6 +6,7 @@ import { DANANG_CENTER, haversineKm } from '../common/geo'
 import { PrismaService } from '../prisma/prisma.service'
 import { hireView } from './hires.service'
 import { interviewView } from './interviews.service'
+import { PairService } from './pair.service'
 import { RealtimeGateway } from './realtime.gateway'
 
 /** "Nguyễn Minh Anh" → "Nguyễn M. A." — tên đầy đủ chỉ mở sau khi hai bên kết nối */
@@ -39,7 +40,7 @@ const toCandidate = (s: SeekerRow, origin: Point, name: string) => ({
 /** Danh sách ứng viên cho doanh nghiệp, và các số liệu toàn hệ thống cho quản trị viên */
 @Injectable()
 export class CandidatesService {
-  constructor(private prisma: PrismaService, private realtime: RealtimeGateway) {}
+  constructor(private prisma: PrismaService, private realtime: RealtimeGateway, private pairs: PairService) {}
 
   /** Hồ sơ cho phép tiếp cận + mọi người đã có quan hệ với tin của công ty (để cuộc trò chuyện cũ vẫn có tên) */
   async forRecruiter(user: AuthUser) {
@@ -50,7 +51,8 @@ export class CandidatesService {
       where: {
         OR: [
           { published: true, user: { status: 'active', OR: [{ settings: null }, { settings: { visibility: 'public' } }] } },
-          { interests: mine },
+          // Chỉ tính khi ứng viên tự ứng tuyển: doanh nghiệp bấm quan tâm không mở được hồ sơ đã ẩn
+          { interests: { some: { from: 'seeker', job: { companyId: company.id } } } },
           { connections: mine },
         ],
       },
@@ -59,6 +61,27 @@ export class CandidatesService {
     })
     const origin = company.lat != null && company.lng != null ? { lat: company.lat, lng: company.lng } : DANANG_CENTER
     return rows.map((s) => toCandidate(s, origin, s.connections.length ? s.fullName : abbreviate(s.fullName)))
+  }
+
+  /** Hồ sơ một ứng viên. Họ tên đầy đủ, khu vực chi tiết, số điện thoại và CV chỉ gửi về khi đã kết nối */
+  async profile(user: AuthUser, seekerId: string) {
+    const { connected } = await this.pairs.assertRecruiterCanView(user.id, seekerId)
+    const [s, company] = await Promise.all([
+      this.prisma.seekerProfile.findUnique({
+        where: { userId: seekerId },
+        include: { ...SEEKER_INCLUDE, experiences: { orderBy: { order: 'asc' } }, _count: { select: { cvs: true } } },
+      }),
+      this.prisma.company.findFirst({ where: { members: { some: { userId: user.id } } }, select: { lat: true, lng: true } }),
+    ])
+    if (!s) throw new NotFoundException('Không tìm thấy ứng viên')
+    const origin = company?.lat != null && company.lng != null ? { lat: company.lat, lng: company.lng } : DANANG_CENTER
+    return {
+      ...toCandidate(s, origin, connected ? s.fullName : abbreviate(s.fullName)),
+      connected,
+      about: s.about,
+      experience: s.experiences.map((e) => ({ id: e.id, title: e.title, company: e.company, period: e.period })),
+      ...(connected ? { fullArea: s.area, phone: s.phone, hasCv: s._count.cvs > 0 } : {}),
+    }
   }
 
   async forAdmin() {
