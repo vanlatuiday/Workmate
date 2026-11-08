@@ -1,7 +1,9 @@
+import type { OnModuleInit } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { ConnectedSocket, MessageBody, OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
 import type { Server, Socket } from 'socket.io'
 import { corsOrigin } from '../common/cors'
+import { SessionEvents } from '../common/session-events.service'
 import { PrismaService } from '../prisma/prisma.service'
 
 /**
@@ -12,17 +14,21 @@ import { PrismaService } from '../prisma/prisma.service'
  * Client → server: `typing` ({ jobId, seekerId }).
  */
 @WebSocketGateway({ cors: { origin: corsOrigin, credentials: true } })
-export class RealtimeGateway implements OnGatewayConnection {
+export class RealtimeGateway implements OnGatewayConnection, OnModuleInit {
   @WebSocketServer() private server!: Server
 
-  constructor(private jwt: JwtService, private prisma: PrismaService) {}
+  constructor(private jwt: JwtService, private prisma: PrismaService, private sessions: SessionEvents) {}
+
+  onModuleInit() {
+    this.sessions.revoked$.subscribe((userId) => this.disconnectUser(userId))
+  }
 
   /** Token sai / hết hạn hoặc tài khoản bị khóa → ngắt ngay */
   async handleConnection(client: Socket) {
     try {
-      const { sub } = await this.jwt.verifyAsync<{ sub: string }>(String(client.handshake.auth?.token ?? ''))
-      const user = await this.prisma.user.findUnique({ where: { id: sub }, select: { id: true, role: true, status: true } })
-      if (!user || user.status === 'locked') throw new Error('locked')
+      const { sub, v } = await this.jwt.verifyAsync<{ sub: string; v?: number }>(String(client.handshake.auth?.token ?? ''))
+      const user = await this.prisma.user.findUnique({ where: { id: sub }, select: { id: true, role: true, status: true, tokenVersion: true } })
+      if (!user || user.status === 'locked' || (v ?? 0) !== user.tokenVersion) throw new Error('revoked')
       client.data.user = { id: user.id, role: user.role }
       await client.join(`user:${user.id}`)
     } catch {

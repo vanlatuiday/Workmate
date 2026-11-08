@@ -4,6 +4,7 @@ import { Prisma, type Role, type User } from '@prisma/client'
 import * as bcrypt from 'bcryptjs'
 import { randomInt } from 'crypto'
 import { MailService } from '../common/mail.service'
+import { SessionEvents } from '../common/session-events.service'
 import { PrismaService } from '../prisma/prisma.service'
 import type { RegisterDto } from './dto/auth.dto'
 
@@ -35,7 +36,7 @@ function slugify(name: string): string {
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private jwt: JwtService, private mail: MailService) {}
+  constructor(private prisma: PrismaService, private jwt: JwtService, private mail: MailService, private sessions: SessionEvents) {}
 
   /** Tìm theo email hoặc tên đăng nhập, không phân biệt hoa thường */
   private findByIdentifier(identifier: string) {
@@ -58,7 +59,7 @@ export class AuthService {
   }
 
   private async issue(user: User) {
-    return { user: await this.toDto(user), token: await this.jwt.signAsync({ sub: user.id, role: user.role }) }
+    return { user: await this.toDto(user), token: await this.jwt.signAsync({ sub: user.id, role: user.role, v: user.tokenVersion }) }
   }
 
   async login(identifier: string, password: string) {
@@ -128,9 +129,9 @@ export class AuthService {
         console.error(`[auth] Không gửi được email đặt lại mật khẩu cho tài khoản ${user.id}:`, (e as Error).message)
       })
     }
-    // CẢNH BÁO BẢO MẬT: chỉ trên máy cá nhân mới được hiện mã (frontend hiện trên màn hình khi chưa cấu hình email).
+    // CẢNH BÁO BẢO MẬT: chỉ trên máy cá nhân CHƯA cấu hình email mới được hiện mã trên màn hình.
     // Trả mã về client trên production thì ai gọi API cũng đặt lại được mật khẩu người khác.
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production' && !this.mail.enabled) {
       console.log(`[auth] Mã đặt lại mật khẩu của ${user.email}: ${code} (hiệu lực 15 phút)`)
       return { ok: true, devCode: code }
     }
@@ -158,9 +159,11 @@ export class AuthService {
     }
     const passwordHash = await bcrypt.hash(newPassword, BCRYPT_COST)
     await this.prisma.$transaction([
-      this.prisma.user.update({ where: { id: user.id }, data: { passwordHash } }),
+      // Tăng phiên bản: mọi phiên đang đăng nhập (có thể của kẻ đã lấy được mật khẩu cũ) bị đăng xuất
+      this.prisma.user.update({ where: { id: user.id }, data: { passwordHash, tokenVersion: { increment: 1 } } }),
       this.prisma.passwordReset.updateMany({ where: { userId: user.id, usedAt: null }, data: { usedAt: new Date() } }),
     ])
+    this.sessions.revoke(user.id)
     return { ok: true }
   }
 
@@ -168,7 +171,12 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { id: userId } })
     if (!user) throw new UnauthorizedException('Phiên đăng nhập không hợp lệ')
     if (!(await bcrypt.compare(currentPassword, user.passwordHash))) throw new BadRequestException('Mật khẩu hiện tại chưa đúng')
-    await this.prisma.user.update({ where: { id: userId }, data: { passwordHash: await bcrypt.hash(newPassword, BCRYPT_COST) } })
-    return { ok: true }
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: await bcrypt.hash(newPassword, BCRYPT_COST), tokenVersion: { increment: 1 } },
+    })
+    this.sessions.revoke(userId)
+    // Thiết bị đang đổi mật khẩu nhận token mới để không bị đăng xuất; các thiết bị khác thì có
+    return this.issue(updated)
   }
 }

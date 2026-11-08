@@ -4,7 +4,10 @@ import { CurrentUser, type AuthUser } from '../auth/current-user.decorator'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { Roles } from '../auth/roles.decorator'
 import { RolesGuard } from '../auth/roles.guard'
-import { IsBoolean } from 'class-validator'
+import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler'
+import { IsBoolean, IsString, MaxLength, MinLength } from 'class-validator'
+import { AUTH_LIMITS } from '../common/throttle'
+import { AccountService } from './account.service'
 import { CandidatesService } from './candidates.service'
 import { ConfirmInterviewDto, InviteInterviewDto, OfferDto, ReasonDto, ReviewDto, SendMessageDto } from './connections.dto'
 import { ConnectionsService } from './connections.service'
@@ -309,5 +312,25 @@ export class AdminPairsController {
   @Get('pairs')
   pairs() {
     return this.candidates.allPairs()
+  }
+}
+
+class DeleteAccountDto {
+  @IsString() @MinLength(1) @MaxLength(128)
+  password!: string
+}
+
+/** Tài khoản đang đăng nhập */
+@Controller('account')
+export class AccountController {
+  constructor(private account: AccountService) {}
+
+  @Post('delete')
+  @HttpCode(200)
+  @UseGuards(ThrottlerGuard, JwtAuthGuard)
+  @Throttle(AUTH_LIMITS.deleteAccount)
+  @SkipThrottle({ tai_khoan: true })
+  remove(@CurrentUser() user: AuthUser, @Body() dto: DeleteAccountDto) {
+    return this.account.deleteOwn(user, dto.password)
   }
 }

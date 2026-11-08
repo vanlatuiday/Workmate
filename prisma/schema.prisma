@@ -44,6 +44,8 @@ model User {
   passwordHash String
   role         Role
   status       UserStatus @default(active)
+  /// Tăng khi đổi/đặt lại mật khẩu: mọi token cũ mất hiệu lực
+  tokenVersion Int        @default(0)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 

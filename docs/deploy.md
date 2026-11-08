@@ -10,7 +10,8 @@ Xem `.env.example`. Với `NODE_ENV=production`, máy chủ từ chối khởi �
 - `CORS_ORIGIN`: địa chỉ https của frontend, nhiều địa chỉ thì cách nhau bằng dấu phẩy.
 - `TRUST_PROXY`: số lớp proxy phía trước, thường là `1`; có CDN và proxy của nền tảng thì `2`.
   **Đặt sai là giới hạn tần suất sai:** thiếu thì mọi người bị tính chung một IP; thừa thì người dùng tự giả được IP.
-- `SMTP_*`: tài khoản của nhà cung cấp email. `SMTP_FROM` phải thuộc tên miền đã xác thực với họ.
+- `SMTP_*`: tài khoản của nhà cung cấp email, kiểm tra bằng `MAIL_TEST_TO=ban@gmail.com npm run mail:test`. `SMTP_FROM` phải thuộc tên miền đã xác thực với họ.
+  Gmail dùng được khi mới bắt đầu (xem `.env.example`), nhưng giới hạn khoảng 500 thư/ngày và thư dễ vào mục Thư rác hơn dịch vụ chuyên dụng.
 
 ## 2. Backend
 ```bash

@@ -18,6 +18,7 @@
     "db:reset": "prisma migrate reset --force",
     "db:deploy": "prisma migrate deploy",
     "admin:create": "node prisma/create-admin.mjs",
+    "mail:test": "node scripts/mail-test.mjs",
     "storage:init": "node storage/init.mjs"
   },
   "keywords": [],

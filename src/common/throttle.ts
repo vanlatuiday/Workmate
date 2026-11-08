@@ -51,4 +51,6 @@ export const AUTH_LIMITS = {
   reset: { ...ipLimits(20, 60), tai_khoan: { limit: 10, ttl: 15 * MINUTE } },
   register: ipLimits(5, 20),
   changePassword: ipLimits(10, 30),
+  /** Cần mật khẩu nên cũng là chỗ dò được mật khẩu nếu lộ phiên */
+  deleteAccount: ipLimits(5, 20),
 }
