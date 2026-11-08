@@ -37,6 +37,11 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
   useFocusFirst(root, focus)
 
   const login = async (username: string, password: string) => {
+    if (!username.trim() || !password) {
+      setError('Nhập tên đăng nhập và mật khẩu')
+      shake()
+      return
+    }
     setError('')
     setLoading(true)
     let res
