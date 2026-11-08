@@ -40,7 +40,7 @@ export class ResetPasswordDto {
   @Transform(trim) @Matches(/^\d{6}$/, { message: 'Mã không đúng hoặc đã hết hạn' })
   code!: string
 
-  @IsString() @MinLength(6, { message: 'Mật khẩu mới cần ít nhất 6 ký tự' }) @MaxLength(72)
+  @IsString() @MinLength(8, { message: 'Mật khẩu mới cần ít nhất 8 ký tự' }) @MaxLength(72)
   newPassword!: string
 }
 
@@ -48,6 +48,6 @@ export class ChangePasswordDto {
   @IsString() @MinLength(1) @MaxLength(128)
   currentPassword!: string
 
-  @IsString() @MinLength(6, { message: 'Mật khẩu mới cần ít nhất 6 ký tự' }) @MaxLength(72)
+  @IsString() @MinLength(8, { message: 'Mật khẩu mới cần ít nhất 8 ký tự' }) @MaxLength(72)
   newPassword!: string
 }
