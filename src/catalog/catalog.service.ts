@@ -89,8 +89,12 @@ export class CatalogService {
     const jobCompanyIds = [...new Set(jobs.map((j) => j.companyId))]
     const companies = await this.prisma.company.findMany({
       where: user?.role === 'admin' ? {} : { OR: [{ locked: false }, { id: { in: jobCompanyIds } }] },
+      include: { members: { select: { user: { select: { settings: { select: { visibility: true } } } } } } },
       orderBy: { createdAt: 'asc' },
     })
-    return { companies: companies.map((c) => this.toCompany(c)), jobs: jobs.map((j) => this.toJob(j, origin)) }
+    return {
+      companies: companies.map((c) => ({ ...this.toCompany(c), hidden: c.members.some((m) => m.user.settings?.visibility === 'hidden') })),
+      jobs: jobs.map((j) => this.toJob(j, origin)),
+    }
   }
 }

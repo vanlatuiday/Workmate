@@ -30,6 +30,8 @@ export interface CatalogCompany {
   environment: string[]
   verified: boolean
   locked: boolean
+  /** Doanh nghiệp đã tắt "Công khai trang công ty"; các tin vẫn hiện bình thường */
+  hidden?: boolean
 }
 
 /** = MatchJob (frontend) + phần của PostedJob + trạng thái */

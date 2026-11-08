@@ -296,6 +296,16 @@ export class AdminPairsController {
     return this.candidates.setLocked(id, dto.locked)
   }
 
+  @Get('users')
+  users() {
+    return this.candidates.allUsers()
+  }
+
+  @Patch('users/:id')
+  lockUser(@Param('id') id: string, @Body() dto: SeekerLockDto) {
+    return this.candidates.setLocked(id, dto.locked)
+  }
+
   @Get('pairs')
   pairs() {
     return this.candidates.allPairs()

@@ -92,12 +92,28 @@ export class CandidatesService {
     return rows.map((s) => ({ ...toCandidate(s, DANANG_CENTER, s.fullName), locked: s.user.status === 'locked', connectionCount: s._count.connections }))
   }
 
-  /** Khóa thì ngắt luôn socket đang mở: token cũ bị chặn ở HTTP nhưng socket không tự biết */
-  async setLocked(seekerId: string, locked: boolean) {
-    const { count } = await this.prisma.user.updateMany({ where: { id: seekerId, role: 'jobseeker' }, data: { status: locked ? 'locked' : 'active' } })
-    if (!count) throw new NotFoundException('Không tìm thấy người tìm việc')
-    if (locked) this.realtime.disconnectUser(seekerId)
-    return { id: seekerId, locked }
+  /** Khóa thì ngắt luôn socket đang mở: token cũ bị chặn ở HTTP nhưng socket không tự biết. Không khóa được quản trị viên */
+  async setLocked(userId: string, locked: boolean) {
+    const { count } = await this.prisma.user.updateMany({ where: { id: userId, role: { not: 'admin' } }, data: { status: locked ? 'locked' : 'active' } })
+    if (!count) throw new NotFoundException('Không tìm thấy tài khoản')
+    if (locked) this.realtime.disconnectUser(userId)
+    return { id: userId, locked }
+  }
+
+  /** Mọi tài khoản, mới đăng ký trước */
+  async allUsers() {
+    const rows = await this.prisma.user.findMany({
+      select: {
+        id: true, email: true, role: true, status: true, createdAt: true,
+        seeker: { select: { fullName: true } },
+        memberships: { take: 1, select: { company: { select: { name: true } } } },
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+    return rows.map((u) => ({
+      id: u.id, email: u.email, role: u.role, status: u.status, createdAt: u.createdAt.toISOString(),
+      name: u.seeker?.fullName || u.memberships[0]?.company.name || (u.role === 'admin' ? 'Quản trị viên' : u.email.split('@')[0]),
+    }))
   }
 
   /** Toàn bộ cặp trong hệ thống — cho trang Tổng quan và Thống kê */
