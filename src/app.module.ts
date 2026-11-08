@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common'
+import { ThrottlerModule } from '@nestjs/throttler'
+import { THROTTLE_OPTIONS } from './common/throttle'
 import { PrismaModule } from './prisma/prisma.module'
 import { AuthModule } from './auth/auth.module'
 import { CommonModule } from './common/common.module'
@@ -15,7 +17,7 @@ import { HealthController } from './health/health.controller'
 
 @Module({
   imports: [
-    PrismaModule, CommonModule, AuthModule, CatalogModule, JobsModule, AdminModule, ProfileModule, CvModule,
+    ThrottlerModule.forRoot(THROTTLE_OPTIONS), PrismaModule, CommonModule, AuthModule, CatalogModule, JobsModule, AdminModule, ProfileModule, CvModule,
     ConnectionsModule, CompanyModule, SettingsModule, ReportsModule,
   ],
   controllers: [HealthController],

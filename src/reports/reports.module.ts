@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Injectable, Module, NotFoundException, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler'
 import type { Report, ReportStatus, ReportTarget } from '@prisma/client'
 import { Transform } from 'class-transformer'
 import { IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator'
@@ -80,8 +80,10 @@ class ReportsService {
 class ReportsController {
   constructor(private reports: ReportsService) {}
 
+  /** Khách cũng gửi được nên giới hạn theo IP: mức mặc định 5 lần/phút, 20 lần/giờ */
   @Post()
   @UseGuards(ThrottlerGuard, OptionalJwtAuthGuard)
+  @SkipThrottle({ tai_khoan: true })
   create(@CurrentUser() user: AuthUser | null, @Body() dto: CreateReportDto) {
     return this.reports.create(user, dto)
   }
@@ -104,20 +106,5 @@ class AdminReportsController {
   }
 }
 
-// Khách cũng gửi được nên giới hạn theo IP, chỉ áp dụng cho việc gửi báo cáo (xem ThrottlerGuard ở trên).
-// Bộ đếm nằm trong bộ nhớ của tiến trình: chạy nhiều máy chủ thì cần kho chung (Redis).
-// Lên mạng sau proxy phải bật `trust proxy` đúng số lớp, nếu không mọi người dùng chung một IP.
-@Module({
-  imports: [
-    ThrottlerModule.forRoot({
-      throttlers: [
-        { name: 'phut', ttl: 60_000, limit: 5 },
-        { name: 'gio', ttl: 3_600_000, limit: 20 },
-      ],
-      errorMessage: 'Bạn gửi báo cáo quá nhiều, vui lòng thử lại sau ít phút.',
-    }),
-  ],
-  controllers: [ReportsController, AdminReportsController],
-  providers: [ReportsService],
-})
+@Module({ controllers: [ReportsController, AdminReportsController], providers: [ReportsService] })
 export class ReportsModule {}
