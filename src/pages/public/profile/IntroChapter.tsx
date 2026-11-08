@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import toast from 'react-hot-toast'
 import Avatar from './Avatar'
 import { Group, INPUT, Switch } from './ui'
 import type { ProfileApi } from './useProfileDraft'
@@ -6,10 +6,11 @@ import type { ProfileApi } from './useProfileDraft'
 /** Nhóm 01 — ảnh đại diện, họ tên, câu giới thiệu. */
 export default function IntroChapter({ api }: { api: ProfileApi }) {
   const { profile, set, setAvatarFile } = api
-  // Thu hồi object URL khi rời trang
-  const urlRef = useRef<string | null>(null)
-  urlRef.current = profile.avatarUrl
-  useEffect(() => () => { if (urlRef.current) URL.revokeObjectURL(urlRef.current) }, [])
+  // Ảnh hiện ngay, tải lên chạy nền; lỗi thì ảnh cũ quay lại và báo lý do
+  const pick = async (f: File) => {
+    const err = await setAvatarFile(f)
+    if (err) toast.error(err)
+  }
 
   return (
     <Group title="Giới thiệu" index={1}>
@@ -19,9 +20,9 @@ export default function IntroChapter({ api }: { api: ProfileApi }) {
           <input
             id="avatar-file"
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
             className="peer sr-only"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) setAvatarFile(f); e.target.value = '' }}
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) void pick(f); e.target.value = '' }}
           />
           <label
             htmlFor="avatar-file"

@@ -4,6 +4,7 @@ import Messenger from '@components/messenger/Messenger'
 import { useAuthStore } from '@context/authStore'
 import { authService } from '@services/authService'
 import { loadCatalog } from '@services/catalogService'
+import { loadProfile } from '@services/profileService'
 
 // Layouts
 import PublicLayout from '@components/layout/PublicLayout'
@@ -87,6 +88,8 @@ export default function App() {
   const role = useAuthStore((s) => s.user?.role)
   useEffect(() => {
     void loadCatalog(role === 'admin')
+    // Hồ sơ người tìm việc: nạp từ máy chủ; khách / tài khoản khác → hồ sơ mẫu trên máy
+    void loadProfile()
   }, [userId, role])
 
   return (

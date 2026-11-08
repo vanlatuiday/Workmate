@@ -14,7 +14,7 @@ const FALLBACK_GLOW = `https://images.unsplash.com/photo-${MATCH_JOBS[0].photo.i
 
 /**
  * Hồ sơ người tìm việc — biểu mẫu dọc kiểu trang đăng tin: nhóm kính đánh số bên trái, xem trước bên phải.
- * Mọi ô luôn sửa được; sửa là lưu ngay vào profileStore (localStorage), điểm phù hợp ở mọi trang cập nhật theo.
+ * Mọi ô luôn sửa được; sửa là lưu ngay vào profileStore (đã đăng nhập thì tự lưu lên máy chủ), điểm phù hợp ở mọi trang cập nhật theo.
  */
 export default function ProfilePage() {
   const delay = usePageEnterDelay()
