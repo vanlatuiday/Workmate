@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { candidateHref } from '@pages/public/personal/links'
 import toast from 'react-hot-toast'
 import { Bookmark } from 'lucide-react'
 import { EmptyState, MatchScore, PageHeader, Panel, StatusBadge } from '@components/dashboard'
@@ -56,7 +57,7 @@ export default function SavedCandidates() {
                     <li key={key} className="flex flex-col gap-4 py-4 first:pt-0 last:pb-0 lg:flex-row lg:items-center lg:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                          <span className="font-medium text-page-fg">{cand.name}</span>
+                          <Link to={candidateHref(cand.id)} className="font-medium text-page-fg underline-offset-4 hover:underline">{cand.name}</Link>
                           {status === 'sent' && <StatusBadge tone="default">Đã quan tâm</StatusBadge>}
                           {status === 'received' && <StatusBadge tone="default">Ứng viên quan tâm bạn</StatusBadge>}
                           {status === 'connected' && <StatusBadge tone="strong">Đã kết nối</StatusBadge>}

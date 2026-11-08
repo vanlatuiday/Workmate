@@ -42,3 +42,25 @@ export async function loadAdminSeekers() {
   useCandidateStore.getState().set(data.map(toCandidate))
   useAdminStore.setState({ lockedSeekers: Object.fromEntries(data.filter((s) => s.locked).map((s) => [s.id, true])) })
 }
+
+/** Hồ sơ một ứng viên; `phone`, `fullArea`, `hasCv` chỉ có khi đã kết nối */
+export interface CandidateProfile extends ServerCandidate {
+  connected: boolean
+  about: string
+  avatarUrl: string | null
+  experience: { id: string; title: string; company: string; period: string }[]
+  fullArea?: string
+  phone?: string
+  hasCv?: boolean
+}
+
+export async function fetchCandidateProfile(id: string): Promise<CandidateProfile> {
+  const { data } = await api.get<CandidateProfile>(`/recruiter/candidates/${encodeURIComponent(id)}/profile`)
+  return data
+}
+
+/** Link xem / tải CV mặc định của ứng viên đã kết nối, hết hạn sau 5 phút */
+export async function candidateCvUrl(id: string, download: boolean): Promise<string> {
+  const { data } = await api.get<{ url: string }>(`/recruiter/candidates/${encodeURIComponent(id)}/cv`, { params: download ? { download: 1 } : {} })
+  return data.url
+}

@@ -43,7 +43,7 @@ export default function RecruiterMatch() {
                 <li key={`${p.jobId}|${p.seekerId}`} className="flex flex-col gap-4 py-5 first:pt-0 last:pb-0 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                      <span className="font-medium text-page-fg">{info.name}</span>
+                      <Link to={info.profileHref} className="font-medium text-page-fg underline-offset-4 hover:underline">{info.name}</Link>
                       {!!conv?.unread && <StatusBadge tone="strong">{conv.unread} tin chưa đọc</StatusBadge>}
                     </div>
                     <p className="mt-1 text-sm text-page-muted">{info.subtitle} · kết nối {formatRelativeTime(p.at)}</p>

@@ -8,6 +8,8 @@ import { scoreMatch } from '@pages/public/match/score'
 import { expressInterest, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { candidateHref } from '@pages/public/personal/links'
+import { Link } from 'react-router-dom'
 
 const FIELD = `h-10 rounded-control border border-page-edge bg-page-surface px-3 text-sm text-page-fg ${FOCUS}`
 const BTN = `inline-flex items-center justify-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
@@ -69,7 +71,7 @@ function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPo
           {initialsOf(c.name)}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-medium text-page-fg">{c.name}</p>
+          <Link to={candidateHref(c.id)} className={`font-medium text-page-fg underline-offset-4 hover:underline ${FOCUS}`}>{c.name}</Link>
           <p className="mt-0.5 text-sm text-page-muted">{c.summary}</p>
           <p className="mt-1 inline-flex items-center gap-1 text-xs text-page-muted">
             <MapPin className="h-3.5 w-3.5" aria-hidden="true" />

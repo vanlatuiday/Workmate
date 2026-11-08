@@ -74,6 +74,7 @@ const AdminConfig = lazy(() => import('@pages/admin/Config'))
 
 // Guards
 import ProtectedRoute from '@components/common/ProtectedRoute'
+import CandidateProfile from '@pages/recruiter/CandidateProfile'
 
 export default function App() {
   // Có token lưu sẵn: hỏi máy chủ một lần để làm mới thông tin người dùng (token hỏng/hết hạn → interceptor tự đăng xuất)
@@ -130,6 +131,7 @@ export default function App() {
         <Route element={<ProtectedRoute role="recruiter" />}>
           <Route path="/vi-tri/:id" element={<PositionDetailPage />} />
           <Route path="/dang-tin" element={<PostJobPage />} />
+          <Route path="/ung-vien/:id" element={<CandidateProfile />} />
         </Route>
         <Route element={<ProtectedRoute role="jobseeker" />}>
           <Route path="/ho-so" element={<ProfilePage />} />

@@ -8,7 +8,7 @@ import { candidateKey, useMatchStore } from '@context/matchStore'
 import { expressInterest, getPairStatus, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
-import { SEEKER_PUBLIC_HREF } from '@pages/public/personal/links'
+import { candidateHref } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { availabilityLabel, useCandidates, usePositions, type MatchCandidate, type MatchPosition } from './data'
@@ -158,7 +158,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
             <InterviewAction viewer="recruiter" jobId={position.id} seekerId={c.id} />
           </>
         )}
-        <Link to={SEEKER_PUBLIC_HREF} className={BTN_SECONDARY}>
+        <Link to={candidateHref(c.id)} className={BTN_SECONDARY}>
           Xem hồ sơ<span className="sr-only"> {c.name}</span>
         </Link>
         <button type="button" aria-pressed={saved} onClick={() => toggleSavedCandidate(key)} className={BTN_SECONDARY}>

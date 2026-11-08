@@ -10,6 +10,7 @@ import { scoreMatch } from '@pages/public/match/score'
 import { findAnyJob } from '@pages/public/jobs/lookup'
 import { fmtSlot, MODE_LABEL } from '@components/interview/format'
 import { FOCUS } from '@utils/focus'
+import { candidateHref } from '@pages/public/personal/links'
 
 const LINK = `underline-offset-4 hover:underline text-page-fg rounded-control ${FOCUS}`
 
@@ -119,7 +120,7 @@ export default function RecruiterDashboard() {
                     {c.name.charAt(0)}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-page-fg">{c.name}</p>
+                    <Link to={candidateHref(c.id)} className="block truncate text-sm font-medium text-page-fg underline-offset-4 hover:underline">{c.name}</Link>
                     <p className="truncate text-xs text-page-muted">{job.title}</p>
                   </div>
                   <MatchScore score={score} size="sm" />

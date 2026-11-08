@@ -145,6 +145,8 @@ export async function startConnections() {
           pairTimer = setTimeout(() => {
             void refreshPairs().catch(() => undefined)
             void refreshConversations().catch(() => undefined)
+            // Vừa kết nối thì danh sách ứng viên mở họ tên đầy đủ
+            if (!isSeeker()) void loadCandidates().catch(() => undefined)
           }, 150)
         },
         typing: (p: { jobId: string; seekerId: string; from: Side }) => {

@@ -1,4 +1,4 @@
-import { SEEKER_PUBLIC_HREF } from '@pages/public/personal/links'
+import { candidateHref } from '@pages/public/personal/links'
 import type { Side } from '@services/connectionService'
 import { useConnectionStore, convKey } from '@context/connectionStore'
 import { useCatalogStore } from '@context/catalogStore'
@@ -31,5 +31,5 @@ export function describeConversation(viewer: Side, jobId: string, seekerId: stri
     return { name, subtitle, initials: initialsOf(name), profileHref: companyId ? `/cong-ty/${companyId}` : '/cong-ty', profileLabel: 'Xem công ty' }
   }
   const name = conv?.peer.name ?? candidatesOf().find((c) => c.id === seekerId)?.name ?? 'Ứng viên'
-  return { name, subtitle, initials: initialsOf(name), profileHref: SEEKER_PUBLIC_HREF, profileLabel: 'Xem hồ sơ' }
+  return { name, subtitle, initials: initialsOf(name), profileHref: candidateHref(seekerId), profileLabel: 'Xem hồ sơ' }
 }
