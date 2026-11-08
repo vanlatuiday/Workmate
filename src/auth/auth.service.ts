@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt'
 import { Prisma, type Role, type User } from '@prisma/client'
 import * as bcrypt from 'bcryptjs'
 import { randomInt } from 'crypto'
+import { MailService } from '../common/mail.service'
 import { PrismaService } from '../prisma/prisma.service'
 import type { RegisterDto } from './dto/auth.dto'
 
@@ -34,7 +35,7 @@ function slugify(name: string): string {
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private jwt: JwtService) {}
+  constructor(private prisma: PrismaService, private jwt: JwtService, private mail: MailService) {}
 
   /** Tìm theo email hoặc tên đăng nhập, không phân biệt hoa thường */
   private findByIdentifier(identifier: string) {
@@ -108,27 +109,31 @@ export class AuthService {
   }
 
   /**
-   * Quên mật khẩu: luôn trả { ok: true } để không lộ tài khoản nào tồn tại.
-   * Chưa có dịch vụ email nên mã chỉ được ghi ra console máy chủ.
+   * Quên mật khẩu: luôn trả { ok: true }, thời gian phản hồi như nhau, để không lộ tài khoản nào tồn tại.
+   * Email gửi ở nền vì SMTP chậm hơn hẳn và lỗi gửi không được làm khác phản hồi.
    */
   async forgotPassword(identifier: string) {
     const user = await this.findByIdentifier(identifier)
-    let devCode: string | undefined
-    if (user && user.status === 'active') {
-      const code = String(randomInt(100000, 1000000))
-      const codeHash = await bcrypt.hash(code, BCRYPT_COST)
-      await this.prisma.$transaction([
-        // Hủy các mã cũ chưa dùng
-        this.prisma.passwordReset.updateMany({ where: { userId: user.id, usedAt: null }, data: { usedAt: new Date() } }),
-        this.prisma.passwordReset.create({ data: { userId: user.id, codeHash, expiresAt: new Date(Date.now() + RESET_TTL_MS) } }),
-      ])
-      console.log(`[auth] Mã đặt lại mật khẩu của ${user.email}: ${code} (hiệu lực 15 phút)`)
-      devCode = code
+    const code = String(randomInt(100000, 1000000))
+    const codeHash = await bcrypt.hash(code, BCRYPT_COST)
+    if (!user || user.status !== 'active') return { ok: true }
+    await this.prisma.$transaction([
+      // Hủy các mã cũ chưa dùng
+      this.prisma.passwordReset.updateMany({ where: { userId: user.id, usedAt: null }, data: { usedAt: new Date() } }),
+      this.prisma.passwordReset.create({ data: { userId: user.id, codeHash, expiresAt: new Date(Date.now() + RESET_TTL_MS) } }),
+    ])
+    if (this.mail.enabled) {
+      this.mail.sendPasswordReset(user.email, code, RESET_TTL_MS / 60_000).catch((e) => {
+        // Không ghi địa chỉ email và mã vào log
+        console.error(`[auth] Không gửi được email đặt lại mật khẩu cho tài khoản ${user.id}:`, (e as Error).message)
+      })
     }
-    // CẢNH BÁO BẢO MẬT: devCode CHỈ dành cho môi trường phát triển (frontend hiện mã trên màn hình vì chưa có email).
-    // TUYỆT ĐỐI không trả mã về client khi NODE_ENV === 'production' — ai gọi API cũng sẽ đặt lại được mật khẩu người khác.
-    // Chỉ gắn khi tài khoản tồn tại, và chỉ khi không phải production.
-    if (devCode && process.env.NODE_ENV !== 'production') return { ok: true, devCode }
+    // CẢNH BÁO BẢO MẬT: chỉ trên máy cá nhân mới được hiện mã (frontend hiện trên màn hình khi chưa cấu hình email).
+    // Trả mã về client trên production thì ai gọi API cũng đặt lại được mật khẩu người khác.
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[auth] Mã đặt lại mật khẩu của ${user.email}: ${code} (hiệu lực 15 phút)`)
+      return { ok: true, devCode: code }
+    }
     return { ok: true }
   }
 

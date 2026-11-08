@@ -9,6 +9,13 @@ import { PrismaClient } from '@prisma/client'
 import { hashSync } from 'bcryptjs'
 import { geo } from '../src/common/geo'
 
+// Seed XÓA SẠCH mọi bảng rồi nạp dữ liệu mẫu: tuyệt đối không được chạy trên database thật
+const dbHost = (() => { try { return new URL(process.env.DATABASE_URL ?? '').hostname } catch { return '' } })()
+if (process.env.NODE_ENV === 'production' || !['localhost', '127.0.0.1', '::1', '[::1]'].includes(dbHost)) {
+  console.error(`Từ chối seed: chỉ chạy trên database ở máy cá nhân (đang trỏ tới "${dbHost || 'không rõ'}", NODE_ENV=${process.env.NODE_ENV ?? 'không đặt'}).`)
+  process.exit(1)
+}
+
 const prisma = new PrismaClient()
 const d: any = JSON.parse(readFileSync(join(__dirname, 'seed-data.json'), 'utf8'))
 

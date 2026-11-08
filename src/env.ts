@@ -4,9 +4,13 @@
  */
 import { existsSync } from 'fs'
 import { resolve } from 'path'
+import { assertProductionConfig } from './common/production-check'
 
 const file = resolve(process.cwd(), '.env')
 if (existsSync(file)) {
   const load = (process as unknown as { loadEnvFile?: (p: string) => void }).loadEnvFile
   load?.call(process, file)
 }
+
+// Chạy ngay sau khi nạp biến, trước mọi module khác, để báo lỗi cấu hình rõ ràng
+assertProductionConfig()
