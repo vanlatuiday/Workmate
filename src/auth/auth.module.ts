@@ -18,6 +18,6 @@ if (!process.env.JWT_SECRET) throw new Error('Thiếu JWT_SECRET trong .env')
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, RolesGuard],
-  exports: [AuthService, RolesGuard],
+  exports: [AuthService, RolesGuard, JwtModule],
 })
 export class AuthModule {}
