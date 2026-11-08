@@ -2,6 +2,7 @@
 // Việc làm của từng công ty nằm ở `jobs/catalog.ts` (một nguồn cho cả hai phía),
 // tin của nhà tuyển dụng lấy từ MOCK_JOBS — cùng nguồn với dashboard nên số liệu không lệch nhau.
 import { useCatalogStore } from '@context/catalogStore'
+import { IS_PRODUCTION } from '@utils/isProduction'
 import type { Photo } from '@components/discover/types'
 import type { CompanySize } from '@/types'
 
@@ -122,5 +123,5 @@ export const COMPANIES: DiscoverCompany[] = [
 
 /** Công ty theo id: ưu tiên danh mục đã nạp từ máy chủ, chưa có thì dữ liệu mẫu (chưa ghép hồ sơ đã sửa của công ty demo — dùng `companyOf`) */
 export function findCompany(id: string | undefined) {
-  return useCatalogStore.getState().companies.find((c) => c.id === id) ?? COMPANIES.find((c) => c.id === id)
+  return useCatalogStore.getState().companies.find((c) => c.id === id) ?? (IS_PRODUCTION ? undefined : COMPANIES.find((c) => c.id === id))
 }

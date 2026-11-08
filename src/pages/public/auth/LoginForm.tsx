@@ -124,7 +124,7 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
         </form>
 
         {/* DEMO-ONLY: xóa khi có backend — đăng nhập nhanh bằng tài khoản demo (bắt đầu) */}
-        <Item className="mt-4">
+        {import.meta.env.DEV && <Item className="mt-4">
           <div role="group" aria-label="Đăng nhập nhanh bằng tài khoản demo" className="flex flex-wrap items-center justify-center gap-2">
             {DEMO_ACCOUNTS.map((acc) => {
               const Icon = DEMO_ICONS[acc.role]
@@ -148,7 +148,7 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
               )
             })}
           </div>
-        </Item>
+        </Item>}
         {/* DEMO-ONLY: xóa khi có backend — đăng nhập nhanh (kết thúc) */}
 
         <Item className="mt-4">

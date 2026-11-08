@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import api from '@services/api'
+import { IS_PRODUCTION } from '@utils/isProduction'
 import type { Photo } from '@components/discover/types'
 import type { CompanySize } from '@/types'
 import { COMPANY } from '@pages/public/personal/companyData'
@@ -67,9 +68,14 @@ const pick = ({ name, industry, district, size, tagline, about, environment, val
   name, industry, district, size, tagline, about, environment, values, policies, culture, email, phone, cover,
 })
 
+/** Bản cho người dùng thật không hiện hồ sơ công ty mẫu trong lúc chờ máy chủ */
+const INITIAL: CompanyProfile = IS_PRODUCTION
+  ? { ...SEED, name: '', industry: '', district: '', tagline: '', about: '', environment: [], values: [], policies: [], culture: '', email: '', phone: '' }
+  : SEED
+
 export const useCompanyStore = create<CompanyState>()((set) => ({
   id: '',
-  profile: SEED,
+  profile: INITIAL,
   load: async () => {
     const { data } = await api.get<Server>('/recruiter/company')
     set({ id: data.id, profile: pick(data) })
@@ -78,5 +84,5 @@ export const useCompanyStore = create<CompanyState>()((set) => ({
     const { data } = await api.patch<Server>('/recruiter/company', patch)
     set({ profile: pick(data) })
   },
-  clear: () => set({ id: '', profile: SEED }),
+  clear: () => set({ id: '', profile: INITIAL }),
 }))

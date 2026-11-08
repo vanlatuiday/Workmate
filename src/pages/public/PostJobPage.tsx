@@ -16,7 +16,6 @@ import type { JobType } from '@/types'
 import { CANDIDATES, MATCH_JOBS, useCandidates } from './match/data'
 import { useCompanyStore } from '@context/companyStore'
 import { scoreMatch } from './match/score'
-import { COMPANY } from './personal/companyData'
 import ShiftGrid from './post/ShiftGrid'
 import PostPreview from './post/PostPreview'
 
@@ -99,6 +98,7 @@ export default function PostJobPage() {
   }
 
   const candidates = useCandidates()
+  const companyName = useCompanyStore((s) => s.profile.name)
   // Chấm mọi ứng viên (bỏ trùng tên, bỏ người xa quá gấp đôi bán kính), đếm người từ 60%
   const { matched, total, top } = useMemo(() => {
     const seen = new Set<string>()
@@ -316,7 +316,7 @@ export default function PostJobPage() {
             photos={PHOTOS}
             photoIndex={photoIndex}
             title={title.trim()}
-            subtitle={`${COMPANY.name || 'Công ty của bạn'} · ${district} · ${salaryLabel}${headcount > 1 ? ` · cần ${headcount} người` : ''}`}
+            subtitle={`${companyName || 'Công ty của bạn'} · ${district} · ${salaryLabel}${headcount > 1 ? ` · cần ${headcount} người` : ''}`}
             count={matched}
             total={total}
             top={top}

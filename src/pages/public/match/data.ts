@@ -12,6 +12,7 @@ import { ME } from '@context/connectionStore'
 import type { JobType } from '@/types'
 import type { JobRequirement, SeekerCriteria } from './score'
 import { useMemo } from 'react'
+import { IS_PRODUCTION } from '@utils/isProduction'
 import { useCompanyStore } from '@context/companyStore'
 import { useCandidateStore } from '@context/candidateStore'
 import { useCatalogStore, type CatalogJob } from '@context/catalogStore'
@@ -102,13 +103,20 @@ export const DEMO_COMPANY: DiscoverCompany = {
 
 /** Công ty trong danh mục (đã nạp từ máy chủ); chưa nạp thì dùng dữ liệu mẫu */
 function baseCompany(id: string): DiscoverCompany | undefined {
-  return useCatalogStore.getState().companies.find((x) => x.id === id) ?? (id === DEMO_COMPANY.id ? DEMO_COMPANY : COMPANIES.find((x) => x.id === id))
+  const found = useCatalogStore.getState().companies.find((x) => x.id === id)
+  if (found || IS_PRODUCTION) return found
+  return id === DEMO_COMPANY.id ? DEMO_COMPANY : COMPANIES.find((x) => x.id === id)
+}
+
+const UNKNOWN_COMPANY: DiscoverCompany = {
+  id: '', name: 'Doanh nghiệp', industry: '', district: '', size: '1-10', cover: DEMO_COMPANY.cover,
+  tagline: '', why: '', about: '', environment: [],
 }
 
 export function companyOf(id: string): DiscoverCompany {
   const base = baseCompany(id)
-  if (!base) throw new Error(`Không có công ty "${id}"`)
-  return base
+  // Danh mục chưa nạp xong hoặc công ty đã bị khóa: không làm sập trang vì thiếu tên công ty
+  return base ?? { ...UNKNOWN_COMPANY, id }
 }
 
 /** Mọi công ty trong danh mục */

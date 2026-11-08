@@ -2,6 +2,7 @@
 // chủ tắt. Khi `catalogStore.load()` thành công, toàn bộ được thay bằng dữ liệu thật từ API.
 // Import file này đầu tiên ở main.tsx (chạy trước mọi trang). Đứng riêng khỏi catalogStore để store không
 // import dữ liệu mẫu (tránh vòng import với `companyOf` ở match/data).
+import { IS_PRODUCTION } from '@utils/isProduction'
 import { useCatalogStore, type CatalogCompany, type CatalogJob } from './catalogStore'
 import { DEMO_COMPANY, RECRUITER_POSITION_JOBS, MATCH_JOBS } from '@pages/public/match/data'
 import { COMPANIES } from '@pages/public/jobs/data'
@@ -45,4 +46,5 @@ const jobs: CatalogJob[] = [
   })(),
 ]
 
-useCatalogStore.setState({ companies, jobs })
+// Bản cho người dùng thật không bao giờ hiện công ty và tin giả, kể cả lúc chờ máy chủ
+if (!IS_PRODUCTION) useCatalogStore.setState({ companies, jobs })
