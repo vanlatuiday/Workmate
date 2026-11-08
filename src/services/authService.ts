@@ -36,7 +36,10 @@ export const authService = {
     api.post<{ ok: true }>('/auth/reset-password', { email, code, newPassword }),
 
   changePassword: (currentPassword: string, newPassword: string) =>
-    api.post<{ ok: true }>('/auth/change-password', { currentPassword, newPassword }),
+    api.post<AuthResponse>('/auth/change-password', { currentPassword, newPassword }),
+
+  /** Xóa thật tài khoản và dữ liệu, không khôi phục được */
+  deleteAccount: (password: string) => api.post<{ ok: true }>('/account/delete', { password }),
 
   refreshToken: () => api.post<{ token: string }>('/auth/refresh'),
 }

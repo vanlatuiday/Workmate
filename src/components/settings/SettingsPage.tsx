@@ -7,7 +7,7 @@ import { useAuthStore } from '@context/authStore'
 import type { Side } from '@context/connectionStore'
 import { isNotifyOn, useSettingsStore, type EmailDigest, type NotificationKind, type ProfileVisibility } from '@context/settingsStore'
 import { apiErrorMessage, authService } from '@services/authService'
-import { setNotifyPref } from '@services/connectionService'
+import { setNotifyPref, startConnections } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 
@@ -108,7 +108,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   return <Panel title={title}>{children}</Panel>
 }
 
-/** Cài đặt dùng chung hai phía: tài khoản, thông báo, riêng tư (lưu trên máy chủ), xóa tài khoản (bản mẫu). */
+/** Cài đặt dùng chung hai phía: tài khoản, thông báo, riêng tư (lưu trên máy chủ), xóa tài khoản. */
 export default function SettingsPage({ side }: { side: Side }) {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
@@ -122,6 +122,9 @@ export default function SettingsPage({ side }: { side: Side }) {
   const [errs, setErrs] = useState<{ cur?: string; next?: string; again?: string }>({})
   const [deleting, setDeleting] = useState(false)
   const [confirmText, setConfirmText] = useState('')
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deleteError, setDeleteError] = useState('')
+  const [deleteBusy, setDeleteBusy] = useState(false)
 
   const saved = () => toast.success('Đã lưu', { duration: 1500 })
 
@@ -135,7 +138,10 @@ export default function SettingsPage({ side }: { side: Side }) {
     setErrs(v)
     if (v.cur || v.next || v.again) return
     try {
-      await authService.changePassword(cur, next)
+      // Đổi mật khẩu làm mọi phiên cũ hết hiệu lực: lấy phiên mới cho thiết bị này và mở lại kết nối tin nhắn
+      const { data } = await authService.changePassword(cur, next)
+      useAuthStore.getState().setUser(data.user, data.token)
+      void startConnections().catch(() => undefined)
     } catch (err) {
       // Máy chủ báo "Mật khẩu hiện tại chưa đúng" thì gắn vào ô tương ứng
       const msg = apiErrorMessage(err)
@@ -143,13 +149,22 @@ export default function SettingsPage({ side }: { side: Side }) {
       return
     }
     setCur(''); setNext(''); setAgain('')
-    toast.success('Đã đổi mật khẩu')
+    toast.success('Đã đổi mật khẩu. Các thiết bị khác đã được đăng xuất.')
   }
 
-  const deleteAccount = () => {
+  const deleteAccount = async () => {
+    setDeleteError('')
+    setDeleteBusy(true)
+    try {
+      await authService.deleteAccount(deletePassword)
+    } catch (err) {
+      setDeleteError(apiErrorMessage(err, 'Chưa xóa được tài khoản, vui lòng thử lại.'))
+      setDeleteBusy(false)
+      return
+    }
     logout()
     navigate('/')
-    toast('Đã đăng xuất. Xóa tài khoản thật chưa có.')
+    toast.success('Đã xóa tài khoản và dữ liệu của bạn')
   }
 
   return (
@@ -203,18 +218,32 @@ export default function SettingsPage({ side }: { side: Side }) {
         </Section>
 
         <Section title="Vùng nguy hiểm">
-          <p className="mb-4 text-sm text-page-muted">Chức năng xóa tài khoản đang là bản mẫu: hiện chỉ đăng xuất bạn, dữ liệu vẫn còn trên máy chủ.</p>
+          <p className="mb-4 text-sm text-page-muted">
+            {side === 'seeker'
+              ? 'Xóa vĩnh viễn hồ sơ, CV, ảnh đại diện, đơn ứng tuyển, kết nối, tin nhắn, lịch phỏng vấn và đánh giá của bạn. Không thể khôi phục.'
+              : 'Xóa vĩnh viễn tài khoản của bạn. Nếu bạn là người quản lý duy nhất, công ty, mọi tin tuyển dụng cùng kết nối và tin nhắn với ứng viên cũng bị xóa. Không thể khôi phục.'}
+          </p>
           {!deleting ? (
             <button type="button" className={BTN_LINE} onClick={() => setDeleting(true)}>Xóa tài khoản</button>
           ) : (
-            <div role="alertdialog" aria-label="Xác nhận xóa tài khoản" className="rounded-card border border-page-fg p-4">
-              <label htmlFor="delete-confirm" className="text-sm text-page-fg">Gõ <strong>XÓA</strong> để xác nhận.</label>
-              <input id="delete-confirm" autoFocus value={confirmText} onChange={(e) => setConfirmText(e.target.value)} className={`${FIELD} mt-2`} />
-              <div className="mt-3 flex gap-2">
-                <button type="button" disabled={confirmText.trim() !== 'XÓA'} onClick={deleteAccount} className={`${BTN_SOLID} disabled:opacity-50`}>Xóa tài khoản</button>
-                <button type="button" className={BTN_LINE} onClick={() => { setDeleting(false); setConfirmText('') }}>Hủy</button>
+            <form
+              role="alertdialog"
+              aria-label="Xác nhận xóa tài khoản"
+              className="flex flex-col gap-4 rounded-card border border-page-fg p-4"
+              onSubmit={(e) => { e.preventDefault(); if (confirmText.trim() === 'XÓA' && deletePassword && !deleteBusy) void deleteAccount() }}
+            >
+              <PasswordField label="Mật khẩu của bạn" value={deletePassword} onChange={setDeletePassword} error={deleteError} autoComplete="current-password" />
+              <div>
+                <label htmlFor="delete-confirm" className="text-sm text-page-fg">Gõ <strong>XÓA</strong> để xác nhận.</label>
+                <input id="delete-confirm" value={confirmText} onChange={(e) => setConfirmText(e.target.value)} autoComplete="off" className={`${FIELD} mt-2`} />
               </div>
-            </div>
+              <div className="flex gap-2">
+                <button type="submit" disabled={confirmText.trim() !== 'XÓA' || !deletePassword || deleteBusy} className={`${BTN_SOLID} disabled:opacity-50`}>
+                  {deleteBusy ? 'Đang xóa…' : 'Xóa vĩnh viễn'}
+                </button>
+                <button type="button" className={BTN_LINE} onClick={() => { setDeleting(false); setConfirmText(''); setDeletePassword(''); setDeleteError('') }}>Hủy</button>
+              </div>
+            </form>
           )}
         </Section>
       </div>

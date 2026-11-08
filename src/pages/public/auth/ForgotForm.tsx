@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Info, KeyRound, Lock, User } from 'lucide-react'
@@ -8,17 +9,17 @@ import { AUTH_PATHS, useFocusFirst, type AuthFormProps } from './authShared'
 /*
  * Quên mật khẩu — 3 bước trong một form: nhập tài khoản → nhập mã + mật khẩu mới → xong.
  * Là nửa "form" của AuthPage (cùng thẻ kính với Đăng nhập / Đăng ký).
- * Gọi backend thật (authService.forgotPassword / resetPassword). Chưa có email thật nên ở môi trường
- * phát triển máy chủ trả kèm `devCode` và trang hiện mã ngay (khối DEMO-ONLY bên dưới).
+ * Mã xác nhận (OTP) gửi tới email của tài khoản. Trên máy cá nhân chưa cấu hình email thì máy chủ trả kèm
+ * `devCode` và trang hiện mã ngay (khối DEMO-ONLY bên dưới); production không bao giờ có `devCode`.
  */
 type Step = 'request' | 'verify' | 'done'
-const RESEND_SECONDS = 30
+const RESEND_SECONDS = 60
 const TITLES: Record<Step, string> = { request: 'Quên mật khẩu', verify: 'Nhập mã xác nhận', done: 'Đã đặt lại mật khẩu' }
 
 export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
   const [step, setStep] = useState<Step>('request')
   const [identifier, setIdentifier] = useState('')
-  // DEMO-ONLY: mã do máy chủ trả về khi chưa có email (không có nếu tài khoản không tồn tại hoặc máy chủ chạy production)
+  // DEMO-ONLY: mã do máy chủ trả về khi chưa cấu hình email (không có nếu tài khoản không tồn tại, đã có email hoặc chạy production)
   const [devCode, setDevCode] = useState('')
   const [code, setCode] = useState('')
   const [password, setPassword] = useState('')
@@ -72,6 +73,7 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
     try {
       const res = await authService.forgotPassword(identifier.trim())
       setDevCode(res.data.devCode ?? '')
+      toast.success('Đã gửi lại mã, mã trước không còn dùng được')
     } catch (err) {
       setError(apiErrorMessage(err))
     }
@@ -150,7 +152,7 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
         {step === 'verify' && (
           <>
             <Item>
-              <p className="text-sm text-page-muted mt-3">Nếu tài khoản tồn tại, mã xác nhận 6 số đã được gửi tới email đăng ký.</p>
+              <p className="text-sm text-page-muted mt-3">Nếu tài khoản tồn tại, mã xác nhận 6 số đã được gửi tới email đăng ký và có hiệu lực 15 phút. Không thấy thư thì xem cả mục Thư rác.</p>
             </Item>
 
             {/* DEMO-ONLY: xóa khi có backend — hiện mã ngay trên trang vì chưa có email thật (bắt đầu).
