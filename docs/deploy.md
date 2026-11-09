@@ -3,6 +3,8 @@
 Cần 4 thứ: **máy chủ Node** (backend), **PostgreSQL 16**, **kho file chuẩn S3** (R2/S3) và **dịch vụ SMTP**;
 frontend là trang tĩnh nên đặt ở đâu cũng được.
 
+Máy chủ cần Node 20.19 trở lên (NestJS 12 yêu cầu); nên chọn **Node 22 LTS** vì AWS SDK sẽ bỏ Node 20 từ tháng 1/2027.
+
 ## 1. Biến môi trường backend
 Xem `.env.example`. Với `NODE_ENV=production`, máy chủ từ chối khởi động nếu thiếu hoặc sai cấu hình và in rõ tên biến.
 

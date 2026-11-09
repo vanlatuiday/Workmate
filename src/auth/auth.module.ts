@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { JwtModule } from '@nestjs/jwt'
+import { JwtModule, type JwtSignOptions } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
@@ -13,7 +13,7 @@ if (!process.env.JWT_SECRET) throw new Error('Thiếu JWT_SECRET trong .env')
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN ?? '7d' },
+      signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as JwtSignOptions['expiresIn'] },
     }),
   ],
   controllers: [AuthController],
