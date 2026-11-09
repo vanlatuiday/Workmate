@@ -1,18 +1,20 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { Building2, KeyRound, Lock, Mail, Search, User } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { Building2, Info, KeyRound, Lock, Mail, Search, User } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { useCatalogStore } from '@context/catalogStore'
 import { apiErrorMessage, authService } from '@services/authService'
 import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
-import { AuthField, ErrorBox, Item, ShowPassButton, Stagger, SubmitButton, TEXT_LINK } from './shared'
+import { AuthField, ErrorBox, Item, LINK_BTN, ShowPassButton, Stagger, SubmitButton, TEXT_LINK } from './shared'
 import { AUTH_PATHS, useFocusFirst, type AuthFormProps } from './authShared'
 
 /*
- * Đăng ký — gọi backend thật (authService.register), thành công thì đăng nhập luôn.
+ * Đăng ký 2 bước: điền thông tin → nhập mã gửi về email. Đúng mã máy chủ mới tạo tài khoản và đăng nhập luôn.
  * Là nửa "form" của AuthPage.
  */
+const RESEND_SECONDS = 60
 type Role = 'jobseeker' | 'recruiter'
 
 const ROLES: { value: Role; label: string; icon: typeof Search }[] = [
@@ -34,7 +36,21 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
   const navigate = useNavigate()
   const { setUser } = useAuthStore()
   const root = useRef<HTMLDivElement>(null)
-  useFocusFirst(root, focus)
+  // Bước nhập mã: có email nghĩa là máy chủ đã gửi mã (mật khẩu giữ trong form để gửi kèm khi xác nhận)
+  const [pendingEmail, setPendingEmail] = useState('')
+  const [code, setCode] = useState('')
+  const [codeError, setCodeError] = useState('')
+  const [cooldown, setCooldown] = useState(0)
+  // DEMO-ONLY: chỉ có trên máy cá nhân chưa cấu hình email, production không bao giờ có
+  const [devCode, setDevCode] = useState('')
+  useFocusFirst(root, focus || !!pendingEmail, pendingEmail)
+
+  // Đếm ngược để mở lại nút "Gửi lại mã"
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000)
+    return () => clearTimeout(t)
+  }, [cooldown])
 
   // Quản trị viên có thể tạm dừng đăng ký (Cấu hình hệ thống)
   const registrationOpen = useCatalogStore((s) => s.config.registrationOpen)
@@ -49,11 +65,37 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
     }
     setError('')
     setLoading(true)
+    try {
+      const { data } = await authService.register({ email: form.email.trim(), password: form.password, role, name: form.fullName.trim() })
+      setDevCode(data.devCode ?? '')
+      setCode('')
+      setCodeError('')
+      setCooldown(RESEND_SECONDS)
+      setPendingEmail(data.email)
+    } catch (err) {
+      setError(apiErrorMessage(err, 'Chưa gửi được mã xác nhận, vui lòng thử lại.'))
+      shake()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const verify = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (loading) return
+    if (!/^\d{6}$/.test(code)) {
+      setCodeError('Mã gồm đúng 6 chữ số.')
+      shake()
+      return
+    }
+    setCodeError('')
+    setError('')
+    setLoading(true)
     let res
     try {
-      res = (await authService.register({ email: form.email.trim(), password: form.password, role, name: form.fullName.trim() })).data
+      res = (await authService.verifyEmail(pendingEmail, code, form.password)).data
     } catch (err) {
-      setError(apiErrorMessage(err, 'Không tạo được tài khoản, vui lòng thử lại.'))
+      setError(apiErrorMessage(err, 'Mã không đúng hoặc đã hết hạn.'))
       setLoading(false)
       shake()
       return
@@ -62,6 +104,73 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
     await leave()
     setUser(res.user, res.token)
     navigate('/')
+  }
+
+  const resend = async () => {
+    if (cooldown > 0 || loading) return
+    setCode(''); setCodeError(''); setError('')
+    setCooldown(RESEND_SECONDS)
+    try {
+      const { data } = await authService.resendVerification(pendingEmail)
+      setDevCode(data.devCode ?? '')
+      toast.success('Đã gửi lại mã, mã trước không còn dùng được')
+    } catch (err) {
+      setError(apiErrorMessage(err))
+    }
+  }
+
+  if (pendingEmail) {
+    return (
+      <Stagger key="verify">
+        <div ref={root}>
+          <Item>
+            <h1 className="font-display text-3xl font-semibold text-page-fg">Xác nhận email</h1>
+          </Item>
+          <Item>
+            <p className="mt-3 text-sm text-page-muted">
+              Mã 6 số đã được gửi tới <strong className="break-all font-medium text-page-fg">{pendingEmail}</strong> và có hiệu lực 15 phút. Không thấy thư thì xem cả mục Thư rác.
+            </p>
+          </Item>
+          {devCode && (
+            <Item className="mt-3">
+              <div className="flex items-start gap-3 rounded-card border border-dashed border-page-line bg-page-surface p-3 text-sm text-page-muted">
+                <Info className="h-5 w-5 shrink-0" aria-hidden />
+                <p>Bản demo (chưa cấu hình email): mã của bạn là <strong className="font-semibold tabular-nums tracking-widest text-page-fg">{devCode}</strong></p>
+              </div>
+            </Item>
+          )}
+          <form onSubmit={verify} className="mt-3 space-y-2" noValidate>
+            {error && <Item><ErrorBox message={error} /></Item>}
+            <Item>
+              <AuthField
+                id="reg-code"
+                label="Mã xác nhận (6 chữ số)"
+                icon={KeyRound}
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                value={code}
+                onChange={(v) => setCode(v.replace(/\D/g, ''))}
+                error={codeError}
+                className="tabular-nums tracking-widest"
+              />
+            </Item>
+            <Item className="pt-2">
+              <SubmitButton loading={loading} idle="Xác nhận và vào Workmate" busy="Đang xác nhận..." />
+            </Item>
+          </form>
+          <Item className="mt-2">
+            <div className="flex flex-wrap items-center justify-between gap-x-4">
+              <button type="button" onClick={resend} disabled={cooldown > 0 || loading} className={LINK_BTN}>
+                {cooldown > 0 ? `Gửi lại mã (${cooldown}s)` : 'Gửi lại mã'}
+              </button>
+              <button type="button" onClick={() => { setPendingEmail(''); setError('') }} className={LINK_BTN}>Sửa thông tin</button>
+            </div>
+          </Item>
+        </div>
+      </Stagger>
+    )
   }
 
   if (!registrationOpen) {
@@ -173,7 +282,7 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
           </Item>
 
           <Item className="pt-2">
-            <SubmitButton loading={loading} idle="Đăng ký" busy="Đang tạo tài khoản..." />
+            <SubmitButton loading={loading} idle="Tiếp tục" busy="Đang gửi mã xác nhận..." />
           </Item>
         </form>
 

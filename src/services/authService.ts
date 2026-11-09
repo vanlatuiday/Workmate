@@ -22,8 +22,15 @@ export const authService = {
   login: (email: string, password: string) =>
     api.post<AuthResponse>('/auth/login', { email, password }),
 
+  /** Bước 1: chưa tạo tài khoản, máy chủ gửi mã xác nhận về email */
   register: (data: { email: string; password: string; role: string; name?: string }) =>
-    api.post<AuthResponse>('/auth/register', data),
+    api.post<{ pending: true; email: string; devCode?: string }>('/auth/register', data),
+
+  /** Bước 2: đúng mã thì tạo tài khoản và đăng nhập luôn */
+  verifyEmail: (email: string, code: string, password: string) =>
+    api.post<AuthResponse>('/auth/verify-email', { email, code, password }),
+
+  resendVerification: (email: string) => api.post<ForgotPasswordResponse>('/auth/resend-verification', { email }),
 
   logout: () => api.post('/auth/logout'),
 
