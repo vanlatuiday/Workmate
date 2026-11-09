@@ -39,7 +39,7 @@ Biến `VITE_*` được đóng cứng lúc build, đổi địa chỉ phải bu
 **mọi đường dẫn không phải file đều trả về `index.html`**, nếu không tải lại trang sẽ báo 404.
 
 ## 5. Kiểm tra sau khi lên
-- [ ] Đăng ký tài khoản mới, đăng nhập, không có nút đăng nhập nhanh
+- [ ] Đăng ký tài khoản mới: thư có mã tới nơi, nhập mã xong mới vào được; không có nút đăng nhập nhanh
 - [ ] Quên mật khẩu: email tới nơi, trang không hiện mã
 - [ ] Đăng tin bằng tài khoản doanh nghiệp, admin duyệt, tin hiện công khai
 - [ ] Hai tài khoản nhắn tin qua lại, tin đến không cần tải lại trang

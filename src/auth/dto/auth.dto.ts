@@ -28,6 +28,24 @@ export class RegisterDto {
   name?: string
 }
 
+const normalizeEmail = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim().toLowerCase() : value)
+
+export class VerifyEmailDto {
+  @Transform(normalizeEmail) @IsEmail({}, { message: 'Email không hợp lệ' }) @MaxLength(254)
+  email!: string
+
+  @Transform(trim) @Matches(/^\d{6}$/, { message: 'Mã gồm đúng 6 chữ số' })
+  code!: string
+
+  @IsString() @MinLength(1) @MaxLength(72)
+  password!: string
+}
+
+export class ResendVerificationDto {
+  @Transform(normalizeEmail) @IsEmail({}, { message: 'Email không hợp lệ' }) @MaxLength(254)
+  email!: string
+}
+
 export class ForgotPasswordDto {
   @Transform(trim) @IsString() @MinLength(1) @MaxLength(254)
   email!: string

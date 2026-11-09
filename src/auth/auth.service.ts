@@ -12,6 +12,7 @@ const BCRYPT_COST = 10
 const RESET_TTL_MS = 15 * 60 * 1000
 const MAX_RESET_ATTEMPTS = 5
 const BAD_RESET = 'Mã không đúng hoặc đã hết hạn'
+const BAD_VERIFY = 'Mã không đúng hoặc đã hết hạn. Hãy gửi lại mã mới.'
 
 // Hash giả để so sánh khi không có người dùng — thời gian phản hồi gần như nhau, không lộ tài khoản nào tồn tại
 const DUMMY_HASH = bcrypt.hashSync('workmate-dummy-password', BCRYPT_COST)
@@ -71,36 +72,93 @@ export class AuthService {
     return this.issue(user)
   }
 
+  /** Bước 1 của đăng ký: lưu vào bảng chờ và gửi mã; đăng ký lại cùng email thì thay bản chờ cũ */
   async register(dto: RegisterDto) {
     const cfg = await this.prisma.systemConfig.findUnique({ where: { id: 1 }, select: { registrationOpen: true } })
     if (cfg && !cfg.registrationOpen) throw new ForbiddenException('Workmate tạm dừng đăng ký tài khoản mới')
-
-    const exists = await this.prisma.user.findFirst({ where: { OR: [{ email: dto.email }, { username: { equals: dto.email, mode: 'insensitive' } }] }, select: { id: true } })
-    if (exists) throw new ConflictException('Email đã được dùng')
+    await this.assertEmailFree(dto.email)
 
     const passwordHash = await bcrypt.hash(dto.password, BCRYPT_COST)
     const name = dto.name?.trim() || dto.email.split('@')[0]
+    const code = String(randomInt(100000, 1000000))
+    const fields = {
+      passwordHash, role: dto.role as Role, name, codeHash: await bcrypt.hash(code, BCRYPT_COST), attempts: 0,
+      expiresAt: new Date(Date.now() + RESET_TTL_MS),
+    }
+    await this.prisma.pendingRegistration.deleteMany({ where: { expiresAt: { lt: new Date() } } })
+    await this.prisma.pendingRegistration.upsert({ where: { email: dto.email }, create: { email: dto.email, ...fields }, update: fields })
+    return { pending: true, email: dto.email, ...this.deliverVerification(dto.email, code) }
+  }
+
+  /** Gửi lại mã mới, mã trước hết hiệu lực. Luôn trả { ok: true } để không lộ email nào đang chờ */
+  async resendVerification(email: string) {
+    const pending = await this.prisma.pendingRegistration.findUnique({ where: { email }, select: { email: true } })
+    const code = String(randomInt(100000, 1000000))
+    const codeHash = await bcrypt.hash(code, BCRYPT_COST)
+    if (!pending) return { ok: true }
+    await this.prisma.pendingRegistration.update({
+      where: { email },
+      data: { codeHash, attempts: 0, expiresAt: new Date(Date.now() + RESET_TTL_MS) },
+    })
+    return { ok: true, ...this.deliverVerification(email, code) }
+  }
+
+  /**
+   * Bước 2: đúng mã mới tạo tài khoản và đăng nhập luôn.
+   * Bắt buộc kèm mật khẩu vừa đặt: nếu người lạ đăng ký đè bằng mật khẩu của họ, chủ email có nhập mã trong thư
+   * cũng không tạo ra tài khoản mang mật khẩu của người lạ.
+   */
+  async verifyEmail(email: string, code: string, password: string) {
+    const pending = await this.prisma.pendingRegistration.findUnique({ where: { email } })
+    const usable = pending && pending.expiresAt > new Date()
+    const codeOk = await bcrypt.compare(code, usable ? pending.codeHash : DUMMY_HASH)
+    if (!usable) throw new BadRequestException(BAD_VERIFY)
+    if (!codeOk || !(await bcrypt.compare(password, pending.passwordHash))) {
+      if (pending.attempts + 1 >= MAX_RESET_ATTEMPTS) await this.prisma.pendingRegistration.delete({ where: { email } })
+      else await this.prisma.pendingRegistration.update({ where: { email }, data: { attempts: { increment: 1 } } })
+      throw new BadRequestException(BAD_VERIFY)
+    }
+    await this.assertEmailFree(email)
     try {
       const user = await this.prisma.$transaction(async (tx) => {
-        const u = await tx.user.create({ data: { email: dto.email, passwordHash, role: dto.role } })
-        if (dto.role === 'jobseeker') {
-          await tx.seekerProfile.create({ data: { userId: u.id, fullName: name } })
+        const u = await tx.user.create({ data: { email, passwordHash: pending.passwordHash, role: pending.role } })
+        if (pending.role === 'jobseeker') {
+          await tx.seekerProfile.create({ data: { userId: u.id, fullName: pending.name } })
         } else {
           // slug từ tên; trùng hoặc rỗng thì dùng mã ngẫu nhiên
-          let slug = slugify(name)
+          let slug = slugify(pending.name)
           if (!slug || (await tx.company.findUnique({ where: { slug }, select: { id: true } }))) slug = `cty-${u.id}`
-          const company = await tx.company.create({ data: { slug, name } })
+          const company = await tx.company.create({ data: { slug, name: pending.name } })
           await tx.companyMember.create({ data: { companyId: company.id, userId: u.id, role: 'owner' } })
         }
         await tx.userSettings.create({ data: { userId: u.id } })
+        await tx.pendingRegistration.delete({ where: { email } })
         return u
       })
       return this.issue(user)
     } catch (e) {
-      // Hai yêu cầu đăng ký cùng email chạy song song
+      // Hai yêu cầu xác nhận cùng email chạy song song
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') throw new ConflictException('Email đã được dùng')
       throw e
     }
+  }
+
+  private async assertEmailFree(email: string) {
+    const exists = await this.prisma.user.findFirst({ where: { OR: [{ email }, { username: { equals: email, mode: 'insensitive' } }] }, select: { id: true } })
+    if (exists) throw new ConflictException('Email đã được dùng')
+  }
+
+  /** Gửi thư ở nền; chỉ trên máy cá nhân CHƯA cấu hình email mới trả mã để hiện trên trang (xem cảnh báo ở forgotPassword) */
+  private deliverVerification(email: string, code: string): { devCode?: string } {
+    if (this.mail.enabled) {
+      this.mail.sendEmailVerification(email, code, RESET_TTL_MS / 60_000).catch((e) => {
+        console.error('[auth] Không gửi được email xác nhận đăng ký:', (e as Error).message)
+      })
+      return {}
+    }
+    if (process.env.NODE_ENV === 'production') return {}
+    console.log(`[auth] Mã xác nhận đăng ký của ${email}: ${code} (hiệu lực 15 phút)`)
+    return { devCode: code }
   }
 
   async me(userId: string) {

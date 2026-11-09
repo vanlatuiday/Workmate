@@ -60,6 +60,22 @@ model User {
   candidateMarks CandidateMark[]
 }
 
+/// Đăng ký đang chờ xác nhận email. Tài khoản chỉ được tạo sau khi nhập đúng mã,
+/// nên email giả không sinh ra tài khoản hay công ty rỗng và không ai chiếm trước được email của người khác.
+model PendingRegistration {
+  email        String   @id
+  passwordHash String
+  role         Role
+  name         String
+  codeHash     String
+  /// Số lần nhập sai mã (tối đa 5 thì hủy)
+  attempts     Int      @default(0)
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
 model PasswordReset {
   id        String    @id @default(cuid())
   userId    String

@@ -49,7 +49,11 @@ export const AUTH_LIMITS = {
   forgot: { ...ipLimits(10, 30), tai_khoan: { limit: 5, ttl: HOUR } },
   /** Mã 6 số, mỗi mã sai 5 lần là hủy; giới hạn này chặn tổng số lần đoán của một tài khoản */
   reset: { ...ipLimits(20, 60), tai_khoan: { limit: 10, ttl: 15 * MINUTE } },
-  register: ipLimits(5, 20),
+  /** Mỗi lần gửi một thư: giới hạn theo email để không ai dùng web này spam hộp thư người khác */
+  register: { ...ipLimits(5, 20), tai_khoan: { limit: 5, ttl: HOUR } },
+  resendVerification: { ...ipLimits(10, 30), tai_khoan: { limit: 5, ttl: HOUR } },
+  /** Mã 6 số, sai 5 lần là hủy bản chờ */
+  verifyEmail: { ...ipLimits(20, 60), tai_khoan: { limit: 10, ttl: 15 * MINUTE } },
   changePassword: ipLimits(10, 30),
   /** Cần mật khẩu nên cũng là chỗ dò được mật khẩu nếu lộ phiên */
   deleteAccount: ipLimits(5, 20),

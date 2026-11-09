@@ -3,7 +3,7 @@ import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler'
 import { AUTH_LIMITS } from '../common/throttle'
 import { AuthService } from './auth.service'
 import { CurrentUser, type AuthUser } from './current-user.decorator'
-import { ChangePasswordDto, ForgotPasswordDto, LoginDto, RegisterDto, ResetPasswordDto } from './dto/auth.dto'
+import { ChangePasswordDto, ForgotPasswordDto, LoginDto, RegisterDto, ResendVerificationDto, ResetPasswordDto, VerifyEmailDto } from './dto/auth.dto'
 import { JwtAuthGuard } from './jwt-auth.guard'
 
 @Controller('auth')
@@ -15,9 +15,19 @@ export class AuthController {
     return this.auth.login(dto.email, dto.password)
   }
 
-  @Post('register') @HttpCode(200) @UseGuards(ThrottlerGuard) @Throttle(AUTH_LIMITS.register) @SkipThrottle({ tai_khoan: true })
+  @Post('register') @HttpCode(200) @UseGuards(ThrottlerGuard) @Throttle(AUTH_LIMITS.register)
   register(@Body() dto: RegisterDto) {
     return this.auth.register(dto)
+  }
+
+  @Post('verify-email') @HttpCode(200) @UseGuards(ThrottlerGuard) @Throttle(AUTH_LIMITS.verifyEmail)
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.auth.verifyEmail(dto.email, dto.code, dto.password)
+  }
+
+  @Post('resend-verification') @HttpCode(200) @UseGuards(ThrottlerGuard) @Throttle(AUTH_LIMITS.resendVerification)
+  resendVerification(@Body() dto: ResendVerificationDto) {
+    return this.auth.resendVerification(dto.email)
   }
 
   @Get('me') @UseGuards(JwtAuthGuard)

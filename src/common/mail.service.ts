@@ -21,26 +21,36 @@ export class MailService {
     return !!this.transport
   }
 
-  async sendPasswordReset(to: string, code: string, minutes: number): Promise<void> {
+  sendPasswordReset(to: string, code: string, minutes: number): Promise<void> {
+    return this.sendCode(to, code, minutes, {
+      subject: `${code} là mã đặt lại mật khẩu Workmate của bạn`,
+      lead: 'Dùng mã dưới đây để đặt lại mật khẩu của bạn:',
+      ignore: 'Nếu bạn không yêu cầu, hãy bỏ qua email này. Mật khẩu của bạn vẫn giữ nguyên.',
+    })
+  }
+
+  sendEmailVerification(to: string, code: string, minutes: number): Promise<void> {
+    return this.sendCode(to, code, minutes, {
+      subject: `${code} là mã xác nhận đăng ký Workmate của bạn`,
+      lead: 'Dùng mã dưới đây để xác nhận email và hoàn tất đăng ký tài khoản:',
+      ignore: 'Nếu bạn không đăng ký, hãy bỏ qua email này. Sẽ không có tài khoản nào được tạo.',
+    })
+  }
+
+  private async sendCode(to: string, code: string, minutes: number, copy: { subject: string; lead: string; ignore: string }) {
     if (!this.transport) return
+    const note = `Mã có hiệu lực trong ${minutes} phút và chỉ dùng được một lần. Đừng chia sẻ mã này cho ai.`
     await this.transport.sendMail({
       from: process.env.SMTP_FROM,
       to,
-      subject: `${code} là mã đặt lại mật khẩu Workmate của bạn`,
-      text: [
-        'Chào bạn,',
-        '',
-        `Mã xác nhận để đặt lại mật khẩu Workmate của bạn là: ${code}`,
-        `Mã có hiệu lực trong ${minutes} phút và chỉ dùng được một lần. Đừng chia sẻ mã này cho ai.`,
-        '',
-        'Nếu bạn không yêu cầu, hãy bỏ qua email này. Mật khẩu của bạn vẫn giữ nguyên.',
-      ].join('\n'),
+      subject: copy.subject,
+      text: ['Chào bạn,', '', `${copy.lead} ${code}`, note, '', copy.ignore].join('\n'),
       html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#242522">
   <p style="font-size:18px;font-weight:600;margin:0 0 16px">Workmate</p>
-  <p style="margin:0 0 16px">Dùng mã dưới đây để đặt lại mật khẩu của bạn:</p>
+  <p style="margin:0 0 16px">${copy.lead}</p>
   <p style="font-size:32px;font-weight:700;letter-spacing:8px;margin:0 0 16px;padding:16px;background:#F3F0E9;border-radius:8px;text-align:center">${code}</p>
-  <p style="margin:0 0 8px">Mã có hiệu lực trong ${minutes} phút và chỉ dùng được một lần. Đừng chia sẻ mã này cho ai.</p>
-  <p style="margin:0;color:#454640;font-size:14px">Nếu bạn không yêu cầu, hãy bỏ qua email này. Mật khẩu của bạn vẫn giữ nguyên.</p>
+  <p style="margin:0 0 8px">${note}</p>
+  <p style="margin:0;color:#454640;font-size:14px">${copy.ignore}</p>
 </div>`,
     })
   }
