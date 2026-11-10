@@ -22,17 +22,17 @@ const ParticleField = lazy(() => import('@components/motion/ParticleField'))
 /**
  * Trang chủ: intro logo rồi một chuỗi section kiểu "ảnh + khối + hàng thẻ".
  *
- *   ①  IntroHero            than chì → graphite  logo hạt giữa màn hình tan ra; hero là ảnh tràn màn hình + tìm kiếm
- *   ②  UrgentJobsSection    ngà             hàng thẻ việc cuộn ngang
+ *   ①  IntroHero            than chì        logo hạt giữa màn hình tan ra; hero là ảnh tràn màn hình + tìm kiếm
+ *   ②  UrgentJobsSection    than chì        hàng thẻ việc cuộn ngang
  *   ②b StreetSceneSection  than chì         con phố nét mảnh, người đi bộ bước ra từ tiệm Workmate — chỉ trang trí
- *   ③  FeatureBlocksSection ngà             "cuốn sách" lật trang khi cuộn (máy tính); điện thoại xếp dọc
+ *   ③  FeatureBlocksSection ngà (than chì → ngà, chuyển dài ở đầu section)             "cuốn sách" lật trang khi cuộn (máy tính); điện thoại xếp dọc
  *   ④  NewJobsSection       ngà             lưới 6 việc mới đăng (NTD: "Tin của bạn")
  *   ⑤  ExploreSection       ngà             ô nhóm ngành có ảnh + liên kết khu vực/hình thức
  *   ⑥  RecruiterSection     ngà             tấm than chì cho nhà tuyển dụng, nở ra khi cuộn tới
  *   ⑦  FinalCtaSection      than chì        lời kết + nút quay về tìm kiếm
  *
  * Màu nền/chữ đổi theo `data-theme` của từng section (useSectionThemes). Trang chủ chỉ dùng
- * hai nền: than chì (tối) và ngà (sáng).
+ * hai nền, theo thứ tự: than chì (① + ② + ②b) → ngà (③–⑥) → than chì (⑦).
  * Chữ mẫu ở components/home/content.ts, ảnh ở components/home/homeMedia.ts.
  * Các section cũ (Fit/Opportunities/HowItWorks/Statement/Closing) còn trong thư mục nhưng không render.
  */

@@ -23,8 +23,10 @@ export type ThemeName = keyof typeof THEMES
  * Đổi màu nền/chữ của cả trang theo section đang xem.
  *
  * Mỗi section khai báo `data-theme="stone"`. Ở mỗi chỗ giao giữa hai theme khác
- * nhau, màu nền được nội suy theo tiến trình cuộn — từ khi section mới chạm 75%
- * màn hình tới khi chạm 25% (tùy chỉnh bằng `data-theme-start` / `data-theme-end`).
+ * nhau, màu nền được nội suy theo tiến trình cuộn — mặc định từ khi section mới chạm
+ * 75% màn hình tới khi chạm 25% (tùy chỉnh bằng `data-theme-start` / `data-theme-end`).
+ * Tiến trình đi qua easing sine.inOut trước khi nội suy nên màu bắt đầu và kết thúc êm,
+ * không có điểm gãy; mốc 50% vẫn ứng với 50% (ease(0.5) = 0.5).
  *
  * Màu chữ thì KHÔNG nội suy theo cuộn: nền sáng→tối và chữ tối→sáng đi ngược chiều
  * nhau, gặp nhau ở cùng một màu xám giữa chừng — chữ (và logo) biến mất. Chữ đổi
@@ -43,6 +45,7 @@ export function useSectionThemes(scope: RefObject<HTMLElement>) {
       const sections = gsap.utils.toArray<HTMLElement>('[data-theme]', scope.current)
       if (!sections.length) return
 
+      const ease = gsap.parseEase('sine.inOut')
       const names = sections.map((s) => s.dataset.theme as ThemeName)
       const boundaries = sections.flatMap((section, i) => {
         if (i === 0 || names[i] === names[i - 1]) return []
@@ -70,10 +73,13 @@ export function useSectionThemes(scope: RefObject<HTMLElement>) {
         const scroll = window.scrollY
         let bg: string = THEMES[names[0]].bg
         let fg: string = THEMES[names[0]].fg
+        // Màn hình cao / trang ngắn: mốc end có thể nằm quá cuối trang → kẹp lại để màu luôn về hẳn theme mới
+        const max = ScrollTrigger.maxScroll(window)
         for (const b of boundaries) {
-          const p = gsap.utils.clamp(0, 1, (scroll - b.st.start) / (b.st.end - b.st.start || 1))
+          const end = Math.min(b.st.end, max)
+          const p = gsap.utils.clamp(0, 1, (scroll - b.st.start) / (end - b.st.start || 1))
           if (p > 0) {
-            bg = b.bg(p)
+            bg = b.bg(ease(p))
             fg = p < 0.5 ? b.fromFg : b.toFg
           }
         }

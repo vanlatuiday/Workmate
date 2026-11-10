@@ -350,8 +350,9 @@ html[data-page='home'] :focus-visible {
     position: relative;
     /* Rất trong: chỉ một lớp ngà mỏng; cảm giác "tấm kính" đến từ mép sáng + quầng sáng trong ở viền */
     background-color: color-mix(in srgb, var(--wm-ivory) var(--glass-alpha, 18%), transparent);
-    -webkit-backdrop-filter: blur(12px) saturate(1.15) brightness(1.03);
-    backdrop-filter: blur(12px) saturate(1.15) brightness(1.03);
+    /* --glass-blur: nơi cần che nội dung phía sau kỹ hơn thì tăng (mặc định 12px) */
+    -webkit-backdrop-filter: blur(var(--glass-blur, 12px)) saturate(1.15) brightness(1.03);
+    backdrop-filter: blur(var(--glass-blur, 12px)) saturate(1.15) brightness(1.03);
     border: 1px solid color-mix(in srgb, var(--wm-ivory) 85%, transparent);
     box-shadow:
       /* mép trên/trái bắt sáng, mép dưới hơi tối — độ dày của kính */
@@ -389,5 +390,19 @@ html[data-page='home'] :focus-visible {
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
     }
+  }
+}
+
+/* ─── Mặt sau trang lật của thẻ "Workmate lo phần này": nền ngà mờ đủ đặc để đọc trên ảnh,
+   viền sáng mảnh như glass-liquid. KHÔNG dùng backdrop-filter: phần tử đang xoay 3D làm nó nhòe sai/nhảy hình. ── */
+@layer components {
+  .glass-page {
+    background-color: color-mix(in srgb, var(--wm-ivory) 86%, transparent);
+    border: 1px solid color-mix(in srgb, var(--wm-ivory) 85%, transparent);
+    box-shadow:
+      inset 0 1.5px 0 var(--wm-ivory),
+      inset 1.5px 0 0 color-mix(in srgb, var(--wm-ivory) 70%, transparent),
+      inset 0 -1px 0 color-mix(in srgb, var(--wm-charcoal) 12%, transparent),
+      inset 0 0 24px color-mix(in srgb, var(--wm-ivory) 45%, transparent);
   }
 }

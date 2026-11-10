@@ -221,7 +221,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
       }
       tl
         .to('[data-scroll-hint]', { autoAlpha: 0, duration: 0.08 }, 0)
-        // Kết cấu WebGL chỉ thuộc về intro than chì — mờ đi khi cuộn khỏi intro (nền chỉ sáng nhẹ lên graphite, sang ngà khi phần 2 trượt lên)
+        // Kết cấu WebGL chỉ thuộc về intro than chì — mờ đi khi cuộn khỏi intro (nền trang giữ than chì suốt banner, Việc gấp và con phố)
         .to('[data-hero-canvas]', { opacity: 0, duration: 0.32 }, 0.08)
         // 0.38 → 0.9: nội dung hero
         .to(
@@ -404,26 +404,14 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
   return (
     <section
       ref={wrapRef}
-      // Intro nền than chì, sáng nhẹ lên graphite khi cuộn; chuyển sang ngà do phần 2 (data-theme ivory) lo khi trượt lên.
-      // Khi tắt chuyển động thì không có intro → ngà luôn.
-      data-theme={reduced ? 'ivory' : 'charcoal'}
+      // Banner, Việc gấp và con phố cùng một khối than chì (không đổi sắc giữa chừng); sang ngà ở FeatureBlocksSection.
+      // Giảm chuyển động cũng dùng than chì để thứ tự màu giống nhau (khối hero có nền ảnh tối riêng nên vẫn đọc được).
+      data-theme="charcoal"
       aria-label="Tìm việc"
       // useHomeHeader: còn thấy khối này thì header chỉ có logo + nút menu
       data-home-hero
       className={reduced ? 'relative' : 'relative h-[200svh]'}
     >
-      {/* Mốc đổi nền than chì → graphite (chỉ sáng lên nhẹ), chạy cùng lúc hạt tan
-          (cuộn được 10% → 50% chiều cao màn hình). Sang ngà do phần 2 lo. Xem useSectionThemes. */}
-      {!reduced && (
-        <div
-          aria-hidden
-          data-theme="graphite"
-          data-theme-start="top -10%"
-          data-theme-end="top -50%"
-          className="absolute inset-x-0 top-0 h-px"
-        />
-      )}
-
       <div className="sticky top-0 min-h-[100svh] flex flex-col justify-center overflow-clip">
         {!reduced && (
           <div data-hero-canvas aria-hidden className="absolute inset-0 -z-10 pointer-events-none">
@@ -476,13 +464,20 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
               {copy.search && (
               <>
               <div data-hero-item className="mx-auto mt-6 md:mt-10 w-full max-w-3xl text-left">
+                {/* Viên thuốc kính trên ảnh tối; focus hiện bằng vòng sáng quanh cả form */}
                 <form
                   onSubmit={handleSearch}
                   role="search"
-                  className="flex flex-col sm:flex-row gap-px bg-wm-sage rounded-card overflow-hidden border border-wm-ivory"
+                  className="flex flex-col sm:flex-row sm:items-center p-1.5 rounded-card sm:rounded-full
+                             border border-wm-ivory/40 bg-wm-ivory/10 backdrop-blur-xl backdrop-saturate-150
+                             shadow-[inset_0_1px_0_color-mix(in_srgb,var(--wm-ivory)_45%,transparent),inset_0_0_18px_color-mix(in_srgb,var(--wm-ivory)_8%,transparent),0_8px_24px_-8px_color-mix(in_srgb,var(--wm-charcoal)_45%,transparent)]
+                             transition-[transform,background-color,border-color,box-shadow] duration-300
+                             hover:bg-wm-ivory/20 hover:border-wm-ivory/60 hover:-translate-y-0.5 motion-reduce:transform-none
+                             hover:shadow-[inset_0_1px_0_color-mix(in_srgb,var(--wm-ivory)_60%,transparent),inset_0_0_18px_color-mix(in_srgb,var(--wm-ivory)_12%,transparent),0_14px_32px_-8px_color-mix(in_srgb,var(--wm-charcoal)_60%,transparent)]
+                             focus-within:border-wm-ivory/80 focus-within:ring-2 focus-within:ring-wm-ivory/50"
                 >
-                  <label className="flex-1 flex items-center gap-3 bg-wm-ivory px-5 py-4 focus-within:bg-wm-mist focus-within:ring-2 focus-within:ring-inset focus-within:ring-wm-charcoal transition-colors">
-                    <Search className="w-4 h-4 text-wm-graphite shrink-0" />
+                  <label className="flex-1 flex items-center gap-3 px-5 py-3.5 min-h-11">
+                    <Search className="w-4 h-4 text-wm-ivory shrink-0" aria-hidden="true" />
                     <span className="sr-only">Từ khóa tìm việc</span>
                     <input
                       ref={keywordRef}
@@ -490,27 +485,27 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                       placeholder="Vị trí, kỹ năng, ngành nghề…"
                       value={keyword}
                       onChange={(e) => setKeyword(e.target.value)}
-                      className="flex-1 bg-transparent outline-none text-sm text-wm-charcoal placeholder:text-wm-graphite"
+                      className="flex-1 min-w-0 bg-transparent !outline-none text-sm text-wm-ivory placeholder:text-wm-ivory/80"
                     />
                   </label>
 
-                  <label className="flex items-center gap-3 bg-wm-ivory px-5 py-4 sm:w-56 focus-within:bg-wm-mist focus-within:ring-2 focus-within:ring-inset focus-within:ring-wm-charcoal transition-colors">
-                    <MapPin className="w-4 h-4 text-wm-graphite shrink-0" />
+                  <label className="flex items-center gap-3 px-5 py-3.5 min-h-11 sm:w-56 border-t border-wm-ivory/25 sm:border-t-0 sm:border-l">
+                    <MapPin className="w-4 h-4 text-wm-ivory shrink-0" aria-hidden="true" />
                     <span className="sr-only">Địa điểm</span>
                     <input
                       type="text"
                       placeholder="Địa điểm…"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      className="flex-1 w-full bg-transparent outline-none text-sm text-wm-charcoal placeholder:text-wm-graphite"
+                      className="flex-1 w-full min-w-0 bg-transparent !outline-none text-sm text-wm-ivory placeholder:text-wm-ivory/80"
                     />
                   </label>
 
                   <button
                     type="submit"
-                    className="group bg-wm-charcoal text-wm-ivory font-medium text-sm px-8 py-4
-                               hover:bg-wm-graphite transition-colors duration-300
-                               outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-wm-ivory"
+                    className="group mt-1.5 sm:mt-0 sm:ml-1.5 min-h-11 rounded-full bg-wm-ivory text-wm-charcoal font-medium text-sm px-8 py-3
+                               hover:bg-wm-mist transition-colors duration-300
+                               focus-visible:!outline-wm-charcoal focus-visible:!outline-offset-[-4px]"
                   >
                     <RollText>Tìm việc</RollText>
                   </button>

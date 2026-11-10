@@ -305,13 +305,10 @@ export default function StreetSceneSection() {
 
   return (
     // Nền theo hiệu ứng đổi màu của cả trang (liền mạch, không thành dải cắt ngang).
-    // Khối thấp nên canh lại mốc: tối hẳn khi khối mới lên ~60% màn hình; phần ③ (FeatureBlocksSection)
-    // giữ nền tối lâu hơn mặc định — xem data-theme-start ở đó.
+    // Cùng theme than chì với banner và Việc gấp nên không phải điểm giao; sang ngà do FeatureBlocksSection lo.
     <section
       ref={ref}
       data-theme="charcoal"
-      data-theme-start="top 95%"
-      data-theme-end="top 60%"
       className="relative z-10 py-10 md:py-14"
     >
       <div className="shell">

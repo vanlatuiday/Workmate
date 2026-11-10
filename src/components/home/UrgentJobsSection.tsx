@@ -73,7 +73,7 @@ export default function UrgentJobsSection() {
     'transition-colors duration-300 hover:border-page-fg disabled:opacity-40 disabled:pointer-events-none'
 
   return (
-    <section ref={ref} data-theme="ivory" className="relative z-10 shell pt-section-sm pb-10 md:pb-14" aria-labelledby="home-urgent-title">
+    <section ref={ref} data-theme="charcoal" className="relative z-10 shell pt-section-sm pb-10 md:pb-14" aria-labelledby="home-urgent-title">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
         <div>
           <TextReveal
