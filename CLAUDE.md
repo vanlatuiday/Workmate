@@ -7,7 +7,7 @@ Nền tảng việc làm linh hoạt. Đọc trước khi làm:
 Chủ dự án không chuyên kỹ thuật: giải thích thay đổi quan trọng bằng tiếng Việt đơn giản.
 
 ## Kiến trúc
-React 18 + TypeScript + Vite 5 + Tailwind 3 · React Router 6 · Zustand · axios.
+React 18 + TypeScript + Vite 6 + Tailwind 3 · React Router 7 · Zustand · axios.
 GSAP + ScrollTrigger (`@utils/gsap`), Lenis, motion — **chỉ trang công khai**.
 `src/pages/{public,jobseeker,recruiter,admin}` · `src/components/{home,layout,motion,common}` ·
 `src/services` (API, backend nằm ngoài repo) · `src/context` (store) · `src/styles/tokens.json` (bảng màu).
