@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Lock } from 'lucide-react'
 import Reveal from '@components/motion/Reveal'
 import { photoSrcSet, photoUrl, type Photo } from '../types'
 
@@ -30,11 +31,20 @@ export function ImageBlock({ photo }: { photo: Photo }) {
 }
 
 /** Hàng tag bo tròn. */
-export function TagList({ items }: { items: string[] }) {
+/** `strong`: chip đậm kèm khóa — dùng cho mục bắt buộc. */
+export function TagList({ items, strong = false }: { items: string[]; strong?: boolean }) {
   return (
     <ul className="flex flex-wrap gap-2">
       {items.map((e) => (
-        <li key={e} className="rounded-full border border-page-line px-3 py-1.5 text-sm text-page-muted">
+        <li
+          key={e}
+          className={
+            strong
+              ? 'inline-flex items-center gap-1.5 rounded-full border border-page-fg bg-page-fg px-3 py-1.5 text-sm text-page-bg'
+              : 'rounded-full border border-page-line px-3 py-1.5 text-sm text-page-muted'
+          }
+        >
+          {strong && <Lock className="h-3 w-3" aria-hidden="true" />}
           {e}
         </li>
       ))}

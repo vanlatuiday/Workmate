@@ -5,7 +5,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, Bookmark, Briefcase, Check, Clock, Gri
 import InterviewAction from '@components/interview/InterviewAction'
 import { EmptyState } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
-import { expressInterest, getPairStatus, ME, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
+import { APPLICATION_STAGE_LABEL, expressInterest, getPairStatus, ME, useApplicationStages, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
@@ -62,6 +62,7 @@ const RANGE = `h-2 w-full cursor-pointer accent-page-fg ${FOCUS}`
 export default function JobseekerMatch() {
   const { savedJobs, toggleSavedJob, view, setView } = useMatchStore()
   const statusOf = usePairStatuses('seeker')
+  const stageOf = useApplicationStages()
   // Kết nối mới (kể cả do doanh nghiệp đáp lại sau vài giây) → báo thành công
   useOnNewConnection((c) => {
     if (c.seekerId !== ME) return
@@ -187,7 +188,7 @@ export default function JobseekerMatch() {
           <>
             <button type="button" disabled className={BTN_SECONDARY}>
               <Check className="h-4 w-4" aria-hidden="true" />
-              Đã ứng tuyển · chờ phản hồi
+              Đã ứng tuyển · {APPLICATION_STAGE_LABEL[stageOf(job.id, ME) ?? 'applied']}
             </button>
             <button
               type="button"

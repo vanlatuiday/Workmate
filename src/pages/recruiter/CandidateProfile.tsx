@@ -11,6 +11,7 @@ import { HireAction, SeekerReviews } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import MessageLink from '@components/messenger/MessageLink'
 import ReportButton from '@components/report/ReportButton'
+import ConsiderButton from '@components/application/ConsiderButton'
 import { JOB_TYPES } from '@constants/index'
 import { useCatalogStore, type CatalogJob } from '@context/catalogStore'
 import { useCompanyStore } from '@context/companyStore'
@@ -20,7 +21,7 @@ import { scoreMatch } from '@pages/public/match/score'
 import { EmptyNote, WeekGrid } from '@pages/public/personal/parts'
 import { apiErrorMessage } from '@services/authService'
 import { candidateCvUrl, fetchCandidateProfile, type CandidateProfile as Profile } from '@services/candidateService'
-import { expressInterest, usePairStatuses, withdrawInterest } from '@services/connectionService'
+import { expressInterest, markApplicationViewed, usePairStatuses, withdrawInterest } from '@services/connectionService'
 import { FOCUS } from '@utils/focus'
 
 /** Mở CV ở tab mới. Mở tab trước khi chờ máy chủ để trình duyệt không chặn cửa sổ bật lên */
@@ -39,6 +40,10 @@ async function openCv(seekerId: string, download: boolean) {
 /** Một tin của công ty: độ phù hợp với ứng viên này và việc có thể làm tiếp */
 function JobRow({ job, profile }: { job: CatalogJob; profile: Profile }) {
   const status = usePairStatuses('recruiter')(job.id, profile.id)
+  // Mở hồ sơ của người đã ứng tuyển = doanh nghiệp đã xem đơn đó
+  useEffect(() => {
+    if (status === 'received') markApplicationViewed(job.id, profile.id)
+  }, [status, job.id, profile.id])
   const score = scoreMatch(profile.criteria, job, profile.distanceKm).score
   return (
     <li className="py-5">
@@ -56,9 +61,12 @@ function JobRow({ job, profile }: { job: CatalogJob; profile: Profile }) {
           </button>
         )}
         {status === 'received' && (job.visible ? (
-          <button type="button" className={BTN_PRIMARY} onClick={() => expressInterest('recruiter', job.id, profile.id)}>
-            Đồng ý kết nối<span className="sr-only"> cho vị trí {job.title}</span>
-          </button>
+          <>
+            <button type="button" className={BTN_PRIMARY} onClick={() => expressInterest('recruiter', job.id, profile.id)}>
+              Đồng ý kết nối<span className="sr-only"> cho vị trí {job.title}</span>
+            </button>
+            <ConsiderButton jobId={job.id} seekerId={profile.id} className={BTN_SECONDARY} srLabel={`cho vị trí ${job.title}`} />
+          </>
         ) : (
           <p className="text-sm text-page-muted">Ứng viên đã ứng tuyển. Mở lại tin để đồng ý kết nối.</p>
         ))}

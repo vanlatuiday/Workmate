@@ -18,7 +18,7 @@ const dmy = (s?: string) => {
 
 const companies: CatalogCompany[] = [...COMPANIES, DEMO_COMPANY].map((c) => ({ ...c, verified: VERIFIED.has(c.id), locked: false }))
 
-const base = { description: '', quantity: 1, radiusKm: 8 }
+const base = { description: '', quantity: 1, radiusKm: 8, requiredSkills: [] as string[], requireAllSlots: false }
 const jobs: CatalogJob[] = [
   ...MATCH_JOBS.map((j) => ({ ...j, ...base, postedAt: ago(60 * 24 * 20), status: 'open' as const, moderation: 'approved' as const, visible: true })),
   ...RECRUITER_POSITION_JOBS.map((j) => {
@@ -28,7 +28,7 @@ const jobs: CatalogJob[] = [
   }),
   // Ba tin mẫu đang chờ duyệt — một tin bình thường, hai tin bị gắn cờ, để hàng chờ không trống
   ...(() => {
-    const p = { companyId: 'song-han', district: 'Hải Châu', distanceKm: 2.0, radiusKm: 8, quantity: 2, status: 'open' as const, moderation: 'pending' as const, visible: false }
+    const p = { requiredSkills: [] as string[], requireAllSlots: false, companyId: 'song-han', district: 'Hải Châu', distanceKm: 2.0, radiusKm: 8, quantity: 2, status: 'open' as const, moderation: 'pending' as const, visible: false }
     return [
       { ...p, id: 'p-seed-1', title: 'Phụ quầy cà phê buổi sáng', salaryLabel: '27.000–30.000đ/giờ', shiftLabel: 'Sáng T2–T6',
         skills: ['Pha chế cơ bản', 'Giao tiếp khách hàng'], slots: ['0-0', '1-0', '2-0', '3-0', '4-0'], salaryMinK: 27, salaryMaxK: 30, jobType: 'part-time' as const,

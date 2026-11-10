@@ -7,7 +7,7 @@ import { HireStatusChip, OfferCard } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import { describeConversation } from '@pages/public/messages/describe'
 import { useConnectionStore } from '@context/connectionStore'
-import { expressInterest, ME, useHires, useMyPairs, useOnNewConnection, withdrawInterest, type PairItem } from '@services/connectionService'
+import { APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStage, useHires, useMyPairs, useOnNewConnection, withdrawInterest, type PairItem } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { formatRelativeTime } from '@utils/format'
@@ -24,11 +24,14 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'connected', label: 'Đã kết nối' },
 ]
 
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
 /** Một dòng đơn: việc + công ty, ngày, trạng thái, hành động theo trạng thái cặp. */
 function Row({ item }: { item: PairItem }) {
   const info = describeConversation('seeker', item.jobId, item.seekerId)
   // Kết nối do doanh nghiệp quan tâm trước (mình chưa từng ứng tuyển) thì không nói "ứng tuyển"
   const applied = useConnectionStore((s) => s.interests.some((i) => i.jobId === item.jobId && i.seekerId === item.seekerId && i.from === 'seeker'))
+  const stage = useApplicationStage(item.jobId, item.seekerId)
   const verb = item.status === 'received' ? 'quan tâm' : applied ? 'ứng tuyển' : 'cập nhật'
   return (
     <li className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 md:flex-row md:items-center md:justify-between">
@@ -37,7 +40,9 @@ function Row({ item }: { item: PairItem }) {
           <Link to={`/viec-lam/${item.jobId}`} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>
             {info.subtitle}
           </Link>
-          {item.status === 'sent' && <StatusBadge tone="default">Chờ phản hồi</StatusBadge>}
+          {item.status === 'sent' && (
+            <StatusBadge tone={stage === 'considering' ? 'strong' : 'default'}>{capitalize(APPLICATION_STAGE_LABEL[stage ?? 'applied'])}</StatusBadge>
+          )}
           {item.status === 'connected' && <StatusBadge tone="strong">Đã kết nối</StatusBadge>}
           {item.status === 'connected' && <HireStatusChip viewer="seeker" jobId={item.jobId} seekerId={item.seekerId} />}
           {item.status === 'received' && <StatusBadge tone="default">Doanh nghiệp quan tâm bạn</StatusBadge>}

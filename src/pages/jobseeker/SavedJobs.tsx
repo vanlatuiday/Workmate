@@ -3,7 +3,7 @@ import toast from 'react-hot-toast'
 import { Bookmark, MapPin } from 'lucide-react'
 import { EmptyState, MatchScore, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
-import { expressInterest, ME, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
+import { APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStages, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
 import { useAllJobs, seekerOutcome } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { cn } from '@utils/cn'
@@ -27,6 +27,7 @@ export default function SavedJobs() {
   const savedJobs = useMatchStore((s) => s.savedJobs)
   const toggleSavedJob = useMatchStore((s) => s.toggleSavedJob)
   const statusOf = usePairStatuses('seeker')
+  const stageOf = useApplicationStages()
 
   useOnNewConnection((c) => {
     if (c.seekerId === ME) toast.success('Kết nối thành công')
@@ -52,7 +53,10 @@ export default function SavedJobs() {
           <ul className="divide-y divide-page-line">
             {jobs.map((job) => {
               const status = statusOf(job.id, ME)
-              const st = STATUS[status]
+              const stage = status === 'sent' ? stageOf(job.id, ME) : undefined
+              const st = stage && stage !== 'applied'
+                ? { label: APPLICATION_STAGE_LABEL[stage].replace(/^./, (c) => c.toUpperCase()), tone: stage === 'considering' ? 'strong' as const : 'default' as const }
+                : STATUS[status]
               return (
                 <li key={job.id} className="flex flex-col gap-4 py-5 first:pt-0 last:pb-0 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0">

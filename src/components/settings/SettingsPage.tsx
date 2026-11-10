@@ -20,6 +20,7 @@ const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px
 const NOTIFY: Record<Side, { kind: NotificationKind; label: string }[]> = {
   seeker: [
     { kind: 'interest', label: 'Doanh nghiệp quan tâm hồ sơ của bạn' },
+    { kind: 'considering', label: 'Doanh nghiệp đang cân nhắc đơn của bạn' },
     { kind: 'connected', label: 'Hai bên đã kết nối' },
     { kind: 'interview_invited', label: 'Lời mời phỏng vấn' },
     { kind: 'interview_cancelled', label: 'Lịch phỏng vấn bị hủy' },

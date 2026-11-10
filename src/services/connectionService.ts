@@ -1,7 +1,7 @@
 // Lớp dịch vụ cho quan tâm / kết nối / tin nhắn / phỏng vấn / nhận việc / đánh giá / thông báo.
 // Giao diện chỉ dùng các hàm ở đây. Đọc từ `connectionStore`; thao tác ghi gọi máy chủ rồi cập nhật kho,
 // máy chủ từ chối thì báo lỗi bằng toast. Sự kiện socket giữ kho khớp khi phía kia thay đổi.
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import api from './api'
 import { apiErrorMessage } from './authService'
@@ -171,6 +171,7 @@ export async function loadAdminPairs() {
 /** Đăng xuất / đổi tài khoản */
 export function stopConnections() {
   disconnectRealtime()
+  viewedSent.clear()
   store().clear()
 }
 
@@ -213,6 +214,64 @@ export function expressInterest(from: Side, jobId: string, seekerId: string) {
 export function withdrawInterest(from: Side, jobId: string, seekerId: string) {
   setStore((s) => ({ interests: s.interests.filter((i) => !(i.from === from && i.jobId === jobId && i.seekerId === seekerId)) }))
   void write(() => api.delete(`/connections/${pairPath(jobId, seekerId)}/interest`), 'Chưa rút được quan tâm, vui lòng thử lại.')
+}
+
+// ─── Tiến độ đơn ứng tuyển: chờ phản hồi → đã xem → đang cân nhắc ───────────
+
+export type ApplicationStage = 'applied' | 'viewed' | 'considering'
+export const APPLICATION_STAGE_LABEL: Record<ApplicationStage, string> = {
+  applied: 'chờ phản hồi',
+  viewed: 'doanh nghiệp đã xem',
+  considering: 'đang được cân nhắc',
+}
+
+const stageOf = (i: Interest): ApplicationStage => (i.consideringAt ? 'considering' : i.viewedAt ? 'viewed' : 'applied')
+
+/** Hook: đơn của người tìm việc cho cặp này đang ở bước nào; chưa ứng tuyển → undefined */
+export function useApplicationStage(jobId: string, seekerId: string): ApplicationStage | undefined {
+  return useConnectionStore((s) => {
+    const app = s.interests.find((i) => i.from === 'seeker' && i.jobId === jobId && i.seekerId === seekerId)
+    return app && stageOf(app)
+  })
+}
+
+/** Hook: như useApplicationStage nhưng tra được nhiều cặp — dùng trong danh sách */
+export function useApplicationStages(): (jobId: string, seekerId: string) => ApplicationStage | undefined {
+  const interests = useConnectionStore((s) => s.interests)
+  const apps = useMemo(
+    () => new Map(interests.filter((i) => i.from === 'seeker').map((i) => [pairKey(i.jobId, i.seekerId), stageOf(i)])),
+    [interests],
+  )
+  return (jobId, seekerId) => apps.get(pairKey(jobId, seekerId))
+}
+
+// Mỗi phiên chỉ báo "đã xem" một lần cho mỗi cặp
+const viewedSent = new Set<string>()
+
+/** Doanh nghiệp mở xem đơn: báo máy chủ một lần. Không có đơn hoặc đã xem rồi thì bỏ qua; lỗi thì im lặng */
+export function markApplicationViewed(jobId: string, seekerId: string) {
+  const k = pairKey(jobId, seekerId)
+  const app = store().interests.find((i) => i.from === 'seeker' && pairKey(i.jobId, i.seekerId) === k)
+  if (isSeeker() || !app || app.viewedAt || viewedSent.has(k)) return
+  viewedSent.add(k)
+  const at = new Date().toISOString()
+  setStore((st) => ({ interests: st.interests.map((i) => (i === app ? { ...i, viewedAt: at } : i)) }))
+  api.post(`/connections/${pairPath(jobId, seekerId)}/viewed`).catch(() => {
+    viewedSent.delete(k)
+    // Hoàn tác viewedAt lạc quan bằng dữ liệu máy chủ
+    refreshPairs().catch(() => undefined)
+  })
+}
+
+/** Doanh nghiệp báo "đang cân nhắc" đơn ứng tuyển; người tìm việc nhận thông báo */
+/** Trả true khi máy chủ nhận; lỗi thì write() đã báo toast và nạp lại */
+export function considerApplication(jobId: string, seekerId: string): Promise<boolean> {
+  const at = new Date().toISOString()
+  setStore((st) => ({
+    interests: st.interests.map((i) => (i.from === 'seeker' && i.jobId === jobId && i.seekerId === seekerId
+      ? { ...i, consideringAt: i.consideringAt ?? at, viewedAt: i.viewedAt ?? at } : i)),
+  }))
+  return write(() => api.post(`/connections/${pairPath(jobId, seekerId)}/considering`), 'Chưa cập nhật được, vui lòng thử lại.')
 }
 
 export { useOnNewConnection } from './connectionEvents'

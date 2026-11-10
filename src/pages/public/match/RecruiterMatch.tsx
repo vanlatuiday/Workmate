@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Bookmark, Briefcase, Check, Clock, MapPin, UserCheck, UserX, Wallet, X } from 'lucide-react'
 import InterviewAction from '@components/interview/InterviewAction'
+import ConsiderButton from '@components/application/ConsiderButton'
 import { EmptyState, MatchScore, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
-import { expressInterest, getPairStatus, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
+import { expressInterest, getPairStatus, markApplicationViewed, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { candidateHref } from '@pages/public/personal/links'
@@ -98,6 +99,13 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
   // Lọc theo mức phù hợp áp cho cả danh sách lẫn bộ sưu tập
   const shown = filterByLevel(current, level, (x) => x.outcome.score)
   const detail = open ? scored.find((x) => x.key === open.id) : undefined
+  // Mở khung chi tiết của người đã ứng tuyển = doanh nghiệp đã xem đơn đó
+  const detailSeeker = detail?.c.id
+  // Theo dõi cả trạng thái cặp: đơn nạp muộn (thành 'received') thì effect chạy lại
+  const detailStatus = detailSeeker ? statusOf(position.id, detailSeeker) : undefined
+  useEffect(() => {
+    if (detailSeeker && detailStatus === 'received') markApplicationViewed(position.id, detailSeeker)
+  }, [position.id, detailSeeker, detailStatus])
 
   const jobTypeLabel = JOB_TYPES.find((t) => t.value === req.jobType)?.label ?? req.jobType
 
@@ -129,6 +137,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
             <button type="button" onClick={() => { invite(c); close?.(true) }} className={BTN_PRIMARY}>
               Đồng ý kết nối<span className="sr-only"> {c.name}</span>
             </button>
+            <ConsiderButton jobId={position.id} seekerId={c.id} className={BTN_SECONDARY} srLabel={c.name} />
           </>
         )}
         {status === 'sent' && (
@@ -344,6 +353,8 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
 
     {detail && open && (() => {
       const { c, key, outcome } = detail
+      // Kỹ năng thiếu nhưng không bắt buộc (thiếu bắt buộc đã nằm ở khung 'yêu cầu bắt buộc')
+      const preferredMissing = outcome.missingSkills.filter((s) => !(req.requiredSkills ?? []).includes(s))
       const matched = req.slots.filter((s) => c.criteria.slots.includes(s)).length
       return (
         <MatchDetail
@@ -368,9 +379,14 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
           </div>
           <DetailSection title="Mức độ khớp với tin">
             <CriterionBars results={outcome.results} weights={weightsOf(DEFAULT_PRIORITY)} noteOf={recruiterNote} />
-            {outcome.missingSkills.length > 0 && (
+            {outcome.unmet.length > 0 && (
               <ImproveHint>
-                Ứng viên còn thiếu: <strong className="font-medium">{outcome.missingSkills.join(', ')}</strong>.
+                Chưa đạt yêu cầu bắt buộc: <strong className="font-medium">{outcome.unmet.join(', ')}</strong>.
+              </ImproveHint>
+            )}
+            {preferredMissing.length > 0 && (
+              <ImproveHint>
+                Còn thiếu kỹ năng ưu tiên: <strong className="font-medium">{preferredMissing.join(', ')}</strong>.
               </ImproveHint>
             )}
           </DetailSection>

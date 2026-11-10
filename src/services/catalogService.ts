@@ -14,6 +14,9 @@ export interface JobBody {
   jobType: JobType
   district: string
   skills: string[]
+  /** Kỹ năng bắt buộc, nằm trong skills */
+  requiredSkills: string[]
+  requireAllSlots: boolean
   slots: string[]
   salaryMinK: number
   salaryMaxK: number
@@ -22,7 +25,12 @@ export interface JobBody {
   quantity: number
   radiusKm: number
   photo: Photo
+  /** Nhận ứng viên trong bao nhiêu ngày (đăng mới hoặc gia hạn khi sửa) */
+  durationDays?: DurationDays
 }
+
+export const DURATION_DAYS = [7, 14, 30, 60] as const
+export type DurationDays = (typeof DURATION_DAYS)[number]
 
 const store = () => useCatalogStore.getState()
 

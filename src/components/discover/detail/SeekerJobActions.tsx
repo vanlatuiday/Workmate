@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast'
 import { Bookmark, Check } from 'lucide-react'
 import { useMatchStore } from '@context/matchStore'
-import { expressInterest, ME, useOnNewConnection, usePairStatuses, withdrawInterest } from '@services/connectionService'
+import { APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStage, useOnNewConnection, usePairStatuses, withdrawInterest } from '@services/connectionService'
 import type { MatchJob } from '@pages/public/jobs/catalog'
 import { BTN_PRIMARY, BTN_SECONDARY } from '@pages/public/match/parts'
 import { cn } from '@utils/cn'
@@ -12,6 +12,7 @@ import MessageLink from '@components/messenger/MessageLink'
 export default function SeekerJobActions({ job }: { job: MatchJob }) {
   const { savedJobs, toggleSavedJob } = useMatchStore()
   const status = usePairStatuses('seeker')(job.id, ME)
+  const stage = useApplicationStage(job.id, ME)
   const saved = savedJobs.includes(job.id)
   const toastId = `ung-tuyen-${job.id}`
 
@@ -42,7 +43,7 @@ export default function SeekerJobActions({ job }: { job: MatchJob }) {
         <>
           <button type="button" disabled className={BTN_SECONDARY}>
             <Check className="h-4 w-4" aria-hidden="true" />
-            Đã ứng tuyển · chờ phản hồi
+            Đã ứng tuyển · {APPLICATION_STAGE_LABEL[stage ?? 'applied']}
           </button>
           <button
             type="button"

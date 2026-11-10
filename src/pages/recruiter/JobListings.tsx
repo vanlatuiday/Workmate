@@ -74,6 +74,15 @@ export default function JobListings() {
   const shown = rows.filter((r) => (tab === 'all' || combinedOf(r) === tab) && (!q || r.job.title.toLowerCase().includes(q)))
 
   const postedText = (r: CompanyJobRow) => (r.postedAt ? formatRelativeTime(r.postedAt) : '—')
+  /** Hạn nhận ứng viên: "Còn 5 ngày", "Hết hạn 12/11" — tin cũ không có hạn thì không hiện */
+  const expiryText = (r: CompanyJobRow) => {
+    const at = r.job.expiresAt
+    // Tin đã đóng thì không còn hạn để nhắc
+    if (!at || r.jobStatus === 'closed') return null
+    const days = Math.ceil((new Date(at).getTime() - Date.now()) / 86_400_000)
+    if (days <= 0) return `Hết hạn ${new Date(at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}`
+    return days === 1 ? 'Hết hạn trong hôm nay' : `Còn ${days} ngày`
+  }
 
   /** Cụm hành động của một tin (dùng cho cả bảng và thẻ) */
   const actions = (r: CompanyJobRow) => {
@@ -227,7 +236,10 @@ export default function JobListings() {
                       <div className="mt-3">{actions(r)}</div>
                     </td>
                     <td className="tnum px-3 py-4 text-page-fg">{r.job.salaryLabel}</td>
-                    <td className="tnum px-3 py-4 text-page-muted">{postedText(r)}</td>
+                    <td className="tnum px-3 py-4 text-page-muted">
+                      {postedText(r)}
+                      {expiryText(r) && <span className="mt-1 block text-xs">{expiryText(r)}</span>}
+                    </td>
                     <td className="tnum px-3 py-4 text-right text-page-fg">{num(r, 'fit')}</td>
                     <td className="tnum px-3 py-4 text-right text-page-fg">{num(r, 'interested')}</td>
                     <td className="tnum px-6 py-4 text-right text-page-fg">{num(r, 'connected')}</td>
@@ -248,7 +260,7 @@ export default function JobListings() {
                 </div>
                 <p className="mt-1 text-xs text-page-muted">{r.job.district} · {r.job.shiftLabel}</p>
                 <p className="tnum mt-2 text-sm text-page-fg">{r.job.salaryLabel}</p>
-                <p className="mt-1 text-xs text-page-muted">Đăng {postedText(r)}</p>
+                <p className="mt-1 text-xs text-page-muted">Đăng {postedText(r)}{expiryText(r) && ` · ${expiryText(r)}`}</p>
                 <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-page-line pt-4 text-center">
                   {[
                     { icon: Users, label: 'Phù hợp', v: num(r, 'fit') },

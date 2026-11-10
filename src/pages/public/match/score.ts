@@ -48,7 +48,17 @@ export interface JobRequirement {
   salaryMinK: number
   salaryMaxK: number
   jobType: JobType
+  /** Kỹ năng bắt buộc (nằm trong skills). Thiếu một cái → không tính là phù hợp */
+  requiredSkills?: string[]
+  /** Ứng viên phải rảnh đủ mọi ca */
+  requireAllSlots?: boolean
 }
+
+/**
+ * Điểm tối đa khi thiếu yêu cầu bắt buộc: dưới mức "có thể phù hợp" (40) nên không lọt vào
+ * danh sách gợi ý (từ 60) mà vẫn còn thấy được nếu người dùng tự tìm.
+ */
+export const UNMET_SCORE_CAP = 39
 
 export interface CriterionResult {
   key: CriterionKey
@@ -65,6 +75,8 @@ export interface MatchOutcome {
   results: CriterionResult[]
   /** Kỹ năng yêu cầu mà bên kia chưa có */
   missingSkills: string[]
+  /** Yêu cầu bắt buộc chưa đạt, vd. "Kỹ năng Pha chế", "Rảnh đủ mọi ca" — có thì điểm bị chặn ở UNMET_SCORE_CAP */
+  unmet: string[]
 }
 
 const norm = (s: string) => s.trim().toLowerCase()
@@ -121,7 +133,20 @@ export function scoreMatch(
     { key: 'jobType', value: jobTypeOk ? 1 : 0, ok: jobTypeOk, note: jobTypeOk ? 'Loại việc' : 'Khác loại việc' },
   ]
 
+  const missing = new Set(missingSkills.map(norm))
+  const unmet = [
+    ...(job.requiredSkills ?? []).filter((s) => missing.has(norm(s))).map((s) => `Kỹ năng ${s}`),
+    ...(job.requireAllSlots && slotHit < job.slots.length ? ['Rảnh đủ mọi ca'] : []),
+  ]
+  if (unmet.length) {
+    const skillsRow = results[0]
+    const req = (job.requiredSkills ?? []).filter((s) => missing.has(norm(s)))
+    if (req.length) skillsRow.note = `Thiếu bắt buộc: ${req.join(', ')}`
+    if (job.requireAllSlots && slotHit < job.slots.length) results[1].note = `Cần rảnh đủ ${job.slots.length} ca`
+  }
+
   const w = priority ? weightsOf(priority) : useCatalogStore.getState().config.weights
-  const score = Math.round(results.reduce((sum, r) => sum + r.value * w[r.key], 0))
-  return { score, results, missingSkills }
+  const raw = Math.round(results.reduce((sum, r) => sum + r.value * w[r.key], 0))
+  const score = unmet.length ? Math.min(raw, UNMET_SCORE_CAP) : raw
+  return { score, results, missingSkills, unmet }
 }

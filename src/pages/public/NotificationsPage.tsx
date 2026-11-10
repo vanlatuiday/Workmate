@@ -1,5 +1,5 @@
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { Bell, CalendarCheck, CalendarPlus, CalendarX, Handshake, Heart, BriefcaseBusiness, UserCheck, UserX, Undo2, HeartHandshake, Star, type LucideIcon } from 'lucide-react'
+import { Bell, BriefcaseBusiness, CalendarCheck, CalendarPlus, CalendarX, Handshake, Heart, HeartHandshake, Hourglass, Star, Undo2, UserCheck, UserX, type LucideIcon } from 'lucide-react'
 import { EmptyState } from '@components/dashboard'
 import { useAuthStore } from '@context/authStore'
 import { useMessengerStore } from '@context/messengerStore'
@@ -14,6 +14,7 @@ import { describeConversation } from './messages/describe'
 
 const ICONS: Record<DemoNotification['kind'], LucideIcon> = {
   interest: Heart,
+  considering: Hourglass,
   connected: Handshake,
   interview_invited: CalendarPlus,
   interview_confirmed: CalendarCheck,
@@ -35,6 +36,8 @@ function sentence(viewer: Side, n: DemoNotification) {
       return viewer === 'seeker'
         ? `${name} đã quan tâm hồ sơ của bạn cho vị trí ${subtitle}`
         : `${name} đã quan tâm vị trí ${subtitle} của bạn`
+    case 'considering':
+      return `${name} đang cân nhắc hồ sơ của bạn cho vị trí ${subtitle}`
     case 'connected':
       return `Bạn và ${name} đã kết nối · vị trí ${subtitle}`
     case 'interview_invited':
@@ -64,7 +67,7 @@ const targetOf = (n: DemoNotification) => {
   switch (n.kind) {
     case 'review': return '/ca-nhan'
     case 'interest': return '/match'
-    case 'offer': case 'offer_withdrawn': case 'rejected': return '/tim-viec/ung-tuyen'
+    case 'considering': case 'offer': case 'offer_withdrawn': case 'rejected': return '/tim-viec/ung-tuyen'
     case 'offer_accepted': case 'offer_declined': return '/tuyen-dung/match'
     default: return '/lich-phong-van'
   }

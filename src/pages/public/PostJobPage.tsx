@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { X } from 'lucide-react'
+import { Lock, X } from 'lucide-react'
 import { gsap } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useCurtainNavigate } from '@components/motion/PageCurtain'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
-import { createJob, updateJob } from '@services/catalogService'
+import { createJob, DURATION_DAYS, updateJob, type DurationDays } from '@services/catalogService'
 import { apiErrorMessage } from '@services/authService'
 import { useCatalogStore } from '@context/catalogStore'
 import { cn } from '@utils/cn'
@@ -41,7 +41,7 @@ function pop(el: HTMLElement, reduced: boolean) {
 function Group({ title, index, children }: { title: string; index: number; children: ReactNode }) {
   return (
     // Thẻ kính; legend thả nổi (float) để nằm trong thẻ thay vì cắt ngang viền
-    <fieldset className="glass-liquid rounded-card p-5 [--glass-alpha:40%]">
+    <fieldset className="glass-liquid min-w-0 rounded-card p-5 [--glass-alpha:40%]">
       {/* Số thứ tự mờ ở góc phải, chỉ để trang trí */}
       <span aria-hidden="true" className="pointer-events-none absolute right-4 top-2 select-none font-display text-5xl font-semibold leading-none text-page-line">
         {String(index).padStart(2, '0')}
@@ -76,9 +76,15 @@ export default function PostJobPage() {
   const [maxK, setMaxK] = useState(editing?.salaryMaxK ?? 32)
   const [slots, setSlots] = useState<string[]>(editing?.slots ?? [])
   const [skills, setSkills] = useState<string[]>(editing?.skills ?? [])
+  // Kỹ năng bắt buộc chỉ tính những cái còn được chọn
+  const [requiredPick, setRequiredPick] = useState<string[]>(editing?.requiredSkills ?? [])
+  const requiredSkills = skills.filter((s) => requiredPick.includes(s))
+  const [requireAllSlots, setRequireAllSlots] = useState(editing?.requireAllSlots ?? false)
   const [custom, setCustom] = useState('')
   // Bán kính mặc định lấy từ Cấu hình hệ thống
   const [radius, setRadius] = useState(() => editing?.radiusKm ?? useCatalogStore.getState().config.defaultRadiusKm)
+  // Sửa tin: mặc định giữ hạn cũ (0); chọn số ngày = gia hạn tính từ hôm nay
+  const [duration, setDuration] = useState<DurationDays | 0>(editing ? 0 : 30)
   const [desc, setDesc] = useState(editing?.description ?? '')
   const [photoIndex, setPhotoIndex] = useState(() => Math.max(0, PHOTOS.findIndex((p) => p.id === editing?.photo.id)))
   const [posted, setPosted] = useState(false)
@@ -90,7 +96,13 @@ export default function PostJobPage() {
   useEffect(() => () => window.clearTimeout(timer.current), [])
 
   const salaryLabel = minK === maxK ? `${minK}.000đ/giờ` : `${minK}.000–${maxK}.000đ/giờ`
-  const req = { skills, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: (jobType || 'part-time') as JobType }
+  const req = { skills, requiredSkills, requireAllSlots, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: (jobType || 'part-time') as JobType }
+
+  // Bỏ chọn một kỹ năng thì bỏ luôn dấu bắt buộc, để chọn lại không tự thành bắt buộc
+  const removeSkill = (s: string) => {
+    setSkills(skills.filter((x) => x !== s))
+    setRequiredPick(requiredPick.filter((x) => x !== s))
+  }
 
   const addSkill = (s: string) => {
     const v = s.trim()
@@ -108,7 +120,7 @@ export default function PostJobPage() {
     }))
     const ok = list.filter((x) => x.score >= MATCH_MIN).sort((a, b) => b.score - a.score)
     return { matched: ok.length, total: list.length, top: ok.slice(0, 3) }
-  }, [candidates, skills, slots, minK, maxK, jobType, radius])
+  }, [candidates, skills, requiredPick, requireAllSlots, slots, minK, maxK, jobType, radius])
 
   const missing = [!title.trim() && 'tên vị trí', !jobType && 'hình thức', slots.length === 0 && 'ít nhất một ca', skills.length === 0 && 'ít nhất một kỹ năng'].filter(Boolean)
   const ready = missing.length === 0
@@ -131,8 +143,9 @@ export default function PostJobPage() {
     // Gửi lên máy chủ (khoảng cách do máy chủ tính theo quận)
     const fields = {
       title: title.trim(), district, salaryLabel, shiftLabel: scheduleText(slots),
-      skills, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: req.jobType, photo: PHOTOS[photoIndex],
+      skills, requiredSkills, requireAllSlots, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: req.jobType, photo: PHOTOS[photoIndex],
       description: desc.trim(), quantity: headcount, radiusKm: radius,
+      ...(duration ? { durationDays: duration } : {}),
     }
     // Sửa tin: lưu đè, tin quay lại hàng chờ duyệt rồi về danh sách tin (không sang /match)
     // Máy chủ từ chối (thiếu quyền, dữ liệu sai…) → báo lỗi, cho bấm lại
@@ -239,6 +252,18 @@ export default function PostJobPage() {
           <Group title="Ca làm *" index={3}>
             <p className="text-sm text-page-muted">Bấm hoặc kéo để tô nhiều ô. Ô đậm là ca cần người.</p>
             <ShiftGrid value={slots} onChange={setSlots} />
+            <label className="flex items-start gap-2.5 text-sm text-page-fg">
+              <input
+                type="checkbox"
+                checked={requireAllSlots}
+                onChange={(e) => setRequireAllSlots(e.target.checked)}
+                className={`mt-0.5 h-4 w-4 accent-page-fg ${FOCUS}`}
+              />
+              <span>
+                Bắt buộc rảnh đủ mọi ca
+                <span className="block text-page-muted">Ứng viên thiếu ca nào sẽ bị xếp ở mức chưa phù hợp.</span>
+              </span>
+            </label>
           </Group>
 
           <Group title="Kỹ năng *" index={4}>
@@ -246,13 +271,42 @@ export default function PostJobPage() {
               {[...SUGGESTED, ...skills.filter((s) => !SUGGESTED.includes(s))].map((s) => {
                 const on = skills.includes(s)
                 return (
-                  <button key={s} type="button" aria-pressed={on} onClick={(e) => { if (!on) pop(e.currentTarget, reduced); setSkills(on ? skills.filter((x) => x !== s) : [...skills, s]) }} className={chip(on)}>
+                  <button key={s} type="button" aria-pressed={on} onClick={(e) => { if (!on) pop(e.currentTarget, reduced); if (on) removeSkill(s); else setSkills([...skills, s]) }} className={chip(on)}>
                     {s}
                     {on && !SUGGESTED.includes(s) && <X className="ml-1.5 inline h-3.5 w-3.5" aria-label="Bỏ kỹ năng" />}
                   </button>
                 )
               })}
             </div>
+            {skills.length > 0 && (
+              <div role="group" aria-labelledby="pj-required">
+                <p id="pj-required" className="mb-2 text-sm text-page-muted">
+                  Kỹ năng nào là bắt buộc? Bấm để đánh dấu — ứng viên thiếu sẽ bị xếp ở mức chưa phù hợp (tối đa 39%). Còn lại là ưu tiên, thiếu chỉ bị trừ điểm.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {skills.map((s) => {
+                    const on = requiredSkills.includes(s)
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => setRequiredPick(on ? requiredPick.filter((x) => x !== s) : [...requiredPick, s])}
+                        className={cn(
+                          'inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs transition-colors duration-200',
+                          on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-dashed border-page-edge text-page-fg hover:border-page-fg',
+                          FOCUS,
+                        )}
+                      >
+                        {on && <Lock className="h-3 w-3" aria-hidden="true" />}
+                        {s}
+                        <span className="sr-only">{on ? ' (bắt buộc)' : ' (ưu tiên)'}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
             <div>
               <label htmlFor="pj-skill" className="mb-1 block text-sm text-page-muted">Thêm kỹ năng khác (Enter để thêm)</label>
               <input
@@ -265,11 +319,23 @@ export default function PostJobPage() {
             </div>
           </Group>
 
-          <Group title="Bán kính tuyển" index={5}>
+          <Group title="Bán kính & thời hạn" index={5}>
             <label className="block text-sm text-page-muted">
               Ứng viên trong vòng <span className="tnum text-page-fg">{radius}</span> km
               <input type="range" min={1} max={15} value={radius} onChange={(e) => setRadius(Number(e.target.value))} className={`mt-2 w-full accent-page-fg ${FOCUS}`} />
             </label>
+            <div>
+              <label htmlFor="pj-duration" className="mb-1 block text-sm text-page-muted">Nhận ứng viên trong</label>
+              <select id="pj-duration" value={duration} onChange={(e) => setDuration(Number(e.target.value) as DurationDays | 0)} className={INPUT}>
+                {editing && (
+                  <option value={0}>
+                    {editing.expiresAt ? `Giữ hạn hiện tại (${new Date(editing.expiresAt).toLocaleDateString('vi-VN')})` : 'Giữ nguyên (không hết hạn)'}
+                  </option>
+                )}
+                {DURATION_DAYS.map((d) => <option key={d} value={d}>{d} ngày{editing ? ' kể từ hôm nay' : ''}</option>)}
+              </select>
+              <p className="mt-1 text-xs text-page-muted">Hết hạn thì tin tự đóng. Mở lại tin trong mục Tin tuyển dụng để gia hạn thêm 30 ngày.</p>
+            </div>
           </Group>
 
           <Group title="Mô tả ngắn" index={6}>

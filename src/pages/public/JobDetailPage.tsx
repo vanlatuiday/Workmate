@@ -4,7 +4,7 @@ import { Bookmark, Check } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { useMatchStore } from '@context/matchStore'
 import { useCatalogStore } from '@context/catalogStore'
-import { expressInterest, ME, useOnNewConnection, usePairStatuses, withdrawInterest } from '@services/connectionService'
+import { APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStage, useOnNewConnection, usePairStatuses, withdrawInterest } from '@services/connectionService'
 import { JOB_TYPES } from '@constants/index'
 import { Facts, PrimaryLink, TextLink } from '@components/discover/parts'
 import DetailHero from '@components/discover/detail/DetailHero'
@@ -29,6 +29,7 @@ const jobTypeLabel = (t: string) => JOB_TYPES.find((x) => x.value === t)?.label 
 function SeekerActions({ job }: { job: MatchJob }) {
   const { savedJobs, toggleSavedJob } = useMatchStore()
   const status = usePairStatuses('seeker')(job.id, ME)
+  const stage = useApplicationStage(job.id, ME)
   const saved = savedJobs.includes(job.id)
   const toastId = `ung-tuyen-${job.id}`
 
@@ -59,7 +60,7 @@ function SeekerActions({ job }: { job: MatchJob }) {
         <>
           <button type="button" disabled className={BTN_SECONDARY}>
             <Check className="h-4 w-4" aria-hidden="true" />
-            Đã ứng tuyển · chờ phản hồi
+            Đã ứng tuyển · {APPLICATION_STAGE_LABEL[stage ?? 'applied']}
           </button>
           <button
             type="button"
@@ -113,6 +114,8 @@ export default function JobDetailPage() {
   const others = jobsOfCompany(company.id).filter((j) => j.id !== job.id)
   const outcome = role === 'jobseeker' ? seekerOutcome(job) : null
   const improved = outcome && outcome.missingSkills.length > 0
+  const required = job.requiredSkills ?? []
+  const preferred = job.skills.filter((s) => !required.includes(s))
 
   const aside = (
     <>
@@ -164,7 +167,12 @@ export default function JobDetailPage() {
             <div className="mt-4">
               <CriterionBars results={outcome.results} weights={weights} />
             </div>
-            {improved && (
+            {outcome.unmet.length > 0 && (
+              <ImproveHint>
+                Bạn chưa đạt yêu cầu bắt buộc của tin: <strong className="font-medium">{outcome.unmet.join(', ')}</strong>. Điểm phù hợp của bạn với vị trí này bị giữ ở mức thấp cho đến khi bạn đáp ứng đủ.
+              </ImproveHint>
+            )}
+            {improved && outcome.unmet.length === 0 && (
               <ImproveHint>
                 Bạn còn thiếu kỹ năng <strong className="font-medium">{outcome.missingSkills.join(', ')}</strong> cho vị trí này.
               </ImproveHint>
@@ -173,11 +181,29 @@ export default function JobDetailPage() {
         )}
 
         <TextBlock title="Kỹ năng cần có">
-          {job.skills.length ? <TagList items={job.skills} /> : <p className="text-page-muted">Không yêu cầu kỹ năng đặc biệt.</p>}
+          {!job.skills.length ? (
+            <p className="text-page-muted">Không yêu cầu kỹ năng đặc biệt.</p>
+          ) : required.length ? (
+            <div className="space-y-4">
+              <div>
+                <p className="mb-2 text-sm text-page-muted">Bắt buộc</p>
+                <TagList items={required} strong />
+              </div>
+              {preferred.length > 0 && (
+                <div>
+                  <p className="mb-2 text-sm text-page-muted">Ưu tiên</p>
+                  <TagList items={preferred} />
+                </div>
+              )}
+            </div>
+          ) : (
+            <TagList items={job.skills} />
+          )}
         </TextBlock>
 
         <TextBlock title="Lịch làm việc">
           <p className="text-base md:text-lg leading-relaxed">{job.shiftLabel}</p>
+          {job.requireAllSlots && <p className="mt-2 text-sm text-page-muted">Bắt buộc rảnh đủ mọi ca.</p>}
         </TextBlock>
 
         <TextBlock title="Về công ty">

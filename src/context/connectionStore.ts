@@ -21,6 +21,10 @@ export interface Interest {
   /** Người tìm việc: 'me' hoặc u1…u20 (ứng viên mẫu) */
   seekerId: string
   at: string
+  /** Chỉ đơn của người tìm việc: doanh nghiệp đã mở xem */
+  viewedAt?: string
+  /** Chỉ đơn của người tìm việc: doanh nghiệp báo đang cân nhắc */
+  consideringAt?: string
 }
 
 export interface Connection {
@@ -34,7 +38,7 @@ export interface DemoNotification {
   /** Gửi tới phía nào */
   to: Side
   /**
-   * interest = phía kia vừa quan tâm · connected = hai bên vừa kết nối ·
+   * interest = phía kia vừa quan tâm · considering = doanh nghiệp đang cân nhắc đơn · connected = hai bên vừa kết nối ·
    * interview_invited = doanh nghiệp mời phỏng vấn · interview_confirmed / interview_declined =
    * người tìm việc chọn giờ / từ chối · interview_cancelled = doanh nghiệp hủy ·
    * offer = doanh nghiệp mời nhận việc · offer_accepted / offer_declined = người tìm việc xác nhận đi làm / từ chối ·
@@ -42,7 +46,7 @@ export interface DemoNotification {
    * review = phía kia vừa gửi đánh giá sau khi đi làm
    */
   kind:
-    | 'interest' | 'connected' | 'interview_invited' | 'interview_confirmed' | 'interview_declined' | 'interview_cancelled'
+    | 'interest' | 'considering' | 'connected' | 'interview_invited' | 'interview_confirmed' | 'interview_declined' | 'interview_cancelled'
     | 'offer' | 'offer_accepted' | 'offer_declined' | 'offer_withdrawn' | 'rejected' | 'review'
   jobId: string
   seekerId: string
