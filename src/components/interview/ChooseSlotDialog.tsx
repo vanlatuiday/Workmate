@@ -5,6 +5,7 @@ import { confirmInterview, declineInterview, type Interview } from '@services/co
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import DialogShell from './DialogShell'
+import PlaceText from './PlaceText'
 import { fmtSlot, MODE_LABEL } from './format'
 
 type Props = { interview: Interview; onClose: () => void }
@@ -44,7 +45,7 @@ export default function ChooseSlotDialog({ interview: iv, onClose }: Props) {
 
         <dl className="space-y-1 text-sm">
           <div className="flex gap-2"><dt className="w-24 shrink-0 text-page-muted">Hình thức</dt><dd className="text-page-fg">{MODE_LABEL[iv.mode]}</dd></div>
-          <div className="flex gap-2"><dt className="w-24 shrink-0 text-page-muted">Địa điểm</dt><dd className="text-page-fg">{iv.place}</dd></div>
+          <div className="flex gap-2"><dt className="w-24 shrink-0 text-page-muted">Địa điểm</dt><dd className="min-w-0 text-page-fg"><PlaceText place={iv.place} /></dd></div>
           {iv.note && <div className="flex gap-2"><dt className="w-24 shrink-0 text-page-muted">Ghi chú</dt><dd className="text-page-fg">{iv.note}</dd></div>}
         </dl>
 

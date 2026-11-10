@@ -9,6 +9,7 @@ import { useCompanyStore } from '@context/companyStore'
 import { scoreMatch } from '@pages/public/match/score'
 import { findAnyJob } from '@pages/public/jobs/lookup'
 import { fmtSlot, MODE_LABEL } from '@components/interview/format'
+import PlaceText from '@components/interview/PlaceText'
 import { FOCUS } from '@utils/focus'
 import { candidateHref } from '@pages/public/personal/links'
 
@@ -179,7 +180,7 @@ export default function RecruiterDashboard() {
                   <p className="tnum mt-3 text-sm text-page-fg">{fmtSlot(iv.chosen as string)}</p>
                   <p className="mt-1 flex items-start gap-1.5 text-xs text-page-muted">
                     <Icon className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
-                    {iv.place}
+                    <span className="min-w-0"><PlaceText place={iv.place} /></span>
                   </p>
                 </li>
               )

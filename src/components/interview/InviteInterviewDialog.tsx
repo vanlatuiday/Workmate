@@ -45,7 +45,7 @@ export default function InviteInterviewDialog({ jobId, seekerId, onClose }: Prop
     const slots = rows.map((r) => (r.date && r.time ? new Date(`${r.date}T${r.time}`) : null))
     if (slots.some((d) => !d || Number.isNaN(d.getTime()))) return setError('Hãy chọn đủ ngày và giờ cho mỗi khung.')
     if (slots.some((d) => d!.getTime() <= Date.now())) return setError('Khung giờ phải ở tương lai.')
-    const place1 = place.trim() || (mode === 'online' ? 'Gọi video trong ứng dụng' : '')
+    const place1 = place.trim() || (mode === 'online' ? 'Link họp sẽ gửi qua tin nhắn' : '')
     if (!place1) return setError('Hãy nhập địa điểm phỏng vấn.')
     inviteInterview({ jobId, seekerId, slots: slots.map((d) => d!.toISOString()), mode, place: place1, note: note.trim() || undefined })
     toast.success(`Đã gửi lời mời phỏng vấn tới ${info.name}`)
@@ -117,11 +117,11 @@ export default function InviteInterviewDialog({ jobId, seekerId, onClose }: Prop
         </fieldset>
 
         <label className="block">
-          <span className="text-sm font-medium text-page-fg">Địa điểm</span>
+          <span className="text-sm font-medium text-page-fg">{mode === 'online' ? 'Link họp hoặc cách liên hệ' : 'Địa điểm'}</span>
           <input
             value={place}
             onChange={(e) => setPlace(e.target.value)}
-            placeholder={mode === 'online' ? 'Gọi video trong ứng dụng' : 'Địa chỉ phỏng vấn'}
+            placeholder={mode === 'online' ? 'Dán link Google Meet, Zoom… (để trống: gửi sau qua tin nhắn)' : 'Địa chỉ phỏng vấn'}
             className={cn(FIELD, 'mt-2')}
           />
         </label>

@@ -4,6 +4,7 @@ import { CalendarX, MapPin, Video } from 'lucide-react'
 import { HireAction } from '@components/hire'
 import ChooseSlotDialog from '@components/interview/ChooseSlotDialog'
 import DialogShell from '@components/interview/DialogShell'
+import PlaceText from '@components/interview/PlaceText'
 import { fmtSlot, MODE_LABEL } from '@components/interview/format'
 import { EmptyState, StatusBadge } from '@components/dashboard'
 import { useAuthStore } from '@context/authStore'
@@ -181,7 +182,7 @@ function InterviewCard({ iv, viewer, isPast, onChoose, onCancel }: { iv: Intervi
       </p>
       <p className="mt-1 flex items-start gap-1.5 text-sm text-page-muted">
         <ModeIcon className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-        <span>{MODE_LABEL[iv.mode]} · {iv.place}</span>
+        <span className="min-w-0">{MODE_LABEL[iv.mode]} · <PlaceText place={iv.place} /></span>
       </p>
       {iv.note && <p className="mt-2 text-sm leading-relaxed text-page-muted">{iv.note}</p>}
       <div className="mt-4 flex flex-wrap gap-2">
