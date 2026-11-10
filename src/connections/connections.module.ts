@@ -10,6 +10,7 @@ import { ConnectionsService } from './connections.service'
 import { HiresService } from './hires.service'
 import { InterviewsService } from './interviews.service'
 import { MessagesService } from './messages.service'
+import { NotificationMailService } from './notification-mail.service'
 import { NotificationsService } from './notifications.service'
 import { PairService } from './pair.service'
 import { RealtimeGateway } from './realtime.gateway'
@@ -23,6 +24,6 @@ import { ReviewsService } from './reviews.service'
     InterviewsController, HiresController, ReviewsController, NotificationsController,
     CandidatesController, AdminPairsController, AccountController,
   ],
-  providers: [RealtimeGateway, PairService, AccountService, CandidatesService, ConnectionsService, MessagesService, InterviewsService, HiresService, ReviewsService, NotificationsService],
+  providers: [RealtimeGateway, PairService, AccountService, CandidatesService, ConnectionsService, MessagesService, InterviewsService, HiresService, ReviewsService, NotificationsService, NotificationMailService],
 })
 export class ConnectionsModule {}

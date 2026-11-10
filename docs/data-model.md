@@ -39,7 +39,7 @@ Mọi thứ dưới đây gắn với một **cặp (tin tuyển dụng, ngườ
 | **interviews** | 1–3 khung giờ DN đề xuất, giờ ứng viên chọn, trực tiếp/online, địa điểm, ghi chú, trạng thái (chờ / đã xác nhận / từ chối / huỷ) |
 | **hires** | mời nhận việc: trạng thái (đã mời / đã đi làm / từ chối / DN rút / không nhận), ngày bắt đầu, lời nhắn, lý do |
 | **reviews** | đánh giá hai chiều sau khi đi làm: phía viết, 1–5 sao, thẻ nhanh[] (≤3), nhận xét (≤300 ký tự) |
-| **notifications** | gửi cho ai, loại (quan tâm, kết nối, mời phỏng vấn, xác nhận, nhận việc, đánh giá…), cặp liên quan, đã đọc? |
+| **notifications** | gửi cho ai, loại (quan tâm, kết nối, mời phỏng vấn, xác nhận, nhận việc, đánh giá…), cặp liên quan, đã đọc?, đã xử lý gửi email lúc nào |
 
 ## 5. Quản trị
 | Bảng | Lưu gì |

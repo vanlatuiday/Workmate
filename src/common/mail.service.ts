@@ -37,6 +37,12 @@ export class MailService {
     })
   }
 
+  /** Thư đã soạn sẵn. Lỗi SMTP ném ra cho nơi gọi quyết định có thử lại không */
+  async send(to: string, mail: { subject: string; text: string; html: string }) {
+    if (!this.transport) return
+    await this.transport.sendMail({ from: process.env.SMTP_FROM, to, ...mail })
+  }
+
   private async sendCode(to: string, code: string, minutes: number, copy: { subject: string; lead: string; ignore: string }) {
     if (!this.transport) return
     const note = `Mã có hiệu lực trong ${minutes} phút và chỉ dùng được một lần. Đừng chia sẻ mã này cho ai.`

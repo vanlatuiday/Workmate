@@ -202,7 +202,8 @@ async function main() {
   })
   await prisma.notification.createMany({
     data: demo.notifications.filter((r: any) => pairOk('Notification', r)).map((r: any) => ({
-      id: r.id, userId: sideUser(r.to), kind: r.kind, jobId: r.jobId, seekerId: r.seekerId, read: r.read, at: date(r.at),
+      // emailedAt: thông báo mẫu không được gửi thư khi máy có cấu hình SMTP
+      id: r.id, userId: sideUser(r.to), kind: r.kind, jobId: r.jobId, seekerId: r.seekerId, read: r.read, at: date(r.at), emailedAt: date(r.at),
     })),
   })
   // lastRead: khóa `${side}|${jobId}|${seekerId}`

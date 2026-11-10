@@ -14,6 +14,8 @@ Xem `.env.example`. Với `NODE_ENV=production`, máy chủ từ chối khởi �
   **Đặt sai là giới hạn tần suất sai:** thiếu thì mọi người bị tính chung một IP; thừa thì người dùng tự giả được IP.
 - `SMTP_*`: tài khoản của nhà cung cấp email, kiểm tra bằng `MAIL_TEST_TO=ban@gmail.com npm run mail:test`. `SMTP_FROM` phải thuộc tên miền đã xác thực với họ.
   Gmail dùng được khi mới bắt đầu (xem `.env.example`), nhưng giới hạn khoảng 500 thư/ngày và thư dễ vào mục Thư rác hơn dịch vụ chuyên dụng.
+  Ngoài thư mã xác nhận, máy chủ còn gửi thư thông báo: người để mặc định nhận một thư lúc 8:00 sáng nếu có thông báo chưa đọc, nên số thư tăng theo số người dùng.
+  Liên kết trong thư lấy địa chỉ đầu tiên của `CORS_ORIGIN`, nên đặt tên miền chính lên đầu.
 
 ## 2. Backend
 ```bash
@@ -43,6 +45,7 @@ Biến `VITE_*` được đóng cứng lúc build, đổi địa chỉ phải bu
 ## 5. Kiểm tra sau khi lên
 - [ ] Đăng ký tài khoản mới: thư có mã tới nơi, nhập mã xong mới vào được; không có nút đăng nhập nhanh
 - [ ] Quên mật khẩu: email tới nơi, trang không hiện mã
+- [ ] Đặt Email tóm tắt là "Ngay lập tức", để tài khoản khác quan tâm tin/hồ sơ: thư thông báo tới trong khoảng 1 phút, liên kết trong thư mở đúng trang
 - [ ] Đăng tin bằng tài khoản doanh nghiệp, admin duyệt, tin hiện công khai
 - [ ] Hai tài khoản nhắn tin qua lại, tin đến không cần tải lại trang
 - [ ] Tải ảnh đại diện (xem được) và CV (chỉ mở qua link tạm thời)
