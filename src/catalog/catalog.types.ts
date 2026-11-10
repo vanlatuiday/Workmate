@@ -46,6 +46,10 @@ export interface CatalogJob {
   shiftLabel: string
   photo: CatalogPhoto
   skills: string[]
+  /** Kỹ năng bắt buộc (tập con của skills) */
+  requiredSkills: string[]
+  /** Ứng viên phải rảnh đủ mọi ca */
+  requireAllSlots: boolean
   slots: string[]
   salaryMinK: number
   salaryMaxK: number
@@ -55,6 +59,8 @@ export interface CatalogJob {
   radiusKm: number
   /** ISO */
   postedAt: string
+  /** ISO; quá hạn thì tin tự đóng. Không có = không hết hạn (tin cũ) */
+  expiresAt?: string
   status: JobOpenStatus
   moderation: ModerationLabel
   moderationReason?: string

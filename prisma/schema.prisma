@@ -267,6 +267,10 @@ model Job {
   /// Ca làm, cùng kiểu ô với lịch rảnh
   slots            String[]
   skills           String[]
+  /// Kỹ năng bắt buộc (nằm trong skills): ứng viên thiếu thì không được tính là phù hợp
+  requiredSkills   String[]         @default([])
+  /// Ứng viên phải rảnh đủ mọi ca của tin
+  requireAllSlots  Boolean          @default(false)
   quantity         Int              @default(1)
   radiusKm         Int              @default(8)
   /// Ảnh minh họa { id, alt } (Unsplash) hoặc { url, alt }
@@ -335,12 +339,16 @@ model CandidateMark {
 
 /// Một phía bày tỏ quan tâm (người tìm việc: ứng tuyển). Hai phía cùng có → Connection
 model Interest {
-  jobId    String
-  seekerId String
-  from     Side
-  at       DateTime      @default(now())
-  job      Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  seeker   SeekerProfile @relation(fields: [seekerId], references: [userId], onDelete: Cascade)
+  jobId         String
+  seekerId      String
+  from          Side
+  at            DateTime      @default(now())
+  /// Chỉ dùng cho đơn của người tìm việc: doanh nghiệp mở xem hồ sơ lần đầu
+  viewedAt      DateTime?
+  /// Chỉ dùng cho đơn của người tìm việc: doanh nghiệp bấm "Đang cân nhắc"
+  consideringAt DateTime?
+  job           Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  seeker        SeekerProfile @relation(fields: [seekerId], references: [userId], onDelete: Cascade)
 
   @@id([jobId, seekerId, from])
 }
@@ -455,6 +463,8 @@ model Review {
 
 enum NotificationKind {
   interest
+  /// Doanh nghiệp đang cân nhắc đơn ứng tuyển
+  considering
   connected
   interview_invited
   interview_confirmed

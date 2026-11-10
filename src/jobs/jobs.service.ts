@@ -7,10 +7,20 @@ import { geo } from '../common/geo'
 import { SystemConfigService } from '../common/system-config.service'
 import { PrismaService } from '../prisma/prisma.service'
 import { flagsOf } from './flags'
-import type { CreateJobDto, UpdateJobDto } from './jobs.dto'
+import { DEFAULT_DURATION_DAYS, type CreateJobDto, type UpdateJobDto } from './jobs.dto'
 import { salaryLabelOf, shiftLabelOf } from './labels'
 
 export type JobWithFlags = CatalogJob & { flags: string[] }
+
+const DAY_MS = 86_400_000
+/** Hạn nhận ứng viên tính từ lúc này */
+export const expiryFrom = (now: Date, days: number) => new Date(now.getTime() + days * DAY_MS)
+
+/** Kỹ năng bắt buộc chỉ giữ những cái có trong danh sách kỹ năng của tin (không phân biệt hoa thường), lấy đúng cách viết trong danh sách */
+export function requiredOf(skills: string[], required: string[]): string[] {
+  const want = new Set(required.map((s) => s.trim().toLowerCase()))
+  return skills.filter((s) => want.has(s.trim().toLowerCase()))
+}
 
 /** Tin tuyển dụng do nhà tuyển dụng quản lý (chỉ trong công ty của mình) */
 @Injectable()
@@ -58,11 +68,13 @@ export class JobsService {
     const job = await this.prisma.job.create({
       data: {
         companyId, authorId: user.id, title: dto.title, description: dto.description, jobType: JOB_TYPE_ENUM[dto.jobType],
-        district: dto.district, skills: dto.skills, slots: dto.slots, salaryMinK: dto.salaryMinK, salaryMaxK: dto.salaryMaxK,
+        district: dto.district, skills: dto.skills, slots: dto.slots,
+        requiredSkills: requiredOf(dto.skills, dto.requiredSkills ?? []), requireAllSlots: dto.requireAllSlots ?? false, salaryMinK: dto.salaryMinK, salaryMaxK: dto.salaryMaxK,
         salaryLabel: dto.salaryLabel || salaryLabelOf(dto.salaryMinK, dto.salaryMaxK),
         shiftLabel: dto.shiftLabel ?? shiftLabelOf(dto.slots),
         quantity: dto.quantity, radiusKm: dto.radiusKm, photo: { ...dto.photo },
         status: 'open', moderation: 'pending',
+        expiresAt: expiryFrom(new Date(), dto.durationDays ?? DEFAULT_DURATION_DAYS),
       },
       include: JOB_INCLUDE,
     })
@@ -83,10 +95,16 @@ export class JobsService {
       ...(dto.description !== undefined && { description: dto.description }),
       ...(dto.jobType !== undefined && { jobType: JOB_TYPE_ENUM[dto.jobType] }),
       ...(dto.skills !== undefined && { skills: dto.skills }),
+      // Đổi danh sách kỹ năng thì bỏ các kỹ năng bắt buộc không còn trong danh sách
+      ...((dto.skills !== undefined || dto.requiredSkills !== undefined) && {
+        requiredSkills: requiredOf(dto.skills ?? cur.skills, dto.requiredSkills ?? cur.requiredSkills),
+      }),
+      ...(dto.requireAllSlots !== undefined && { requireAllSlots: dto.requireAllSlots }),
       ...(dto.slots !== undefined && { slots: dto.slots }),
       ...(dto.quantity !== undefined && { quantity: dto.quantity }),
       ...(dto.radiusKm !== undefined && { radiusKm: dto.radiusKm }),
       ...(dto.photo !== undefined && { photo: { ...dto.photo } }),
+      ...(dto.durationDays !== undefined && { expiresAt: expiryFrom(new Date(), dto.durationDays) }),
       salaryMinK: min,
       salaryMaxK: max,
       // Không gửi nhãn mới mà lương / ca đổi → dựng lại nhãn từ giá trị mới
@@ -103,8 +121,11 @@ export class JobsService {
   }
 
   async setStatus(user: AuthUser, id: string, status: 'open' | 'paused' | 'closed'): Promise<CatalogJob> {
-    await this.ownJob(user, id)
-    const job = await this.prisma.job.update({ where: { id }, data: { status }, include: JOB_INCLUDE })
+    const cur = await this.ownJob(user, id)
+    // Mở lại tin đã hết hạn → gia hạn mặc định, nếu không tin sẽ bị đóng lại ngay ở lượt kiểm tra kế tiếp
+    const now = new Date()
+    const renew = status !== 'closed' && cur.expiresAt && cur.expiresAt <= now ? { expiresAt: expiryFrom(now, DEFAULT_DURATION_DAYS) } : {}
+    const job = await this.prisma.job.update({ where: { id }, data: { status, ...renew }, include: JOB_INCLUDE })
     return this.catalog.toJob(job, await this.catalog.originOf(user))
   }
 }

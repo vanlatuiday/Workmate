@@ -21,6 +21,7 @@ export function lineOf({ kind, side, jobTitle: job, companyName: company }: Mail
   const forSeeker = side === 'seeker'
   switch (kind) {
     case 'interest': return forSeeker ? `${company} quan tâm đến hồ sơ của bạn cho vị trí ${job}` : `Có ứng viên mới ứng tuyển vị trí ${job}`
+    case 'considering': return `${company} đang cân nhắc hồ sơ của bạn cho vị trí ${job}`
     case 'connected': return forSeeker ? `Bạn và ${company} đã kết nối cho vị trí ${job}` : `Bạn đã kết nối với một ứng viên cho vị trí ${job}`
     case 'interview_invited': return `${company} mời bạn phỏng vấn vị trí ${job}`
     case 'interview_confirmed': return `Ứng viên đã xác nhận lịch phỏng vấn vị trí ${job}`

@@ -39,6 +39,20 @@ export class ConnectionsController {
   withdraw(@CurrentUser() user: AuthUser, @Param('jobId') jobId: string, @Param('seekerId') seekerId: string) {
     return this.connections.withdraw(user, jobId, seekerId)
   }
+
+  /** Doanh nghiệp mở xem đơn ứng tuyển */
+  @Post(':jobId/:seekerId/viewed')
+  @HttpCode(200)
+  viewed(@CurrentUser() user: AuthUser, @Param('jobId') jobId: string, @Param('seekerId') seekerId: string) {
+    return this.connections.markViewed(user, jobId, seekerId)
+  }
+
+  /** Doanh nghiệp báo đang cân nhắc đơn ứng tuyển */
+  @Post(':jobId/:seekerId/considering')
+  @HttpCode(200)
+  considering(@CurrentUser() user: AuthUser, @Param('jobId') jobId: string, @Param('seekerId') seekerId: string) {
+    return this.connections.consider(user, jobId, seekerId)
+  }
 }
 
 @Controller('seeker/saved-jobs')

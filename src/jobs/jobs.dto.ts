@@ -1,11 +1,15 @@
 import { applyDecorators } from '@nestjs/common'
 import { Transform, Type } from 'class-transformer'
 import {
-  ArrayMaxSize, IsArray, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, MinLength, ValidateNested,
+  ArrayMaxSize, IsArray, IsBoolean, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, MinLength, ValidateNested,
 } from 'class-validator'
 import { DISTRICT_GEO } from '../common/geo'
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value)
+
+/** Thời hạn nhận ứng viên được chọn khi đăng / gia hạn tin (ngày) */
+export const DURATION_DAYS = [7, 14, 30, 60] as const
+export const DEFAULT_DURATION_DAYS = 30
 
 export const JOB_TYPES = ['full-time', 'part-time', 'shift', 'seasonal', 'flexible', 'event', 'freelance'] as const
 
@@ -43,6 +47,9 @@ export class CreateJobDto {
   @rules.jobType() jobType!: (typeof JOB_TYPES)[number]
   @rules.district() district!: string
   @rules.skills() skills!: string[]
+  /** Kỹ năng bắt buộc, phải nằm trong `skills` */
+  @optional(rules.skills()) requiredSkills?: string[]
+  @IsOptional() @IsBoolean() requireAllSlots?: boolean
   @rules.slots() slots!: string[]
   @rules.salaryMinK() salaryMinK!: number
   @rules.salaryMaxK() salaryMaxK!: number
@@ -53,6 +60,8 @@ export class CreateJobDto {
   @rules.quantity() quantity!: number
   @rules.radiusKm() radiusKm!: number
   @rules.photo() photo!: PhotoDto
+  /** Nhận ứng viên trong bao nhiêu ngày; hết hạn thì tin tự đóng. Bỏ trống → 30 */
+  @IsOptional() @IsIn(DURATION_DAYS) durationDays?: (typeof DURATION_DAYS)[number]
 }
 
 /** Sửa tin: mọi trường tùy chọn */
@@ -62,6 +71,8 @@ export class UpdateJobDto {
   @optional(rules.jobType()) jobType?: (typeof JOB_TYPES)[number]
   @optional(rules.district()) district?: string
   @optional(rules.skills()) skills?: string[]
+  @optional(rules.skills()) requiredSkills?: string[]
+  @IsOptional() @IsBoolean() requireAllSlots?: boolean
   @optional(rules.slots()) slots?: string[]
   @optional(rules.salaryMinK()) salaryMinK?: number
   @optional(rules.salaryMaxK()) salaryMaxK?: number
@@ -70,6 +81,8 @@ export class UpdateJobDto {
   @optional(rules.quantity()) quantity?: number
   @optional(rules.radiusKm()) radiusKm?: number
   @optional(rules.photo()) photo?: PhotoDto
+  /** Gia hạn: tính lại hạn từ hôm nay */
+  @IsOptional() @IsIn(DURATION_DAYS) durationDays?: (typeof DURATION_DAYS)[number]
 }
 
 export class JobStatusDto {

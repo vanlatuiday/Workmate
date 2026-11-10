@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import type { MarkKind } from '@prisma/client'
 import type { AuthUser } from '../auth/current-user.decorator'
 import { VISIBLE_WHERE } from '../catalog/catalog.service'
@@ -18,7 +18,11 @@ export class ConnectionsService {
       this.prisma.connection.findMany({ where, orderBy: { at: 'desc' } }),
     ])
     return {
-      interests: interests.map((i) => ({ from: i.from, jobId: i.jobId, seekerId: i.seekerId, at: i.at.toISOString() })),
+      interests: interests.map((i) => ({
+        from: i.from, jobId: i.jobId, seekerId: i.seekerId, at: i.at.toISOString(),
+        ...(i.viewedAt ? { viewedAt: i.viewedAt.toISOString() } : {}),
+        ...(i.consideringAt ? { consideringAt: i.consideringAt.toISOString() } : {}),
+      })),
       connections: connections.map((c) => ({ jobId: c.jobId, seekerId: c.seekerId, at: c.at.toISOString() })),
     }
   }
@@ -63,6 +67,40 @@ export class ConnectionsService {
       await tx.interest.deleteMany({ where: { jobId, seekerId, from: sideOf(user) } })
       const theirs = await tx.interest.count({ where: { jobId, seekerId } })
       return { status: theirs ? ('received' as const) : ('none' as const) }
+    })
+  }
+
+  // ─── Tiến độ đơn ứng tuyển: đã xem → đang cân nhắc (doanh nghiệp) ────────────
+
+  /** Doanh nghiệp mở xem đơn: ghi lần đầu, không báo thông báo. Không có đơn hoặc đã xem rồi thì bỏ qua */
+  async markViewed(user: AuthUser, jobId: string, seekerId: string) {
+    if (user.role !== 'recruiter') throw new ForbiddenException('Chỉ doanh nghiệp')
+    await this.pairs.access(user, jobId, seekerId)
+    return this.pairs.inPair(jobId, seekerId, async (tx, fx) => {
+      const { count } = await tx.interest.updateMany({ where: { jobId, seekerId, from: 'seeker', viewedAt: null }, data: { viewedAt: fx.at } })
+      return { viewed: count > 0 }
+    })
+  }
+
+  /** Doanh nghiệp báo "đang cân nhắc" đơn chưa kết nối; người tìm việc nhận thông báo. Bấm lại không có tác dụng */
+  async consider(user: AuthUser, jobId: string, seekerId: string) {
+    if (user.role !== 'recruiter') throw new ForbiddenException('Chỉ doanh nghiệp')
+    await this.pairs.access(user, jobId, seekerId, true)
+    return this.pairs.inPair(jobId, seekerId, async (tx, fx) => {
+      const conn = await tx.connection.findUnique({ where: { jobId_seekerId: { jobId, seekerId } }, select: { jobId: true } })
+      if (conn) throw new ConflictException('Hai bên đã kết nối')
+      const app = await tx.interest.findUnique({ where: { jobId_seekerId_from: { jobId, seekerId, from: 'seeker' } } })
+      if (!app) throw new ConflictException('Ứng viên chưa ứng tuyển tin này hoặc đã rút đơn')
+      if (app.consideringAt) return { considering: true }
+      // Tin đã đóng / hết hạn / bị ẩn thì không hứa hẹn gì thêm với ứng viên
+      const open = await tx.job.findFirst({ where: { id: jobId, ...VISIBLE_WHERE }, select: { id: true } })
+      if (!open) throw new ConflictException('Tin này hiện không tuyển')
+      await tx.interest.update({
+        where: { jobId_seekerId_from: { jobId, seekerId, from: 'seeker' } },
+        data: { consideringAt: fx.at, viewedAt: app.viewedAt ?? fx.at },
+      })
+      await fx.notify('seeker', 'considering')
+      return { considering: true }
     })
   }
 

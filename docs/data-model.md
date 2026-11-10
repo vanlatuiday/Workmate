@@ -23,7 +23,7 @@ một bảng trong PostgreSQL. `[]` = danh sách lưu ngay trong ô (mảng).
 |---|---|
 | **companies** | tên, đường dẫn ngắn (slug), ngành, quận, địa chỉ, quy mô, câu giới thiệu, giới thiệu, môi trường[], giá trị[], chính sách[], văn hoá, email, SĐT, logo, ảnh bìa, đã xác minh?, bị khóa? |
 | **company_members** | tài khoản nhà tuyển dụng nào thuộc công ty nào (cho phép 1 công ty nhiều người quản lý về sau) |
-| **jobs** | công ty, người đăng, tên vị trí, mô tả, loại việc, quận, địa chỉ, toạ độ, lương min–max (nghìn đ/giờ) + nhãn lương, nhãn ca, ca làm[] (cùng kiểu ô với lịch rảnh), kỹ năng[], số lượng, bán kính tìm (km), ảnh minh họa, trạng thái (đang tuyển / tạm dừng / đã đóng), kiểm duyệt (chờ / đã duyệt / từ chối + lý do), ngày đăng, hạn |
+| **jobs** | công ty, người đăng, tên vị trí, mô tả, loại việc, quận, địa chỉ, toạ độ, lương min–max (nghìn đ/giờ) + nhãn lương, nhãn ca, ca làm[] (cùng kiểu ô với lịch rảnh), kỹ năng[], kỹ năng bắt buộc[] (thiếu → điểm tối đa 39%), bắt buộc rảnh đủ ca?, số lượng, bán kính tìm (km), ảnh minh họa, trạng thái (đang tuyển / tạm dừng / đã đóng), kiểm duyệt (chờ / đã duyệt / từ chối + lý do), ngày đăng, hạn nhận ứng viên (7/14/30/60 ngày; quá hạn máy chủ tự đóng, mở lại thì gia hạn 30 ngày) |
 
 ## 4. Kết nối hai chiều (lõi của sản phẩm)
 Mọi thứ dưới đây gắn với một **cặp (tin tuyển dụng, người tìm việc)**.
@@ -32,7 +32,7 @@ Mọi thứ dưới đây gắn với một **cặp (tin tuyển dụng, ngườ
 |---|---|
 | **saved_jobs** | người tìm việc lưu tin nào |
 | **candidate_marks** | nhà tuyển dụng lưu / bỏ qua ứng viên nào cho tin nào |
-| **interests** | phía nào (người tìm việc = ứng tuyển, DN = quan tâm) bày tỏ, lúc nào |
+| **interests** | phía nào (người tìm việc = ứng tuyển, DN = quan tâm) bày tỏ, lúc nào; với đơn ứng tuyển: lúc DN mở xem, lúc DN báo đang cân nhắc |
 | **connections** | cặp đã kết nối (cả hai cùng quan tâm), lúc nào |
 | **messages** | tin nhắn trong cặp đã kết nối: phía gửi, nội dung, dòng hệ thống?, lúc gửi |
 | **conversation_reads** | mỗi người đọc tới đâu trong từng cuộc trò chuyện (để đếm tin chưa đọc) |

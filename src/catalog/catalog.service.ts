@@ -43,8 +43,8 @@ export class CatalogService {
     return {
       id: j.id, companyId: j.companyId, title: j.title, district: j.district, distanceKm: Math.round(km * 10) / 10,
       salaryLabel: j.salaryLabel, shiftLabel: j.shiftLabel, photo: j.photo as unknown as CatalogPhoto,
-      skills: j.skills, slots: j.slots, salaryMinK: j.salaryMinK, salaryMaxK: j.salaryMaxK, jobType: JOB_TYPE_LABEL[j.jobType],
-      description: j.description, quantity: j.quantity, radiusKm: j.radiusKm, postedAt: j.postedAt.toISOString(),
+      skills: j.skills, requiredSkills: j.requiredSkills, requireAllSlots: j.requireAllSlots, slots: j.slots, salaryMinK: j.salaryMinK, salaryMaxK: j.salaryMaxK, jobType: JOB_TYPE_LABEL[j.jobType],
+      description: j.description, quantity: j.quantity, radiusKm: j.radiusKm, postedAt: j.postedAt.toISOString(), ...(j.expiresAt ? { expiresAt: j.expiresAt.toISOString() } : {}),
       status: j.status, moderation: j.moderation, ...(j.moderationReason ? { moderationReason: j.moderationReason } : {}),
       visible: j.moderation === 'approved' && j.status === 'open' && !j.company.locked,
     }
