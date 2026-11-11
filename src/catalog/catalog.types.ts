@@ -30,6 +30,8 @@ export interface CatalogCompany {
   environment: string[]
   verified: boolean
   locked: boolean
+  /** Logo đã tải lên; null → frontend hiện chữ cái đầu */
+  logoUrl: string | null
   /** Doanh nghiệp đã tắt "Công khai trang công ty"; các tin vẫn hiện bình thường */
   hidden?: boolean
 }
@@ -66,6 +68,8 @@ export interface CatalogJob {
   moderationReason?: string
   /** Đã duyệt + đang mở + công ty không bị khóa (giống `visible()` ở frontend) */
   visible: boolean
+  /** Lượt xem — chỉ có khi người xem là công ty đăng tin hoặc admin */
+  views?: number
 }
 
 export interface CatalogResponse {

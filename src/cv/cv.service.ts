@@ -2,6 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import type { Cv } from '@prisma/client'
 import { randomBytes } from 'crypto'
 import { StorageService } from '../common/storage.service'
+import { fileDisplayName, looksLike } from '../common/upload-check'
 import { PrismaService } from '../prisma/prisma.service'
 
 /** Khớp CvMeta ở frontend (cvStore) */
@@ -20,21 +21,7 @@ export const CV_MAX_BYTES = 5 * 1024 * 1024
 export const CV_MAX_COUNT = 5
 const CV_EXT: Record<string, string> = { 'application/pdf': 'pdf', 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }
 
-/** Byte đầu file phải đúng loại khai báo (không tin hẳn Content-Type của trình duyệt) */
-function looksLike(mime: string, b: Buffer): boolean {
-  if (mime === 'application/pdf') return b.length > 5 && b.toString('ascii', 0, 5) === '%PDF-'
-  if (mime === 'image/jpeg') return b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff
-  if (mime === 'image/png') return b.length > 8 && b.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
-  if (mime === 'image/webp') return b.length > 12 && b.toString('ascii', 0, 4) === 'RIFF' && b.toString('ascii', 8, 12) === 'WEBP'
-  return false
-}
-
-/** Tên hiển thị từ tên file: bỏ đuôi, bỏ ký tự điều khiển, tối đa 120 ký tự */
-const displayName = (original: string) => {
-  // multer đọc tên file theo latin1; đổi lại UTF-8 để giữ dấu tiếng Việt
-  const utf8 = Buffer.from(original, 'latin1').toString('utf8')
-  return utf8.replace(/\.[^.]+$/, '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 120) || 'CV'
-}
+const displayName = (original: string) => fileDisplayName(original, 'CV')
 
 const view = (c: Cv): CvView => ({ id: c.id, name: c.name, type: c.mimeType, size: c.size, uploadedAt: c.uploadedAt.toISOString(), isDefault: c.isDefault })
 

@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { FileInterceptor } from '@nestjs/platform-express'
 import { Transform, Type } from 'class-transformer'
 import { ArrayMaxSize, IsArray, IsEmail, IsIn, IsOptional, IsString, MaxLength, MinLength, ValidateIf, ValidateNested } from 'class-validator'
 import { CurrentUser, type AuthUser } from '../auth/current-user.decorator'
@@ -6,6 +7,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { Roles } from '../auth/roles.decorator'
 import { RolesGuard } from '../auth/roles.guard'
 import { DISTRICT_GEO } from '../common/geo'
+import { IMAGE_MAX_BYTES, type UploadedImage } from '../common/upload-check'
 import { PhotoDto } from '../jobs/jobs.dto'
 import { CompanyService, COMPANY_SIZES } from './company.service'
 
@@ -45,5 +47,17 @@ export class CompanyController {
   @Patch()
   update(@CurrentUser() user: AuthUser, @Body() dto: UpdateCompanyDto) {
     return this.company.update(user, dto)
+  }
+
+  /** Gửi multipart/form-data, trường `file` (JPG/PNG/WEBP ≤ 2MB). Vượt giới hạn → multer trả 413 */
+  @Post('logo')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: IMAGE_MAX_BYTES, files: 1 } }))
+  setLogo(@CurrentUser() user: AuthUser, @UploadedFile() file: UploadedImage | undefined) {
+    return this.company.setLogo(user, file)
+  }
+
+  @Delete('logo')
+  removeLogo(@CurrentUser() user: AuthUser) {
+    return this.company.removeLogo(user)
   }
 }

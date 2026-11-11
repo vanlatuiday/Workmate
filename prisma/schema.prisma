@@ -132,6 +132,8 @@ model SeekerProfile {
   skills        String[]
   /// Ô lịch rảnh dạng "ngày-buổi" (ngày 0–6 = T2…CN, buổi 0–2 = sáng/chiều/tối)
   availability  String[]
+  /// Ngày bắt đầu đi làm được; null = có thể bắt đầu ngay
+  availableFrom DateTime? @db.Date
   published     Boolean   @default(false)
   updatedAt     DateTime  @updatedAt
 
@@ -214,8 +216,48 @@ model Company {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
-  members CompanyMember[]
-  jobs    Job[]
+  members       CompanyMember[]
+  jobs          Job[]
+  verifications CompanyVerification[]
+}
+
+enum VerificationStatus {
+  pending
+  approved
+  rejected
+}
+
+/// Một lần doanh nghiệp gửi giấy tờ xin xác minh; admin duyệt hoặc từ chối kèm lý do.
+/// Company.verified vẫn là cờ hiệu lực (admin có thể gỡ sau khi đã duyệt).
+model CompanyVerification {
+  id            String                 @id @default(cuid())
+  companyId     String
+  status        VerificationStatus     @default(pending)
+  /// Ghi chú của doanh nghiệp gửi kèm
+  note          String                 @default("")
+  rejectReason  String?
+  submittedById String?
+  reviewedById  String?
+  submittedAt   DateTime               @default(now())
+  reviewedAt    DateTime?
+  company       Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  documents     VerificationDocument[]
+
+  @@index([companyId, submittedAt])
+  @@index([status, submittedAt])
+}
+
+/// Giấy tờ đính kèm (bucket riêng tư, chỉ admin xem qua link ký tạm thời)
+model VerificationDocument {
+  id             String              @id @default(cuid())
+  verificationId String
+  name           String
+  fileKey        String
+  mimeType       String
+  size           Int
+  verification   CompanyVerification @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+
+  @@index([verificationId])
 }
 
 enum MemberRole {
@@ -281,6 +323,8 @@ model Job {
   moderatedAt      DateTime?
   postedAt         DateTime         @default(now())
   expiresAt        DateTime?
+  /// Lượt xem trang chi tiết (mỗi người xem tính tối đa 1 lần/ngày, không tính người trong công ty và admin)
+  viewCount        Int              @default(0)
   updatedAt        DateTime         @updatedAt
 
   company       Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -295,9 +339,22 @@ model Job {
   marks         CandidateMark[]
   reads         ConversationRead[]
   notifications Notification[]
+  views         JobView[]
 
   @@index([companyId])
   @@index([status, moderation])
+}
+
+/// Chống đếm trùng lượt xem trong ngày (giờ Việt Nam). Chỉ giữ vài ngày gần nhất, JobViewService dọn dần.
+model JobView {
+  jobId     String
+  /// "u:<userId>" hoặc "ip:<băm IP>" với khách
+  viewerKey String
+  day       DateTime @db.Date
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@id([jobId, viewerKey, day])
+  @@index([day])
 }
 
 // ───────────────────────── Kết nối hai chiều ─────────────────────────

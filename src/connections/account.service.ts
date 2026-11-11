@@ -52,10 +52,12 @@ export class AccountService {
           where: { id: companyId },
           select: {
             logoUrl: true, coverPhoto: true,
+            verifications: { select: { documents: { select: { fileKey: true } } } },
             jobs: { select: { id: true, photo: true, interests: { select: { seekerId: true } } } },
           },
         })
         publicUrls.push(company.logoUrl, photoUrl(company.coverPhoto))
+        for (const v of company.verifications) privateKeys.push(...v.documents.map((d) => d.fileKey))
         for (const j of company.jobs) {
           publicUrls.push(photoUrl(j.photo))
           for (const i of j.interests) affected.set(i.seekerId, { jobId: j.id, seekerId: i.seekerId })

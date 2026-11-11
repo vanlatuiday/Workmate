@@ -13,12 +13,13 @@ import { ConnectionsModule } from './connections/connections.module'
 import { CompanyModule } from './company/company.module'
 import { SettingsModule } from './settings/settings.module'
 import { ReportsModule } from './reports/reports.module'
+import { VerificationModule } from './verification/verification.module'
 import { HealthController } from './health/health.controller'
 
 @Module({
   imports: [
     ThrottlerModule.forRoot(THROTTLE_OPTIONS), PrismaModule, CommonModule, AuthModule, CatalogModule, JobsModule, AdminModule, ProfileModule, CvModule,
-    ConnectionsModule, CompanyModule, SettingsModule, ReportsModule,
+    ConnectionsModule, CompanyModule, SettingsModule, ReportsModule, VerificationModule,
   ],
   controllers: [HealthController],
 })

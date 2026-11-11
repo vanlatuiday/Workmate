@@ -35,6 +35,8 @@ const toCandidate = (s: SeekerRow, origin: Point, name: string) => ({
     skills: s.skills, slots: s.availability, salaryMinK: s.salaryMinK, maxDistanceKm: s.maxDistanceKm,
     jobTypes: s.jobTypes.map((t) => JOB_TYPE_LABEL[t]),
   },
+  /** YYYY-MM-DD; null = bắt đầu ngay */
+  availableFrom: s.availableFrom ? s.availableFrom.toISOString().slice(0, 10) : null,
 })
 
 /** Danh sách ứng viên cho doanh nghiệp, và các số liệu toàn hệ thống cho quản trị viên */

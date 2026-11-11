@@ -34,11 +34,12 @@ export class CatalogService {
       id: c.id, name: c.name, industry: c.industry, district: c.district, size: SIZE_LABEL[c.size],
       cover: (c.coverPhoto as unknown as CatalogPhoto | null) ?? { alt: c.name },
       tagline: c.tagline, why: '', about: c.about, environment: c.environment,
-      verified: c.verified, locked: c.locked,
+      verified: c.verified, locked: c.locked, logoUrl: c.logoUrl,
     }
   }
 
-  toJob(j: JobWithCompany, origin: Point): CatalogJob {
+  /** `withViews`: chỉ bật cho công ty sở hữu tin và admin */
+  toJob(j: JobWithCompany, origin: Point, withViews = false): CatalogJob {
     const km = j.lat != null && j.lng != null ? haversineKm(origin, { lat: j.lat, lng: j.lng }) : 5
     return {
       id: j.id, companyId: j.companyId, title: j.title, district: j.district, distanceKm: Math.round(km * 10) / 10,
@@ -47,6 +48,7 @@ export class CatalogService {
       description: j.description, quantity: j.quantity, radiusKm: j.radiusKm, postedAt: j.postedAt.toISOString(), ...(j.expiresAt ? { expiresAt: j.expiresAt.toISOString() } : {}),
       status: j.status, moderation: j.moderation, ...(j.moderationReason ? { moderationReason: j.moderationReason } : {}),
       visible: j.moderation === 'approved' && j.status === 'open' && !j.company.locked,
+      ...(withViews && { views: j.viewCount }),
     }
   }
 
@@ -68,6 +70,7 @@ export class CatalogService {
   /** Tin + công ty mà người xem được thấy — xem quy tắc theo vai trò ở comment từng nhánh */
   async catalogFor(user: AuthUser | null): Promise<CatalogResponse> {
     let where: Prisma.JobWhereInput
+    let ownCompanyId: string | null = null
     if (user?.role === 'admin') {
       where = {}
     } else {
@@ -79,6 +82,7 @@ export class CatalogService {
       } else if (user?.role === 'recruiter') {
         const companyId = await this.companyIdOf(user.id)
         if (companyId) or.push({ companyId })
+        ownCompanyId = companyId
       }
       where = { OR: or }
     }
@@ -94,7 +98,7 @@ export class CatalogService {
     })
     return {
       companies: companies.map((c) => ({ ...this.toCompany(c), hidden: c.members.some((m) => m.user.settings?.visibility === 'hidden') })),
-      jobs: jobs.map((j) => this.toJob(j, origin)),
+      jobs: jobs.map((j) => this.toJob(j, origin, user?.role === 'admin' || (!!ownCompanyId && j.companyId === ownCompanyId))),
     }
   }
 }

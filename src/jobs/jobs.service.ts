@@ -50,7 +50,7 @@ export class JobsService {
   }
 
   private async withFlags(job: Parameters<CatalogService['toJob']>[0], user: AuthUser): Promise<JobWithFlags> {
-    const dto = this.catalog.toJob(job, await this.catalog.originOf(user))
+    const dto = this.catalog.toJob(job, await this.catalog.originOf(user), true)
     return { ...dto, flags: flagsOf(dto, await this.config.get()) }
   }
 
@@ -58,7 +58,7 @@ export class JobsService {
     const companyId = await this.myCompanyId(user)
     const jobs = await this.prisma.job.findMany({ where: { companyId }, include: JOB_INCLUDE, orderBy: { postedAt: 'desc' } })
     const origin = await this.catalog.originOf(user)
-    return jobs.map((j) => this.catalog.toJob(j, origin))
+    return jobs.map((j) => this.catalog.toJob(j, origin, true))
   }
 
   async create(user: AuthUser, dto: CreateJobDto): Promise<JobWithFlags> {
@@ -126,6 +126,6 @@ export class JobsService {
     const now = new Date()
     const renew = status !== 'closed' && cur.expiresAt && cur.expiresAt <= now ? { expiresAt: expiryFrom(now, DEFAULT_DURATION_DAYS) } : {}
     const job = await this.prisma.job.update({ where: { id }, data: { status, ...renew }, include: JOB_INCLUDE })
-    return this.catalog.toJob(job, await this.catalog.originOf(user))
+    return this.catalog.toJob(job, await this.catalog.originOf(user), true)
   }
 }

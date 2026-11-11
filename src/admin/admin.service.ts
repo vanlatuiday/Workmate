@@ -16,7 +16,7 @@ export class AdminService {
   ) {}
 
   private row(job: Parameters<CatalogService['toJob']>[0], origin: { lat: number; lng: number }, cfg: Awaited<ReturnType<SystemConfigService['get']>>): AdminJobRow {
-    const dto = this.catalog.toJob(job, origin)
+    const dto = this.catalog.toJob(job, origin, true)
     return { job: dto, flags: flagsOf(dto, cfg), companyLocked: job.company.locked }
   }
 

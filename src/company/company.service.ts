@@ -1,7 +1,10 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common'
 import type { Company, Prisma } from '@prisma/client'
+import { randomBytes } from 'crypto'
 import type { AuthUser } from '../auth/current-user.decorator'
 import { geo } from '../common/geo'
+import { checkImage, type UploadedImage } from '../common/upload-check'
+import { StorageService } from '../common/storage.service'
 import type { PhotoDto } from '../jobs/jobs.dto'
 import { PrismaService } from '../prisma/prisma.service'
 import type { UpdateCompanyDto } from './company.controller'
@@ -16,12 +19,12 @@ const SIZE_LABEL = Object.fromEntries(Object.entries(SIZE_ENUM).map(([label, e])
 const view = (c: Company) => ({
   id: c.id, slug: c.slug, name: c.name, industry: c.industry, district: c.district, address: c.address, size: SIZE_LABEL[c.size],
   tagline: c.tagline, about: c.about, environment: c.environment, values: c.values, policies: c.policies, culture: c.culture,
-  email: c.email, phone: c.phone, cover: (c.coverPhoto as unknown as PhotoDto | null) ?? { alt: c.name }, verified: c.verified, locked: c.locked,
+  email: c.email, phone: c.phone, logoUrl: c.logoUrl, cover: (c.coverPhoto as unknown as PhotoDto | null) ?? { alt: c.name }, verified: c.verified, locked: c.locked,
 })
 
 @Injectable()
 export class CompanyService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private storage: StorageService) {}
 
   private async own(user: AuthUser): Promise<Company> {
     const company = await this.prisma.company.findFirst({ where: { members: { some: { userId: user.id } } } })
@@ -46,5 +49,29 @@ export class CompanyService {
       ...(district !== undefined && { district, ...geo(district, company.id) }),
     }
     return view(await this.prisma.company.update({ where: { id: company.id }, data }))
+  }
+
+  async setLogo(user: AuthUser, upload: UploadedImage | undefined) {
+    const company = await this.own(user)
+    if (company.locked) throw new ForbiddenException('Doanh nghiệp đang bị khóa')
+    const { file, ext } = checkImage(upload)
+    // Tên file ngẫu nhiên: đổi logo thì URL đổi, không bị bộ nhớ đệm giữ ảnh cũ
+    const url = await this.storage.putPublic(`logos/${company.id}/${randomBytes(8).toString('hex')}.${ext}`, file.buffer, file.mimetype)
+    const updated = await this.prisma.company.update({ where: { id: company.id }, data: { logoUrl: url } })
+    await this.dropFile(company.logoUrl)
+    return view(updated)
+  }
+
+  async removeLogo(user: AuthUser) {
+    const company = await this.own(user)
+    if (company.locked) throw new ForbiddenException('Doanh nghiệp đang bị khóa')
+    const updated = await this.prisma.company.update({ where: { id: company.id }, data: { logoUrl: null } })
+    await this.dropFile(company.logoUrl)
+    return view(updated)
+  }
+
+  private async dropFile(url: string | null) {
+    const key = this.storage.publicKeyOf(url)
+    if (key) await this.storage.deletePublic(key)
   }
 }

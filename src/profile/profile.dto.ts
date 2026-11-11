@@ -1,6 +1,6 @@
 import { Transform, Type } from 'class-transformer'
 import {
-  ArrayMaxSize, IsArray, IsBoolean, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, ValidateNested,
+  ArrayMaxSize, IsArray, IsBoolean, IsDateString, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, ValidateIf, ValidateNested,
 } from 'class-validator'
 import { JOB_TYPES } from '../jobs/jobs.dto'
 
@@ -40,6 +40,10 @@ export class UpdateProfileDto {
 
   @IsOptional() @IsBoolean()
   published?: boolean
+
+  /** YYYY-MM-DD; null = có thể bắt đầu ngay */
+  @IsOptional() @ValidateIf((o) => o.availableFrom !== null) @IsDateString({ strict: true }, { message: 'Ngày bắt đầu không hợp lệ' }) @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'Ngày bắt đầu không hợp lệ' })
+  availableFrom?: string | null
 
   @IsOptional() @Transform(trim) @IsString() @MaxLength(80)
   area?: string
