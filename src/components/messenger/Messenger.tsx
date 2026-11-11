@@ -2,7 +2,7 @@
 // Chỉ hiện cho người tìm việc / nhà tuyển dụng đã đăng nhập. Chỉ dùng transform/opacity để chuyển động.
 // Khung là dialog: bẫy focus, Esc đóng, trả focus về nút; lúc đóng vẫn ở trong DOM nhưng `invisible`.
 import { useEffect, useRef } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { MessageCircle, MessageSquare, X } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { useMediaQuery } from '@hooks/useMediaQuery'
@@ -30,7 +30,8 @@ function MessengerInner({ viewer }: { viewer: Side }) {
   const { open, activeKey, openMessenger, closeMessenger, setActiveKey } = useMessengerStore()
   const unread = useUnreadMessages()
   const conversations = useConversations()
-  const { pathname, state } = useLocation()
+  const { pathname, search, hash, state } = useLocation()
+  const navigate = useNavigate()
   const reduced = useReducedMotion()
   // Từ md: hai cột (danh sách | chat), tự mở hội thoại đầu khi chưa chọn
   const wide = useMediaQuery('(min-width: 768px)')
@@ -70,6 +71,17 @@ function MessengerInner({ viewer }: { viewer: Side }) {
     if ((state as { keepMessenger?: boolean } | null)?.keepMessenger) return
     closeMessenger()
   }, [pathname, state, closeMessenger])
+
+  // /tin-nhan chuyển về đây kèm state.openChat (null = danh sách, "jobId|seekerId" = hội thoại).
+  // Mở ở chính khung tin nhắn (đã dựng xong) thay vì ở MessagesPage: tải thẳng /tin-nhan thì effect dọn dẹp
+  // lúc dựng component (StrictMode) chạy sau MessagesPage và đóng khung vừa mở.
+  // Xong thì xóa state để F5 / quay lại trang không mở lại khung.
+  const openChat = (state as { openChat?: string | null } | null)?.openChat
+  useEffect(() => {
+    if (openChat === undefined) return
+    openMessenger(openChat)
+    navigate({ pathname, search, hash }, { replace: true, state: { keepMessenger: true } })
+  }, [openChat, openMessenger, navigate, pathname, search, hash])
 
   // ---- Bàn phím: Esc đóng, Tab xoay vòng trong khung ----
   useEffect(() => {
