@@ -3,6 +3,7 @@ import { Plus, X } from 'lucide-react'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
 import { FOCUS } from '@utils/focus'
+import { isFutureStart, tomorrowIso } from '@utils/format'
 import { chip, Group, INPUT } from './ui'
 import { fmtMoney, type ProfileApi } from './useProfileDraft'
 
@@ -69,7 +70,8 @@ export function ExperienceChapter({ api }: { api: ProfileApi }) {
 
 /** Nhóm 04 — Lịch rảnh: lưới 7 ngày × 3 buổi. */
 export function AvailabilityChapter({ api }: { api: ProfileApi }) {
-  const { profile, toggleCell } = api
+  const { profile, toggleCell, set } = api
+  const later = isFutureStart(profile.availableFrom)
   return (
     <Group title="Lịch rảnh" index={4}>
       <p className="text-sm text-page-muted">Bấm vào ô để bật/tắt ca bạn rảnh. Hiện có {profile.availability.length} ca mỗi tuần.</p>
@@ -98,6 +100,20 @@ export function AvailabilityChapter({ api }: { api: ProfileApi }) {
           </div>
         ))}
       </div>
+      <fieldset className="space-y-2">
+        <legend className="text-sm text-page-muted">Có thể bắt đầu</legend>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" aria-pressed={!later} onClick={() => set('availableFrom', null)} className={chip(!later)}>Bắt đầu ngay</button>
+          <button type="button" aria-pressed={later} onClick={() => set('availableFrom', later ? profile.availableFrom : tomorrowIso())} className={chip(later)}>Từ ngày…</button>
+        </div>
+        {later && (
+          <label className="block text-sm text-page-muted">
+            <span className="sr-only">Ngày bắt đầu</span>
+            <input type="date" min={tomorrowIso()} value={profile.availableFrom ?? ''}
+              onChange={(e) => set('availableFrom', e.target.value || null)} className={`${INPUT} sm:w-auto`} />
+          </label>
+        )}
+      </fieldset>
     </Group>
   )
 }

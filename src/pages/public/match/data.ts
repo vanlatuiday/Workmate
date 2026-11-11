@@ -177,7 +177,7 @@ export const SEEKER_JOBS: MatchJob[] = [...MATCH_JOBS, ...RECRUITER_POSITION_JOB
 export type Availability = { kind: 'ready'; from?: string } | { kind: 'working' }
 
 export const availabilityLabel = (a: Availability) =>
-  a.kind === 'working' ? 'Đang đi làm' : a.from ? `Sẵn sàng từ ${a.from}` : 'Sẵn sàng'
+  a.kind === 'working' ? 'Đang đi làm' : a.from ? `Bắt đầu từ ${a.from}` : 'Bắt đầu ngay'
 
 export interface MatchCandidate {
   id: string

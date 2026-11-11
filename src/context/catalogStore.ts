@@ -45,6 +45,8 @@ export interface CatalogJob {
   moderationReason?: string
   /** Đã duyệt + đang mở + công ty không bị khóa */
   visible: boolean
+  /** Số lượt xem (máy chủ chỉ trả cho công ty đăng tin và quản trị viên) */
+  views?: number
 }
 
 /** = DiscoverCompany + trạng thái xác minh / khóa */

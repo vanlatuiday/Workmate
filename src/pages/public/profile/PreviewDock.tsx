@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
+import { startLabel } from '@utils/format'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { gsap } from '@utils/gsap'
@@ -112,6 +113,8 @@ function PreviewModal({ api, reduced, onClosed }: ModalProps) {
           </div>
         </div>
         {profile.intro && <p className="mt-6 leading-relaxed">{profile.intro}</p>}
+
+        <p className="mt-8 text-sm text-page-muted">Có thể bắt đầu: <span className="text-page-fg">{startLabel(profile.availableFrom)}</span></p>
 
         <h3 className="mt-8 text-sm font-medium text-page-muted">Lịch rảnh ({profile.availability.length} ca/tuần)</h3>
         <ul className="mt-2 flex flex-wrap gap-2">

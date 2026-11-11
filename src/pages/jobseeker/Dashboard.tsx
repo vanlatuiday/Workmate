@@ -1,3 +1,4 @@
+import CompanyLogo from '@components/common/CompanyLogo'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Bookmark, CalendarCheck, ClipboardList, MapPin, Zap } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
@@ -60,7 +61,10 @@ export default function JobseekerDashboard() {
                   <Link to={`/viec-lam/${job.id}`} className={`font-medium text-page-fg hover:underline underline-offset-4 rounded-control ${FOCUS}`}>
                     {job.title}
                   </Link>
-                  <p className="mt-1 text-sm text-page-muted">{companyOf(job.companyId).name}</p>
+                  <p className="mt-1 text-sm text-page-muted flex items-center gap-2">
+            <CompanyLogo name={companyOf(job.companyId).name} logoUrl={companyOf(job.companyId).logoUrl} decorative className="h-5 w-5 text-[9px]" />
+            {companyOf(job.companyId).name}
+          </p>
                   <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-page-muted">
                     <span className="inline-flex items-center gap-1">
                       <MapPin className="h-3.5 w-3.5" aria-hidden="true" />

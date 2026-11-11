@@ -6,6 +6,7 @@ import { candidateKey, useMatchStore } from '@context/matchStore'
 import { availabilityLabel, useCandidates, usePositions, type MatchCandidate, type MatchPosition } from '@pages/public/match/data'
 import { scoreMatch } from '@pages/public/match/score'
 import { expressInterest, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
+import { useQueryParam } from '@hooks/useQueryParam'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { candidateHref } from '@pages/public/personal/links'
@@ -65,12 +66,13 @@ function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPo
   }
 
   return (
-    <li className="flex flex-col rounded-card border border-page-line bg-page-surface p-5">
-      <div className="flex items-start gap-3">
+    <li className="flex min-w-0 flex-col rounded-card border border-page-line bg-page-surface p-5">
+      {/* flex-wrap: màn hẹp thì nhãn "Bắt đầu…" xuống dòng thay vì đẩy thẻ tràn ngang */}
+      <div className="flex flex-wrap items-start gap-3">
         <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-page-line font-display text-sm font-medium text-page-fg" aria-hidden="true">
           {initialsOf(c.name)}
         </span>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 basis-40">
           <Link to={candidateHref(c.id)} className={`font-medium text-page-fg underline-offset-4 hover:underline ${FOCUS}`}>{c.name}</Link>
           <p className="mt-0.5 text-sm text-page-muted">{c.summary}</p>
           <p className="mt-1 inline-flex items-center gap-1 text-xs text-page-muted">
@@ -97,8 +99,9 @@ function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPo
       {states.some((x) => x.st !== 'none') && (
         <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Trạng thái theo tin">
           {states.filter((x) => x.st !== 'none').map(({ p, st }) => (
-            <li key={p.id}>
-              <StatusBadge tone={st === 'connected' ? 'strong' : 'default'}>
+            <li key={p.id} className="min-w-0 max-w-full">
+              {/* Tên tin dài: cho xuống dòng thay vì tràn khỏi thẻ ở màn hẹp */}
+              <StatusBadge tone={st === 'connected' ? 'strong' : 'default'} className="whitespace-normal break-words">
                 {p.job.title}: {STATUS_LABEL[st as Exclude<PairStatus, 'none'>]}
               </StatusBadge>
             </li>
@@ -146,7 +149,7 @@ function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPo
 
 /** Tìm ứng viên: duyệt toàn bộ ứng viên, lọc theo tên/kỹ năng/khu vực/ca rảnh/lương, quan tâm theo từng tin. */
 export default function FindCandidates() {
-  const [q, setQ] = useState('')
+  const [q, setQ] = useQueryParam('q')
   const [area, setArea] = useState('')
   const [skills, setSkills] = useState<string[]>([])
   const [sessions, setSessions] = useState<number[]>([])
@@ -166,7 +169,7 @@ export default function FindCandidates() {
     const nq = norm(q)
     return ALL_CANDIDATES.filter(
       (c) =>
-        (!nq || norm(c.name).includes(nq) || c.criteria.skills.some((s) => norm(s).includes(nq))) &&
+        (!nq || norm(c.name).includes(nq) || c.criteria.skills.some((s) => norm(s).includes(nq)) || norm(c.summary).includes(nq)) &&
         (!area || c.area === area) &&
         skills.every((s) => c.criteria.skills.includes(s)) &&
         sessions.every((s) => freeIn(c, s)) &&

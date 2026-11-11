@@ -315,6 +315,40 @@ export function useConversations(): ConversationSummary[] {
 }
 
 const NO_MESSAGES: Message[] = []
+const FIRST_PAGE = 100
+const OLDER_PAGE = 50
+const loadingOlder = new Set<string>()
+
+/** Hook: còn tin cũ hơn để tải? (chỉ đúng sau khi trang đầu đã về) */
+export function useHasOlderMessages(jobId: string, seekerId: string): boolean {
+  const key = convKey(jobId, seekerId)
+  return useConnectionStore((s) => !!s.messages[key]?.length && !s.olderDone[key])
+}
+
+/** Tải trang tin cũ hơn tin đang có, nối vào đầu danh sách (khử trùng theo id). Trả về true khi có thêm tin. */
+export async function loadOlderMessages(jobId: string, seekerId: string): Promise<boolean> {
+  const key = convKey(jobId, seekerId)
+  const cur = store().messages[key]
+  if (!cur?.length || store().olderDone[key] || loadingOlder.has(key)) return false
+  loadingOlder.add(key)
+  try {
+    const { data } = await api.get<Message[]>(`/conversations/${pairPath(jobId, seekerId)}/messages`, { params: { before: cur[0].id, limit: OLDER_PAGE } })
+    setStore((s) => {
+      const have = new Set((s.messages[key] ?? []).map((m) => m.id))
+      const older = data.map(localize).filter((m) => !have.has(m.id))
+      return {
+        messages: { ...s.messages, [key]: [...older, ...(s.messages[key] ?? [])] },
+        olderDone: { ...s.olderDone, [key]: data.length < OLDER_PAGE },
+      }
+    })
+    return data.length > 0
+  } catch (err) {
+    toast.error(apiErrorMessage(err, 'Chưa tải được tin cũ hơn.'))
+    return false
+  } finally {
+    loadingOlder.delete(key)
+  }
+}
 
 /** Hook: tin nhắn của một cuộc trò chuyện, cũ trước mới sau; tải về lần đầu mở */
 export function useMessages(jobId: string, seekerId: string): Message[] {
@@ -322,8 +356,11 @@ export function useMessages(jobId: string, seekerId: string): Message[] {
   const list = useConnectionStore((s) => s.messages[key])
   useEffect(() => {
     if (store().messages[key]) return
-    api.get<Message[]>(`/conversations/${pairPath(jobId, seekerId)}/messages`, { params: { limit: 100 } })
-      .then(({ data }) => setStore((s) => ({ messages: { ...s.messages, [key]: data.map(localize) } })))
+    api.get<Message[]>(`/conversations/${pairPath(jobId, seekerId)}/messages`, { params: { limit: FIRST_PAGE } })
+      .then(({ data }) => setStore((s) => ({
+        messages: { ...s.messages, [key]: data.map(localize) },
+        olderDone: { ...s.olderDone, [key]: data.length < FIRST_PAGE },
+      })))
       .catch((err) => toast.error(apiErrorMessage(err, 'Chưa tải được tin nhắn.')))
   }, [key, jobId, seekerId])
   return list ?? NO_MESSAGES

@@ -1,3 +1,4 @@
+import CompanyLogo from '@components/common/CompanyLogo'
 import { useId, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Bookmark, BookmarkCheck, ChevronDown, MapPin, SearchX } from 'lucide-react'
@@ -54,7 +55,10 @@ function JobCard({ job, outcome, saved, onToggleSave }: Scored & { saved: boolea
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h2 className="font-display text-lg font-medium text-page-fg">{job.title}</h2>
-          <p className="mt-1 text-sm text-page-muted">{companyOf(job.companyId).name}</p>
+          <p className="mt-1 text-sm text-page-muted flex items-center gap-2">
+            <CompanyLogo name={companyOf(job.companyId).name} logoUrl={companyOf(job.companyId).logoUrl} decorative className="h-5 w-5 text-[9px]" />
+            {companyOf(job.companyId).name}
+          </p>
           <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-page-muted">
             <span className="inline-flex items-center gap-1">
               <MapPin className="h-4 w-4" aria-hidden="true" />

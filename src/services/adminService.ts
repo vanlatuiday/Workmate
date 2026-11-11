@@ -10,6 +10,8 @@ import { useCandidateStore } from '@context/candidateStore'
 import toast from 'react-hot-toast'
 import * as catalogApi from './catalogService'
 import { apiErrorMessage } from './authService'
+import api from './api'
+import type { Verification, VerificationStatus } from './companyService'
 
 export type { JobOpenStatus, ModerationStatus, SystemConfig } from '@context/catalogStore'
 export type { Report, ReportStatus, ReportTarget } from '@context/adminStore'
@@ -189,3 +191,40 @@ export function useSignupsPerDay(days: number): { day: string; date: string; cou
 
 /** Hook đọc thẳng các phần của kho quản trị (báo cáo, ứng viên bị khóa) */
 export const useAdmin = useAdminStore
+
+// ---- Hàng đợi xác minh doanh nghiệp (/api/admin/verifications) ----
+export interface AdminVerification extends Verification {
+  company: { id: string; name: string; industry: string; district: string; verified: boolean; locked: boolean }
+}
+
+export async function fetchVerifications(status?: VerificationStatus): Promise<{ data: AdminVerification[]; error: string | null }> {
+  try {
+    const res = await api.get<AdminVerification[]>('/admin/verifications', { params: status ? { status } : undefined })
+    return { data: res.data, error: null }
+  } catch (err) {
+    return { data: [], error: apiErrorMessage(err, 'Không tải được danh sách xác minh.') }
+  }
+}
+
+/** Duyệt / từ chối một yêu cầu. `conflict` = đã có người xử lý trước (409) nên cần nạp lại danh sách */
+export async function reviewVerification(id: string, status: 'approved' | 'rejected', reason?: string): Promise<{ error: string | null; conflict: boolean }> {
+  try {
+    await api.patch(`/admin/verifications/${encodeURIComponent(id)}`, { status, reason })
+    // Duyệt xong công ty mang nhãn xác minh: nạp lại danh mục
+    await useCatalogStore.getState().load().catch(() => undefined)
+    return { error: null, conflict: false }
+  } catch (err) {
+    const conflict = (err as { response?: { status?: number } }).response?.status === 409
+    return { error: apiErrorMessage(err, 'Không xử lý được yêu cầu.'), conflict }
+  }
+}
+
+/** Lấy link ký tạm thời của một giấy tờ; trả về url hoặc lỗi */
+export async function getVerificationDocUrl(id: string, docId: string): Promise<{ url: string | null; error: string | null }> {
+  try {
+    const res = await api.get<{ url: string }>(`/admin/verifications/${encodeURIComponent(id)}/documents/${encodeURIComponent(docId)}`, { params: { download: false } })
+    return { url: res.data.url, error: null }
+  } catch (err) {
+    return { url: null, error: apiErrorMessage(err, 'Không mở được giấy tờ.') }
+  }
+}

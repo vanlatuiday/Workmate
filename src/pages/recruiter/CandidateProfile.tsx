@@ -23,6 +23,7 @@ import { apiErrorMessage } from '@services/authService'
 import { candidateCvUrl, fetchCandidateProfile, type CandidateProfile as Profile } from '@services/candidateService'
 import { expressInterest, markApplicationViewed, usePairStatuses, withdrawInterest } from '@services/connectionService'
 import { FOCUS } from '@utils/focus'
+import { startLabel } from '@utils/format'
 
 /** Mở CV ở tab mới. Mở tab trước khi chờ máy chủ để trình duyệt không chặn cửa sổ bật lên */
 async function openCv(seekerId: string, download: boolean) {
@@ -145,6 +146,7 @@ export default function CandidateProfile() {
       <Facts
         rows={[
           ['Tình trạng', profile.working ? 'Đang đi làm' : 'Sẵn sàng'],
+          ['Bắt đầu', startLabel(profile.availableFrom)],
           ['Khu vực', profile.fullArea || profile.area || 'Chưa nêu'],
           ['Cách công ty', `${profile.distanceKm.toLocaleString('vi-VN')} km`],
           ['Lương mong muốn', `từ ${profile.criteria.salaryMinK}.000đ/giờ`],

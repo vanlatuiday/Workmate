@@ -4,6 +4,7 @@ import { useCandidateStore } from '@context/candidateStore'
 import { useAdminStore } from '@context/adminStore'
 import { CANDIDATES, type MatchCandidate } from '@pages/public/match/data'
 import type { SeekerCriteria } from '@pages/public/match/score'
+import { isFutureStart, startLabel } from '@utils/format'
 import type { Photo } from '@components/discover/types'
 
 interface ServerCandidate {
@@ -13,6 +14,8 @@ interface ServerCandidate {
   distanceKm: number
   summary: string
   working: boolean
+  /** Ngày có thể bắt đầu (YYYY-MM-DD); null = ngay */
+  availableFrom?: string | null
   criteria: SeekerCriteria
 }
 
@@ -27,7 +30,7 @@ function photoOf(id: string): Photo {
 const toCandidate = (c: ServerCandidate): MatchCandidate => ({
   id: c.id, positionId: '*', name: c.name, area: c.area, distanceKm: c.distanceKm,
   summary: c.summary || 'Chưa có giới thiệu',
-  availability: c.working ? { kind: 'working' } : { kind: 'ready' },
+  availability: c.working ? { kind: 'working' } : isFutureStart(c.availableFrom) ? { kind: 'ready', from: startLabel(c.availableFrom, true).replace('từ ', '') } : { kind: 'ready' },
   criteria: c.criteria, photo: photoOf(c.id),
 })
 

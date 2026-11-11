@@ -147,6 +147,8 @@ interface ConnectionState {
   conversations: ConversationSummary[]
   /** Tin nhắn đã tải, theo convKey */
   messages: Record<string, Message[]>
+  /** convKey → đã tải hết tin cũ (không còn trang trước) */
+  olderDone: Record<string, boolean>
   interviews: Interview[]
   hires: Hire[]
   reviews: Review[]
@@ -162,6 +164,7 @@ const EMPTY = {
   notifications: [] as DemoNotification[],
   conversations: [] as ConversationSummary[],
   messages: {} as Record<string, Message[]>,
+  olderDone: {} as Record<string, boolean>,
   interviews: [] as Interview[],
   hires: [] as Hire[],
   reviews: [] as Review[],

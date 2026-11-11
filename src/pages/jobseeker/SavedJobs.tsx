@@ -1,3 +1,4 @@
+import CompanyLogo from '@components/common/CompanyLogo'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Bookmark, MapPin } from 'lucide-react'
@@ -66,7 +67,10 @@ export default function SavedJobs() {
                       </Link>
                       <StatusBadge tone={st.tone}>{st.label}</StatusBadge>
                     </div>
-                    <p className="mt-1 text-sm text-page-muted">{companyOf(job.companyId).name}</p>
+                    <p className="mt-1 text-sm text-page-muted flex items-center gap-2">
+            <CompanyLogo name={companyOf(job.companyId).name} logoUrl={companyOf(job.companyId).logoUrl} decorative className="h-5 w-5 text-[9px]" />
+            {companyOf(job.companyId).name}
+          </p>
                     <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-page-muted">
                       <span className="inline-flex items-center gap-1">
                         <MapPin className="h-3.5 w-3.5" aria-hidden="true" />

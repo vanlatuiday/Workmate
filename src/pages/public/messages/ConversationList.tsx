@@ -6,6 +6,7 @@ import type { ConversationSummary, Side } from '@services/connectionService'
 import { formatRelativeTime } from '@utils/format'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import ChatAvatar from './ChatAvatar'
 import { describeConversation } from './describe'
 
 type Props = {
@@ -70,9 +71,7 @@ export default function ConversationList({ viewer, conversations, activeKey, onS
                     FOCUS,
                   )}
                 >
-                  <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-page-edge text-sm font-medium text-page-fg">
-                    {info.initials}
-                  </span>
+                  <ChatAvatar initials={info.initials} url={info.avatarUrl} contain={viewer === 'seeker'} className="h-11 w-11 text-sm" />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
                       <span className={cn('truncate text-sm text-page-fg', c.unread > 0 ? 'font-semibold' : 'font-medium')}>{info.name}</span>

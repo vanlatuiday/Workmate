@@ -1,4 +1,4 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useId, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { AlertCircle, Plus, X } from 'lucide-react'
@@ -7,6 +7,9 @@ import { useCatalogStore } from '@context/catalogStore'
 import { apiErrorMessage } from '@services/authService'
 import { photoUrl } from '@components/discover/types'
 import { COVER_CHOICES, useCompanyStore, type CompanyProfile as Profile } from '@context/companyStore'
+import CompanyLogo from '@components/common/CompanyLogo'
+import VerificationPanel from './VerificationPanel'
+import { checkLogoFile, removeCompanyLogo, uploadCompanyLogo } from '@services/companyService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import type { CompanySize } from '@/types'
@@ -69,10 +72,70 @@ function ListEditor({ label, items, onChange, placeholder }: { label: string; it
   )
 }
 
+/** Logo công ty: tải lên / đổi / xóa ngay (không chờ "Lưu thay đổi"). Công ty bị khóa thì không sửa được. */
+function LogoPanel({ name }: { name: string }) {
+  const logoUrl = useCompanyStore((s) => s.logoUrl)
+  const myId = useCompanyStore((s) => s.id)
+  const locked = useCatalogStore((s) => s.companies.find((c) => c.id === myId)?.locked ?? false)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const pick = async (file: File | undefined) => {
+    if (inputRef.current) inputRef.current.value = '' // cho phép chọn lại cùng một file
+    if (!file) return
+    const bad = checkLogoFile(file)
+    if (bad) { setError(bad); return }
+    setError(null); setBusy(true)
+    const err = await uploadCompanyLogo(file)
+    setBusy(false)
+    if (err) setError(err)
+    else toast.success('Đã cập nhật logo công ty')
+  }
+  const remove = async () => {
+    setError(null); setBusy(true)
+    const err = await removeCompanyLogo()
+    setBusy(false)
+    if (err) setError(err)
+    else toast.success('Đã xóa logo công ty')
+  }
+
+  return (
+    <Panel title="Logo công ty">
+      <div className="flex flex-wrap items-center gap-4">
+        <CompanyLogo name={name || 'Công ty'} logoUrl={logoUrl} className="h-20 w-20 text-xl" />
+        <div className="min-w-0 flex-1">
+          <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" tabIndex={-1} aria-label="Chọn tệp logo"
+            onChange={(e) => { void pick(e.target.files?.[0]) }} />
+          {locked ? (
+            <p className="text-sm text-page-muted">Công ty đang bị khóa nên chưa thể đổi logo.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className={`${BTN_LINE} disabled:opacity-50`}>
+                {busy ? 'Đang tải…' : logoUrl ? 'Đổi logo' : 'Tải logo'}
+              </button>
+              {logoUrl && (
+                <button type="button" disabled={busy} onClick={() => { void remove() }} className={`${BTN_LINE} disabled:opacity-50`}>Xóa logo</button>
+              )}
+            </div>
+          )}
+          <p className="mt-2 text-xs text-page-muted">JPG, PNG hoặc WEBP, tối đa 2MB. Logo hiện ở thẻ công ty, tin việc làm và tin nhắn.</p>
+          {error && (
+            <p role="alert" className="mt-2 flex items-center gap-1.5 text-sm font-medium text-page-fg">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />{error}
+            </p>
+          )}
+        </div>
+      </div>
+    </Panel>
+  )
+}
+
 /** Hồ sơ công ty: sửa bằng state cục bộ, bấm "Lưu thay đổi" mới gửi lên máy chủ. */
 export default function CompanyProfile() {
   const profile = useCompanyStore((s) => s.profile)
   const update = useCompanyStore((s) => s.update)
+  const logoUrl = useCompanyStore((s) => s.logoUrl)
   const [form, setForm] = useState<Profile>(profile)
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({})
   const [saving, setSaving] = useState(false)
@@ -113,7 +176,11 @@ export default function CompanyProfile() {
       <PageHeader title="Hồ sơ công ty" description="Thông tin này hiện ở trang công ty mà người tìm việc xem." />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="flex min-w-0 flex-col gap-6">
+        <VerificationPanel />
         <form onSubmit={submit} noValidate className="flex flex-col gap-6">
+          <LogoPanel name={profile.name} />
+
           <Panel title="Thông tin chung">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
@@ -201,6 +268,7 @@ export default function CompanyProfile() {
             {dirty && <span role="status" className="text-sm text-page-muted">Có thay đổi chưa lưu</span>}
           </div>
         </form>
+        </div>
 
         {/* Xem trước thẻ công ty như ở trang Việc làm */}
         <aside aria-label="Xem trước" className="lg:sticky lg:top-6 lg:self-start">
@@ -208,6 +276,7 @@ export default function CompanyProfile() {
             <div className="overflow-hidden rounded-card border border-page-line">
               <img src={photoUrl(form.cover.id, 640)} alt={form.cover.alt} className="aspect-[4/3] w-full object-cover" />
               <div className="p-4">
+                <CompanyLogo name={form.name || 'Công ty'} logoUrl={logoUrl} decorative className="mb-3 h-12 w-12 text-sm" />
                 <p className="font-display text-lg font-medium text-page-fg">{form.name || 'Tên công ty'}</p>
                 <p className="mt-1 text-sm text-page-muted">{form.industry} · {form.district}</p>
                 <p className="mt-2 text-sm leading-relaxed text-page-fg">{form.tagline}</p>

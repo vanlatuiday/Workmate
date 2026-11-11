@@ -1,3 +1,4 @@
+import CompanyLogo from '@components/common/CompanyLogo'
 import { Link } from 'react-router-dom'
 import { MapPin } from 'lucide-react'
 
@@ -68,7 +69,10 @@ export default function JobCard({
         </div>
 
         <div className="flex flex-1 flex-col p-5">
-          <p className="text-xs text-page-muted">{company.name}</p>
+          <p className="flex items-center gap-2 text-xs text-page-muted">
+            <CompanyLogo name={company.name} logoUrl={company.logoUrl} decorative className="h-5 w-5 text-[9px]" />
+            {company.name}
+          </p>
           <h3 className="mt-1 font-display text-xl font-medium leading-snug text-page-fg">{job.title}</h3>
           <p className="mt-3 text-sm font-medium text-page-fg">{job.salaryLabel}</p>
           <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-page-muted">

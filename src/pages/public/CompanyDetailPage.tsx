@@ -1,3 +1,4 @@
+import CompanyLogo from '@components/common/CompanyLogo'
 import { Link, useParams } from 'react-router-dom'
 import { useCompanyStore } from '@context/companyStore'
 import { useAuthStore } from '@context/authStore'
@@ -48,6 +49,7 @@ export default function CompanyDetailPage() {
 
   const aside = (
     <>
+      <CompanyLogo name={company.name} logoUrl={company.logoUrl} className="mb-4 h-16 w-16 text-lg" />
       <p className="max-w-sm text-base md:text-lg leading-relaxed">{company.tagline}</p>
       <Facts
         rows={[

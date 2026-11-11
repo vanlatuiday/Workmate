@@ -9,6 +9,8 @@ export interface ConversationInfo {
   name: string
   subtitle: string
   initials: string
+  /** Logo công ty (phía người tìm việc) hoặc ảnh ứng viên nếu họ cho hiện */
+  avatarUrl: string | null
   profileHref: string
   profileLabel: string
 }
@@ -28,8 +30,8 @@ export function describeConversation(viewer: Side, jobId: string, seekerId: stri
   if (viewer === 'seeker') {
     const companyId = conv?.peer.companyId ?? job?.companyId
     const name = conv?.peer.name ?? useCatalogStore.getState().companies.find((c) => c.id === companyId)?.name ?? 'Doanh nghiệp'
-    return { name, subtitle, initials: initialsOf(name), profileHref: companyId ? `/cong-ty/${companyId}` : '/cong-ty', profileLabel: 'Xem công ty' }
+    return { name, subtitle, initials: initialsOf(name), avatarUrl: conv?.peer.avatarUrl ?? null, profileHref: companyId ? `/cong-ty/${companyId}` : '/cong-ty', profileLabel: 'Xem công ty' }
   }
   const name = conv?.peer.name ?? candidatesOf().find((c) => c.id === seekerId)?.name ?? 'Ứng viên'
-  return { name, subtitle, initials: initialsOf(name), profileHref: candidateHref(seekerId), profileLabel: 'Xem hồ sơ' }
+  return { name, subtitle, initials: initialsOf(name), avatarUrl: conv?.peer.avatarUrl ?? null, profileHref: candidateHref(seekerId), profileLabel: 'Xem hồ sơ' }
 }

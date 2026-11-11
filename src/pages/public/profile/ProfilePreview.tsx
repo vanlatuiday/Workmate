@@ -1,4 +1,5 @@
 import { JOB_TYPES } from '@constants/index'
+import { startLabel } from '@utils/format'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
 import Avatar from './Avatar'
 import { fmtMoney, type ProfileApi } from './useProfileDraft'
@@ -27,7 +28,9 @@ export default function ProfilePreview({ api }: { api: ProfileApi }) {
         {!profile.skills.length && <li className="text-sm text-page-muted">Chưa có.</li>}
       </ul>
 
-      <h3 className="mt-5 text-xs font-medium text-page-muted">Lịch rảnh ({profile.availability.length} ca/tuần)</h3>
+      <p className="mt-5 text-xs text-page-muted">Có thể bắt đầu: <span className="text-page-fg">{startLabel(profile.availableFrom)}</span></p>
+
+        <h3 className="mt-5 text-xs font-medium text-page-muted">Lịch rảnh ({profile.availability.length} ca/tuần)</h3>
       <ul className="mt-2 flex flex-wrap gap-1.5">
         {DAY_SHORT.map((d, di) => {
           const ses = SESSIONS.filter((_, si) => profile.availability.includes(`${di}-${si}`))

@@ -1,8 +1,9 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Users, Building2, FileText, Handshake, ChevronRight } from 'lucide-react'
 import { PageHeader, Panel, StatCard, StatusBadge } from '@components/dashboard'
 import { useConnectionStore } from '@context/connectionStore'
-import { useAdmin, useAdminJobs, useCompanyFlags, useSignupsPerDay } from '@services/adminService'
+import { fetchVerifications, useAdmin, useAdminJobs, useCompanyFlags, useSignupsPerDay } from '@services/adminService'
 import { ROLE_LABELS } from './mockData'
 import { FOCUS } from '@utils/focus'
 
@@ -25,9 +26,13 @@ export default function AdminDashboard() {
   const pendingJobs = jobRows.filter((r) => r.status === 'pending')
   const flaggedPending = pendingJobs.filter((r) => r.flags.length).length
   const openReports = reports.filter((r) => r.status === 'open').length
+  // Yêu cầu xác minh có giấy tờ đang chờ duyệt
+  const [pendingVerif, setPendingVerif] = useState(0)
+  useEffect(() => { void fetchVerifications('pending').then((r) => setPendingVerif(r.data.length)) }, [])
   const unverified = Object.values(verified).filter((v) => !v).length
   const weekMatches = connections.filter((c) => Date.now() - +new Date(c.at) <= WEEK_MS).length
   const todoItems = [
+    { id: 't0', label: `${pendingVerif} yêu cầu xác minh chờ duyệt`, detail: 'Xem giấy tờ doanh nghiệp đã gửi', href: '/admin/xac-minh', n: pendingVerif },
     { id: 't1', label: `${unverified} nhà tuyển dụng chưa xác minh`, detail: 'Xem hồ sơ và gắn nhãn xác minh', href: '/admin/xac-minh', n: unverified },
     { id: 't2', label: `${openReports} báo cáo đang mở`, detail: 'Báo cáo tin hoặc ứng viên cần xem xét', href: '/admin/bao-cao', n: openReports },
     { id: 't3', label: `${pendingJobs.length} tin chờ kiểm duyệt`, detail: flaggedPending ? `${flaggedPending} tin bị gắn cờ cảnh báo` : 'Chưa có tin nào bị gắn cờ', href: '/admin/kiem-duyet', n: pendingJobs.length },

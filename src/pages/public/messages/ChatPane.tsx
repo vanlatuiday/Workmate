@@ -4,10 +4,11 @@ import { ArrowLeft, SendHorizontal } from 'lucide-react'
 import { HireStatusChip } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import { useReducedMotion } from '@hooks/useReducedMotion'
-import { markConversationRead, notifyTyping, useActiveInterview, useHire, sendMessage, useIsTyping, useMessages, type Side } from '@services/connectionService'
+import { markConversationRead, notifyTyping, useActiveInterview, useHire, sendMessage, useIsTyping, useMessages, useHasOlderMessages, loadOlderMessages, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { describeConversation } from './describe'
+import ChatAvatar from './ChatAvatar'
 import FadeIn from './FadeIn'
 
 const QUICK_REPLIES: Record<Side, string[]> = {
@@ -59,6 +60,49 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
   if (!initialIds.current.size) messages.forEach((m) => initialIds.current.add(m.id))
   const lastTyping = useRef(0)
   const lastId = messages[messages.length - 1]?.id
+  const firstId = messages[0]?.id
+  const hasOlder = useHasOlderMessages(jobId, seekerId)
+  const [loadingOlder, setLoadingOlder] = useState(false)
+  const topRef = useRef<HTMLDivElement>(null)
+  // Người dùng đã tự cuộn (lăn chuột / chạm / kéo thanh cuộn): tránh tự tải tin cũ ngay lúc mới mở (khi còn đang cuộn xuống cuối)
+  const userScrolled = useRef(false)
+  // Kích thước khung trước khi nối tin cũ, để giữ nguyên vị trí đang đọc
+  const anchor = useRef<{ h: number; top: number } | null>(null)
+
+  const markScrolled = () => { userScrolled.current = true }
+  const loadOlder = () => {
+    const el = scrollRef.current
+    if (!el || loadingOlder) return
+    anchor.current = { h: el.scrollHeight, top: el.scrollTop }
+    setLoadingOlder(true)
+    void loadOlderMessages(jobId, seekerId).then((added) => {
+      if (!added) anchor.current = null
+      setLoadingOlder(false)
+    })
+  }
+  const loadOlderRef = useRef(loadOlder)
+  loadOlderRef.current = loadOlder
+
+  // Cuộn lên đầu khung -> tải trang tin cũ hơn
+  useEffect(() => {
+    const root = scrollRef.current
+    const target = topRef.current
+    if (!root || !target || !hasOlder) return
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting) && userScrolled.current) loadOlderRef.current()
+    }, { root, rootMargin: '80px 0px 0px 0px' })
+    io.observe(target)
+    return () => io.disconnect()
+  }, [hasOlder, firstId, jobId, seekerId])
+
+  // Tin cũ vừa nối vào đầu: bù chiều cao để vị trí đang đọc không nhảy
+  useLayoutEffect(() => {
+    const el = scrollRef.current
+    const a = anchor.current
+    if (!el || !a) return
+    el.scrollTop = a.top + (el.scrollHeight - a.h)
+    anchor.current = null
+  }, [firstId])
 
   // Đang mở là coi như đã đọc, kể cả khi tin mới đến
   useEffect(() => {
@@ -105,9 +149,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
         <button type="button" onClick={onBack} aria-label="Quay lại danh sách" className={cn('shrink-0 rounded-full border border-page-line p-3 text-page-fg transition-colors duration-300 hover:border-page-fg', hideBackOnWide && 'md:hidden', FOCUS)}>
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         </button>
-        <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-page-edge text-sm font-medium text-page-fg">
-          {info.initials}
-        </span>
+        <ChatAvatar initials={info.initials} url={info.avatarUrl} contain={viewer === 'seeker'} className="h-9 w-9 text-sm" />
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-sm font-semibold text-page-fg">{info.name}</h2>
           <p className="truncate text-xs text-page-muted">{info.subtitle}</p>
@@ -125,7 +167,14 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
         </div>
       )}
 
-      <div ref={scrollRef} data-lenis-prevent className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain py-5" role="log" aria-live="polite" aria-label="Nội dung cuộc trò chuyện">
+      <div ref={scrollRef} data-lenis-prevent className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain py-5" role="log" aria-live="polite" aria-label="Nội dung cuộc trò chuyện" onWheel={markScrolled} onTouchMove={markScrolled} onPointerDown={markScrolled}>
+        {hasOlder && (
+          <div ref={topRef} className="flex justify-center">
+            <button type="button" onClick={loadOlder} disabled={loadingOlder} className={cn('rounded-full border border-page-edge px-3 py-1.5 text-xs text-page-muted transition-colors hover:border-page-fg hover:text-page-fg motion-reduce:transition-none disabled:opacity-60', FOCUS)}>
+              {loadingOlder ? 'Đang tải…' : 'Xem tin cũ hơn'}
+            </button>
+          </div>
+        )}
         {rows.length === 0 && <p className="py-10 text-center text-sm text-page-muted">Chưa có tin nhắn. Hãy chào trước nhé.</p>}
         {rows.map(({ m, label }) => {
           // Tin hệ thống (vd. lời mời phỏng vấn): dòng chữ nhỏ giữa khung, không phải bong bóng

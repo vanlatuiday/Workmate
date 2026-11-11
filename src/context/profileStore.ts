@@ -30,6 +30,8 @@ export interface SeekerProfile {
   experience: ExperienceItem[]
   /** Khóa `${chỉ số ngày}-${chỉ số buổi}` của các ô rảnh */
   availability: string[]
+  /** Ngày có thể bắt đầu (YYYY-MM-DD); null = bắt đầu ngay */
+  availableFrom: string | null
 }
 
 /** Hồ sơ mẫu ban đầu (và khi "Đặt lại dữ liệu demo") */
@@ -48,6 +50,7 @@ const SEED: SeekerProfile = {
   skills: [...PROFILE_DEFAULT.skills],
   experience: PROFILE_DEFAULT.experience.map((e) => ({ ...e })),
   availability: [...AVAILABILITY_DEFAULT],
+  availableFrom: null,
 }
 
 /** Hàm đẩy thay đổi lên máy chủ và tải ảnh lên — `services/profileService` đăng ký (tránh import vòng) */
@@ -124,7 +127,12 @@ export const useProfileStore = create<ProfileState>()(
       version: 2,
       // Ảnh trên máy chủ giữ được qua lần tải lại; object URL thì không
       partialize: (s) => ({ profile: s.profile, avatarUrl: isBlob(s.avatarUrl) ? null : s.avatarUrl }),
+      // Bản lưu cũ chưa có availableFrom -> coi như bắt đầu ngay
       migrate: (state) => state as ProfileState,
+      merge: (saved, cur) => {
+        const sp = (saved as Partial<ProfileState> | undefined) ?? {}
+        return { ...cur, ...sp, profile: { ...cur.profile, ...(sp.profile ?? {}) } }
+      },
     },
   ),
 )

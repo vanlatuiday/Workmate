@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Search, Pencil, Pause, Play, Users, Handshake, FileText, Heart, XCircle } from 'lucide-react'
+import { Eye, Plus, Search, Pencil, Pause, Play, Users, Handshake, FileText, Heart, XCircle } from 'lucide-react'
 import { PageHeader, Panel, StatusBadge, EmptyState } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import { setJobStatus, useCompanyJobs, useJobNumbers, type CompanyJobRow } from '@services/adminService'
@@ -73,6 +73,9 @@ export default function JobListings() {
   const q = query.trim().toLowerCase()
   const shown = rows.filter((r) => (tab === 'all' || combinedOf(r) === tab) && (!q || r.job.title.toLowerCase().includes(q)))
 
+  const views = (r: CompanyJobRow) => r.job.views === undefined ? null : (
+    <p className="tnum mt-1 inline-flex items-center gap-1.5 text-xs text-page-muted"><Eye className="h-3.5 w-3.5" aria-hidden="true" />{r.job.views.toLocaleString('vi-VN')} lượt xem</p>
+  )
   const postedText = (r: CompanyJobRow) => (r.postedAt ? formatRelativeTime(r.postedAt) : '—')
   /** Hạn nhận ứng viên: "Còn 5 ngày", "Hết hạn 12/11" — tin cũ không có hạn thì không hiện */
   const expiryText = (r: CompanyJobRow) => {
@@ -114,7 +117,8 @@ export default function JobListings() {
     }
     return (
       <div className="flex flex-wrap items-center gap-2">
-        <Link to="/match" className={BTN_SECONDARY}>
+        {/* /match chỉ có tin đang hiển thị: tin khác thì mở /match như cũ */}
+        <Link to={r.job.visible ? `/match?job=${encodeURIComponent(r.job.id)}` : '/match'} className={BTN_SECONDARY}>
           <Users className="h-4 w-4" aria-hidden="true" />
           Xem ứng viên<span className="sr-only"> {t}</span>
         </Link>
@@ -233,6 +237,7 @@ export default function JobListings() {
                         <StatusBadge tone={TONE[combinedOf(r)]}>{statusLabel(r)}</StatusBadge>
                       </div>
                       <p className="mt-1 text-xs text-page-muted">{r.job.district} · {r.job.shiftLabel}</p>
+                      {views(r)}
                       <div className="mt-3">{actions(r)}</div>
                     </td>
                     <td className="tnum px-3 py-4 text-page-fg">{r.job.salaryLabel}</td>
@@ -259,6 +264,7 @@ export default function JobListings() {
                   <StatusBadge tone={TONE[combinedOf(r)]}>{statusLabel(r)}</StatusBadge>
                 </div>
                 <p className="mt-1 text-xs text-page-muted">{r.job.district} · {r.job.shiftLabel}</p>
+                {views(r)}
                 <p className="tnum mt-2 text-sm text-page-fg">{r.job.salaryLabel}</p>
                 <p className="mt-1 text-xs text-page-muted">Đăng {postedText(r)}{expiryText(r) && ` · ${expiryText(r)}`}</p>
                 <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-page-line pt-4 text-center">

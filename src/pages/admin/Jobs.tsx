@@ -1,5 +1,5 @@
 import { useId, useMemo, useState } from 'react'
-import { FileText, Search } from 'lucide-react'
+import { Eye, FileText, Search } from 'lucide-react'
 import { EmptyState, PageHeader, Panel } from '@components/dashboard'
 import DetailDrawer from '@components/admin/DetailDrawer'
 import { BTN_SECONDARY, FIELD, FlagList, JobActions, JobStatusBadges, norm, STATUS_LABEL } from '@components/admin/parts'
@@ -42,6 +42,7 @@ function JobDetail({ row }: { row: AdminJobRow }) {
         <Fact label="Loại việc">{typeLabel(job.jobType)}</Fact>
         <Fact label="Ca làm">{job.shiftLabel}</Fact>
         <Fact label="Số lượng cần">{job.quantity ?? '—'}</Fact>
+        {job.views !== undefined && <Fact label="Lượt xem"><span className="tnum inline-flex items-center gap-1.5"><Eye className="h-4 w-4" aria-hidden="true" />{job.views.toLocaleString('vi-VN')} lượt xem</span></Fact>}
         <Fact label="Ngày đăng">{job.postedAt ? formatRelativeTime(job.postedAt) : 'Tin có sẵn của hệ thống'}</Fact>
       </dl>
       <div>
@@ -175,7 +176,7 @@ export default function Jobs() {
                       <button type="button" onClick={(e) => { e.stopPropagation(); setOpenId(r.job.id) }} className={`rounded-control text-left font-medium text-page-fg hover:underline ${FOCUS}`}>
                         {r.job.title}
                       </button>
-                      <span className="block text-xs text-page-muted">{r.job.district} · {r.job.salaryLabel}</span>
+                      <span className="block text-xs text-page-muted">{r.job.district} · {r.job.salaryLabel}{r.job.views !== undefined && <> · <span className="tnum">{r.job.views.toLocaleString('vi-VN')}</span> lượt xem</>}</span>
                     </th>
                     <td className="hidden px-3 py-3 text-page-fg md:table-cell">{companyOf(r.job.companyId).name}</td>
                     <td className="px-3 py-3"><JobStatusBadges row={r} /></td>

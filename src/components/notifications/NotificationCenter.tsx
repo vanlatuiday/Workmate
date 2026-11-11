@@ -27,7 +27,7 @@ export default function NotificationCenter() {
 }
 
 function CenterInner({ viewer }: { viewer: Side }) {
-  const { open, openCenter, closeCenter } = useNotificationCenterStore()
+  const { open, openCenter, closeCenter, inShell } = useNotificationCenterStore()
   const messengerOpen = useMessengerStore((s) => s.open)
   const unread = useUnreadCount(viewer)
   const { pathname } = useLocation()
@@ -123,8 +123,9 @@ function CenterInner({ viewer }: { viewer: Side }) {
 
   return (
     <>
-      {/* Nút chuông tròn kéo được */}
+      {/* Nút chuông tròn kéo được — ẩn trong dashboard vì header đã có chuông */}
       <div
+        hidden={inShell}
         className={cn(
           'theme-ivory fixed left-0 top-0 z-[60] !bg-transparent', // theme-ivory tự tô nền ngà → bỏ để chỉ còn nút tròn
           // Thả tay thì trượt về mép; đang kéo thì bám theo con trỏ ngay

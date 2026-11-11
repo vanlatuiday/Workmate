@@ -4,6 +4,7 @@ import { useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { ArrowDownRight, Check, LayoutGrid, List, X } from 'lucide-react'
 import MatchScore from '@components/dashboard/MatchScore'
 import { Initials } from '@components/discover/detail/DetailBlocks'
+import CompanyLogo from '@components/common/CompanyLogo'
 import type { MatchView } from '@context/matchStore'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -193,7 +194,7 @@ export function JobCard({ job, outcome, actions }: { job: MatchJob; outcome: Mat
   return (
     <article className="rounded-card border border-page-line bg-page-surface p-5 md:p-6">
       <div className="grid grid-cols-[auto_1fr] items-start gap-x-4 gap-y-3 sm:grid-cols-[auto_1fr_auto]">
-        <Avatar text={companyInitials(company.name)} />
+        <CompanyLogo name={company.name} logoUrl={company.logoUrl} decorative />
         <div className="min-w-0">
           <h3 className="font-display text-lg font-medium text-page-fg">
             {job.title} <span className="font-normal text-page-muted">· {company.name}</span>

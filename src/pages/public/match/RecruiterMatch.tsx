@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Bookmark, Briefcase, Check, Clock, MapPin, UserCheck, UserX, Wallet, X } from 'lucide-react'
 import InterviewAction from '@components/interview/InterviewAction'
@@ -61,7 +61,12 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
   const gallery = view === 'gallery'
   // Lenis chỉ chạy ở Bộ sưu tập (canvas WebGL cần cuộn mượt đồng bộ); chế độ Danh sách giữ cuộn thường
   useSmoothScroll(gallery)
-  const [positionId, setPositionId] = useState(positions[0].id)
+  // /match?job=<id> chọn sẵn vị trí; id không có trong tin của công ty (hoặc đã ẩn) thì về vị trí đầu như cũ
+  const [params] = useSearchParams()
+  const [positionId, setPositionId] = useState(() => {
+    const want = params.get('job')
+    return positions.find((p) => p.id === want)?.id ?? positions[0].id
+  })
   const [tab, setTab] = useState<TabKey>('fit')
   const [query, setQuery] = useState('')
   // Bộ sưu tập: lọc theo mức phù hợp; thẻ đang mở chi tiết (kèm nút gốc để ảnh phóng ra / thu về)

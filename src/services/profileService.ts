@@ -21,6 +21,7 @@ const fromServer = (r: ProfileResponse): SeekerProfile => ({
   fullName: r.fullName, phone: r.phone, intro: r.intro, about: r.about, showAvatar: r.showAvatar, published: r.published,
   area: r.area, jobTypes: r.jobTypes as JobType[], salaryMin: r.salaryMinK * 1000, maxDistanceKm: r.maxDistanceKm,
   skills: r.skills, experience: r.experience, availability: r.availability,
+  availableFrom: r.availableFrom ?? null,
 })
 
 function toBody(patch: Partial<SeekerProfile>): ProfileBody {

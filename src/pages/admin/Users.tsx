@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useQueryParam } from '@hooks/useQueryParam'
 import { Search, Lock, LockOpen, UsersRound } from 'lucide-react'
 import { PageHeader, StatusBadge, EmptyState } from '@components/dashboard'
 import type { UserRole } from '@/types'
@@ -72,7 +73,7 @@ function RowAction({
 export default function Users() {
   const users = useAdminStore((s) => s.users)
   const setUserLocked = useAdminStore((s) => s.setUserLocked)
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useQueryParam('q')
   const [role, setRole] = useState<'all' | UserRole>('all')
   const [status, setStatus] = useState<'all' | UserStatus>('all')
   const [confirmId, setConfirmId] = useState<string | null>(null)

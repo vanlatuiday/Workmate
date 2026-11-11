@@ -1,4 +1,5 @@
 // /cong-ty — lưới các công ty đang công khai
+import CompanyLogo from '@components/common/CompanyLogo'
 import { Link } from 'react-router-dom'
 import { photoUrl } from '@components/discover/types'
 import { FOCUS } from '@utils/focus'
@@ -23,7 +24,10 @@ export default function CompaniesPage() {
                   className="h-full w-full object-cover"
                 />
               </div>
-              <h2 className="mt-4 font-display text-lg font-semibold text-page-fg">{c.name}</h2>
+              <div className="mt-4 flex items-center gap-3">
+                <CompanyLogo name={c.name} logoUrl={c.logoUrl} decorative className="h-10 w-10 text-xs" />
+                <h2 className="min-w-0 font-display text-lg font-semibold text-page-fg">{c.name}</h2>
+              </div>
               <p className="text-sm text-page-muted">{c.industry} · {c.district}</p>
               <p className="mt-2 text-sm leading-relaxed text-page-muted">{c.tagline}</p>
               <p className="mt-2 text-xs font-medium text-page-fg">{jobsOfCompany(c.id).length} vị trí đang tuyển</p>

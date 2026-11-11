@@ -8,7 +8,7 @@ import { Initials, TagList } from './DetailBlocks'
 const initialsOf = (name: string) => name.replace(/\./g, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
 
 /** Thẻ ứng viên phù hợp với một tin; tên đầy đủ chỉ mở sau khi hai bên kết nối */
-export default function CandidateCard({ c, score, slots }: { c: MatchCandidate; score: number; slots: string[] }) {
+export default function CandidateCard({ c, score, slots, jobId }: { c: MatchCandidate; score: number; slots: string[]; jobId?: string }) {
   const matched = slots.filter((s) => c.criteria.slots.includes(s)).length
   return (
     <Reveal>
@@ -37,6 +37,10 @@ export default function CandidateCard({ c, score, slots }: { c: MatchCandidate; 
             <dd>Khớp {matched}/{slots.length} ca</dd>
           </div>
           <div>
+            <dt className="text-page-muted">Bắt đầu</dt>
+            <dd>{c.availability.kind === 'working' ? 'Đang đi làm' : c.availability.from ? `từ ${c.availability.from}` : 'ngay'}</dd>
+          </div>
+          <div>
             <dt className="text-page-muted">Lương mong muốn</dt>
             <dd>từ {c.criteria.salaryMinK}.000đ/giờ</dd>
           </div>
@@ -45,7 +49,7 @@ export default function CandidateCard({ c, score, slots }: { c: MatchCandidate; 
           <Link to={candidateHref(c.id)} className={`link-underline inline-block rounded-control text-sm font-medium ${FOCUS}`}>
             Xem hồ sơ<span className="sr-only"> {c.name}</span>
           </Link>
-          <Link to="/match" className={`link-underline inline-block rounded-control text-sm text-page-muted hover:text-page-fg ${FOCUS}`}>
+          <Link to={jobId ? `/match?job=${encodeURIComponent(jobId)}` : '/match'} className={`link-underline inline-block rounded-control text-sm text-page-muted hover:text-page-fg ${FOCUS}`}>
             Mở trang Kết nối
           </Link>
         </div>

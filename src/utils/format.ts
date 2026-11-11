@@ -45,3 +45,32 @@ export function formatRelativeTime(dateStr: string): string {
   if (diffDay < 7) return `${diffDay} ngày trước`
   return date.toLocaleDateString('vi-VN')
 }
+
+/** Hôm nay dạng YYYY-MM-DD theo giờ máy (dùng cho `min` của input ngày) */
+export const todayIso = (): string => {
+  const d = new Date()
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+/** Ngày mai (YYYY-MM-DD, giờ máy) — ngày sớm nhất chọn được cho "Từ ngày…"; hôm nay = "Bắt đầu ngay" */
+export const tomorrowIso = (): string => {
+  const d = new Date()
+  d.setDate(d.getDate() + 1)
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+/** Ngày bắt đầu còn ở tương lai (YYYY-MM-DD)? Ngày đã qua / rỗng coi như bắt đầu ngay */
+export const isFutureStart = (iso: string | null | undefined): iso is string => !!iso && iso > todayIso()
+
+/** "YYYY-MM-DD" -> "dd/mm/yyyy" */
+export const formatDateVi = (iso: string): string => {
+  const [y, m, d] = iso.split('-')
+  return `${d}/${m}/${y}`
+}
+
+/** "ngay" hoặc "từ dd/mm/yyyy" — ngày đã qua tính là ngay */
+export const startLabel = (iso: string | null | undefined, short = false): string => {
+  if (!isFutureStart(iso)) return 'ngay'
+  const [y, m, d] = iso.split('-')
+  return `từ ${short ? `${d}/${m}` : `${d}/${m}/${y}`}`
+}

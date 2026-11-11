@@ -6,12 +6,17 @@ import { useMessengerStore } from './messengerStore'
 // (Chiều ngược lại — mở tin nhắn thì đóng thông báo — do NotificationCenter theo dõi.)
 interface NotificationCenterState {
   open: boolean
+  /** Đang trong dashboard: header đã có chuông nên ẩn chuông nổi (panel vẫn dùng chung) */
+  inShell: boolean
+  setInShell: (v: boolean) => void
   openCenter: () => void
   closeCenter: () => void
 }
 
 export const useNotificationCenterStore = create<NotificationCenterState>()((set) => ({
   open: false,
+  inShell: false,
+  setInShell: (v) => set({ inShell: v }),
   openCenter: () => {
     // Chỉ người tìm việc / nhà tuyển dụng mới có popup này
     const role = useAuthStore.getState().user?.role

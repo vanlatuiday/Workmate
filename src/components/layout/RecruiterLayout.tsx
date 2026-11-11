@@ -23,6 +23,7 @@ export default function RecruiterLayout() {
     <DashboardShell
       navItems={navItems} roleLabel="Nhà tuyển dụng" homeHref="/tuyen-dung"
       background={{ id: '1497366811353-6870744d04b2' }}
+      searchHref={(q) => `/tuyen-dung/tim-ung-vien?q=${encodeURIComponent(q)}`} searchPlaceholder="Tìm ứng viên…"
     />
   )
 }

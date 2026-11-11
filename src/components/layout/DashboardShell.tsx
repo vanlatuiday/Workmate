@@ -258,6 +258,11 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, backgrou
   const unreadSeeker = useUnreadCount('seeker')
   const unreadRecruiter = useUnreadCount('recruiter')
   const openNotificationCenter = useNotificationCenterStore((s) => s.openCenter)
+  const setInShell = useNotificationCenterStore((s) => s.setInShell)
+  useEffect(() => {
+    setInShell(true)
+    return () => setInShell(false)
+  }, [setInShell])
   const hasUnread = (role === 'jobseeker' ? unreadSeeker : role === 'recruiter' ? unreadRecruiter : 0) > 0
 
   // Đổi route thì đóng drawer

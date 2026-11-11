@@ -22,6 +22,8 @@ export interface DiscoverCompany {
   why: string
   about: string
   environment: string[]
+  /** Logo công ty do nhà tuyển dụng tải lên; null/không có thì hiện chữ viết tắt */
+  logoUrl?: string | null
 }
 
 export const COMPANIES: DiscoverCompany[] = [

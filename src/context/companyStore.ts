@@ -55,14 +55,17 @@ const SEED: CompanyProfile = {
 interface CompanyState {
   /** Id công ty của tôi; rỗng khi chưa nạp hoặc không phải nhà tuyển dụng */
   id: string
+  /** Logo nằm ngoài `profile` để tải logo không làm form đang sửa bị nạp lại */
+  logoUrl: string | null
   profile: CompanyProfile
+  setLogoUrl: (url: string | null) => void
   load: () => Promise<void>
   /** Ném lỗi nếu máy chủ từ chối — nơi gọi hiện thông báo */
   update: (patch: Partial<CompanyProfile>) => Promise<void>
   clear: () => void
 }
 
-type Server = CompanyProfile & { id: string }
+type Server = CompanyProfile & { id: string; logoUrl: string | null }
 
 const pick = ({ name, industry, district, size, tagline, about, environment, values, policies, culture, email, phone, cover }: Server): CompanyProfile => ({
   name, industry, district, size, tagline, about, environment, values, policies, culture, email, phone, cover,
@@ -75,14 +78,16 @@ const INITIAL: CompanyProfile = IS_PRODUCTION
 
 export const useCompanyStore = create<CompanyState>()((set) => ({
   id: '',
+  logoUrl: null,
   profile: INITIAL,
+  setLogoUrl: (logoUrl) => set({ logoUrl }),
   load: async () => {
     const { data } = await api.get<Server>('/recruiter/company')
-    set({ id: data.id, profile: pick(data) })
+    set({ id: data.id, logoUrl: data.logoUrl ?? null, profile: pick(data) })
   },
   update: async (patch) => {
     const { data } = await api.patch<Server>('/recruiter/company', patch)
-    set({ profile: pick(data) })
+    set({ logoUrl: data.logoUrl ?? null, profile: pick(data) })
   },
-  clear: () => set({ id: '', profile: INITIAL }),
+  clear: () => set({ id: '', logoUrl: null, profile: INITIAL }),
 }))

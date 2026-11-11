@@ -5,6 +5,8 @@ type Props = {
   children: ReactNode
   /** strong = nền đặc, default = viền đậm, muted = viền mờ */
   tone?: 'strong' | 'default' | 'muted'
+  /** Ghi đè thêm, vd. 'whitespace-normal' cho nhãn dài có thể xuống dòng */
+  className?: string
 }
 
 const TONES = {
@@ -14,9 +16,9 @@ const TONES = {
 }
 
 /** Nhãn trạng thái dạng pill. Mức độ thể hiện bằng độ đậm, không bằng màu — nên luôn kèm chữ. */
-export default function StatusBadge({ children, tone = 'default' }: Props) {
+export default function StatusBadge({ children, tone = 'default', className }: Props) {
   return (
-    <span className={cn('inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium', TONES[tone])}>
+    <span className={cn('inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium', TONES[tone], className)}>
       {children}
     </span>
   )

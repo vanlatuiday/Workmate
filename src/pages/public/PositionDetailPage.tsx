@@ -1,3 +1,4 @@
+import { Eye } from 'lucide-react'
 import { useParams } from 'react-router-dom'
 import { STATUS_LABEL } from '@components/admin/parts'
 import { Facts, PrimaryLink, TextLink } from '@components/discover/parts'
@@ -42,6 +43,7 @@ export default function PositionDetailPage() {
           ['Lịch', job.shiftLabel],
           ['Lương', job.salaryLabel],
           ['Cần tuyển', `${job.quantity} người`],
+          ...(job.views !== undefined ? [['Lượt xem', <span key="v" className="tnum inline-flex items-center gap-1.5"><Eye className="h-4 w-4" aria-hidden="true" />{job.views.toLocaleString('vi-VN')} lượt xem</span>] as [string, React.ReactNode]] : []),
         ]}
       />
       {job.moderationReason && <p className="mt-4 text-sm text-page-muted">Lý do từ quản trị viên: {job.moderationReason}</p>}
@@ -70,7 +72,7 @@ export default function PositionDetailPage() {
               </p>
             </TextBlock>
             {candidates.slice(0, MAX_SHOWN).map(({ c, score }) => (
-              <CandidateCard key={c.id} c={c} score={score} slots={job.slots} />
+              <CandidateCard key={c.id} c={c} score={score} slots={job.slots} jobId={job.id} />
             ))}
           </>
         ) : (

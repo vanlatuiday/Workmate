@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react'
+import CompanyLogo from '@components/common/CompanyLogo'
 import { useLocation, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Bookmark, Check } from 'lucide-react'
@@ -14,6 +16,7 @@ import BackLink from '@components/discover/detail/BackLink'
 import JobLinks from '@components/discover/detail/JobLinks'
 import { TagList, TextBlock } from '@components/discover/detail/DetailBlocks'
 import ReportButton from '@components/report/ReportButton'
+import api from '@services/api'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { jobsOfCompany, seekerOutcome, useAllJobs, type MatchJob } from './jobs/catalog'
@@ -100,6 +103,15 @@ export default function JobDetailPage() {
   // Tin đã ẩn/từ chối vẫn xem được (liên kết cũ) nhưng không ứng tuyển được
   const job = shown ?? (id ? findAnyJob(id) : undefined)
 
+  // Đếm lượt xem đúng một lần cho mỗi tin được mở (ref chặn StrictMode chạy effect hai lần và render lại)
+  const viewedRef = useRef<string | null>(null)
+  const publicId = shown?.id
+  useEffect(() => {
+    if (!publicId || viewedRef.current === publicId) return
+    viewedRef.current = publicId
+    api.post(`/jobs/${encodeURIComponent(publicId)}/view`).catch(() => undefined)
+  }, [publicId])
+
   if (!job) {
     return (
       <DetailNotFound
@@ -119,6 +131,7 @@ export default function JobDetailPage() {
 
   const aside = (
     <>
+      <CompanyLogo name={company.name} logoUrl={company.logoUrl} className="mb-4 h-14 w-14 text-base" />
       <p className="max-w-sm text-base md:text-lg leading-relaxed">
         {company.name} tuyển cho vị trí này tại {job.district}, mức {job.salaryLabel}.
       </p>
