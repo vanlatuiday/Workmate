@@ -2,8 +2,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { describeConversation } from '@pages/public/messages/describe'
 import { confirmInterview, declineInterview, type Interview } from '@services/connectionService'
-import { cn } from '@utils/cn'
-import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_DANGER } from '@utils/ui'
 import DialogShell from './DialogShell'
 import PlaceText from './PlaceText'
 import { fmtSlot, MODE_LABEL } from './format'
@@ -35,7 +34,7 @@ export default function ChooseSlotDialog({ interview: iv, onClose }: Props) {
             {iv.slots.map((s) => (
               <label key={s} className="block cursor-pointer">
                 <input type="radio" name="slot" value={s} checked={slot === s} onChange={() => setSlot(s)} className="peer sr-only" />
-                <span className="block rounded-card border border-page-edge px-4 py-3 text-base font-medium capitalize text-page-fg transition-colors duration-300 peer-checked:border-page-fg peer-checked:bg-page-surface peer-focus-visible:ring-2 peer-focus-visible:ring-page-fg peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-page-bg">
+                <span className="block rounded-card border border-page-edge px-4 py-3 text-base font-medium capitalize text-page-fg transition-colors duration-fast peer-checked:border-page-fg peer-checked:bg-page-surface peer-focus-visible:ring-2 peer-focus-visible:ring-page-fg peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-page-bg">
                   {fmtSlot(s)}
                 </span>
               </label>
@@ -50,10 +49,10 @@ export default function ChooseSlotDialog({ interview: iv, onClose }: Props) {
         </dl>
 
         <div className="flex flex-wrap justify-end gap-2">
-          <button type="button" onClick={decline} className={cn('rounded-full border border-page-line px-5 py-2.5 text-sm font-medium text-page-fg hover:border-page-fg', FOCUS)}>
+          <button type="button" onClick={decline} className={BTN_DANGER}>
             Từ chối
           </button>
-          <button type="button" onClick={confirm} className={cn('rounded-full border border-page-fg bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg transition-colors duration-300 hover:bg-page-bg hover:text-page-fg', FOCUS)}>
+          <button type="button" onClick={confirm} className={BTN_ACCENT}>
             Xác nhận giờ này
           </button>
         </div>

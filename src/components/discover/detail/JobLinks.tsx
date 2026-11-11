@@ -23,7 +23,7 @@ export default function JobLinks({ jobs }: { jobs: MatchJob[] }) {
                   {j.salaryLabel} · {j.shiftLabel} · {j.district}
                 </span>
               </span>
-              <ArrowUpRight className="h-5 w-5 shrink-0 transition-transform duration-500 ease-editorial group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              <ArrowUpRight className="h-5 w-5 shrink-0 transition-transform duration-slow ease-editorial group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </Link>
           </li>
         ))}

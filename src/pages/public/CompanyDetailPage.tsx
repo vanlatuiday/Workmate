@@ -60,8 +60,8 @@ export default function CompanyDetailPage() {
         ]}
       />
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">
-        {isGuest && <PrimaryLink to="/dang-ky?role=jobseeker">Đăng ký để ứng tuyển</PrimaryLink>}
-        {role === 'jobseeker' && <PrimaryLink to="/tim-viec/phu-hop">Xem việc phù hợp với tôi</PrimaryLink>}
+        {isGuest && <PrimaryLink accent to="/dang-ky?role=jobseeker">Đăng ký để ứng tuyển</PrimaryLink>}
+        {role === 'jobseeker' && <PrimaryLink accent to="/tim-viec/phu-hop">Xem việc phù hợp với tôi</PrimaryLink>}
         <TextLink to="/viec-lam">Xem các công ty khác</TextLink>
       </div>
     </>

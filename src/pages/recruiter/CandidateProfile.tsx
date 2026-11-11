@@ -16,13 +16,15 @@ import { JOB_TYPES } from '@constants/index'
 import { useCatalogStore, type CatalogJob } from '@context/catalogStore'
 import { useCompanyStore } from '@context/companyStore'
 import { useConnectionStore } from '@context/connectionStore'
-import { BTN_PRIMARY, BTN_SECONDARY, personInitials } from '@pages/public/match/parts'
+import { personInitials } from '@pages/public/match/parts'
 import { scoreMatch } from '@pages/public/match/score'
 import { EmptyNote, WeekGrid } from '@pages/public/personal/parts'
 import { apiErrorMessage } from '@services/authService'
 import { candidateCvUrl, fetchCandidateProfile, type CandidateProfile as Profile } from '@services/candidateService'
 import { expressInterest, markApplicationViewed, usePairStatuses, withdrawInterest } from '@services/connectionService'
+import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import { startLabel } from '@utils/format'
 
 /** Mở CV ở tab mới. Mở tab trước khi chờ máy chủ để trình duyệt không chặn cửa sổ bật lên */
@@ -57,16 +59,16 @@ function JobRow({ job, profile }: { job: CatalogJob; profile: Profile }) {
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {status === 'none' && (
-          <button type="button" className={BTN_PRIMARY} onClick={() => { expressInterest('recruiter', job.id, profile.id); toast.success('Đã quan tâm, chờ ứng viên phản hồi') }}>
+          <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={() => { expressInterest('recruiter', job.id, profile.id); toast.success('Đã quan tâm, chờ ứng viên phản hồi') }}>
             Quan tâm<span className="sr-only"> cho vị trí {job.title}</span>
           </button>
         )}
         {status === 'received' && (job.visible ? (
           <>
-            <button type="button" className={BTN_PRIMARY} onClick={() => expressInterest('recruiter', job.id, profile.id)}>
+            <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={() => expressInterest('recruiter', job.id, profile.id)}>
               Đồng ý kết nối<span className="sr-only"> cho vị trí {job.title}</span>
             </button>
-            <ConsiderButton jobId={job.id} seekerId={profile.id} className={BTN_SECONDARY} srLabel={`cho vị trí ${job.title}`} />
+            <ConsiderButton jobId={job.id} seekerId={profile.id} className={cn(BTN_SECONDARY, BTN_SM)} srLabel={`cho vị trí ${job.title}`} />
           </>
         ) : (
           <p className="text-sm text-page-muted">Ứng viên đã ứng tuyển. Mở lại tin để đồng ý kết nối.</p>
@@ -84,7 +86,7 @@ function JobRow({ job, profile }: { job: CatalogJob; profile: Profile }) {
         )}
         {status === 'connected' && (
           <>
-            <MessageLink convKey={`${job.id}|${profile.id}`} className={BTN_SECONDARY}>
+            <MessageLink convKey={`${job.id}|${profile.id}`} className={cn(BTN_SECONDARY, BTN_SM)}>
               Nhắn tin<span className="sr-only"> về vị trí {job.title}</span>
             </MessageLink>
             <InterviewAction viewer="recruiter" jobId={job.id} seekerId={profile.id} />
@@ -162,11 +164,11 @@ export default function CandidateProfile() {
               : <p className="mt-1 text-sm">Ứng viên chưa cập nhật</p>}
             {profile.hasCv ? (
               <div className="mt-4 flex flex-wrap gap-2">
-                <button type="button" className={BTN_SECONDARY} onClick={() => void openCv(profile.id, false)}>
+                <button type="button" className={cn(BTN_SECONDARY, BTN_SM)} onClick={() => void openCv(profile.id, false)}>
                   <FileText className="h-4 w-4" aria-hidden="true" />
                   Xem CV
                 </button>
-                <button type="button" className={BTN_SECONDARY} onClick={() => void openCv(profile.id, true)}>
+                <button type="button" className={cn(BTN_SECONDARY, BTN_SM)} onClick={() => void openCv(profile.id, true)}>
                   <Download className="h-4 w-4" aria-hidden="true" />
                   Tải CV
                 </button>
@@ -188,7 +190,7 @@ export default function CandidateProfile() {
   return (
     <article className="pb-section-sm">
       <header className="shell pt-10 md:pt-14">
-        <button type="button" onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/match'))} className={`inline-flex items-center gap-2 rounded-control text-sm text-page-muted transition-colors duration-300 hover:text-page-fg ${FOCUS}`}>
+        <button type="button" onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/match'))} className={`inline-flex items-center gap-2 rounded-control text-sm text-page-muted transition-colors duration-fast hover:text-page-fg ${FOCUS}`}>
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Quay lại
         </button>

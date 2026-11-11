@@ -12,9 +12,9 @@ import { useAllJobs, seekerOutcome, type MatchJob } from '@pages/public/jobs/cat
 import { companyOf } from '@pages/public/match/data'
 import { CRITERION_LABELS, type MatchOutcome } from '@pages/public/match/score'
 import { FOCUS } from '@utils/focus'
+import { BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 
 const FIELD = `rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
-const BTN_SECONDARY = `inline-flex items-center gap-2 rounded-full border border-page-line px-4 py-2 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg ${FOCUS}`
 
 type SortKey = 'match' | 'salary' | 'distance'
 
@@ -79,14 +79,14 @@ function JobCard({ job, outcome, saved, onToggleSave }: Scored & { saved: boolea
           type="button"
           aria-pressed={saved}
           onClick={onToggleSave}
-          className={cn(BTN_SECONDARY, saved && 'border-page-fg')}
+          className={cn(BTN_SECONDARY, BTN_SM, saved && 'border-page-fg')}
         >
           {saved ? <BookmarkCheck className="h-4 w-4" aria-hidden="true" /> : <Bookmark className="h-4 w-4" aria-hidden="true" />}
           {saved ? 'Đã lưu' : 'Lưu'}
         </button>
         <Link
           to={`/viec-lam/${job.id}`}
-          className={`inline-flex items-center rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`}
+          className={cn(BTN_PRIMARY, BTN_SM)}
         >
           Xem chi tiết
         </Link>
@@ -98,7 +98,7 @@ function JobCard({ job, outcome, saved, onToggleSave }: Scored & { saved: boolea
           className={`ml-auto inline-flex items-center gap-1 rounded-control text-sm text-page-fg underline underline-offset-4 ${FOCUS}`}
         >
           Vì sao phù hợp?
-          <ChevronDown className={cn('h-4 w-4 transition-transform duration-300', open && 'rotate-180')} aria-hidden="true" />
+          <ChevronDown className={cn('h-4 w-4 transition-transform duration-base', open && 'rotate-180')} aria-hidden="true" />
         </button>
       </div>
 

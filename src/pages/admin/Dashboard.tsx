@@ -66,7 +66,7 @@ export default function AdminDashboard() {
                     <span className="block text-xs text-page-muted">{t.detail}</span>
                   </span>
                   <ChevronRight
-                    className="h-4 w-4 flex-shrink-0 text-page-muted transition-colors duration-300 group-hover:text-page-fg"
+                    className="h-4 w-4 flex-shrink-0 text-page-muted transition-colors duration-fast group-hover:text-page-fg"
                     aria-hidden="true"
                   />
                 </Link>

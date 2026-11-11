@@ -118,7 +118,7 @@ export default function MenuOverlay({ open, onClose, items, actions }: Props) {
                       </span>
                       <span
                         className="font-display text-display-sm font-semibold text-wm-mist
-                                   group-hover:text-wm-ivory transition-colors duration-300"
+                                   group-hover:text-wm-ivory transition-colors duration-fast"
                       >
                         <RollText>{item.label}</RollText>
                       </span>

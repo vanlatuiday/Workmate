@@ -76,6 +76,12 @@ export default {
       transitionTimingFunction: {
         editorial: 'cubic-bezier(0.22, 1, 0.36, 1)',
       },
+      // Ba mức thời lượng của cả site (DESIGN.md → Motion). Không dùng số lẻ khác ngoài trang chủ.
+      transitionDuration: {
+        fast: '150ms', // bấm, hover, đổi màu
+        base: '300ms', // mở/đóng, đổi trạng thái, trượt
+        slow: '500ms', // nội dung hiện ra khi cuộn tới
+      },
     },
   },
   plugins: [

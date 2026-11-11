@@ -5,6 +5,7 @@ import RollText from '@components/motion/RollText'
 import { cn } from '@utils/cn'
 import { CurtainLink } from '@components/motion/PageCurtain'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_PRIMARY, CHIP, CHIP_OFF } from '@utils/ui'
 import TextReveal from '@components/motion/TextReveal'
 import Reveal from '@components/motion/Reveal'
 import { usePageEnterDelay } from '@components/motion/PageTransition'
@@ -58,17 +59,19 @@ export function Facts({ rows, dense = false }: { rows: [string, ReactNode][]; de
   )
 }
 
-/** Nút chính. Có `curtain` → đi qua màn chuyển cảnh, chữ trên màn là `curtain`. */
+/** Nút chính. Có `curtain` → đi qua màn chuyển cảnh, chữ trên màn là `curtain`. `accent` → màu nhấn (một nút chính mỗi màn hình). */
 export function PrimaryLink({
   to,
   children,
   state,
   curtain,
+  accent,
 }: {
   to: string
   children: string
   state?: unknown
   curtain?: string
+  accent?: boolean
 }) {
   const Comp = curtain ? CurtainLink : Link
   return (
@@ -76,10 +79,7 @@ export function PrimaryLink({
       to={to}
       title={curtain ?? ''}
       state={state}
-      className={cn(
-        'group inline-flex items-center gap-2 rounded-full bg-page-fg px-6 py-3 text-sm font-medium text-page-bg transition-opacity duration-300 hover:opacity-90',
-        FOCUS,
-      )}
+      className={cn(accent ? BTN_ACCENT : BTN_PRIMARY, 'group')}
     >
       <RollText>{children}</RollText>
       <ArrowUpRight className="h-4 w-4" />
@@ -125,10 +125,7 @@ export function ProfileTag({ to, children }: { to: string; children: string }) {
       to={to}
       title="Trang cá nhân"
       direction="down"
-      className={cn(
-        'inline-flex items-center gap-2 rounded-full border border-page-line px-3 py-1.5 text-xs text-page-muted transition-colors duration-300 hover:border-page-fg hover:text-page-fg',
-        FOCUS,
-      )}
+      className={cn(CHIP, CHIP_OFF, 'gap-2 px-3 py-1.5 text-xs text-page-muted hover:text-page-fg')}
     >
       <UserRound className="h-3.5 w-3.5" />
       {children}

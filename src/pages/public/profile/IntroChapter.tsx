@@ -1,4 +1,6 @@
 import toast from 'react-hot-toast'
+import { cn } from '@utils/cn'
+import { BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import Avatar from './Avatar'
 import { Group, INPUT, Switch } from './ui'
 import type { ProfileApi } from './useProfileDraft'
@@ -26,7 +28,7 @@ export default function IntroChapter({ api }: { api: ProfileApi }) {
           />
           <label
             htmlFor="avatar-file"
-            className="cursor-pointer rounded-full border border-page-edge px-4 py-1 text-sm text-page-fg transition-colors duration-200 hover:border-page-fg peer-focus-visible:ring-2 peer-focus-visible:ring-page-fg peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-page-bg motion-reduce:transition-none"
+            className={cn(BTN_SECONDARY, BTN_SM, 'cursor-pointer peer-focus-visible:ring-2 peer-focus-visible:ring-page-fg peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-page-bg')}
           >
             Tải ảnh lên
           </label>

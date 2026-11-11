@@ -16,7 +16,7 @@ export const EXPLORE_ITEMS: MenuItem[] = [
 ]
 
 const ITEM = cn(
-  'block w-full rounded-control px-3 py-2 text-left text-sm text-page-muted transition-colors duration-300 hover:bg-page-surface hover:text-page-fg',
+  'block w-full rounded-control px-3 py-2 text-left text-sm text-page-muted transition-colors duration-fast hover:bg-page-surface hover:text-page-fg',
   FOCUS,
 )
 
@@ -99,7 +99,7 @@ export default function ExploreMenu() {
         <RollText>Khám phá</RollText>
         <ChevronDown
           aria-hidden="true"
-          className={cn('h-4 w-4 transition-transform duration-300 motion-reduce:transition-none', open && 'rotate-180')}
+          className={cn('h-4 w-4 transition-transform duration-base motion-reduce:transition-none', open && 'rotate-180')}
         />
       </button>
 
@@ -112,7 +112,7 @@ export default function ExploreMenu() {
         onKeyDown={onMenuKey}
         className={cn(
           'absolute left-1/2 top-full mt-2 w-52 -translate-x-1/2 rounded-card border border-page-line bg-page-bg p-2',
-          'transition-[opacity,transform,visibility] duration-300 ease-editorial motion-reduce:transition-none',
+          'transition-[opacity,transform,visibility] duration-base ease-editorial motion-reduce:transition-none',
           open ? 'visible translate-y-0 opacity-100' : 'invisible -translate-y-1 opacity-0',
         )}
       >

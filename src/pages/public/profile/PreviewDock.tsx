@@ -6,7 +6,7 @@ import { gsap } from '@utils/gsap'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
 import { useReducedMotion } from '@hooks/useReducedMotion'
-import { FOCUS } from '@utils/focus'
+import { BTN_ICON, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import Avatar from './Avatar'
 import { fmtMoney, type ProfileApi } from './useProfileDraft'
 
@@ -30,7 +30,7 @@ export default function PreviewDock({ api }: { api: ProfileApi }) {
         onClick={openPreview}
         aria-haspopup="dialog"
         data-cursor="Xem trước"
-        className={`rounded-full border border-page-edge px-3.5 py-1 text-sm text-page-fg transition-colors duration-200 hover:border-page-fg ${FOCUS}`}
+        className={`${BTN_SECONDARY} ${BTN_SM}`}
       >
         Xem bản doanh nghiệp thấy
       </button>
@@ -101,7 +101,7 @@ function PreviewModal({ api, reduced, onClosed }: ModalProps) {
         aria-labelledby={titleId}
         className="theme-ivory relative max-h-[88svh] w-full max-w-2xl overflow-y-auto rounded-card border border-page-line bg-wm-ivory p-6 text-wm-charcoal md:p-10"
       >
-        <button ref={closeRef} type="button" onClick={() => requestClose.current()} aria-label="Đóng" className={`absolute right-4 top-4 rounded-full border border-page-edge p-2 ${FOCUS}`}>
+        <button ref={closeRef} type="button" onClick={() => requestClose.current()} aria-label="Đóng" className={`${BTN_ICON} absolute right-4 top-4`}>
           <X className="h-4 w-4" aria-hidden />
         </button>
         <p className="text-xs uppercase tracking-widest text-page-muted">Bản doanh nghiệp nhìn thấy</p>

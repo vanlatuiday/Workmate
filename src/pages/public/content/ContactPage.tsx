@@ -2,7 +2,8 @@
 import type { FormEvent } from 'react'
 import toast from 'react-hot-toast'
 import { FOCUS } from '@utils/focus'
-import ContentPage, { CTA_PRIMARY, Section } from './ContentPage'
+import { BTN_ACCENT } from '@utils/ui'
+import ContentPage, { Section } from './ContentPage'
 
 const FIELD = `mt-2 w-full rounded-card border border-page-edge bg-page-bg px-4 py-3 text-sm text-page-fg ${FOCUS}`
 
@@ -35,7 +36,7 @@ export default function ContactPage() {
             Nội dung
             <textarea name="message" required rows={5} className={FIELD} />
           </label>
-          <button type="submit" className={CTA_PRIMARY}>Gửi tin nhắn</button>
+          <button type="submit" className={BTN_ACCENT}>Gửi tin nhắn</button>
         </form>
       </div>
     </ContentPage>

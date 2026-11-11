@@ -7,8 +7,10 @@ import Reveal from '@components/motion/Reveal'
 import Rise from '@components/motion/Rise'
 import { photoSrcSet, photoUrl } from '@components/discover/types'
 import { useReducedMotion } from '@hooks/useReducedMotion'
+import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
-import ContentPage, { CTA_PRIMARY, CTA_SECONDARY, CtaRow } from './ContentPage'
+import { BTN_ACCENT, BTN_SECONDARY, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
+import ContentPage, { CtaRow } from './ContentPage'
 import { ABOUT_POSTS, type AboutPost } from './aboutPosts'
 
 /** Bỏ dấu + chữ thường để tìm không phân biệt dấu/hoa thường */
@@ -60,7 +62,7 @@ function Post({ post }: { post: AboutPost }) {
         <Rise from={{ y: 16, scale: 0.92 }} delay={0.7}>
           <Link
             to={post.cta.to}
-            className={`mt-6 inline-flex items-center gap-2 rounded-full border border-page-line px-5 py-2.5 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg ${FOCUS}`}
+            className={cn(BTN_SECONDARY, 'mt-6')}
           >
             {post.cta.label}
             <ArrowUpRight className="h-4 w-4" aria-hidden />
@@ -108,11 +110,7 @@ export default function AboutPage() {
   }
 
   const chip = (active: boolean) =>
-    `rounded-full border px-4 py-2 text-sm transition-colors duration-300 ${FOCUS} ${
-      active
-        ? 'border-page-fg bg-page-fg text-page-bg'
-        : 'border-page-line text-page-fg hover:border-page-fg'
-    }`
+    cn(CHIP, active ? CHIP_ON : CHIP_OFF)
 
   return (
     <ContentPage
@@ -192,8 +190,8 @@ export default function AboutPage() {
       </div>
 
       <CtaRow>
-        <Link to="/match" className={CTA_PRIMARY}>Xem kết nối</Link>
-        <Link to="/dang-ky" className={CTA_SECONDARY}>Đăng ký</Link>
+        <Link to="/match" className={BTN_ACCENT}>Xem kết nối</Link>
+        <Link to="/dang-ky" className={BTN_SECONDARY}>Đăng ký</Link>
       </CtaRow>
     </ContentPage>
   )

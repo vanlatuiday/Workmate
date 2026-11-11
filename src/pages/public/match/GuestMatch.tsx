@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom'
 import { MockNotice } from '@components/dashboard'
 import { FOCUS } from '@utils/focus'
 import { MATCH_JOBS, SEEKER_DEFAULT } from './data'
-import { BTN_PRIMARY, BTN_SECONDARY, JobCard, MatchFrame } from './parts'
+import { BTN_PRIMARY, BTN_SECONDARY } from '@utils/ui'
+import { JobCard, MatchFrame } from './parts'
 import { scoreMatch } from './score'
 
 // Ba thẻ mẫu làm nền mờ phía sau lời mời đăng ký (chọn tin có điểm trải rộng)

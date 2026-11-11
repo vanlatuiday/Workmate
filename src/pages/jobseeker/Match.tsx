@@ -7,12 +7,10 @@ import { describeConversation } from '@pages/public/messages/describe'
 import { useConversations, useMyPairs } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import { formatRelativeTime } from '@utils/format'
 import MessageLink from '@components/messenger/MessageLink'
 
-const BTN = `inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
-const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
-const BTN_LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 
 /** Kết nối (người tìm việc): các việc đã được hai bên đồng ý, kèm tin nhắn cuối và phỏng vấn. */
 export default function JobseekerMatch() {
@@ -24,7 +22,7 @@ export default function JobseekerMatch() {
       <PageHeader
         title="Kết nối"
         description="Những doanh nghiệp đã đồng ý kết nối với bạn. Nhắn tin và hẹn phỏng vấn tại đây."
-        actions={<Link to="/lich-phong-van" className={BTN_LINE}>Lịch phỏng vấn</Link>}
+        actions={<Link to="/lich-phong-van" className={cn(BTN_SECONDARY, BTN_SM)}>Lịch phỏng vấn</Link>}
       />
 
       {connected.length === 0 ? (
@@ -32,7 +30,7 @@ export default function JobseekerMatch() {
           icon={Zap}
           title="Chưa có kết nối nào"
           description="Ứng tuyển hoặc đồng ý lời quan tâm ở trang Kết nối để bắt đầu trò chuyện."
-          action={<Link to="/match" className={BTN_SOLID}>Tới trang Kết nối</Link>}
+          action={<Link to="/match" className={BTN_ACCENT}>Tới trang Kết nối</Link>}
         />
       ) : (
         <Panel>
@@ -64,8 +62,8 @@ export default function JobseekerMatch() {
                   <div className="flex flex-wrap items-center gap-2 lg:flex-shrink-0">
                     <InterviewAction viewer="seeker" jobId={p.jobId} seekerId={p.seekerId} compact />
                     <HireAction viewer="seeker" jobId={p.jobId} seekerId={p.seekerId} compact />
-                    <MessageLink convKey={`${p.jobId}|${p.seekerId}`} className={BTN_SOLID}>Nhắn tin</MessageLink>
-                    <Link to="/lich-phong-van" className={BTN_LINE}>Lịch phỏng vấn</Link>
+                    <MessageLink convKey={`${p.jobId}|${p.seekerId}`} className={cn(BTN_PRIMARY, BTN_SM)}>Nhắn tin</MessageLink>
+                    <Link to="/lich-phong-van" className={cn(BTN_SECONDARY, BTN_SM)}>Lịch phỏng vấn</Link>
                   </div>
                 </li>
               )

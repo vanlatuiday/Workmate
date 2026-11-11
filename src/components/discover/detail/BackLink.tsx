@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { FOCUS } from '@utils/focus'
 
-const CLASS = `inline-flex items-center gap-2 rounded-control text-sm text-page-muted transition-colors duration-300 hover:text-page-fg ${FOCUS}`
+const CLASS = `inline-flex items-center gap-2 rounded-control text-sm text-page-muted transition-colors duration-fast hover:text-page-fg ${FOCUS}`
 
 /** Nút quay lại: đến từ /viec-lam thì lùi lịch sử (giữ đúng chỗ đang xem), ngược lại là link về /viec-lam. */
 export default function BackLink() {

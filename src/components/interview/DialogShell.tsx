@@ -78,7 +78,7 @@ export default function DialogShell({ titleId, title, subtitle, onClose, childre
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className={cn('shrink-0 rounded-control p-1.5 text-page-muted transition-colors duration-300 hover:text-page-fg', FOCUS)}
+            className={cn('shrink-0 rounded-control p-1.5 text-page-muted transition-colors duration-fast hover:text-page-fg', FOCUS)}
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>

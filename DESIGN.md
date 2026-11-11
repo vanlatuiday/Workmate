@@ -225,8 +225,22 @@ Component dùng lại được (xem code trước khi viết mới):
 - **Chuyển động**: `Reveal` (hiện khi cuộn tới, một lần), `TextReveal` (chữ trồi theo từ, một lần), `MaskedWords` (chữ trong mặt nạ cho GSAP điều khiển theo cuộn, đảo ngược được), `RollText` (chữ cuộn khi hover — cha phải có class `group`), `Magnetic` (nút hút theo chuột), `CustomCursor`.
 - **Bố cục**: `PublicLayout` (header + footer), `MenuOverlay`, `RouteScroll`.
 
-**Nút chính** — `bg-page-fg text-page-bg rounded-full px-8 py-4 text-sm font-medium`, chữ bọc `RollText`, có thể bọc `Magnetic`. Trên nền tối tự đảo thành nút ngà.
-**Nút phụ** — `border border-page-line text-page-fg rounded-full px-8 py-4`, hover `border-page-fg`.
+**Nút và chip (2026-11-12)** — chỉ dùng hằng trong `src/utils/ui.ts`, không tự định nghĩa trong trang:
+| Hằng | Dùng cho |
+|---|---|
+| `BTN_ACCENT` | Hành động chính của màn hình — **tối đa một nút mỗi màn hình** (Ứng tuyển, Đăng tin, Lưu thay đổi, Gửi, Đăng nhập) |
+| `BTN_PRIMARY` | Nút đặc màu chữ trang: hành động quan trọng thứ hai, hoặc hành động lặp lại trong từng hàng/thẻ |
+| `BTN_SECONDARY` | Nút viền: hành động phụ |
+| `BTN_GHOST` | Nút chữ: Hủy, Xem thêm |
+| `BTN_DANGER` | Xóa, từ chối, rút lại |
+| `BTN_SM` / `BTN_LG` | Cỡ (ghép sau kiểu nút bằng `cn`) |
+| `BTN_ICON` | Nút tròn chỉ có icon (kèm aria-label) |
+| `CHIP` + `CHIP_ON` / `CHIP_OFF` | Chip lọc, tab viên; đang chọn = màu nhấn |
+| `LINK`, `CARD_HOVER`, `PRESS` | Link nhấn; thẻ bấm được; chuyển động chuẩn cho phần tử bấm được khác |
+
+Mọi phần tử bấm được có: đổi màu 150ms, lún `scale 0.97` khi bấm, vòng focus `FOCUS`, nhánh giảm chuyển động.
+Trang chủ được giữ cỡ nút lớn riêng (`BTN_LG`) và `RollText`/`Magnetic` cho CTA của hero.
+
 **Thanh tìm kiếm** — khung `rounded-card` viền `page-edge`, ô `bg-page-surface`, focus có vòng `ring-2 ring-inset ring-page-fg`, nút submit là nút chính.
 **Tag** — `border-page-line text-page-muted rounded-full px-3 py-1.5 text-xs`, hover lên `page-fg`.
 **Thẻ việc làm** — `bg-page-surface border-page-line rounded-card p-6 md:p-7`, hover viền `page-fg` + mũi tên dịch nhẹ; ghi rõ “Tin mẫu” khi là dữ liệu giả.
@@ -234,6 +248,15 @@ Component dùng lại được (xem code trước khi viết mới):
 **Focus bàn phím** — trên trang chủ viền 2px `currentColor`, cách 3px; không dùng viền xanh mặc định.
 
 ## Motion
+
+**Ba mức thời lượng (2026-11-12)** — class Tailwind `duration-fast|base|slow`, nhịp `ease-editorial`:
+| Mức | Thời lượng | Dùng cho |
+|---|---|---|
+| `duration-fast` | 150ms | bấm, hover, đổi màu |
+| `duration-base` | 300ms | mở/đóng (menu, accordion, popup), đổi trạng thái, trượt |
+| `duration-slow` | 500ms | nội dung hiện ra khi cuộn tới |
+
+Ngoài trang chủ (chuyển cảnh theo cuộn dùng GSAP) không dùng số thời lượng khác, không dùng `ease-out`/`ease-in`.
 
 Nguyên tắc:
 1. **Một khoảnh khắc chính**: logo bay từ giữa màn hình vào header. Các hiệu ứng khác phụ trợ, không tranh.

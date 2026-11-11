@@ -49,7 +49,7 @@ function RingBody({ ratio, value, max, label, center, card }: BodyProps) {
           pathLength={1}
           strokeDasharray={1}
           strokeDashoffset={1 - ratio}
-          className="stroke-page-fg transition-[stroke-dashoffset] duration-500 ease-out motion-reduce:transition-none"
+          className="stroke-page-fg transition-[stroke-dashoffset] duration-slow ease-editorial motion-reduce:transition-none"
         />
       </svg>
       <span className="tnum relative text-[0.6875rem] font-medium leading-none text-page-fg lg:text-xs">{center}</span>

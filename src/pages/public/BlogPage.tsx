@@ -32,7 +32,7 @@ function ArticleCard({ a, index }: { a: Article; index: number }) {
         <div ref={frameRef} className="aspect-[16/10] overflow-hidden rounded-card bg-page-surface">
           {/* Lớp ngoài: phóng nhẹ khi hover; lớp trong: ảnh cao hơn khung + trôi dọc */}
           <div
-            className={`h-full w-full transition-transform duration-[400ms] ease-out motion-reduce:transition-none [@media(hover:hover)]:group-hover:scale-[1.03] motion-reduce:group-hover:scale-100`}
+            className={`h-full w-full transition-transform duration-base ease-editorial motion-reduce:transition-none [@media(hover:hover)]:group-hover:scale-[1.03] motion-reduce:group-hover:scale-100`}
           >
             <motion.img
               src={photoUrl(a.photoId, 960)}
@@ -53,11 +53,11 @@ function ArticleCard({ a, index }: { a: Article; index: number }) {
         </p>
         <h2 className="relative mt-2 font-display text-xl font-normal text-page-fg md:text-2xl">
           <ArrowRight
-            className={`absolute left-0 top-[0.4em] h-5 w-5 -translate-x-2 opacity-0 transition-[opacity,transform] duration-[400ms] ease-out motion-reduce:transition-none [@media(hover:hover)]:group-hover:translate-x-0 [@media(hover:hover)]:group-hover:opacity-100`}
+            className={`absolute left-0 top-[0.4em] h-5 w-5 -translate-x-2 opacity-0 transition-[opacity,transform] duration-base ease-editorial motion-reduce:transition-none [@media(hover:hover)]:group-hover:translate-x-0 [@media(hover:hover)]:group-hover:opacity-100`}
             aria-hidden
           />
           <span
-            className={`block transition-transform duration-[400ms] ease-out motion-reduce:transition-none [@media(hover:hover)]:group-hover:translate-x-7`}
+            className={`block transition-transform duration-base ease-editorial motion-reduce:transition-none [@media(hover:hover)]:group-hover:translate-x-7`}
           >
             {a.title}
           </span>

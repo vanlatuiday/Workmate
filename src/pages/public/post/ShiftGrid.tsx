@@ -65,7 +65,7 @@ export default function ShiftGrid({ value, onChange }: { value: string[]; onChan
                     onChange(on ? value.filter((k) => k !== key) : [...value, key])
                   }}
                   className={cn(
-                    'h-9 rounded-control border transition-colors duration-200',
+                    'h-9 rounded-control border transition-colors duration-fast',
                     on ? 'border-page-fg bg-page-fg' : 'border-page-line bg-page-bg hover:border-page-fg',
                     FOCUS,
                   )}

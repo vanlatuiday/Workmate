@@ -16,6 +16,7 @@ import { lockScroll } from '@components/floating/scrollLock'
 import { FLOAT_SIZE as SIZE, useFloatingButton, type FloatPos } from '@components/floating/useFloatingButton'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ICON } from '@utils/ui'
 
 const STORAGE_KEY = 'workmate-messenger-pos'
 const DEFAULT_POS: FloatPos = { side: 'right', yRatio: 1 }
@@ -150,7 +151,7 @@ function MessengerInner({ viewer }: { viewer: Side }) {
         className={cn(
           'theme-ivory fixed left-0 top-0 z-[60] !bg-transparent', // theme-ivory tự tô nền ngà → bỏ để chỉ còn nút tròn
           // Thả tay thì trượt về mép; đang kéo thì bám theo con trỏ ngay
-          animate && !dragging && 'transition-transform duration-300 ease-editorial motion-reduce:transition-none',
+          animate && !dragging && 'transition-transform duration-base ease-editorial motion-reduce:transition-none',
         )}
         style={{ transform: `translate3d(${x}px, ${y}px, 0)` }}
       >
@@ -158,7 +159,7 @@ function MessengerInner({ viewer }: { viewer: Side }) {
         <div
           data-floating
           className={cn(
-            'relative transition-opacity duration-300 motion-reduce:transition-none',
+            'relative transition-opacity duration-base motion-reduce:transition-none',
             open && 'pointer-events-none opacity-0',
           )}
         >
@@ -174,7 +175,7 @@ function MessengerInner({ viewer }: { viewer: Side }) {
             className={cn(
               // Viền ngà mờ: tách nút khỏi nền tối (trang chủ, dashboard kính); trên nền ngà thì gần như không thấy
               'flex cursor-grab items-center justify-center rounded-full bg-page-fg text-page-bg ring-1 ring-wm-ivory/40 hover:ring-2 hover:ring-wm-ivory/70 active:cursor-grabbing',
-              'transition-transform duration-200 hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100',
+              'transition-transform duration-fast hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100',
               FOCUS,
             )}
           >
@@ -197,7 +198,7 @@ function MessengerInner({ viewer }: { viewer: Side }) {
         onClick={closeMessenger}
         className={cn(
           // Lớp mờ toàn màn hình nặng → will-change để trình duyệt chuẩn bị lớp riêng, mờ/rõ không rớt khung
-          'fixed inset-0 z-[85] bg-wm-charcoal/20 backdrop-blur-md transition-opacity duration-500 ease-out will-change-[opacity] motion-reduce:transition-none',
+          'fixed inset-0 z-[85] bg-wm-charcoal/20 backdrop-blur-md transition-opacity duration-slow ease-editorial will-change-[opacity] motion-reduce:transition-none',
           open ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       />
@@ -230,7 +231,7 @@ function MessengerInner({ viewer }: { viewer: Side }) {
               type="button"
               onClick={closeMessenger}
               aria-label="Đóng tin nhắn"
-              className={cn('rounded-full border border-page-line p-3 text-page-fg transition-colors duration-300 hover:border-page-fg hover:bg-page-surface', FOCUS)}
+              className={BTN_ICON}
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </button>

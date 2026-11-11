@@ -16,6 +16,7 @@ import PageTransition from '@components/motion/PageTransition'
 import { PERSONAL_HREF } from '@pages/public/personal/links'
 import RollText from '@components/motion/RollText'
 import { FOCUS } from '@utils/focus'
+import { BTN_PRIMARY, BTN_SECONDARY } from '@utils/ui'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { isAuthPath } from '@pages/public/auth/authShared'
 import { scrollToHomeBanner } from '@components/home/IntroHero'
@@ -358,20 +359,14 @@ export default function PublicLayout() {
                 <>
                   <Link
                     to={dashboardHref}
-                    className={cn(
-                      'text-sm w-full text-center font-medium py-3 rounded-full transition-opacity bg-page-fg text-page-bg hover:opacity-90',
-                      FOCUS,
-                    )}
+                    className={cn(BTN_PRIMARY, 'w-full')}
                   >
                     {area?.label}
                   </Link>
                   <button
                     type="button"
                     onClick={logout}
-                    className={cn(
-                      'text-sm w-full text-center font-medium py-3 rounded-full transition-colors border border-page-fg text-page-fg hover:bg-page-surface',
-                      FOCUS,
-                    )}
+                    className={cn(BTN_SECONDARY, 'w-full')}
                   >
                     Đăng xuất
                   </button>
@@ -380,19 +375,13 @@ export default function PublicLayout() {
                 <>
                   <Link
                     to="/dang-nhap"
-                    className={cn(
-                      'text-sm w-full text-center font-medium py-3 rounded-full transition-colors border border-page-fg text-page-fg hover:bg-page-surface',
-                      FOCUS,
-                    )}
+                    className={cn(BTN_SECONDARY, 'w-full')}
                   >
                     Đăng nhập
                   </Link>
                   <Link
                     to="/dang-ky"
-                    className={cn(
-                      'text-sm w-full text-center font-medium py-3 rounded-full transition-opacity bg-page-fg text-page-bg hover:opacity-90',
-                      FOCUS,
-                    )}
+                    className={cn(BTN_PRIMARY, 'w-full')}
                   >
                     Đăng ký
                   </Link>

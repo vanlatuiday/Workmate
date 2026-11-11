@@ -3,6 +3,7 @@ import { ChevronDown, MapPin, Search, SlidersHorizontal, X } from 'lucide-react'
 import { JOB_TYPES } from '@constants/index'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_PRIMARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { formatHourlyFromK } from '@utils/format'
 import { DISTRICTS, EMPTY_FILTERS, hasFilters, type JobFilters } from './catalog'
 
@@ -219,11 +220,7 @@ export default function JobSearchBar({
 
         <button
           type="submit"
-          className={cn(
-            'rounded-full bg-page-fg px-6 py-2 text-sm font-medium text-page-bg transition-opacity duration-300 hover:opacity-90',
-            'mt-1 sm:mt-0',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-surface',
-          )}
+          className={cn(BTN_PRIMARY, BTN_SM, 'mt-1 sm:mt-0')}
         >
           Tìm việc
         </button>
@@ -292,7 +289,7 @@ export default function JobSearchBar({
             // Điện thoại: dịch trái, chừa chỗ nút chat nổi (24 + 56 + 12px) ở góc phải
             'max-w-[calc(100%-4.5rem)] justify-self-start sm:max-w-full sm:justify-self-center',
             'glass-liquid flex items-center gap-3 rounded-full py-2 pl-4 pr-2 text-sm text-page-fg [--glass-alpha:55%]',
-            'transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none',
+            'transition-[opacity,transform] duration-fast ease-editorial motion-reduce:transition-none',
             showPill ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0 lg:-translate-y-2',
             FOCUS,
           )}
@@ -312,7 +309,7 @@ export default function JobSearchBar({
           aria-hidden={!expanded}
           className={cn(
             'col-start-1 row-start-1 w-full min-w-0 max-w-4xl self-end lg:self-start',
-            'origin-bottom transition-[opacity,transform] duration-300 ease-editorial motion-reduce:transition-none lg:origin-top',
+            'origin-bottom transition-[opacity,transform] duration-base ease-editorial motion-reduce:transition-none lg:origin-top',
             expanded ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-[0.4] opacity-0',
           )}
         >
@@ -331,11 +328,11 @@ function Chip({ pressed, onClick, glass = false, children }: { pressed: boolean;
       aria-pressed={pressed}
       onClick={onClick}
       className={cn(
-        'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors duration-300',
-        pressed ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
+        CHIP,
+        'shrink-0 px-3 py-1 text-xs',
+        pressed ? CHIP_ON : CHIP_OFF,
         // Bản nổi trên ảnh: chip chưa chọn có nền kính để chữ đọc được
         glass && !pressed && 'glass-liquid backdrop-blur-xl [--glass-alpha:70%]',
-        FOCUS,
       )}
     >
       {children}

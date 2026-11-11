@@ -8,6 +8,7 @@ import { useProfileStore } from '@context/profileStore'
 import { completeness } from '@pages/public/profile/useProfileDraft'
 import { DAY_SHORT, SESSIONS } from './mockData'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
 const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 const LEGEND = 'mb-4 font-display text-lg font-medium text-page-fg'
@@ -153,11 +154,7 @@ export default function Profile() {
                     type="button"
                     aria-pressed={on}
                     onClick={() => toggleType(t.value)}
-                    className={cn(
-                      'rounded-full border px-3.5 py-1.5 text-sm transition-colors duration-300',
-                      on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
-                      FOCUS,
-                    )}
+                    className={cn(CHIP, on ? CHIP_ON : CHIP_OFF)}
                   >
                     {t.label}
                   </button>
@@ -203,7 +200,7 @@ export default function Profile() {
                               aria-label={`${DAY_FULL[di]} buổi ${s.toLowerCase()}`}
                               onClick={() => toggleSlot(key)}
                               className={cn(
-                                'h-10 w-full rounded-control border text-xs transition-colors duration-300',
+                                'h-10 w-full rounded-control border text-xs transition-colors duration-fast',
                                 on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-muted hover:border-page-fg',
                                 FOCUS,
                               )}
@@ -233,7 +230,7 @@ export default function Profile() {
                     type="button"
                     aria-label={`Xóa kỹ năng ${s}`}
                     onClick={() => { setSaved(false); setSkills(skills.filter((x) => x !== s)) }}
-                    className={`flex h-6 w-6 items-center justify-center rounded-full text-page-muted transition-colors duration-300 hover:text-page-fg ${FOCUS}`}
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-page-muted transition-colors duration-fast hover:text-page-fg ${FOCUS}`}
                   >
                     <X className="h-3.5 w-3.5" aria-hidden="true" />
                   </button>
@@ -255,7 +252,7 @@ export default function Profile() {
               <button
                 type="button"
                 onClick={addSkill}
-                className={`inline-flex items-center gap-1.5 rounded-full border border-page-line px-4 py-2 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg ${FOCUS}`}
+                className={cn(BTN_SECONDARY, BTN_SM)}
               >
                 <Plus className="h-4 w-4" aria-hidden="true" /> Thêm
               </button>
@@ -281,7 +278,7 @@ export default function Profile() {
                       type="button"
                       aria-label={`Xóa kinh nghiệm ${x.title} tại ${x.company}`}
                       onClick={() => { setSaved(false); setExperience(experience.filter((e) => e !== x)) }}
-                      className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-page-muted transition-colors duration-300 hover:text-page-fg ${FOCUS}`}
+                      className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-page-muted transition-colors duration-fast hover:text-page-fg ${FOCUS}`}
                     >
                       <X className="h-4 w-4" aria-hidden="true" />
                     </button>
@@ -294,7 +291,7 @@ export default function Profile() {
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-4">
-        <button type="submit" className={`rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`}>
+        <button type="submit" className={BTN_ACCENT}>
           Lưu hồ sơ
         </button>
         <p role="status" className="text-sm text-page-muted">{saved ? 'Đã lưu trên trình duyệt này' : ''}</p>

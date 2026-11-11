@@ -18,12 +18,11 @@ import { TagList, TextBlock } from '@components/discover/detail/DetailBlocks'
 import ReportButton from '@components/report/ReportButton'
 import api from '@services/api'
 import { cn } from '@utils/cn'
-import { FOCUS } from '@utils/focus'
 import { jobsOfCompany, seekerOutcome, useAllJobs, type MatchJob } from './jobs/catalog'
 import { findAnyJob } from './jobs/lookup'
 import { companyOf } from './match/data'
 import { CriterionBars, ImproveHint } from './match/detailParts'
-import { BTN_PRIMARY, BTN_SECONDARY } from './match/parts'
+import { BTN_ACCENT, BTN_DANGER, BTN_SECONDARY } from '@utils/ui'
 import MessageLink from '@components/messenger/MessageLink'
 
 const jobTypeLabel = (t: string) => JOB_TYPES.find((x) => x.value === t)?.label ?? t
@@ -50,12 +49,12 @@ function SeekerActions({ job }: { job: MatchJob }) {
   return (
     <div className="mt-6 flex flex-wrap items-center gap-3">
       {status === 'none' && (
-        <button type="button" onClick={apply} className={BTN_PRIMARY}>
+        <button type="button" onClick={apply} className={BTN_ACCENT}>
           Ứng tuyển
         </button>
       )}
       {status === 'received' && (
-        <button type="button" onClick={apply} className={BTN_PRIMARY}>
+        <button type="button" onClick={apply} className={BTN_ACCENT}>
           Đồng ý kết nối
         </button>
       )}
@@ -71,14 +70,14 @@ function SeekerActions({ job }: { job: MatchJob }) {
               withdrawInterest('seeker', job.id, ME)
               toast.dismiss(toastId)
             }}
-            className={`inline-flex min-h-11 items-center rounded-control px-3 text-sm text-page-muted underline underline-offset-4 hover:text-page-fg ${FOCUS}`}
+            className={BTN_DANGER}
           >
             Rút<span className="sr-only"> đơn ứng tuyển</span>
           </button>
         </>
       )}
       {status === 'connected' && (
-        <MessageLink convKey={`${job.id}|${ME}`} className={BTN_PRIMARY}>
+        <MessageLink convKey={`${job.id}|${ME}`} className={BTN_ACCENT}>
           Nhắn tin
         </MessageLink>
       )}
@@ -150,7 +149,7 @@ export default function JobDetailPage() {
 
       {!role && !hidden && (
         <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">
-          <PrimaryLink to="/dang-nhap" state={{ from: location.pathname + location.search }}>
+          <PrimaryLink accent to="/dang-nhap" state={{ from: location.pathname + location.search }}>
             Đăng nhập để ứng tuyển
           </PrimaryLink>
           <TextLink to="/dang-ky?role=jobseeker">Đăng ký</TextLink>

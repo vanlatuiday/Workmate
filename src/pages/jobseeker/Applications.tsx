@@ -10,12 +10,10 @@ import { useConnectionStore } from '@context/connectionStore'
 import { APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStage, useHires, useMyPairs, useOnNewConnection, withdrawInterest, type PairItem } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_DANGER, BTN_PRIMARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { formatRelativeTime } from '@utils/format'
 import MessageLink from '@components/messenger/MessageLink'
 
-const BTN = `inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
-const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
-const BTN_LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 
 type Tab = 'all' | 'sent' | 'connected'
 const TABS: { id: Tab; label: string }[] = [
@@ -54,17 +52,17 @@ function Row({ item }: { item: PairItem }) {
       <div className="flex flex-wrap items-center gap-2 md:flex-shrink-0">
         {item.status === 'connected' && <InterviewAction viewer="seeker" jobId={item.jobId} seekerId={item.seekerId} compact />}
         {item.status === 'connected' && (
-          <MessageLink convKey={`${item.jobId}|${item.seekerId}`} className={BTN_SOLID}>Nhắn tin</MessageLink>
+          <MessageLink convKey={`${item.jobId}|${item.seekerId}`} className={cn(BTN_PRIMARY, BTN_SM)}>Nhắn tin</MessageLink>
         )}
         {item.status === 'received' && (
-          <button type="button" className={BTN_SOLID} onClick={() => expressInterest('seeker', item.jobId, item.seekerId)}>
+          <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={() => expressInterest('seeker', item.jobId, item.seekerId)}>
             Đồng ý kết nối
           </button>
         )}
         {item.status === 'sent' && (
           <button
             type="button"
-            className={BTN_LINE}
+            className={cn(BTN_DANGER, BTN_SM)}
             onClick={() => {
               withdrawInterest('seeker', item.jobId, item.seekerId)
               toast('Đã rút đơn ứng tuyển')
@@ -120,14 +118,10 @@ export default function Applications() {
             type="button"
             aria-pressed={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={cn(
-              'rounded-full border px-4 py-1.5 text-sm transition-colors duration-300',
-              tab === t.id ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
-              FOCUS,
-            )}
+            className={cn(CHIP, tab === t.id ? CHIP_ON : CHIP_OFF)}
           >
             {t.label}
-            <span className={cn('tnum ml-1.5', tab === t.id ? 'text-page-bg' : 'text-page-muted')}>
+            <span className={cn('tnum ml-1.5', tab === t.id ? 'text-accent-fg' : 'text-page-muted')}>
               {t.id === 'all' ? mine.length : mine.filter((p) => p.status === t.id).length}
             </span>
           </button>
@@ -139,7 +133,7 @@ export default function Applications() {
           icon={ClipboardList}
           title={tab === 'all' ? 'Chưa ứng tuyển việc nào' : 'Chưa có đơn ở mục này'}
           description="Ứng tuyển ở trang Kết nối, đơn sẽ hiện tại đây."
-          action={<Link to="/match" className={BTN_SOLID}>Tới trang Kết nối</Link>}
+          action={<Link to="/match" className={BTN_ACCENT}>Tới trang Kết nối</Link>}
         />
       ) : (
         <Panel>

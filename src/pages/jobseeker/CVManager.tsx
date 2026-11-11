@@ -6,10 +6,8 @@ import { EmptyState, PageHeader, Panel, Skeleton, SkeletonList, StatusBadge } fr
 import { CV_MAX_COUNT, CV_TYPES, useCvStore, type CvMeta } from '@context/cvStore'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_DANGER, BTN_GHOST, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 
-const BTN = `inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
-const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
-const BTN_LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 
 /** Dung lượng dạng KB / MB */
 const formatSize = (b: number) => (b >= 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`)
@@ -44,7 +42,7 @@ function PreviewDialog({ cv, onClose }: { cv: CvMeta; onClose: () => void }) {
       <div role="dialog" aria-modal="true" aria-label={`Xem trước ${cv.name}`} className="flex h-full max-h-[90vh] w-full max-w-4xl flex-col rounded-card border border-page-line bg-page-surface">
         <div className="flex items-center justify-between gap-4 border-b border-page-line px-5 py-3">
           <p className="truncate font-medium text-page-fg">{cv.name}</p>
-          <button ref={closeRef} type="button" onClick={onClose} className={`${BTN_LINE} gap-1.5`}>
+          <button ref={closeRef} type="button" onClick={onClose} className={cn(BTN_SECONDARY, BTN_SM)}>
             <X className="h-4 w-4" aria-hidden="true" />Đóng
           </button>
         </div>
@@ -129,11 +127,11 @@ function CvRow({ cv, isDefault, onPreview }: { cv: CvMeta; isDefault: boolean; o
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button type="button" className={BTN_LINE} onClick={onPreview}>Xem<span className="sr-only"> {cv.name}</span></button>
-          <button type="button" className={BTN_LINE} onClick={download}>Tải xuống<span className="sr-only"> {cv.name}</span></button>
-          <button type="button" className={BTN_LINE} onClick={() => { setDraft(cv.name); setEditing(true) }}>Đổi tên<span className="sr-only"> {cv.name}</span></button>
-          {!isDefault && <button type="button" className={BTN_LINE} onClick={() => void makeDefault()}>Đặt làm mặc định</button>}
-          <button type="button" className={BTN_LINE} onClick={() => setConfirming(true)}>Xóa<span className="sr-only"> {cv.name}</span></button>
+          <button type="button" className={cn(BTN_SECONDARY, BTN_SM)} onClick={onPreview}>Xem<span className="sr-only"> {cv.name}</span></button>
+          <button type="button" className={cn(BTN_SECONDARY, BTN_SM)} onClick={download}>Tải xuống<span className="sr-only"> {cv.name}</span></button>
+          <button type="button" className={cn(BTN_SECONDARY, BTN_SM)} onClick={() => { setDraft(cv.name); setEditing(true) }}>Đổi tên<span className="sr-only"> {cv.name}</span></button>
+          {!isDefault && <button type="button" className={cn(BTN_SECONDARY, BTN_SM)} onClick={() => void makeDefault()}>Đặt làm mặc định</button>}
+          <button type="button" className={cn(BTN_DANGER, BTN_SM)} onClick={() => setConfirming(true)}>Xóa<span className="sr-only"> {cv.name}</span></button>
         </div>
       </div>
 
@@ -141,8 +139,8 @@ function CvRow({ cv, isDefault, onPreview }: { cv: CvMeta; isDefault: boolean; o
         <div role="alertdialog" aria-label={`Xác nhận xóa ${cv.name}`} className="mt-4 flex flex-col gap-3 rounded-card border border-page-fg p-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-page-fg">Xóa CV “{cv.name}”? Không thể hoàn tác.</p>
           <div className="flex gap-2">
-            <button type="button" autoFocus className={BTN_SOLID} onClick={doRemove}>Xóa CV</button>
-            <button type="button" className={BTN_LINE} onClick={() => setConfirming(false)}>Hủy</button>
+            <button type="button" autoFocus className={cn(BTN_DANGER, BTN_SM)} onClick={doRemove}>Xóa CV</button>
+            <button type="button" className={cn(BTN_GHOST, BTN_SM)} onClick={() => setConfirming(false)}>Hủy</button>
           </div>
         </div>
       )}
@@ -200,7 +198,7 @@ export default function CVManager() {
         >
           <Upload className="mb-3 h-6 w-6 text-page-muted" aria-hidden="true" />
           <p className="text-sm text-page-fg">Kéo file vào đây hoặc</p>
-          <button type="button" className={`${BTN_SOLID} mt-3 disabled:opacity-60`} disabled={uploading} onClick={() => inputRef.current?.click()}>{uploading ? 'Đang tải lên…' : 'Chọn file'}</button>
+          <button type="button" className={cn(BTN_ACCENT, 'mt-3')} disabled={uploading} onClick={() => inputRef.current?.click()}>{uploading ? 'Đang tải lên…' : 'Chọn file'}</button>
           <input ref={inputRef} type="file" multiple accept={CV_TYPES.join(',')} className="sr-only" tabIndex={-1} aria-label="Chọn file CV"
             onChange={(e) => { if (e.target.files) void upload(e.target.files); e.target.value = '' }} />
           <p className="mt-3 text-xs text-page-muted">PDF hoặc ảnh, tối đa 5MB, tối đa {CV_MAX_COUNT} CV.</p>

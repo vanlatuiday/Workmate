@@ -4,11 +4,6 @@ import type { ReactNode } from 'react'
 import TextReveal from '@components/motion/TextReveal'
 import Reveal from '@components/motion/Reveal'
 import { usePageEnterDelay } from '@components/motion/PageTransition'
-import { FOCUS } from '@utils/focus'
-
-/** Nút pill đặc / viền cho CTA trong trang nội dung */
-export const CTA_PRIMARY = `inline-flex items-center justify-center rounded-full border border-page-fg bg-page-fg px-6 py-3 text-sm font-medium text-page-bg transition-colors duration-300 hover:bg-page-bg hover:text-page-fg ${FOCUS}`
-export const CTA_SECONDARY = `inline-flex items-center justify-center rounded-full border border-page-line px-6 py-3 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg ${FOCUS}`
 
 export default function ContentPage({
   eyebrow,

@@ -22,7 +22,7 @@ export default function StatCard({ label, value, icon: Icon, href, hint, emptyAc
   const showEmpty = !!emptyAction && (value === 0 || value === '0')
   const className = cn(
     'block rounded-card border border-page-line bg-page-surface p-5 md:p-6',
-    href && !showEmpty && cn('transition-colors duration-300 hover:border-page-fg hover:bg-page-line', FOCUS),
+    href && !showEmpty && cn('transition-colors duration-fast hover:border-page-fg hover:bg-page-line', FOCUS),
   )
   const body = (
     <>
@@ -36,7 +36,7 @@ export default function StatCard({ label, value, icon: Icon, href, hint, emptyAc
           {emptyAction.text} ·{' '}
           <Link
             to={emptyAction.href}
-            className={cn('rounded-control font-medium text-page-fg underline underline-offset-4 transition-colors duration-300 hover:text-accent-ink', FOCUS)}
+            className={cn('rounded-control font-medium text-page-fg underline underline-offset-4 transition-colors duration-fast hover:text-accent-ink', FOCUS)}
           >
             {emptyAction.label}&nbsp;<span aria-hidden="true">→</span>
           </Link>

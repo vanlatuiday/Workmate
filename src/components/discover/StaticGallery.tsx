@@ -34,7 +34,7 @@ export default function StaticGallery<T extends GalleryItem>({ items, label, int
                     alt={item.photo.alt}
                     loading={i < 2 ? 'eager' : 'lazy'}
                     decoding="async"
-                    className="aspect-[4/3] w-full object-cover transition-transform duration-500 ease-editorial group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100 md:aspect-[16/9]"
+                    className="aspect-[4/3] w-full object-cover transition-transform duration-slow ease-editorial group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100 md:aspect-[16/9]"
                   />
                 </CurtainLink>
               </Reveal>
@@ -69,7 +69,7 @@ export default function StaticGallery<T extends GalleryItem>({ items, label, int
                   alt={item.photo.alt}
                   loading={i < 2 ? 'eager' : 'lazy'}
                   decoding="async"
-                  className="aspect-[4/3] w-full object-cover transition-transform duration-500 ease-editorial group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                  className="aspect-[4/3] w-full object-cover transition-transform duration-slow ease-editorial group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                 />
               </CurtainLink>
             </Reveal>

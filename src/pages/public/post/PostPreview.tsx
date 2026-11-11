@@ -98,7 +98,7 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
               data-tilt-media
               src={photoUrl(photos[i].id, 800)}
               alt={i === photoIndex ? photos[i].alt : ''}
-              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
+              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-slow"
               style={{ opacity: i === photoIndex ? 1 : 0 }}
             />
           ))}
@@ -131,7 +131,7 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
           {Array.from({ length: total }, (_, i) => (
             <span
               key={i}
-              className={`h-2 w-2 rounded-full border transition-[transform,background-color,border-color] duration-300 motion-reduce:transition-none ${i < count ? 'scale-110 border-page-fg bg-page-fg' : 'border-page-line'}`}
+              className={`h-2 w-2 rounded-full border transition-[transform,background-color,border-color] duration-base motion-reduce:transition-none ${i < count ? 'scale-110 border-page-fg bg-page-fg' : 'border-page-line'}`}
             />
           ))}
         </div>

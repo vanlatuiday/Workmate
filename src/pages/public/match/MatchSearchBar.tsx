@@ -2,6 +2,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, ty
 import { Check, ChevronDown, Search, SlidersHorizontal } from 'lucide-react'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { LEVELS, type LevelKey } from './parts'
 
 /** Header trang thường cao 4rem + viền 1px */
@@ -184,7 +185,7 @@ export default function MatchSearchBar({ query, onQueryChange, placeholder, sear
       <div
         aria-hidden="true"
         className={cn(
-          'fixed inset-0 z-30 bg-wm-charcoal/30 backdrop-blur-sm transition-opacity duration-300 motion-reduce:transition-none',
+          'fixed inset-0 z-30 bg-wm-charcoal/30 backdrop-blur-sm transition-opacity duration-base motion-reduce:transition-none',
           expanded ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       />
@@ -201,7 +202,7 @@ export default function MatchSearchBar({ query, onQueryChange, placeholder, sear
           className={cn(
             'col-start-1 row-start-1 self-end lg:self-start',
             'glass-liquid flex max-w-full items-center gap-3 rounded-full py-2 pl-4 pr-2 text-sm text-page-fg [--glass-alpha:55%]',
-            'transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none',
+            'transition-[opacity,transform] duration-fast ease-editorial motion-reduce:transition-none',
             showPill ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0 lg:-translate-y-2',
             FOCUS,
           )}
@@ -219,7 +220,7 @@ export default function MatchSearchBar({ query, onQueryChange, placeholder, sear
           aria-hidden={!expanded}
           className={cn(
             'col-start-1 row-start-1 w-full min-w-0 max-w-4xl self-end lg:self-start',
-            'origin-bottom transition-[opacity,transform] duration-300 ease-editorial motion-reduce:transition-none lg:origin-top',
+            'origin-bottom transition-[opacity,transform] duration-base ease-editorial motion-reduce:transition-none lg:origin-top',
             expanded ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-[0.4] opacity-0',
           )}
         >
@@ -238,11 +239,11 @@ export function Chip({ pressed, onClick, glass = false, children }: { pressed: b
       aria-pressed={pressed}
       onClick={onClick}
       className={cn(
-        'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors duration-300',
-        pressed ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
+        CHIP,
+        'shrink-0 px-3 py-1 text-xs',
+        pressed ? CHIP_ON : CHIP_OFF,
         // Bản nổi trên ảnh: chip chưa chọn có nền kính để chữ đọc được
         glass && !pressed && 'glass-liquid backdrop-blur-xl [--glass-alpha:70%]',
-        FOCUS,
       )}
     >
       {children}
@@ -380,14 +381,14 @@ export function FilterMenu({
         aria-haspopup="true"
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors duration-300',
-          active ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
+          CHIP,
+          'px-3 py-1 text-xs',
+          active ? CHIP_ON : CHIP_OFF,
           glass && !active && 'glass-liquid backdrop-blur-xl [--glass-alpha:70%]',
-          FOCUS,
         )}
       >
         {label}
-        <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-300 motion-reduce:transition-none', open && 'rotate-180')} aria-hidden="true" />
+        <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-base motion-reduce:transition-none', open && 'rotate-180')} aria-hidden="true" />
       </button>
 
       {/* Đóng: display:none (rút khỏi thứ tự Tab, không kéo rộng trang) */}
@@ -398,7 +399,7 @@ export function FilterMenu({
           'glass-liquid absolute z-40 min-w-[11rem] rounded-card p-1.5 text-left backdrop-blur-xl [--glass-alpha:85%]',
           glass ? 'bottom-full mb-2 origin-bottom lg:bottom-auto lg:top-full lg:mb-0 lg:mt-2 lg:origin-top' : 'top-full mt-2 origin-top',
           alignRight ? 'right-0' : 'left-0',
-          'transition-[opacity,transform,visibility] duration-200 motion-reduce:transition-none',
+          'transition-[opacity,transform,visibility] duration-fast motion-reduce:transition-none',
           open ? 'visible scale-100 opacity-100' : 'hidden', // display:none khi đóng để không kéo rộng trang
         )}
       >
@@ -412,7 +413,7 @@ export function FilterMenu({
                   aria-pressed={on}
                   onClick={() => pick(o.value)}
                   className={cn(
-                    'flex w-full items-center gap-2 whitespace-nowrap rounded-control px-3 py-2 text-left text-sm text-page-fg transition-colors duration-300 hover:bg-page-surface',
+                    'flex w-full items-center gap-2 whitespace-nowrap rounded-control px-3 py-2 text-left text-sm text-page-fg transition-colors duration-fast hover:bg-page-surface',
                     on && 'font-medium',
                     FOCUS,
                   )}

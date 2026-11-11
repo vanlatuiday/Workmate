@@ -12,6 +12,7 @@ import { useReducedMotion } from '@hooks/useReducedMotion'
 import { cancelInterview, useInterviews, type Interview, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import { Tabs } from './match/parts'
 import { describeConversation } from './messages/describe'
 import MessageLink from '@components/messenger/MessageLink'
@@ -23,9 +24,6 @@ const dayKey = (iso: string | Date) => {
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
 }
 const whenOf = (iv: Interview) => iv.chosen ?? iv.slots[0]
-const BTN = cn('inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300', FOCUS)
-const BTN_SOLID = cn(BTN, 'border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg')
-const BTN_LINE = cn(BTN, 'border-page-line text-page-fg hover:border-page-fg')
 
 /** /lich-phong-van — lịch phỏng vấn của tài khoản đang đăng nhập. */
 export default function SchedulePage() {
@@ -110,7 +108,7 @@ function Schedule({ viewer }: { viewer: Side }) {
                 type="button"
                 onClick={() => jump(d)}
                 className={cn(
-                  'flex w-full flex-col items-center rounded-card border py-2.5 text-page-fg transition-colors duration-300 hover:border-page-fg',
+                  'flex w-full flex-col items-center rounded-card border py-2.5 text-page-fg transition-colors duration-fast hover:border-page-fg',
                   i === 0 ? 'border-page-fg' : 'border-page-line',
                   FOCUS,
                 )}
@@ -187,17 +185,17 @@ function InterviewCard({ iv, viewer, isPast, onChoose, onCancel }: { iv: Intervi
       {iv.note && <p className="mt-2 text-sm leading-relaxed text-page-muted">{iv.note}</p>}
       <div className="mt-4 flex flex-wrap gap-2">
         {viewer === 'seeker' && iv.status === 'pending' && (
-          <button type="button" onClick={onChoose} className={BTN_SOLID}>
+          <button type="button" onClick={onChoose} className={cn(BTN_PRIMARY, BTN_SM)}>
             Chọn giờ<span className="sr-only"> phỏng vấn {info.name}</span>
           </button>
         )}
         {viewer === 'recruiter' && !isPast && (iv.status === 'pending' || iv.status === 'confirmed') && (
-          <button type="button" onClick={onCancel} className={BTN_LINE}>
+          <button type="button" onClick={onCancel} className={cn(BTN_DANGER, BTN_SM)}>
             Hủy lịch<span className="sr-only"> phỏng vấn {info.name}</span>
           </button>
         )}
         {viewer === 'recruiter' && iv.status === 'confirmed' && <HireAction viewer="recruiter" jobId={iv.jobId} seekerId={iv.seekerId} compact />}
-        <MessageLink convKey={`${iv.jobId}|${iv.seekerId}`} className={BTN_LINE}>
+        <MessageLink convKey={`${iv.jobId}|${iv.seekerId}`} className={cn(BTN_SECONDARY, BTN_SM)}>
           Nhắn tin<span className="sr-only"> {info.name}</span>
         </MessageLink>
       </div>
@@ -212,14 +210,14 @@ function CancelDialog({ iv, onClose }: { iv: Interview; onClose: () => void }) {
     <DialogShell titleId="cancel-title" title="Hủy lịch phỏng vấn?" subtitle={`${info.name} · ${info.subtitle}`} onClose={onClose}>
       <p className="text-sm leading-relaxed text-page-muted">Ứng viên sẽ nhận được thông báo và buổi phỏng vấn này sẽ chuyển sang "Đã hủy".</p>
       <div className="mt-6 flex justify-end gap-2">
-        <button type="button" onClick={onClose} className={BTN_LINE}>Giữ lịch</button>
+        <button type="button" onClick={onClose} className={cn(BTN_SECONDARY, BTN_SM)}>Giữ lịch</button>
         <button
           type="button"
           onClick={() => {
             cancelInterview(iv.id)
             onClose()
           }}
-          className={BTN_SOLID}
+          className={cn(BTN_DANGER, BTN_SM)}
         >
           Hủy lịch
         </button>

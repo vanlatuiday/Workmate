@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { Plus, X } from 'lucide-react'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
+import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_DANGER, BTN_SECONDARY, BTN_SM, CHIP_ON } from '@utils/ui'
 import { isFutureStart, tomorrowIso } from '@utils/format'
 import PeriodField from './PeriodField'
 import { chip, Group, INPUT } from './ui'
 import { fmtMoney, type ProfileApi } from './useProfileDraft'
-
-const ghostBtn = `flex shrink-0 items-center gap-1 rounded-full border border-page-edge px-4 py-2 text-sm text-page-fg transition-colors hover:border-page-fg motion-reduce:transition-none ${FOCUS}`
 
 /** Nhóm 02 — Kỹ năng: chip bỏ được + ô thêm. */
 export function SkillsChapter({ api }: { api: ProfileApi }) {
@@ -31,7 +31,7 @@ export function SkillsChapter({ api }: { api: ProfileApi }) {
       <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); add() }}>
         <label htmlFor="pf-skill" className="sr-only">Thêm kỹ năng</label>
         <input id="pf-skill" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Ví dụ: Thu ngân (Enter để thêm)" className={INPUT} />
-        <button type="submit" className={ghostBtn}><Plus className="h-4 w-4" aria-hidden />Thêm</button>
+        <button type="submit" className={cn(BTN_SECONDARY, BTN_SM, 'shrink-0')}><Plus className="h-4 w-4" aria-hidden />Thêm</button>
       </form>
     </Group>
   )
@@ -55,7 +55,7 @@ export function ExperienceChapter({ api }: { api: ProfileApi }) {
               <input id={`kn-c-${e.id}`} value={e.company} placeholder="Nơi làm" onChange={(ev) => updateExperience(e.id, { company: ev.target.value })} className={INPUT} />
             </div>
             <div className="flex items-start sm:justify-end">
-              <button type="button" onClick={() => removeExperience(e.id)} aria-label={`Xóa mục ${e.title || 'kinh nghiệm'}`} className={`flex min-h-11 items-center gap-1 rounded-full border border-page-edge px-3 text-sm text-page-fg hover:border-page-fg ${FOCUS}`}>
+              <button type="button" onClick={() => removeExperience(e.id)} aria-label={`Xóa mục ${e.title || 'kinh nghiệm'}`} className={cn(BTN_DANGER, BTN_SM)}>
                 <X className="h-4 w-4" aria-hidden />Xóa mục này
               </button>
             </div>
@@ -65,7 +65,7 @@ export function ExperienceChapter({ api }: { api: ProfileApi }) {
           </li>
         ))}
       </ul>
-      <button id="pf-add-exp" type="button" onClick={addExperience} className={ghostBtn}><Plus className="h-4 w-4" aria-hidden />Thêm kinh nghiệm</button>
+      <button id="pf-add-exp" type="button" onClick={addExperience} className={cn(BTN_SECONDARY, BTN_SM, 'shrink-0')}><Plus className="h-4 w-4" aria-hidden />Thêm kinh nghiệm</button>
     </Group>
   )
 }
@@ -94,8 +94,8 @@ export function AvailabilityChapter({ api }: { api: ProfileApi }) {
                   aria-pressed={on}
                   aria-label={`${d} ${s}`}
                   onClick={() => toggleCell(key)}
-                  className={`h-8 rounded-control border transition-colors duration-200 motion-reduce:transition-none ${FOCUS} ${
-                    on ? 'border-page-fg bg-page-fg' : 'border-page-line bg-page-surface hover:border-page-fg'
+                  className={`h-8 rounded-control border transition-colors duration-fast motion-reduce:transition-none ${FOCUS} ${
+                    on ? CHIP_ON : 'border-page-line bg-page-surface hover:border-page-fg'
                   }`}
                 />
               )

@@ -5,6 +5,7 @@ import { describeConversation } from '@pages/public/messages/describe'
 import { inviteInterview, type InterviewMode } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_GHOST, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import DialogShell from './DialogShell'
 import { MODE_LABEL } from './format'
 
@@ -104,11 +105,7 @@ export default function InviteInterviewDialog({ jobId, seekerId, onClose }: Prop
                 type="button"
                 aria-pressed={mode === m}
                 onClick={() => setMode(m)}
-                className={cn(
-                  'rounded-full border px-4 py-1.5 text-sm transition-colors duration-300',
-                  mode === m ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-edge text-page-fg hover:border-page-fg',
-                  FOCUS,
-                )}
+                className={cn(CHIP, mode === m ? CHIP_ON : CHIP_OFF)}
               >
                 {MODE_LABEL[m]}
               </button>
@@ -134,10 +131,10 @@ export default function InviteInterviewDialog({ jobId, seekerId, onClose }: Prop
         {error && <p role="alert" className="text-sm text-page-fg">{error}</p>}
 
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className={cn('rounded-full border border-page-line px-5 py-2.5 text-sm font-medium text-page-fg hover:border-page-fg', FOCUS)}>
+          <button type="button" onClick={onClose} className={BTN_GHOST}>
             Để sau
           </button>
-          <button type="submit" className={cn('rounded-full border border-page-fg bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg transition-colors duration-300 hover:bg-page-bg hover:text-page-fg', FOCUS)}>
+          <button type="submit" className={BTN_ACCENT}>
             Gửi lời mời
           </button>
         </div>

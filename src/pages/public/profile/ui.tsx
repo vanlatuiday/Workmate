@@ -1,17 +1,13 @@
 import type { ReactNode } from 'react'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
 // Ô nhập: nền bề mặt phẳng, viền page-edge giữ đủ tương phản
 export const INPUT = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 
 /** Chip bật/tắt (loại việc, kỹ năng) */
-export const chip = (on: boolean) =>
-  cn(
-    'rounded-full border px-4 py-2 text-sm transition-[color,background-color,border-color,transform] duration-200 active:scale-95 motion-reduce:transition-none',
-    on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
-    FOCUS,
-  )
+export const chip = (on: boolean) => cn(CHIP, on ? CHIP_ON : CHIP_OFF)
 
 /** Nhóm trường dạng thẻ kính, số thứ tự mờ ở góc phải (chỉ trang trí); legend thả nổi để nằm trong thẻ. */
 export function Group({ title, index, children }: { title: string; index: number; children: ReactNode }) {
@@ -36,9 +32,9 @@ export function Switch({ id, checked, onChange, label }: { id: string; checked: 
         aria-checked={checked}
         aria-labelledby={id}
         onClick={onChange}
-        className={`relative h-6 w-11 shrink-0 rounded-full border border-page-edge transition-colors duration-200 motion-reduce:transition-none ${FOCUS} ${checked ? 'bg-page-fg' : 'bg-page-surface'}`}
+        className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors duration-fast motion-reduce:transition-none ${FOCUS} ${checked ? 'border-accent bg-accent' : 'border-page-edge bg-page-surface'}`}
       >
-        <span className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full transition-transform duration-200 motion-reduce:transition-none ${checked ? 'translate-x-5 bg-page-bg' : 'bg-page-fg'}`} />
+        <span className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full transition-transform duration-fast motion-reduce:transition-none ${checked ? 'translate-x-5 bg-accent-fg' : 'bg-page-fg'}`} />
       </button>
       <span id={id} className="text-sm text-page-fg">{label}</span>
     </div>

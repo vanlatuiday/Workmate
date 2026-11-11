@@ -66,7 +66,7 @@ export default function ConversationList({ viewer, conversations, activeKey, onS
                   onClick={() => onSelect(c)}
                   aria-current={c.key === activeKey ? 'true' : undefined}
                   className={cn(
-                    'flex w-full items-center gap-3 rounded-card px-3 py-3 text-left transition-colors duration-300 hover:bg-page-surface',
+                    'flex w-full items-center gap-3 rounded-card px-3 py-3 text-left transition-colors duration-fast hover:bg-page-surface',
                     c.key === activeKey && 'bg-page-surface',
                     FOCUS,
                   )}

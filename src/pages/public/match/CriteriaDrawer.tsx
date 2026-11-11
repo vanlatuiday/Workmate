@@ -4,7 +4,7 @@
 import { useEffect, useRef, type ReactNode, type RefObject } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@utils/cn'
-import { FOCUS } from '@utils/focus'
+import { BTN_ICON } from '@utils/ui'
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
 
@@ -79,7 +79,7 @@ export default function CriteriaDrawer({
       <div
         onClick={onClose}
         className={cn(
-          'absolute inset-0 bg-wm-charcoal transition-opacity duration-300 motion-reduce:transition-none',
+          'absolute inset-0 bg-wm-charcoal transition-opacity duration-base motion-reduce:transition-none',
           open ? 'opacity-40' : 'opacity-0',
         )}
       />
@@ -92,7 +92,7 @@ export default function CriteriaDrawer({
         data-lenis-prevent
         className={cn(
           'theme-ivory absolute inset-y-0 right-0 h-full w-full max-w-md overflow-y-auto border-l border-page-line bg-page-bg text-page-fg',
-          'transition-[transform,visibility] duration-300 ease-editorial motion-reduce:transition-none',
+          'transition-[transform,visibility] duration-base ease-editorial motion-reduce:transition-none',
           open ? 'visible translate-x-0' : 'invisible translate-x-full',
         )}
       >
@@ -105,7 +105,7 @@ export default function CriteriaDrawer({
             type="button"
             onClick={onClose}
             aria-label="Đóng tiêu chí"
-            className={`rounded-full border border-page-line p-2 text-page-fg transition-colors duration-300 hover:border-page-fg ${FOCUS}`}
+            className={BTN_ICON}
           >
             <X className="h-4 w-4" aria-hidden="true" />
           </button>

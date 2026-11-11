@@ -9,11 +9,9 @@ import { useAllJobs, seekerOutcome } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import MessageLink from '@components/messenger/MessageLink'
 
-const BTN = `inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
-const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
-const BTN_LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 
 /** Nhãn + độ đậm của trạng thái nhìn từ người tìm việc */
 const STATUS: Record<PairStatus, { label: string; tone: 'accent' | 'soft' | 'neutral' | 'muted' }> = {
@@ -47,7 +45,7 @@ export default function SavedJobs() {
           icon={Bookmark}
           title="Chưa lưu việc nào"
           description="Lưu việc ở trang Kết nối để so sánh và ứng tuyển sau."
-          action={<Link to="/match" className={BTN_SOLID}>Tới trang Kết nối</Link>}
+          action={<Link to="/match" className={BTN_ACCENT}>Tới trang Kết nối</Link>}
         />
       ) : (
         <Panel>
@@ -86,7 +84,7 @@ export default function SavedJobs() {
                       {status === 'none' && (
                         <button
                           type="button"
-                          className={BTN_SOLID}
+                          className={cn(BTN_PRIMARY, BTN_SM)}
                           onClick={() => {
                             expressInterest('seeker', job.id, ME)
                             toast.success('Đã ứng tuyển — chờ doanh nghiệp phản hồi')
@@ -96,17 +94,17 @@ export default function SavedJobs() {
                         </button>
                       )}
                       {status === 'received' && (
-                        <button type="button" className={BTN_SOLID} onClick={() => expressInterest('seeker', job.id, ME)}>
+                        <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={() => expressInterest('seeker', job.id, ME)}>
                           Đồng ý kết nối
                         </button>
                       )}
                       {status === 'connected' && (
-                        <MessageLink convKey={`${job.id}|${ME}`} className={BTN_SOLID}>Nhắn tin</MessageLink>
+                        <MessageLink convKey={`${job.id}|${ME}`} className={cn(BTN_PRIMARY, BTN_SM)}>Nhắn tin</MessageLink>
                       )}
-                      <Link to="/match" className={BTN_LINE}>Xem ở Kết nối</Link>
+                      <Link to="/match" className={cn(BTN_SECONDARY, BTN_SM)}>Xem ở Kết nối</Link>
                       <button
                         type="button"
-                        className={BTN_LINE}
+                        className={cn(BTN_SECONDARY, BTN_SM)}
                         onClick={() => {
                           toggleSavedJob(job.id)
                           toast('Đã bỏ lưu')

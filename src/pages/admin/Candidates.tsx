@@ -3,13 +3,15 @@ import toast from 'react-hot-toast'
 import { Lock, LockOpen, Search, UserCircle } from 'lucide-react'
 import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import DetailDrawer from '@components/admin/DetailDrawer'
-import { BTN_PRIMARY, BTN_SECONDARY, ConfirmDialog, FIELD, norm } from '@components/admin/parts'
+import { ConfirmDialog, FIELD, norm } from '@components/admin/parts'
 import { JOB_TYPES } from '@constants/index'
 import { useConnectionStore } from '@context/connectionStore'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
 import { availabilityLabel, useCandidates, type MatchCandidate } from '@pages/public/match/data'
 import { setSeekerLocked, useAdmin } from '@services/adminService'
+import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
 type Filter = 'all' | 'ready' | 'working' | 'locked'
 const FILTERS: { id: Filter; label: string }[] = [
@@ -80,7 +82,7 @@ export default function Candidates() {
               type="button"
               aria-pressed={filter === f.id}
               onClick={() => setFilter(f.id)}
-              className={`rounded-full border px-4 py-2 text-sm transition-colors duration-300 ${FOCUS} ${filter === f.id ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg'}`}
+              className={cn(CHIP, filter === f.id ? CHIP_ON : CHIP_OFF)}
             >
               {f.label}
             </button>
@@ -120,7 +122,7 @@ export default function Candidates() {
               </thead>
               <tbody className="divide-y divide-page-line">
                 {shown.map((c) => (
-                  <tr key={c.id} onClick={() => setOpenId(c.id)} className="cursor-pointer transition-colors duration-300 hover:bg-page-bg">
+                  <tr key={c.id} onClick={() => setOpenId(c.id)} className="cursor-pointer transition-colors duration-fast hover:bg-page-bg">
                     <th scope="row" className="px-5 py-3 font-normal">
                       <button type="button" onClick={(e) => { e.stopPropagation(); setOpenId(c.id) }} className={`rounded-control text-left font-medium text-page-fg hover:underline ${FOCUS}`}>
                         {c.name}
@@ -150,11 +152,11 @@ export default function Candidates() {
           onClose={() => setOpenId(null)}
           footer={
             locked[open.id] ? (
-              <button type="button" onClick={() => unlock(open)} className={BTN_PRIMARY}>
+              <button type="button" onClick={() => unlock(open)} className={cn(BTN_PRIMARY, BTN_SM)}>
                 <LockOpen className="h-4 w-4" aria-hidden="true" />Mở khóa
               </button>
             ) : (
-              <button type="button" onClick={() => setConfirmLock(true)} className={BTN_SECONDARY}>
+              <button type="button" onClick={() => setConfirmLock(true)} className={cn(BTN_DANGER, BTN_SM)}>
                 <Lock className="h-4 w-4" aria-hidden="true" />Khóa ứng viên
               </button>
             )

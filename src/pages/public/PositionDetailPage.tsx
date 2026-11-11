@@ -48,7 +48,7 @@ export default function PositionDetailPage() {
       />
       {job.moderationReason && <p className="mt-4 text-sm text-page-muted">Lý do từ quản trị viên: {job.moderationReason}</p>}
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">
-        <PrimaryLink to="/tuyen-dung/tin-dang">Quản lý tin</PrimaryLink>
+        <PrimaryLink accent to="/tuyen-dung/tin-dang">Quản lý tin</PrimaryLink>
         <TextLink to="/viec-lam">Các vị trí khác</TextLink>
       </div>
     </>

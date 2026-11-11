@@ -4,22 +4,15 @@ import { motion } from 'motion/react'
 import { AlertCircle, ArrowLeft, ArrowRight, Building2, Eye, EyeOff, Loader2, Search, type LucideIcon } from 'lucide-react'
 import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
+import { BTN_ACCENT, BTN_GHOST, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { EASE } from './authShared'
 
-/** Nút chính dạng viên thuốc, rộng hết khung (nên chiều rộng không đổi khi hiện spinner) */
-export const PRIMARY = cn(
-  'w-full inline-flex items-center justify-center gap-2 rounded-full bg-page-fg text-page-bg px-8 py-3.5 text-sm font-medium',
-  'transition-opacity duration-300 hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed',
-  FOCUS,
-)
+/** Nút chính của form auth (màu nhấn), rộng hết khung (nên chiều rộng không đổi khi hiện spinner) */
+export const PRIMARY = cn(BTN_ACCENT, 'w-full')
 
 /** Nút chữ nhỏ có gạch chân (Gửi lại mã, Đổi email…) */
-export const LINK_BTN = cn(
-  'inline-flex items-center min-h-10 px-1 text-sm font-medium text-page-fg underline underline-offset-4 rounded-control',
-  'disabled:text-page-muted disabled:no-underline disabled:cursor-not-allowed',
-  FOCUS,
-)
+export const LINK_BTN = cn(BTN_GHOST, 'px-1 underline disabled:text-page-muted disabled:no-underline disabled:opacity-100')
 
 /** Link chữ có gạch chân ở cuối form */
 export const TEXT_LINK = cn('font-medium text-page-fg underline underline-offset-4 rounded-control', FOCUS)
@@ -40,16 +33,11 @@ export function OutlinePill({ children, back, small, ...props }: LinkProps & { b
   return (
     <Link
       {...props}
-      className={cn(
-        'group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-page-fg text-page-fg font-medium',
-        'transition-colors duration-300 hover:bg-page-fg hover:text-page-bg',
-        small ? 'px-4 py-2 text-xs' : 'px-7 py-3.5 text-sm',
-        FOCUS,
-      )}
+      className={cn(BTN_SECONDARY, 'group shrink-0', small && BTN_SM)}
     >
-      {back && <Arrow className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-0.5 motion-reduce:transition-none" aria-hidden />}
+      {back && <Arrow className="w-4 h-4 transition-transform duration-base group-hover:-translate-x-0.5 motion-reduce:transition-none" aria-hidden />}
       {children}
-      {!back && <Arrow className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden />}
+      {!back && <Arrow className="w-4 h-4 transition-transform duration-base group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden />}
     </Link>
   )
 }
@@ -126,7 +114,7 @@ export const AuthField = forwardRef<HTMLInputElement, FieldProps>(function AuthF
           htmlFor={id}
           className={cn(
             'pointer-events-none absolute left-7 top-6 origin-left text-base text-page-muted',
-            'transition-transform duration-300 ease-editorial motion-reduce:transition-none',
+            'transition-transform duration-base ease-editorial motion-reduce:transition-none',
             'peer-focus:-translate-y-[1.05rem] peer-focus:scale-[0.78]',
             'peer-[:not(:placeholder-shown)]:-translate-y-[1.05rem] peer-[:not(:placeholder-shown)]:scale-[0.78]',
           )}
@@ -138,7 +126,7 @@ export const AuthField = forwardRef<HTMLInputElement, FieldProps>(function AuthF
           aria-hidden
           className={cn(
             'pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-page-fg',
-            'transition-transform duration-300 ease-editorial peer-focus:scale-x-100 motion-reduce:transition-none',
+            'transition-transform duration-base ease-editorial peer-focus:scale-x-100 motion-reduce:transition-none',
           )}
         />
         {trailing}
@@ -218,13 +206,10 @@ export function RoleSwitch({ value, onChange }: { value: AuthRole; onChange: (r:
             role="radio"
             aria-checked={active}
             onClick={() => onChange(v)}
-            className={cn(
-              'inline-flex flex-1 items-center justify-center gap-2 rounded-full border px-3 py-2.5 text-sm font-medium transition-colors duration-300',
-              FOCUS,
-              active ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-edge text-page-fg hover:border-page-fg',
-            )}
+            className={cn(CHIP, 'min-w-0 flex-1 justify-center gap-2 whitespace-normal px-3 text-center sm:px-4', active ? CHIP_ON : CHIP_OFF)}
           >
-            <Icon className="w-4 h-4 shrink-0" aria-hidden />
+            {/* Màn hẹp: bỏ icon để nhãn nằm một dòng */}
+            <Icon className="hidden w-4 h-4 shrink-0 min-[400px]:block" aria-hidden />
             {label}
           </button>
         )
@@ -255,7 +240,7 @@ export function PasswordStrength({ password }: { password: string }) {
     <div className="mt-2 flex items-center gap-3" aria-live="polite">
       <div className="flex flex-1 gap-1" aria-hidden>
         {STRENGTH.map((s, i) => (
-          <span key={s.label} className={cn('h-1 flex-1 rounded-full transition-colors duration-300', i <= level ? s.bar : 'bg-page-line')} />
+          <span key={s.label} className={cn('h-1 flex-1 rounded-full transition-colors duration-fast', i <= level ? s.bar : 'bg-page-line')} />
         ))}
       </div>
       <span className="min-w-[5.5rem] text-right text-xs font-medium text-page-muted">

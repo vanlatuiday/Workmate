@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom'
 import { ChevronDown, MessageCircle } from 'lucide-react'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
-import ContentPage, { CTA_SECONDARY, Section } from './ContentPage'
+import { BTN_ACCENT } from '@utils/ui'
+import ContentPage, { Section } from './ContentPage'
 
 const GROUPS = [
   {
@@ -42,14 +43,14 @@ function FaqItem({ q, a }: { q: string; a: string }) {
           aria-controls={panelId}
           onClick={() => setOpen((o) => !o)}
           className={cn(
-            'flex w-full items-center justify-between gap-4 rounded-control py-4 text-left font-medium text-page-fg transition-colors duration-300 hover:text-page-muted',
+            'flex w-full items-center justify-between gap-4 rounded-control py-4 text-left font-medium text-page-fg transition-colors duration-fast hover:text-page-muted',
             FOCUS,
           )}
         >
           {q}
           <ChevronDown
             aria-hidden="true"
-            className={cn('h-5 w-5 shrink-0 transition-transform duration-300 motion-reduce:transition-none', open && 'rotate-180')}
+            className={cn('h-5 w-5 shrink-0 transition-transform duration-base motion-reduce:transition-none', open && 'rotate-180')}
           />
         </button>
       </h3>
@@ -58,7 +59,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
         role="region"
         aria-labelledby={`${uid}-btn`}
         className={cn(
-          'grid transition-[grid-template-rows] duration-300 ease-editorial motion-reduce:transition-none',
+          'grid transition-[grid-template-rows] duration-base ease-editorial motion-reduce:transition-none',
           open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
         )}
       >
@@ -93,7 +94,7 @@ export default function HelpPage() {
             </span>
             <h2 className="mt-4 font-display text-lg font-semibold text-page-fg">Chưa tìm thấy câu trả lời?</h2>
             <p className="mt-2 text-sm leading-relaxed text-page-muted">Nhắn cho đội Workmate, chúng tôi sẽ phản hồi sớm.</p>
-            <Link to="/lien-he" className={cn(CTA_SECONDARY, 'mt-5')}>Liên hệ hỗ trợ</Link>
+            <Link to="/lien-he" className={cn(BTN_ACCENT, 'mt-5')}>Liên hệ hỗ trợ</Link>
           </div>
         </aside>
       </div>

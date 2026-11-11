@@ -25,9 +25,10 @@ import ReportButton from '@components/report/ReportButton'
 import MatchDetail from './MatchDetail'
 import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
-  BTN_PRIMARY, BTN_SECONDARY, filterByLevel, foldMatches, GalleryCaption, JobCard, MatchFrame, Tabs, ViewToggle,
+  filterByLevel, foldMatches, GalleryCaption, JobCard, MatchFrame, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
+import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import {
   CRITERION_LABELS,
   DEFAULT_PRIORITY,
@@ -171,7 +172,7 @@ export default function JobseekerMatch() {
     return (
       <>
         {status === 'none' && (
-          <button type="button" onClick={() => { apply(job); close?.(true) }} className={BTN_PRIMARY}>
+          <button type="button" onClick={() => { apply(job); close?.(true) }} className={cn(BTN_PRIMARY, BTN_SM)}>
             Ứng tuyển<span className="sr-only"> {job.title}</span>
           </button>
         )}
@@ -180,21 +181,21 @@ export default function JobseekerMatch() {
             <span className="inline-flex items-center rounded-full border border-page-line px-3 py-1 text-xs text-page-muted">
               Doanh nghiệp đã quan tâm bạn
             </span>
-            <button type="button" onClick={() => { apply(job); close?.(true) }} className={BTN_PRIMARY}>
+            <button type="button" onClick={() => { apply(job); close?.(true) }} className={cn(BTN_PRIMARY, BTN_SM)}>
               Đồng ý kết nối<span className="sr-only"> {job.title}</span>
             </button>
           </>
         )}
         {status === 'sent' && (
           <>
-            <button type="button" disabled className={BTN_SECONDARY}>
+            <button type="button" disabled className={cn(BTN_SECONDARY, BTN_SM)}>
               <Check className="h-4 w-4" aria-hidden="true" />
               Đã ứng tuyển · {APPLICATION_STAGE_LABEL[stageOf(job.id, ME) ?? 'applied']}
             </button>
             <button
               type="button"
               onClick={() => withdrawInterest('seeker', job.id, ME)}
-              className={`rounded-control px-1 text-xs text-page-muted underline underline-offset-4 hover:text-page-fg ${FOCUS}`}
+              className={cn(BTN_DANGER, BTN_SM)}
             >
               Rút<span className="sr-only"> đơn ứng tuyển {job.title}</span>
             </button>
@@ -206,18 +207,18 @@ export default function JobseekerMatch() {
               <Check className="h-3.5 w-3.5" aria-hidden="true" />
               Đã kết nối
             </span>
-            <MessageLink convKey={`${job.id}|${ME}`} className={BTN_SECONDARY}>
+            <MessageLink convKey={`${job.id}|${ME}`} className={cn(BTN_SECONDARY, BTN_SM)}>
               Nhắn tin<span className="sr-only"> {job.title}</span>
             </MessageLink>
             <InterviewAction viewer="seeker" jobId={job.id} seekerId={ME} />
           </>
         )}
-        <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={BTN_SECONDARY}>
+        <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={cn(BTN_SECONDARY, BTN_SM)}>
           <Bookmark className={cn('h-4 w-4', saved && 'fill-current')} aria-hidden="true" />
           {saved ? 'Đã lưu' : 'Lưu'}
           <span className="sr-only"> {job.title}</span>
         </button>
-        <Link to={`/cong-ty/${job.companyId}`} className={BTN_SECONDARY}>
+        <Link to={`/cong-ty/${job.companyId}`} className={cn(BTN_SECONDARY, BTN_SM)}>
           Xem công ty<span className="sr-only"> {companyOf(job.companyId).name}</span>
         </Link>
       </>
@@ -277,7 +278,7 @@ export default function JobseekerMatch() {
                 aria-controls="match-criteria"
                 aria-haspopup="dialog"
                 onClick={() => setPanelOpen(true)}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-page-fg px-6 py-2 text-sm font-medium text-page-bg transition-opacity duration-300 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-page-fg focus-visible:ring-offset-2 focus-visible:ring-offset-page-surface"
+                className={cn(BTN_PRIMARY, BTN_SM)}
               >
                 <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
                 Tiêu chí
@@ -470,11 +471,7 @@ export default function JobseekerMatch() {
               const on = jobTypes.includes(t.value)
               return (
                 <button key={t.value} type="button" aria-pressed={on} onClick={() => toggleType(t.value)}
-                  className={cn(
-                    'inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition-colors duration-300',
-                    on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-muted hover:border-page-fg hover:text-page-fg',
-                    FOCUS,
-                  )}>
+                  className={cn(CHIP, 'gap-1 px-3 py-1.5 text-xs', on ? CHIP_ON : CHIP_OFF)}>
                   {on && <Check className="h-3 w-3" aria-hidden="true" />}
                   {t.label}
                 </button>

@@ -19,9 +19,10 @@ import ReportButton from '@components/report/ReportButton'
 import MatchDetail from './MatchDetail'
 import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
-  Avatar, BTN_PRIMARY, BTN_SECONDARY, CheckList, filterByLevel, foldMatches, GalleryCaption, MatchFrame, personInitials, Tabs, ViewToggle,
+  Avatar, CheckList, filterByLevel, foldMatches, GalleryCaption, MatchFrame, personInitials, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
+import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import { DEFAULT_PRIORITY, scoreMatch, weightsOf, type CriterionResult } from './score'
 import MessageLink from '@components/messenger/MessageLink'
 
@@ -130,7 +131,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
     return (
       <>
         {status === 'none' && (
-          <button type="button" onClick={() => { invite(c); close?.(true) }} className={BTN_PRIMARY}>
+          <button type="button" onClick={() => { invite(c); close?.(true) }} className={cn(BTN_PRIMARY, BTN_SM)}>
             Quan tâm<span className="sr-only"> {c.name}</span>
           </button>
         )}
@@ -139,22 +140,22 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
             <span className="inline-flex items-center rounded-full border border-page-line px-3 py-1 text-xs text-page-muted">
               Ứng viên đã ứng tuyển
             </span>
-            <button type="button" onClick={() => { invite(c); close?.(true) }} className={BTN_PRIMARY}>
+            <button type="button" onClick={() => { invite(c); close?.(true) }} className={cn(BTN_PRIMARY, BTN_SM)}>
               Đồng ý kết nối<span className="sr-only"> {c.name}</span>
             </button>
-            <ConsiderButton jobId={position.id} seekerId={c.id} className={BTN_SECONDARY} srLabel={c.name} />
+            <ConsiderButton jobId={position.id} seekerId={c.id} className={cn(BTN_SECONDARY, BTN_SM)} srLabel={c.name} />
           </>
         )}
         {status === 'sent' && (
           <>
-            <button type="button" disabled className={BTN_SECONDARY}>
+            <button type="button" disabled className={cn(BTN_SECONDARY, BTN_SM)}>
               <Check className="h-4 w-4" aria-hidden="true" />
               Đã quan tâm · chờ phản hồi
             </button>
             <button
               type="button"
               onClick={() => withdrawInterest('recruiter', position.id, c.id)}
-              className={`rounded-control px-1 text-xs text-page-muted underline underline-offset-4 hover:text-page-fg ${FOCUS}`}
+              className={cn(BTN_DANGER, BTN_SM)}
             >
               Rút<span className="sr-only"> quan tâm {c.name}</span>
             </button>
@@ -166,16 +167,16 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
               <Check className="h-3.5 w-3.5" aria-hidden="true" />
               Đã kết nối
             </span>
-            <MessageLink convKey={`${position.id}|${c.id}`} className={BTN_SECONDARY}>
+            <MessageLink convKey={`${position.id}|${c.id}`} className={cn(BTN_SECONDARY, BTN_SM)}>
               Nhắn tin<span className="sr-only"> {c.name}</span>
             </MessageLink>
             <InterviewAction viewer="recruiter" jobId={position.id} seekerId={c.id} />
           </>
         )}
-        <Link to={candidateHref(c.id)} className={BTN_SECONDARY}>
+        <Link to={candidateHref(c.id)} className={cn(BTN_SECONDARY, BTN_SM)}>
           Xem hồ sơ<span className="sr-only"> {c.name}</span>
         </Link>
-        <button type="button" aria-pressed={saved} onClick={() => toggleSavedCandidate(key)} className={BTN_SECONDARY}>
+        <button type="button" aria-pressed={saved} onClick={() => toggleSavedCandidate(key)} className={cn(BTN_SECONDARY, BTN_SM)}>
           <Bookmark className={cn('h-4 w-4', saved && 'fill-current')} aria-hidden="true" />
           {saved ? 'Đã lưu' : 'Lưu'}
           <span className="sr-only"> {c.name}</span>
@@ -188,7 +189,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
               toast(`Đã bỏ qua ${c.name}`)
               close?.(true)
             }}
-            className={BTN_SECONDARY}
+            className={cn(BTN_SECONDARY, BTN_SM)}
           >
             Bỏ qua<span className="sr-only"> {c.name}</span>
           </button>

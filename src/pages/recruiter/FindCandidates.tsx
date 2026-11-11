@@ -9,13 +9,11 @@ import { expressInterest, useOnNewConnection, usePairStatuses, type PairStatus }
 import { useQueryParam } from '@hooks/useQueryParam'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { candidateHref } from '@pages/public/personal/links'
 import { Link } from 'react-router-dom'
 
 const FIELD = `h-10 rounded-control border border-page-edge bg-page-surface px-3 text-sm text-page-fg ${FOCUS}`
-const BTN = `inline-flex items-center justify-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
-const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
-const BTN_LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 
 /** Bỏ dấu + chữ thường để "pha che" khớp "Pha chế" */
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase().trim()
@@ -120,18 +118,18 @@ function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPo
                 ))}
               </select>
             </label>
-            <button type="button" className={BTN_SOLID} onClick={send}>Gửi quan tâm</button>
+            <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={send}>Gửi quan tâm</button>
           </div>
         )}
         <div className="flex flex-wrap items-center gap-2">
           {pickedId && (
-            <button type="button" className={BTN_SOLID} aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+            <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} aria-expanded={open} onClick={() => setOpen((v) => !v)}>
               Quan tâm…
             </button>
           )}
           <button
             type="button"
-            className={BTN_LINE}
+            className={cn(BTN_SECONDARY, BTN_SM)}
             aria-pressed={isSaved}
             onClick={() => {
               toggleSaved(key)
@@ -186,12 +184,7 @@ export default function FindCandidates() {
     setSessions([])
     setSalaryCap(0)
   }
-  const chip = (on: boolean) =>
-    cn(
-      'rounded-full border px-3 py-1 text-xs transition-colors duration-300',
-      on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
-      FOCUS,
-    )
+  const chip = (on: boolean) => cn(CHIP, on ? CHIP_ON : CHIP_OFF)
 
   return (
     <div>
@@ -244,7 +237,7 @@ export default function FindCandidates() {
         </div>
         <div className="mt-4 flex items-center justify-between gap-3 text-sm text-page-muted" aria-live="polite">
           <span>{list.length} ứng viên</span>
-          {hasFilter && <button type="button" onClick={reset} className={cn('rounded-control underline underline-offset-4 hover:text-page-fg', FOCUS)}>Xóa bộ lọc</button>}
+          {hasFilter && <button type="button" onClick={reset} className={cn('rounded-control underline underline-offset-4 transition-colors duration-fast hover:text-page-fg', FOCUS)}>Xóa bộ lọc</button>}
         </div>
       </Panel>
 
@@ -255,7 +248,7 @@ export default function FindCandidates() {
           icon={UserSearch}
           title="Không có ứng viên phù hợp"
           description="Thử bỏ bớt điều kiện lọc."
-          action={<button type="button" onClick={reset} className={BTN_SOLID}>Xóa bộ lọc</button>}
+          action={<button type="button" onClick={reset} className={cn(BTN_PRIMARY, BTN_SM)}>Xóa bộ lọc</button>}
         />
       ) : (
         <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

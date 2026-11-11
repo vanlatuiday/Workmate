@@ -6,14 +6,12 @@ import type { UserRole } from '@/types'
 import { ROLE_LABELS } from './mockData'
 import { useAdminStore, type AdminUser } from '@context/adminStore'
 import { apiErrorMessage } from '@services/authService'
+import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_DANGER, BTN_GHOST, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 
 const FIELD =
   `rounded-card border border-page-edge bg-page-surface px-4 py-2.5 text-sm text-page-fg ${FOCUS}`
-const BTN_SECONDARY =
-  `rounded-full border border-page-line px-3.5 py-1.5 text-xs font-medium text-page-fg transition-colors duration-300 hover:border-page-fg ${FOCUS}`
-const BTN_PRIMARY =
-  `rounded-full bg-page-fg px-3.5 py-1.5 text-xs font-medium text-page-bg ${FOCUS}`
 
 type UserStatus = AdminUser['status']
 
@@ -46,8 +44,8 @@ function RowAction({
   if (user.role === 'admin') return <span className="text-xs text-page-muted">Không thể khóa</span>
   if (user.status === 'locked') {
     return (
-      <button ref={mainBtn} type="button" onClick={toggle} className={BTN_SECONDARY}>
-        <LockOpen className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
+      <button ref={mainBtn} type="button" onClick={toggle} className={cn(BTN_SECONDARY, BTN_SM)}>
+        <LockOpen className="h-3.5 w-3.5" aria-hidden="true" />
         Mở khóa<span className="sr-only"> {user.name}</span>
       </button>
     )
@@ -56,15 +54,15 @@ function RowAction({
     return (
       <span className="inline-flex flex-wrap items-center gap-2" role="group" aria-label={`Xác nhận khóa ${user.name}`}>
         <span className="text-xs text-page-fg">Xác nhận khóa?</span>
-        <button type="button" onClick={toggle} className={BTN_PRIMARY}>Khóa</button>
+        <button type="button" onClick={toggle} className={cn(BTN_DANGER, BTN_SM)}>Khóa</button>
         {/* autoFocus: đưa focus vào cụm xác nhận ngay khi hiện (bản ẩn bằng CSS bỏ qua) */}
-        <button type="button" autoFocus onClick={cancel} className={BTN_SECONDARY}>Hủy</button>
+        <button type="button" autoFocus onClick={cancel} className={cn(BTN_GHOST, BTN_SM)}>Hủy</button>
       </span>
     )
   }
   return (
-    <button ref={mainBtn} type="button" onClick={onAsk} className={BTN_SECONDARY}>
-      <Lock className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
+    <button ref={mainBtn} type="button" onClick={onAsk} className={cn(BTN_DANGER, BTN_SM)}>
+      <Lock className="h-3.5 w-3.5" aria-hidden="true" />
       Khóa<span className="sr-only"> {user.name}</span>
     </button>
   )

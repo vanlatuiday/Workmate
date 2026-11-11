@@ -6,6 +6,7 @@ import { useAuthStore } from '@context/authStore'
 import { fileReport, type ReportTarget } from '@services/adminService'
 import { apiErrorMessage } from '@services/authService'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_GHOST } from '@utils/ui'
 
 // Nút "Báo cáo" kín đáo ở cuối khung chi tiết: chọn lý do + ghi chú → vào hàng chờ của quản trị viên.
 
@@ -65,8 +66,8 @@ function ReportDialog({ target, targetId, name, onClose }: Omit<Props, 'classNam
           className={`mt-1 w-full rounded-card border border-page-edge bg-page-surface px-4 py-2.5 text-sm text-page-fg ${FOCUS}`}
         />
         <div className="mt-5 flex flex-wrap justify-end gap-2">
-          <button type="button" onClick={onClose} className={`rounded-full border border-page-line px-4 py-2 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg ${FOCUS}`}>Hủy</button>
-          <button type="submit" disabled={!reason} className={`rounded-full border border-page-fg bg-page-fg px-4 py-2 text-sm font-medium text-page-bg disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS}`}>Gửi báo cáo</button>
+          <button type="button" onClick={onClose} className={BTN_GHOST}>Hủy</button>
+          <button type="submit" disabled={!reason} className={BTN_ACCENT}>Gửi báo cáo</button>
         </div>
       </form>
     </DialogShell>
@@ -81,7 +82,7 @@ export default function ReportButton({ target, targetId, name, className = '' }:
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`inline-flex items-center gap-1.5 rounded-control text-xs text-page-muted underline-offset-4 transition-colors duration-300 hover:text-page-fg hover:underline ${FOCUS} ${className}`}
+        className={`inline-flex items-center gap-1.5 rounded-control text-xs text-page-muted underline-offset-4 transition-colors duration-fast hover:text-page-fg hover:underline ${FOCUS} ${className}`}
       >
         <Flag className="h-3.5 w-3.5" aria-hidden="true" />
         Báo cáo<span className="sr-only"> {target === 'job' ? 'tin' : 'ứng viên'} {name}</span>

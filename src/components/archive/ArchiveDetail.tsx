@@ -5,7 +5,7 @@ import { gsap, useGSAP } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { photoSrcSet, photoUrl } from '@components/discover/types'
 import type { ArchiveEntry } from './types'
-import { FOCUS } from '@utils/focus'
+import { BTN_ICON } from '@utils/ui'
 
 type Props = {
   entry: ArchiveEntry
@@ -210,7 +210,7 @@ export default function ArchiveDetail({
               type="button"
               onClick={onRequestClose}
               aria-label="Đóng"
-              className={`grid h-10 w-10 place-items-center rounded-full border border-page-line transition-colors duration-300 hover:border-page-fg ${FOCUS}`}
+              className={BTN_ICON}
             >
               <X className="h-4 w-4" />
             </button>

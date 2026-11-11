@@ -8,6 +8,7 @@ import { useReducedMotion } from '@hooks/useReducedMotion'
 import { markConversationRead, notifyTyping, useActiveInterview, useHire, sendMessage, useIsTyping, useMessages, useHasOlderMessages, loadOlderMessages, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ICON, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, LINK } from '@utils/ui'
 import { describeConversation } from './describe'
 import ChatAvatar from './ChatAvatar'
 import FadeIn from './FadeIn'
@@ -174,7 +175,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
   return (
     <FadeIn className="flex h-full min-h-0 flex-col">
       <header className="flex items-center gap-2 border-b border-page-line pb-3">
-        <button type="button" onClick={onBack} aria-label="Quay lại danh sách" className={cn('shrink-0 rounded-full border border-page-line p-3 text-page-fg transition-colors duration-300 hover:border-page-fg hover:bg-page-surface', hideBackOnWide && 'md:hidden', FOCUS)}>
+        <button type="button" onClick={onBack} aria-label="Quay lại danh sách" className={cn(BTN_ICON, hideBackOnWide && 'md:hidden')}>
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         </button>
         <ChatAvatar initials={info.initials} url={info.avatarUrl} contain={viewer === 'seeker'} className="h-9 w-9 text-sm" />
@@ -182,7 +183,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
           <h2 className="truncate text-sm font-semibold text-page-fg">{info.name}</h2>
           <p className="truncate text-xs text-page-muted">{info.subtitle}</p>
         </div>
-        <Link to={info.profileHref} className={cn('shrink-0 rounded-control text-sm text-page-muted underline underline-offset-4 hover:text-page-fg', FOCUS)}>
+        <Link to={info.profileHref} className={cn(LINK, 'shrink-0 text-sm')}>
           {info.profileLabel}
         </Link>
       </header>
@@ -200,7 +201,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
       <div ref={scrollRef} data-lenis-prevent className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain py-5" role="log" aria-live="polite" aria-label="Nội dung cuộc trò chuyện" onWheel={markScrolled} onTouchMove={markScrolled} onPointerDown={markScrolled}>
         {hasOlder && (
           <div ref={topRef} className="flex justify-center">
-            <button type="button" onClick={loadOlder} disabled={loadingOlder} className={cn('rounded-full border border-page-edge px-3 py-1.5 text-xs text-page-muted transition-colors hover:border-page-fg hover:text-page-fg motion-reduce:transition-none disabled:opacity-60', FOCUS)}>
+            <button type="button" onClick={loadOlder} disabled={loadingOlder} className={cn(BTN_SECONDARY, BTN_SM)}>
               {loadingOlder ? 'Đang tải…' : 'Xem tin cũ hơn'}
             </button>
           </div>
@@ -265,7 +266,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
               key={q}
               type="button"
               onClick={() => send(q)}
-              className={cn('shrink-0 snap-start whitespace-nowrap rounded-full border border-page-edge px-3 py-1.5 text-xs text-page-fg transition-colors duration-300 hover:border-page-fg hover:bg-page-surface', FOCUS)}
+              className={cn(CHIP, CHIP_OFF, 'shrink-0 snap-start px-3 py-1.5 text-xs')}
             >
               {q}
             </button>
@@ -297,7 +298,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
             aria-label="Gửi"
             disabled={!draft.trim()}
             onClick={() => send(draft)}
-            className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-page-fg text-page-bg transition-opacity duration-300 hover:opacity-80 disabled:opacity-40 disabled:hover:opacity-40', FOCUS)}
+            className={cn(BTN_ICON, 'border-accent bg-accent text-accent-fg hover:brightness-110 disabled:cursor-default disabled:opacity-50 disabled:hover:brightness-100 disabled:active:scale-100')}
           >
             <SendHorizontal aria-hidden="true" className="h-4 w-4" />
           </button>

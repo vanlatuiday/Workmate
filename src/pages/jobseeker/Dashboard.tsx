@@ -11,10 +11,11 @@ import { formatRelativeTime } from '@utils/format'
 import { useAllJobs, seekerOutcome } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT } from '@utils/ui'
 import { useProfileStore } from '@context/profileStore'
 import { completeness } from '@pages/public/profile/useProfileDraft'
 
-const LINK = `underline underline-offset-4 text-page-fg hover:text-page-muted transition-colors duration-300 rounded-control ${FOCUS}`
+const LINK = `underline underline-offset-4 text-page-fg hover:text-page-muted transition-colors duration-fast rounded-control ${FOCUS}`
 
 export default function JobseekerDashboard() {
   const { user } = useAuthStore()
@@ -97,7 +98,7 @@ export default function JobseekerDashboard() {
           </p>
           <Link
             to="/tim-viec/ho-so"
-            className={`mt-5 inline-flex items-center gap-2 rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`}
+            className={`${BTN_ACCENT} mt-5`}
           >
             Cập nhật hồ sơ <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>

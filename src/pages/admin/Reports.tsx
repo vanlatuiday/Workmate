@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Flag } from 'lucide-react'
 import { EmptyState, PageHeader, StatusBadge } from '@components/dashboard'
-import { BTN_PRIMARY, BTN_SECONDARY, ConfirmDialog, ReasonDialog, STATUS_LABEL } from '@components/admin/parts'
+import { ConfirmDialog, ReasonDialog, STATUS_LABEL } from '@components/admin/parts'
 import { candidatesOf, companyOf } from '@pages/public/match/data'
 import { findAnyJob } from '@pages/public/jobs/lookup'
 import { useCatalogStore } from '@context/catalogStore'
@@ -11,7 +11,7 @@ import {
   type Report,
 } from '@services/adminService'
 import { cn } from '@utils/cn'
-import { FOCUS } from '@utils/focus'
+import { BTN_DANGER, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
 type Tab = 'open' | 'done'
 const TABS: { id: Tab; label: string }[] = [
@@ -105,7 +105,7 @@ export default function Reports() {
         {TABS.map((t) => (
           <button
             key={t.id} type="button" aria-pressed={tab === t.id} onClick={() => setTab(t.id)}
-            className={cn('rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300', tab === t.id ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg', FOCUS)}
+            className={cn(CHIP, tab === t.id ? CHIP_ON : CHIP_OFF)}
           >
             {t.label} <span className="tnum">({t.id === 'open' ? openCount : reports.length - openCount})</span>
           </button>
@@ -137,16 +137,16 @@ export default function Reports() {
 
                   {r.status === 'open' ? (
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <button type="button" onClick={() => setAction({ kind: 'dismiss', report: r })} className={BTN_SECONDARY}>
+                      <button type="button" onClick={() => setAction({ kind: 'dismiss', report: r })} className={cn(BTN_SECONDARY, BTN_SM)}>
                         Bỏ qua<span className="sr-only"> báo cáo về {s.name}</span>
                       </button>
                       {r.target === 'job' && s.jobId && (moderation[s.jobId]?.status ?? 'approved') !== 'hidden' && (
-                        <button type="button" onClick={() => setAction({ kind: 'hide', report: r })} className={BTN_SECONDARY}>
+                        <button type="button" onClick={() => setAction({ kind: 'hide', report: r })} className={cn(BTN_DANGER, BTN_SM)}>
                           Ẩn tin<span className="sr-only"> {s.name}</span>
                         </button>
                       )}
                       {((r.target !== 'seeker' && s.companyId && !lockedCompanies[s.companyId]) || (r.target === 'seeker' && !lockedSeekers[r.targetId])) && (
-                        <button type="button" onClick={() => setAction({ kind: 'lock', report: r })} className={BTN_PRIMARY}>
+                        <button type="button" onClick={() => setAction({ kind: 'lock', report: r })} className={cn(BTN_DANGER, BTN_SM)}>
                           {r.target !== 'seeker' ? 'Khóa công ty' : 'Khóa ứng viên'}<span className="sr-only"> {s.name}</span>
                         </button>
                       )}

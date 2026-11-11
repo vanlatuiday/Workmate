@@ -5,7 +5,7 @@ import { FlagList, JobActions, JobStatusBadges } from '@components/admin/parts'
 import { companyOf } from '@pages/public/match/data'
 import { useAdminJobs, type AdminJobRow } from '@services/adminService'
 import { cn } from '@utils/cn'
-import { FOCUS } from '@utils/focus'
+import { CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { formatRelativeTime } from '@utils/format'
 
 type Tab = 'pending' | 'flagged' | 'done'
@@ -79,11 +79,7 @@ export default function Moderation() {
             type="button"
             aria-pressed={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={cn(
-              'rounded-full border px-4 py-2 text-sm transition-colors duration-300',
-              tab === t.id ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
-              FOCUS,
-            )}
+            className={cn(CHIP, tab === t.id ? CHIP_ON : CHIP_OFF)}
           >
             {t.label} <span className="tnum">({rows.filter(t.test).length})</span>
           </button>

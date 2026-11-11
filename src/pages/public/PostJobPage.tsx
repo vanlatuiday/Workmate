@@ -19,6 +19,7 @@ import { scoreMatch } from './match/score'
 import ShiftGrid from './post/ShiftGrid'
 import CompletionRing from '@components/common/CompletionRing'
 import PostPreview from './post/PostPreview'
+import { BTN_ACCENT, BTN_LG, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
 const DISTRICTS = ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ']
 const SUGGESTED = [...new Set(CANDIDATES.flatMap((c) => c.criteria.skills))].sort((a, b) => a.localeCompare(b, 'vi'))
@@ -26,12 +27,7 @@ const PHOTOS = MATCH_JOBS.slice(0, 6).map((j) => j.photo)
 const MATCH_MIN = 60
 // Ô nhập kính: nền ngà trong suốt + nhòe phía sau, viền giữ page-edge để đủ tương phản (WCAG 1.4.11)
 const INPUT = `w-full rounded-control border border-page-edge bg-[color-mix(in_srgb,var(--wm-ivory)_55%,transparent)] backdrop-blur-md px-3 py-2 text-sm text-page-fg ${FOCUS}`
-const chip = (on: boolean) =>
-  cn(
-    'rounded-full border px-4 py-2 text-sm transition-[color,background-color,border-color,transform] duration-200 active:scale-95 motion-reduce:transition-none',
-    on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
-    FOCUS,
-  )
+const chip = (on: boolean) => cn(CHIP, on ? CHIP_ON : CHIP_OFF)
 
 /** Chip bật lên thì "nảy" nhẹ; giảm chuyển động thì bỏ qua */
 function pop(el: HTMLElement, reduced: boolean) {
@@ -282,11 +278,7 @@ export default function PostJobPage() {
                         type="button"
                         aria-pressed={on}
                         onClick={() => setRequiredPick(on ? requiredPick.filter((x) => x !== s) : [...requiredPick, s])}
-                        className={cn(
-                          'inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs transition-colors duration-200',
-                          on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-dashed border-page-edge text-page-fg hover:border-page-fg',
-                          FOCUS,
-                        )}
+                        className={cn(CHIP, 'min-h-11 py-1.5 text-xs', on ? CHIP_ON : cn(CHIP_OFF, 'border-dashed border-page-edge'))}
                       >
                         {on && <Lock className="h-3 w-3" aria-hidden="true" />}
                         {s}
@@ -355,7 +347,7 @@ export default function PostJobPage() {
               type="submit"
               ref={submitBtn}
               disabled={!ready || posted}
-              className={`rounded-full bg-page-fg px-8 py-4 text-sm font-medium text-page-bg transition-opacity disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS}`}
+              className={cn(BTN_ACCENT, BTN_LG)}
             >
               {editing ? 'Lưu thay đổi' : 'Đăng tin'}
             </button>

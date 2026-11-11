@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { SearchX } from 'lucide-react'
 import EmptyState from '@components/dashboard/EmptyState'
 import { JOB_TYPES } from '@constants/index'
-import { FOCUS } from '@utils/focus'
+import { BTN_SECONDARY } from '@utils/ui'
 import DiscoverGallery from '@components/discover/DiscoverGallery'
 import { ClosingBand, DetailHead, Facts, PrimaryLink, SampleNote, TextLink } from '@components/discover/parts'
 import type { GalleryItem } from '@components/discover/types'
@@ -76,7 +76,7 @@ export default function RecruiterJobs() {
             title="Không có tin nào khớp"
             description="Thử bỏ bớt điều kiện hoặc gõ từ khóa khác."
             action={
-              <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className={`inline-flex rounded-full border border-page-line px-5 py-2.5 text-sm font-medium text-page-fg hover:border-page-fg ${FOCUS}`}>
+              <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className={BTN_SECONDARY}>
                 Xóa lọc
               </button>
             }

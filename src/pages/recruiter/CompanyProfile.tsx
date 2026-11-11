@@ -12,11 +12,9 @@ import VerificationPanel from './VerificationPanel'
 import { checkLogoFile, removeCompanyLogo, uploadCompanyLogo } from '@services/companyService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_DANGER, BTN_GHOST, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import type { CompanySize } from '@/types'
 
-const BTN = `inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
-const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
-const BTN_LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 
 const DISTRICTS = ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ', 'Hòa Vang']
@@ -66,7 +64,7 @@ function ListEditor({ label, items, onChange, placeholder }: { label: string; it
       <div className="mt-2 flex gap-2">
         <input id={id} value={draft} placeholder={placeholder} onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); add() } }} className={FIELD} />
-        <button type="button" onClick={add} className={`${BTN_LINE} flex-shrink-0 gap-1.5`}><Plus className="h-4 w-4" aria-hidden="true" />Thêm</button>
+        <button type="button" onClick={add} className={cn(BTN_SECONDARY, BTN_SM, 'flex-shrink-0')}><Plus className="h-4 w-4" aria-hidden="true" />Thêm</button>
       </div>
     </div>
   )
@@ -111,11 +109,11 @@ function LogoPanel({ name }: { name: string }) {
             <p className="text-sm text-page-muted">Công ty đang bị khóa nên chưa thể đổi logo.</p>
           ) : (
             <div className="flex flex-wrap gap-2">
-              <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className={`${BTN_LINE} disabled:opacity-50`}>
+              <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className={cn(BTN_SECONDARY, BTN_SM)}>
                 {busy ? 'Đang tải…' : logoUrl ? 'Đổi logo' : 'Tải logo'}
               </button>
               {logoUrl && (
-                <button type="button" disabled={busy} onClick={() => { void remove() }} className={`${BTN_LINE} disabled:opacity-50`}>Xóa logo</button>
+                <button type="button" disabled={busy} onClick={() => { void remove() }} className={cn(BTN_DANGER, BTN_SM)}>Xóa logo</button>
               )}
             </div>
           )}
@@ -263,8 +261,8 @@ export default function CompanyProfile() {
 
           {/* Thanh hành động */}
           <div className="flex flex-wrap items-center gap-3">
-            <button type="submit" disabled={saving} className={`${BTN_SOLID} disabled:opacity-50`}>{saving ? 'Đang lưu…' : 'Lưu thay đổi'}</button>
-            <button type="button" onClick={cancel} disabled={!dirty} className={`${BTN_LINE} disabled:opacity-50`}>Hủy</button>
+            <button type="submit" disabled={saving} className={BTN_ACCENT}>{saving ? 'Đang lưu…' : 'Lưu thay đổi'}</button>
+            <button type="button" onClick={cancel} disabled={!dirty} className={BTN_GHOST}>Hủy</button>
             {dirty && <span role="status" className="text-sm text-page-muted">Có thay đổi chưa lưu</span>}
           </div>
         </form>

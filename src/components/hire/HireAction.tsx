@@ -4,7 +4,7 @@ import { BriefcaseBusiness, Star } from 'lucide-react'
 import { describeConversation } from '@pages/public/messages/describe'
 import { acceptOffer, declineOffer, rejectCandidate, useActiveInterview, useHire, useReview, withdrawOffer, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
-import { FOCUS } from '@utils/focus'
+import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import ConfirmDialog from './ConfirmDialog'
 import { hireLabel, todayStr } from './format'
 import HireChip from './HireChip'
@@ -13,10 +13,6 @@ import ReviewDialog from './ReviewDialog'
 
 type Props = { viewer: Side; jobId: string; seekerId: string; compact?: boolean }
 type Open = 'offer' | 'reject' | 'withdraw' | 'decline' | 'review' | null
-
-const BTN = 'inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border font-medium transition-colors duration-300'
-const SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
-const LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 
 /**
  * Nút nhận việc theo vai trò và trạng thái, dùng ở Kết nối, lịch phỏng vấn và khung chat:
@@ -29,7 +25,8 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
   const iv = useActiveInterview(jobId, seekerId)
   const myReview = useReview(jobId, seekerId, viewer)
   const [open, setOpen] = useState<Open>(null)
-  const size = compact ? 'px-3.5 py-1.5 text-xs' : 'px-5 py-2.5 text-sm'
+  // compact (khung chat, thẻ chật) dùng cỡ nhỏ của bộ nút chung
+  const size = compact ? BTN_SM : ''
   const close = () => setOpen(null)
 
   // Phỏng vấn đã xác nhận và đã qua giờ → đây là lúc nên quyết định
@@ -39,11 +36,11 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
     if (viewer !== 'recruiter') return null
     return (
       <>
-        <button type="button" onClick={() => setOpen('offer')} className={cn(interviewDone ? SOLID : LINE, size, FOCUS)}>
+        <button type="button" onClick={() => setOpen('offer')} className={cn(interviewDone ? BTN_PRIMARY : BTN_SECONDARY, size)}>
           <BriefcaseBusiness className="h-4 w-4" aria-hidden="true" />
           Nhận vào làm
         </button>
-        <button type="button" onClick={() => setOpen('reject')} className={cn(LINE, size, FOCUS)}>Không nhận</button>
+        <button type="button" onClick={() => setOpen('reject')} className={cn(BTN_DANGER, size)}>Không nhận</button>
         {open === 'offer' && <OfferDialog jobId={jobId} seekerId={seekerId} onClose={close} />}
         {open === 'reject' && (
           <ConfirmDialog
@@ -81,7 +78,7 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
           </span>
         )}
         {started && !myReview && (
-          <button type="button" onClick={() => setOpen('review')} className={cn(LINE, size, FOCUS)}>
+          <button type="button" onClick={() => setOpen('review')} className={cn(BTN_SECONDARY, size)}>
             <Star className="h-4 w-4" aria-hidden="true" />
             Đánh giá
           </button>
@@ -99,7 +96,7 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
     return (
       <>
         {chip}
-        <button type="button" onClick={() => setOpen('withdraw')} className={cn(LINE, size, FOCUS)}>Rút lời mời</button>
+        <button type="button" onClick={() => setOpen('withdraw')} className={cn(BTN_DANGER, size)}>Rút lời mời</button>
         {open === 'withdraw' && (
           <ConfirmDialog
             titleId="withdraw-title"
@@ -126,11 +123,11 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
           acceptOffer(jobId, seekerId)
           toast.success('Đã xác nhận đi làm. Chúc bạn một khởi đầu thuận lợi!')
         }}
-        className={cn(SOLID, size, FOCUS)}
+        className={cn(BTN_PRIMARY, size)}
       >
         Xác nhận đi làm
       </button>
-      <button type="button" onClick={() => setOpen('decline')} className={cn(LINE, size, FOCUS)}>Từ chối</button>
+      <button type="button" onClick={() => setOpen('decline')} className={cn(BTN_DANGER, size)}>Từ chối</button>
       {open === 'decline' && (
         <ConfirmDialog
           titleId="decline-title"

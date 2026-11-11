@@ -5,13 +5,11 @@ import { HireAction } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import { describeConversation } from '@pages/public/messages/describe'
 import { useConversations, useMyPairs } from '@services/connectionService'
-import { FOCUS } from '@utils/focus'
+import { cn } from '@utils/cn'
+import { BTN_ACCENT, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import { formatRelativeTime } from '@utils/format'
 import MessageLink from '@components/messenger/MessageLink'
 
-const BTN = `inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
-const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
-const BTN_LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 
 /** Kết nối (doanh nghiệp): ứng viên đã kết nối theo từng tin, kèm tin nhắn cuối và mời phỏng vấn. */
 export default function RecruiterMatch() {
@@ -23,7 +21,7 @@ export default function RecruiterMatch() {
       <PageHeader
         title="Kết nối"
         description="Những ứng viên đã đồng ý kết nối. Nhắn tin, mời phỏng vấn và nhận vào làm tại đây."
-        actions={<Link to="/lich-phong-van" className={BTN_LINE}>Lịch phỏng vấn</Link>}
+        actions={<Link to="/lich-phong-van" className={cn(BTN_SECONDARY, BTN_SM)}>Lịch phỏng vấn</Link>}
       />
 
       {connected.length === 0 ? (
@@ -31,7 +29,7 @@ export default function RecruiterMatch() {
           icon={Zap}
           title="Chưa có kết nối nào"
           description="Quan tâm ứng viên để bắt đầu; khi họ đồng ý, kết nối sẽ hiện tại đây."
-          action={<Link to="/tuyen-dung/tim-ung-vien" className={BTN_SOLID}>Tìm ứng viên</Link>}
+          action={<Link to="/tuyen-dung/tim-ung-vien" className={BTN_ACCENT}>Tìm ứng viên</Link>}
         />
       ) : (
         <Panel>
@@ -61,7 +59,7 @@ export default function RecruiterMatch() {
                   <div className="flex flex-wrap items-center gap-2 lg:flex-shrink-0">
                     <InterviewAction viewer="recruiter" jobId={p.jobId} seekerId={p.seekerId} compact />
                     <HireAction viewer="recruiter" jobId={p.jobId} seekerId={p.seekerId} compact />
-                    <MessageLink convKey={`${p.jobId}|${p.seekerId}`} className={BTN_SOLID}>Nhắn tin</MessageLink>
+                    <MessageLink convKey={`${p.jobId}|${p.seekerId}`} className={cn(BTN_PRIMARY, BTN_SM)}>Nhắn tin</MessageLink>
                   </div>
                 </li>
               )

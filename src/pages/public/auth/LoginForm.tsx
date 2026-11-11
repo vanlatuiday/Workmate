@@ -7,6 +7,7 @@ import { apiErrorMessage, authService } from '@services/authService'
 import { canVisit } from '@constants/roles'
 import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
+import { BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import { AuthField, ErrorBox, Item, RoleSwitch, ShowPassButton, Stagger, SubmitButton, TEXT_LINK, type AuthRole } from './shared'
 import { AUTH_PATHS, loginEmailError, useFieldTouch, useFocusFirst, type AuthFormProps } from './authShared'
 
@@ -153,11 +154,7 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
                   disabled={loading}
                   onClick={() => quickLogin(acc.username, password)}
                   title={`${acc.label} · ${acc.username} · mật khẩu ${password}`}
-                  className={cn(
-                    'inline-flex items-center gap-1.5 rounded-full border border-page-edge px-3 py-2 text-xs font-medium text-page-fg',
-                    'transition-colors duration-300 hover:border-page-fg hover:bg-page-surface disabled:opacity-60 disabled:cursor-not-allowed',
-                    FOCUS,
-                  )}
+                  className={cn(BTN_SECONDARY, BTN_SM)}
                 >
                   <Icon className="w-3.5 h-3.5" aria-hidden />
                   {DEMO_LABELS[acc.role]}

@@ -12,6 +12,7 @@ import { fmtSlot, MODE_LABEL } from '@components/interview/format'
 import PlaceText from '@components/interview/PlaceText'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT } from '@utils/ui'
 import { candidateHref } from '@pages/public/personal/links'
 
 const LINK = `underline-offset-4 hover:underline text-page-fg rounded-control ${FOCUS}`
@@ -77,10 +78,7 @@ export default function RecruiterDashboard() {
         title="Tổng quan tuyển dụng"
         description="Theo dõi tin đang mở, ứng viên phù hợp và lịch phỏng vấn trong tuần."
         actions={
-          <Link
-            to="/dang-tin"
-            className={`inline-flex items-center gap-2 rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`}
-          >
+          <Link to="/dang-tin" className={BTN_ACCENT}>
             <Plus className="h-4 w-4" aria-hidden="true" />
             Đăng tin mới
           </Link>

@@ -2,11 +2,12 @@ import { useId, useMemo, useState } from 'react'
 import { Eye, FileText, Search } from 'lucide-react'
 import { EmptyState, PageHeader, Panel } from '@components/dashboard'
 import DetailDrawer from '@components/admin/DetailDrawer'
-import { BTN_SECONDARY, FIELD, FlagList, JobActions, JobStatusBadges, norm, STATUS_LABEL } from '@components/admin/parts'
+import { FIELD, FlagList, JobActions, JobStatusBadges, norm, STATUS_LABEL } from '@components/admin/parts'
 import { JOB_TYPES } from '@constants/index'
 import { companyOf } from '@pages/public/match/data'
 import { useAdminJobs, type AdminJobRow, type ModerationStatus } from '@services/adminService'
 import { FOCUS } from '@utils/focus'
+import { BTN_SECONDARY } from '@utils/ui'
 import { formatRelativeTime } from '@utils/format'
 
 type SortKey = 'newest' | 'salary' | 'flags'
@@ -171,7 +172,7 @@ export default function Jobs() {
               </thead>
               <tbody className="divide-y divide-page-line">
                 {shown.map((r) => (
-                  <tr key={r.job.id} onClick={() => setOpenId(r.job.id)} className="cursor-pointer transition-colors duration-300 hover:bg-page-bg">
+                  <tr key={r.job.id} onClick={() => setOpenId(r.job.id)} className="cursor-pointer transition-colors duration-fast hover:bg-page-bg">
                     <th scope="row" className="px-5 py-3 font-normal">
                       <button type="button" onClick={(e) => { e.stopPropagation(); setOpenId(r.job.id) }} className={`rounded-control text-left font-medium text-page-fg hover:underline ${FOCUS}`}>
                         {r.job.title}

@@ -14,7 +14,7 @@ export default function FadeIn({ children, rise = false, className }: { children
   return (
     <div
       className={cn(
-        !reduced && 'transition-[opacity,transform] duration-[250ms] ease-out',
+        !reduced && 'transition-[opacity,transform] duration-fast ease-editorial',
         on ? 'translate-y-0 opacity-100' : cn('opacity-0', rise && 'translate-y-2'),
         className,
       )}

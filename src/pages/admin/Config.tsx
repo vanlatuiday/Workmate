@@ -2,12 +2,14 @@ import { useId, useState } from 'react'
 import toast from 'react-hot-toast'
 import { X } from 'lucide-react'
 import { PageHeader, Panel } from '@components/dashboard'
-import { BTN_PRIMARY, BTN_SECONDARY, ConfirmDialog, FIELD } from '@components/admin/parts'
+import { ConfirmDialog, FIELD } from '@components/admin/parts'
 import { CRITERION_LABELS, type CriterionKey } from '@pages/public/match/score'
 import { DEFAULT_CONFIG, updateConfig, type SystemConfig } from '@services/adminService'
 import { useCatalogStore } from '@context/catalogStore'
 import { apiErrorMessage } from '@services/authService'
+import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 
 const KEYS = Object.keys(CRITERION_LABELS) as CriterionKey[]
 type Confirm = 'defaults' | null
@@ -61,7 +63,7 @@ export default function Config() {
       <PageHeader
         title="Cấu hình hệ thống"
         description="Quy tắc chấm điểm và kiểm duyệt áp dụng cho toàn bộ Workmate."
-        actions={<button type="button" onClick={save} disabled={!weightsOk || !dirty} className={`${BTN_PRIMARY} disabled:cursor-not-allowed disabled:opacity-40`}>Lưu thay đổi</button>}
+        actions={<button type="button" onClick={save} disabled={!weightsOk || !dirty} className={BTN_ACCENT}>Lưu thay đổi</button>}
       />
 
       <Panel title="Trọng số điểm phù hợp">
@@ -83,7 +85,7 @@ export default function Config() {
           <p role="status" className={`text-sm ${weightsOk ? 'text-page-muted' : 'font-medium text-page-fg'}`}>
             {weightsOk ? <>Tổng: <span className="tnum">100%</span></> : <>Tổng phải bằng 100, hiện <span className="tnum">{total}</span></>}
           </p>
-          <button type="button" onClick={() => patch({ weights: DEFAULT_CONFIG.weights })} className={BTN_SECONDARY}>Chia đều lại theo mặc định</button>
+          <button type="button" onClick={() => patch({ weights: DEFAULT_CONFIG.weights })} className={cn(BTN_SECONDARY, BTN_SM)}>Chia đều lại theo mặc định</button>
         </div>
       </Panel>
 
@@ -108,7 +110,7 @@ export default function Config() {
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addWord() } }}
             className={`min-w-0 flex-1 sm:max-w-xs ${FIELD}`}
           />
-          <button type="button" onClick={addWord} className={BTN_SECONDARY}>Thêm</button>
+          <button type="button" onClick={addWord} className={cn(BTN_SECONDARY, BTN_SM)}>Thêm</button>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-6 border-t border-page-line pt-6 sm:grid-cols-2">
@@ -126,15 +128,15 @@ export default function Config() {
           <button
             type="button" role="switch" aria-checked={form.registrationOpen} aria-labelledby={`${uid}-reg`}
             onClick={() => patch({ registrationOpen: !form.registrationOpen })}
-            className={`relative h-6 w-11 flex-shrink-0 rounded-full border transition-colors duration-300 ${FOCUS} ${form.registrationOpen ? 'border-page-fg bg-page-fg' : 'border-page-edge bg-page-surface'}`}
+            className={`relative h-6 w-11 flex-shrink-0 rounded-full border transition-colors duration-fast ${FOCUS} ${form.registrationOpen ? 'border-page-fg bg-page-fg' : 'border-page-edge bg-page-surface'}`}
           >
-            <span aria-hidden="true" className={`absolute top-0.5 h-4 w-4 rounded-full transition-transform duration-300 motion-reduce:transition-none ${form.registrationOpen ? 'translate-x-[1.375rem] bg-page-bg' : 'translate-x-0.5 bg-page-fg'}`} />
+            <span aria-hidden="true" className={`absolute top-0.5 h-4 w-4 rounded-full transition-transform duration-base motion-reduce:transition-none ${form.registrationOpen ? 'translate-x-[1.375rem] bg-page-bg' : 'translate-x-0.5 bg-page-fg'}`} />
           </button>
         </div>
       </Panel>
 
       <div className="flex flex-wrap gap-3">
-        <button type="button" onClick={() => setConfirm('defaults')} className={BTN_SECONDARY}>Khôi phục mặc định</button>
+        <button type="button" onClick={() => setConfirm('defaults')} className={cn(BTN_SECONDARY, BTN_SM)}>Khôi phục mặc định</button>
       </div>
 
       {confirm === 'defaults' && (

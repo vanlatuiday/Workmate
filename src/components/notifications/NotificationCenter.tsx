@@ -14,6 +14,7 @@ import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useUnreadCount, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ICON, LINK } from '@utils/ui'
 import NotificationList, { MarkAllReadButton } from './NotificationList'
 
 const STORAGE_KEY = 'workmate-notify-pos'
@@ -129,7 +130,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
         className={cn(
           'theme-ivory fixed left-0 top-0 z-[60] !bg-transparent', // theme-ivory tự tô nền ngà → bỏ để chỉ còn nút tròn
           // Thả tay thì trượt về mép; đang kéo thì bám theo con trỏ ngay
-          animate && !dragging && 'transition-transform duration-300 ease-editorial motion-reduce:transition-none',
+          animate && !dragging && 'transition-transform duration-base ease-editorial motion-reduce:transition-none',
         )}
         style={{ transform: `translate3d(${x}px, ${y}px, 0)` }}
       >
@@ -137,7 +138,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
         <div
           data-floating
           className={cn(
-            'relative transition-opacity duration-300 motion-reduce:transition-none',
+            'relative transition-opacity duration-base motion-reduce:transition-none',
             open && 'pointer-events-none opacity-0',
           )}
         >
@@ -152,7 +153,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
             style={{ touchAction: 'none', width: SIZE, height: SIZE }}
             className={cn(
               'flex cursor-grab items-center justify-center rounded-full bg-page-fg text-page-bg ring-1 ring-wm-ivory/40 hover:ring-2 hover:ring-wm-ivory/70 active:cursor-grabbing',
-              'transition-transform duration-200 hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100',
+              'transition-transform duration-fast hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100',
               FOCUS,
             )}
           >
@@ -174,7 +175,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
         aria-hidden="true"
         onClick={closeCenter}
         className={cn(
-          'fixed inset-0 z-[85] bg-wm-charcoal/20 backdrop-blur-md transition-opacity duration-500 ease-out will-change-[opacity] motion-reduce:transition-none',
+          'fixed inset-0 z-[85] bg-wm-charcoal/20 backdrop-blur-md transition-opacity duration-slow ease-editorial will-change-[opacity] motion-reduce:transition-none',
           open ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       />
@@ -207,7 +208,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
                 type="button"
                 onClick={closeCenter}
                 aria-label="Đóng thông báo"
-                className={cn('rounded-full border border-page-line p-3 text-page-fg transition-colors duration-300 hover:border-page-fg hover:bg-page-surface', FOCUS)}
+                className={BTN_ICON}
               >
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -219,7 +220,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
               <NotificationList viewer={viewer} compact onNavigate={closeCenter} />
             </div>
             <div className="border-t border-page-line px-4 py-3 text-center">
-              <Link to="/thong-bao" onClick={closeCenter} className={cn('rounded-control text-sm font-medium text-page-fg underline underline-offset-4', FOCUS)}>
+              <Link to="/thong-bao" onClick={closeCenter} className={cn(LINK, 'text-sm font-medium underline')}>
                 Xem tất cả
               </Link>
             </div>

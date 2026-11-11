@@ -2,6 +2,7 @@ import { useState } from 'react'
 import DialogShell from '@components/interview/DialogShell'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_DANGER, BTN_GHOST } from '@utils/ui'
 
 type Props = {
   titleId: string
@@ -42,10 +43,10 @@ export default function ConfirmDialog({ titleId, title, subtitle, description, a
           </label>
         )}
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className={cn('min-h-10 rounded-full border border-page-line px-5 py-2.5 text-sm font-medium text-page-fg hover:border-page-fg', FOCUS)}>
+          <button type="button" onClick={onClose} className={BTN_GHOST}>
             {cancelLabel}
           </button>
-          <button type="submit" className={cn('min-h-10 rounded-full border border-page-fg bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg transition-colors duration-300 hover:bg-page-bg hover:text-page-fg', FOCUS)}>
+          <button type="submit" className={BTN_DANGER}>
             {confirmLabel}
           </button>
         </div>

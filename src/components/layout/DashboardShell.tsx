@@ -7,6 +7,7 @@ import { useNotificationCenterStore } from '@context/notificationCenterStore'
 import { cn } from '@utils/cn'
 import RouteScroll from '@components/common/RouteScroll'
 import { FOCUS } from '@utils/focus'
+import { BTN_ICON } from '@utils/ui'
 import Skeleton, { SkeletonStats } from '@components/dashboard/Skeleton'
 
 export type DashboardNavItem = {
@@ -32,7 +33,7 @@ type ShellProps = {
 type NavProps = Pick<ShellProps, 'navItems' | 'roleLabel' | 'homeHref'>
 
 
-const ITEM = 'flex w-full items-center gap-3 rounded-control px-3 py-2.5 text-sm transition-colors duration-300'
+const ITEM = 'flex w-full items-center gap-3 rounded-control px-3 py-2.5 text-sm transition-colors duration-fast'
 
 type SidebarProps = NavProps & {
   pathname: string
@@ -69,7 +70,7 @@ function Sidebar({ navItems, roleLabel, homeHref, pathname, onClose }: SidebarPr
             type="button"
             onClick={onClose}
             aria-label="Đóng menu"
-            className={cn('rounded-control p-2 transition-colors duration-300 hover:bg-page-surface', FOCUS)}
+            className={cn('rounded-control p-2 transition-colors duration-fast hover:bg-page-surface', FOCUS)}
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -140,7 +141,7 @@ function Sidebar({ navItems, roleLabel, homeHref, pathname, onClose }: SidebarPr
 }
 
 const ICON_BTN =
-  'relative flex h-11 w-11 items-center justify-center rounded-full transition-colors duration-300'
+  'relative flex h-11 w-11 items-center justify-center rounded-full transition-colors duration-fast'
 
 /** Tooltip CSS thuần: hiện bên phải khi hover hoặc focus bàn phím của phần tử cha (class group). */
 function RailTip({ children }: { children: string }) {
@@ -150,7 +151,7 @@ function RailTip({ children }: { children: string }) {
       className={cn(
         'pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-control',
         'border border-wm-ivory/20 bg-wm-charcoal px-3 py-1.5 text-xs font-medium text-wm-ivory',
-        'opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none',
+        'opacity-0 transition-opacity duration-fast group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none',
       )}
     >
       {children}
@@ -314,13 +315,13 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, searchHr
         <div
           onClick={() => setDrawerOpen(false)}
           className={cn(
-            'absolute inset-0 bg-wm-charcoal/40 transition-opacity duration-300 motion-reduce:transition-none',
+            'absolute inset-0 bg-wm-charcoal/40 transition-opacity duration-base motion-reduce:transition-none',
             drawerOpen ? 'opacity-100' : 'opacity-0',
           )}
         />
         <div
           className={cn(
-            'absolute inset-y-0 left-0 w-72 transition-[transform,visibility] duration-300 ease-editorial motion-reduce:transition-none',
+            'absolute inset-y-0 left-0 w-72 transition-[transform,visibility] duration-base ease-editorial motion-reduce:transition-none',
             drawerOpen ? 'visible translate-x-0' : 'invisible -translate-x-full',
           )}
         >
@@ -339,7 +340,7 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, searchHr
             onClick={() => setDrawerOpen(true)}
             aria-label="Mở menu"
             aria-expanded={drawerOpen}
-            className={cn('rounded-full p-2.5 transition-colors duration-300 hover:bg-page-surface lg:hidden', FOCUS)}
+            className={cn('rounded-full p-2.5 transition-colors duration-fast hover:bg-page-surface lg:hidden', FOCUS)}
           >
             <Menu className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -374,7 +375,7 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, searchHr
               onClick={openNotificationCenter}
               aria-haspopup="dialog"
               aria-label={hasUnread ? 'Thông báo (có thông báo chưa đọc)' : 'Thông báo'}
-              className={cn('relative flex h-10 w-10 items-center justify-center rounded-full border border-page-line bg-page-surface transition-colors duration-300 hover:border-page-fg', FOCUS)}
+              className={cn(BTN_ICON, 'relative bg-page-surface')}
             >
               <Bell className="h-5 w-5" aria-hidden="true" />
               {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-page-fg" aria-hidden="true" />}

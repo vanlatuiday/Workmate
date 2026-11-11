@@ -260,7 +260,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                       tabIndex={-1}
                       onClick={() => jumpTo(i)}
                       className={cn(
-                        'flex w-full items-baseline gap-3 text-left leading-snug transition-colors duration-300',
+                        'flex w-full items-baseline gap-3 text-left leading-snug transition-colors duration-fast',
                         i === active
                           ? 'font-display text-lg font-semibold text-page-fg'
                           : i < active
@@ -424,7 +424,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                       tabIndex={-1}
                       onClick={() => jumpTo(i)}
                       className={cn(
-                        'flex w-full gap-3 text-left transition-opacity duration-300',
+                        'flex w-full gap-3 text-left transition-opacity duration-base',
                         i === active ? 'opacity-100' : 'opacity-40 hover:opacity-80',
                       )}
                     >
@@ -501,7 +501,7 @@ function StepButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        'grid h-10 w-10 place-items-center rounded-full border border-page-line transition-colors duration-300',
+        'grid h-10 w-10 place-items-center rounded-full border border-page-line transition-colors duration-fast',
         'hover:border-page-fg disabled:pointer-events-none disabled:opacity-30',
         FOCUS_FAR,
       )}

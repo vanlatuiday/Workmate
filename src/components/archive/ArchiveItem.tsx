@@ -139,7 +139,7 @@ const ArchiveItem = forwardRef<HTMLButtonElement, Props>(function ArchiveItem(
                 loading="lazy"
                 decoding="async"
                 draggable={false}
-                className="pointer-events-none h-full w-full object-cover saturate-[.7] transition-transform duration-700 ease-editorial group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                className="pointer-events-none h-full w-full object-cover saturate-[.7] transition-transform duration-slow ease-editorial group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
               />
             </div>
             <figcaption className="mt-3 flex items-baseline justify-between gap-4 px-1">
@@ -149,7 +149,7 @@ const ArchiveItem = forwardRef<HTMLButtonElement, Props>(function ArchiveItem(
           </figure>
           </div>
           {/* Chú thích rõ dần khi rê/focus — trên cảm ứng luôn hiện đủ */}
-          <p className="mt-3 px-1 text-sm leading-relaxed text-page-muted transition-opacity duration-300 [@media(hover:hover)]:opacity-75 group-hover:opacity-100 group-focus-visible:opacity-100">
+          <p className="mt-3 px-1 text-sm leading-relaxed text-page-muted transition-opacity duration-base [@media(hover:hover)]:opacity-75 group-hover:opacity-100 group-focus-visible:opacity-100">
             {entry.caption}
           </p>
         </div>

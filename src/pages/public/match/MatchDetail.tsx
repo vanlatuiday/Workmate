@@ -5,7 +5,7 @@ import { gsap, useGSAP } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { FINE_POINTER, useMediaQuery } from '@hooks/useMediaQuery'
 import { photoSrcSet, photoUrl, type Photo } from '@components/discover/types'
-import { FOCUS } from '@utils/focus'
+import { BTN_ICON } from '@utils/ui'
 
 type Props = {
   photo: Photo
@@ -330,7 +330,7 @@ export default function MatchDetail({ photo, title, eyebrow, score, origin, onCl
                 type="button"
                 onClick={() => requestClose()}
                 aria-label="Đóng"
-                className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border border-page-line transition-colors duration-300 hover:border-page-fg ${FOCUS}`}
+                className={BTN_ICON}
               >
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>

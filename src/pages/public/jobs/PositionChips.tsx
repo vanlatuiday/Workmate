@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { cn } from '@utils/cn'
-import { FOCUS } from '@utils/focus'
+import { CHIP, CHIP_OFF } from '@utils/ui'
 import { formatHourlyRangeK } from '@utils/format'
 import type { MatchJob } from './catalog'
 
@@ -9,7 +9,7 @@ const MAX_CHIPS = 4
 /** "28.000–32.000đ/giờ" từ khoảng lương (nghìn đồng/giờ) */
 const salaryShort = (j: MatchJob) => formatHourlyRangeK(j.salaryMinK, j.salaryMaxK)
 
-const CHIP = `inline-flex items-center rounded-full border border-page-line px-3 py-1 text-xs transition-colors duration-300 hover:border-page-fg ${FOCUS}`
+const POSITION_CHIP = cn(CHIP, CHIP_OFF, 'max-w-full whitespace-normal px-3 py-1 text-left text-xs')
 
 /**
  * Các vị trí đang tuyển của một công ty dạng chip ("Pha chế ca tối · 28.000–32.000đ/giờ"), mỗi chip là link tới tin.
@@ -33,15 +33,15 @@ export default function PositionChips({ jobs, moreHref, heading, className, max 
       {jobs.length ? (
         <ul className="mt-3 flex flex-wrap gap-2">
           {shown.map((j) => (
-            <li key={j.id}>
-              <Link to={`/viec-lam/${j.id}`} className={cn(CHIP, 'text-page-fg')}>
+            <li key={j.id} className="max-w-full">
+              <Link to={`/viec-lam/${j.id}`} className={cn(POSITION_CHIP, 'text-page-fg')}>
                 {j.title} · {salaryShort(j)}
               </Link>
             </li>
           ))}
           {more && rest > 0 && (
-            <li>
-              <Link to={moreHref} state={{ from: '/viec-lam' }} className={cn(CHIP, 'text-page-muted')} aria-label={`Xem thêm ${rest} vị trí`}>
+            <li className="max-w-full">
+              <Link to={moreHref} state={{ from: '/viec-lam' }} className={cn(POSITION_CHIP, 'text-page-muted')} aria-label={`Xem thêm ${rest} vị trí`}>
                 +{rest}
               </Link>
             </li>

@@ -11,6 +11,7 @@ import {
 } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import { formatRelativeTime } from '@utils/format'
 
 const ICONS: Record<DemoNotification['kind'], LucideIcon> = {
@@ -89,7 +90,7 @@ export function MarkAllReadButton({ viewer, className }: { viewer: Side; classNa
       type="button"
       disabled={unread === 0}
       onClick={() => markAllNotificationsRead(viewer)}
-      className={cn('rounded-full border border-page-line px-4 py-2 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg hover:bg-page-surface disabled:cursor-default disabled:text-page-muted disabled:hover:border-page-line disabled:hover:bg-transparent', FOCUS, className)}
+      className={cn(BTN_SECONDARY, BTN_SM, className)}
     >
       Đánh dấu đã đọc tất cả
     </button>
@@ -135,7 +136,7 @@ export default function NotificationList({ viewer, onNavigate, compact }: { view
                     onClick={() => open(n)}
                     // Chưa đọc: nền đậm hơn + chấm; đã đọc: trong suốt. Hover = viền (không trùng nền chưa đọc)
                     className={cn(
-                      'group flex w-full items-start gap-3 rounded-md border px-3 py-3 text-left transition-colors duration-300',
+                      'group flex w-full items-start gap-3 rounded-md border px-3 py-3 text-left transition-colors duration-fast',
                       n.read ? 'border-transparent bg-transparent' : 'border-transparent bg-page-surface',
                       'hover:border-page-edge',
                       FOCUS,

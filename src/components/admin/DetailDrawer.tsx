@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { cn } from '@utils/cn'
-import { FOCUS } from '@utils/focus'
+import { BTN_ICON } from '@utils/ui'
 
 type Props = { titleId: string; title: string; subtitle?: string; onClose: () => void; children: ReactNode; footer?: ReactNode }
 
@@ -74,7 +74,7 @@ export default function DetailDrawer({ titleId, title, subtitle, onClose, childr
         aria-labelledby={titleId}
         className={cn(
           'theme-ivory relative flex h-full w-full max-w-xl flex-col border-l border-page-line bg-wm-ivory text-wm-charcoal',
-          'transition-transform duration-300 ease-out motion-reduce:transition-none',
+          'transition-transform duration-base ease-editorial motion-reduce:transition-none',
           shown ? 'translate-x-0' : 'translate-x-full motion-reduce:translate-x-0',
         )}
       >
@@ -88,7 +88,7 @@ export default function DetailDrawer({ titleId, title, subtitle, onClose, childr
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className={cn('shrink-0 rounded-control p-1.5 text-page-muted transition-colors duration-300 hover:text-page-fg', FOCUS)}
+            className={BTN_ICON}
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>

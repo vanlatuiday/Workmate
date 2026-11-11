@@ -3,11 +3,13 @@ import toast from 'react-hot-toast'
 import { Building2, Lock, LockOpen, Search, ShieldCheck } from 'lucide-react'
 import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import DetailDrawer from '@components/admin/DetailDrawer'
-import { BTN_PRIMARY, BTN_SECONDARY, ConfirmDialog, FIELD, norm, STATUS_LABEL } from '@components/admin/parts'
+import { ConfirmDialog, FIELD, norm, STATUS_LABEL } from '@components/admin/parts'
 import type { DiscoverCompany } from '@pages/public/jobs/data'
 import { useCatalogStore } from '@context/catalogStore'
 import { setCompanyLocked, setCompanyVerified, useAdminJobs, useCompanyFlags } from '@services/adminService'
+import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
 type Filter = 'all' | 'verified' | 'unverified' | 'locked'
 const FILTERS: { id: Filter; label: string }[] = [
@@ -75,7 +77,7 @@ export default function Recruiters() {
               type="button"
               aria-pressed={filter === f.id}
               onClick={() => setFilter(f.id)}
-              className={`rounded-full border px-4 py-2 text-sm transition-colors duration-300 ${FOCUS} ${filter === f.id ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg'}`}
+              className={cn(CHIP, filter === f.id ? CHIP_ON : CHIP_OFF)}
             >
               {f.label}
             </button>
@@ -116,7 +118,7 @@ export default function Recruiters() {
                 {shown.map((c) => {
                   const st = stats(c.id)
                   return (
-                    <tr key={c.id} onClick={() => setOpenId(c.id)} className="cursor-pointer transition-colors duration-300 hover:bg-page-bg">
+                    <tr key={c.id} onClick={() => setOpenId(c.id)} className="cursor-pointer transition-colors duration-fast hover:bg-page-bg">
                       <th scope="row" className="px-5 py-3 font-normal">
                         <button type="button" onClick={(e) => { e.stopPropagation(); setOpenId(c.id) }} className={`rounded-control text-left font-medium text-page-fg hover:underline ${FOCUS}`}>
                           {c.name}
@@ -150,16 +152,16 @@ export default function Recruiters() {
           onClose={() => setOpenId(null)}
           footer={
             <>
-              <button type="button" onClick={() => toggleVerified(open)} className={BTN_SECONDARY}>
+              <button type="button" onClick={() => toggleVerified(open)} className={cn(BTN_SECONDARY, BTN_SM)}>
                 <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                 {verified[open.id] ? 'Bỏ nhãn xác minh' : 'Gắn nhãn xác minh'}
               </button>
               {locked[open.id] ? (
-                <button type="button" onClick={() => unlock(open)} className={BTN_PRIMARY}>
+                <button type="button" onClick={() => unlock(open)} className={cn(BTN_PRIMARY, BTN_SM)}>
                   <LockOpen className="h-4 w-4" aria-hidden="true" />Mở khóa
                 </button>
               ) : (
-                <button type="button" onClick={() => setConfirmLock(true)} className={BTN_SECONDARY}>
+                <button type="button" onClick={() => setConfirmLock(true)} className={cn(BTN_DANGER, BTN_SM)}>
                   <Lock className="h-4 w-4" aria-hidden="true" />Khóa công ty
                 </button>
               )}

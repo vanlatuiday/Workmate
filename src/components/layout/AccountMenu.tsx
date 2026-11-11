@@ -26,7 +26,7 @@ type Props = {
 }
 
 const ITEM = cn(
-  'block w-full rounded-control px-3 py-2 text-left text-sm text-page-muted transition-colors duration-300 hover:bg-page-surface hover:text-page-fg',
+  'block w-full rounded-control px-3 py-2 text-left text-sm text-page-muted transition-colors duration-fast hover:bg-page-surface hover:text-page-fg',
   FOCUS,
 )
 
@@ -109,7 +109,7 @@ export default function AccountMenu({ initial, area, profileHref, unreadMessages
           onClick={() => setOpen((o) => !o)}
           onKeyDown={onButtonKey}
           className={cn(
-            'group flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-sm text-page-muted transition-colors duration-300 hover:text-page-fg',
+            'group flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-sm text-page-muted transition-colors duration-fast hover:text-page-fg',
             FOCUS,
           )}
         >
@@ -127,7 +127,7 @@ export default function AccountMenu({ initial, area, profileHref, unreadMessages
           <RollText>Trang cá nhân</RollText>
           <ChevronDown
             aria-hidden="true"
-            className={cn('h-4 w-4 transition-transform duration-300 motion-reduce:transition-none', open && 'rotate-180')}
+            className={cn('h-4 w-4 transition-transform duration-base motion-reduce:transition-none', open && 'rotate-180')}
           />
         </button>
       </Magnetic>
@@ -141,7 +141,7 @@ export default function AccountMenu({ initial, area, profileHref, unreadMessages
         onKeyDown={onMenuKey}
         className={cn(
           'absolute right-0 top-full mt-2 w-56 rounded-card border border-page-line bg-page-bg p-2',
-          'transition-[opacity,transform,visibility] duration-300 ease-editorial motion-reduce:transition-none',
+          'transition-[opacity,transform,visibility] duration-base ease-editorial motion-reduce:transition-none',
           open ? 'visible translate-y-0 opacity-100' : 'invisible -translate-y-1 opacity-0',
         )}
       >

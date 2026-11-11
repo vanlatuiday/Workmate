@@ -6,7 +6,7 @@ import DiscoverGallery from '@components/discover/DiscoverGallery'
 import { ClosingBand, DetailHead, PrimaryLink, SampleNote } from '@components/discover/parts'
 import type { GalleryItem } from '@components/discover/types'
 import MatchScore from '@components/dashboard/MatchScore'
-import { FOCUS } from '@utils/focus'
+import { BTN_SECONDARY } from '@utils/ui'
 import type { DiscoverCompany } from './data'
 import { useSeekerCriteria } from '@context/profileStore'
 import { bestJobOf, companiesMatching, EMPTY_FILTERS, hasFilters, type MatchJob } from './catalog'
@@ -58,7 +58,7 @@ export default function JobseekerJobs() {
             title="Không có việc nào khớp"
             description="Thử bỏ bớt điều kiện hoặc gõ từ khóa khác."
             action={
-              <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className={`inline-flex rounded-full border border-page-line px-5 py-2.5 text-sm font-medium text-page-fg hover:border-page-fg ${FOCUS}`}>
+              <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className={BTN_SECONDARY}>
                 Xóa lọc
               </button>
             }

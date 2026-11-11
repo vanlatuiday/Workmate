@@ -6,9 +6,8 @@ import { useCatalogStore, type CatalogCompany } from '@context/catalogStore'
 import { fetchVerifications, getVerificationDocUrl, reviewVerification, setCompanyVerified, type AdminVerification } from '@services/adminService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_DANGER, BTN_GHOST, BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
-const BTN_PRIMARY = `rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`
-const BTN_SECONDARY = `rounded-full border border-page-line px-5 py-2.5 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg ${FOCUS}`
 
 type Tab = 'req-pending' | 'req-approved' | 'req-rejected' | 'pending' | 'verified'
 const REQ_TABS = ['req-pending', 'req-approved', 'req-rejected'] as const
@@ -89,7 +88,7 @@ function RequestCard({ v, onReviewed, onNotice }: { v: AdminVerification; onRevi
               <span className="min-w-0 break-all">{d.name}</span>
               <span className="tnum flex-shrink-0 text-xs text-page-muted">{sizeLabel(d.size)}</span>
             </span>
-            <button type="button" onClick={() => { void open(d.id) }} className={`inline-flex flex-shrink-0 items-center gap-1 rounded-full border border-page-line px-3 py-1 text-xs font-medium text-page-fg hover:border-page-fg ${FOCUS}`}>
+            <button type="button" onClick={() => { void open(d.id) }} className={cn(BTN_SECONDARY, BTN_SM, 'flex-shrink-0')}>
               <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />Xem<span className="sr-only"> {d.name}</span>
             </button>
           </li>
@@ -104,24 +103,24 @@ function RequestCard({ v, onReviewed, onNotice }: { v: AdminVerification; onRevi
               <ul className="mt-2 flex flex-wrap gap-2" aria-label="Lý do gợi ý">
                 {REASONS.map((r) => (
                   <li key={r}>
-                    <button type="button" onClick={() => setReason(r)} className={`rounded-full border border-page-line px-3 py-1 text-xs text-page-fg hover:border-page-fg ${FOCUS}`}>{r}</button>
+                    <button type="button" onClick={() => setReason(r)} className={cn(CHIP, CHIP_OFF)}>{r}</button>
                   </li>
                 ))}
               </ul>
               <textarea ref={reasonRef} id={`${uid}-r`} rows={3} maxLength={500} value={reason} onChange={(e) => setReason(e.target.value)}
                 aria-invalid={err && !reason.trim() ? true : undefined} className={`mt-2 ${FIELD}`} />
               <div className="mt-3 flex flex-wrap gap-2">
-                <button type="button" disabled={busy} onClick={() => { void review('rejected') }} className={`${BTN_PRIMARY} disabled:opacity-50`}>{busy ? 'Đang xử lý…' : 'Xác nhận từ chối'}</button>
-                <button type="button" disabled={busy} onClick={() => { setRejecting(false); setErr(null) }} className={BTN_SECONDARY}>Hủy</button>
+                <button type="button" disabled={busy} onClick={() => { void review('rejected') }} className={cn(BTN_DANGER, BTN_SM)}>{busy ? 'Đang xử lý…' : 'Xác nhận từ chối'}</button>
+                <button type="button" disabled={busy} onClick={() => { setRejecting(false); setErr(null) }} className={cn(BTN_GHOST, BTN_SM)}>Hủy</button>
               </div>
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
-              <button type="button" disabled={busy} onClick={() => { void review('approved') }} className={`${BTN_PRIMARY} disabled:opacity-50`}>
-                <Check className="mr-1.5 inline h-4 w-4" aria-hidden="true" />{busy ? 'Đang xử lý…' : 'Duyệt'}<span className="sr-only"> {v.company.name}</span>
+              <button type="button" disabled={busy} onClick={() => { void review('approved') }} className={cn(BTN_PRIMARY, BTN_SM)}>
+                <Check className="h-4 w-4" aria-hidden="true" />{busy ? 'Đang xử lý…' : 'Duyệt'}<span className="sr-only"> {v.company.name}</span>
               </button>
-              <button type="button" disabled={busy} onClick={() => setRejecting(true)} className={`${BTN_SECONDARY} disabled:opacity-50`}>
-                <X className="mr-1.5 inline h-4 w-4" aria-hidden="true" />Từ chối<span className="sr-only"> {v.company.name}</span>
+              <button type="button" disabled={busy} onClick={() => setRejecting(true)} className={cn(BTN_DANGER, BTN_SM)}>
+                <X className="h-4 w-4" aria-hidden="true" />Từ chối<span className="sr-only"> {v.company.name}</span>
               </button>
             </div>
           )}
@@ -192,11 +191,7 @@ export default function Verification() {
               key={t.value} id={`vtab-${t.value}`} type="button" role="tab"
               aria-selected={active} aria-controls="vpanel" tabIndex={active ? 0 : -1}
               onClick={() => setTab(t.value)} onKeyDown={(e) => onTabKey(e, i)}
-              className={cn(
-                'whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300',
-                active ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
-                FOCUS,
-              )}
+              className={cn(CHIP, active ? CHIP_ON : CHIP_OFF)}
             >
               {t.label} <span className="tnum">({countOf(t.value)})</span>
             </button>
@@ -236,8 +231,8 @@ export default function Verification() {
                   </div>
                 </div>
                 <div className="mt-5">
-                  <button type="button" onClick={() => void toggle(c)} className={c.verified ? BTN_SECONDARY : BTN_PRIMARY}>
-                    {c.verified ? <X className="mr-1.5 inline h-4 w-4" aria-hidden="true" /> : <Check className="mr-1.5 inline h-4 w-4" aria-hidden="true" />}
+                  <button type="button" onClick={() => void toggle(c)} className={cn(c.verified ? BTN_SECONDARY : BTN_PRIMARY, BTN_SM)}>
+                    {c.verified ? <X className="h-4 w-4" aria-hidden="true" /> : <Check className="h-4 w-4" aria-hidden="true" />}
                     {c.verified ? 'Bỏ xác minh' : 'Xác minh'}<span className="sr-only"> {c.name}</span>
                   </button>
                 </div>

@@ -10,10 +10,8 @@ import { apiErrorMessage, authService } from '@services/authService'
 import { setNotifyPref, startConnections } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_DANGER, BTN_GHOST, BTN_SM } from '@utils/ui'
 
-const BTN = `inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 ${FOCUS}`
-const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
-const BTN_LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 
 /** Các loại thông báo theo phía (nhãn khác nhau vì nhìn từ hai phía) */
@@ -63,8 +61,8 @@ function Switch({ label, checked, onChange }: { label: string; checked: boolean;
     <li className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
       <span className="text-sm text-page-fg">{label}</span>
       <button type="button" role="switch" aria-checked={checked} aria-label={label} onClick={() => onChange(!checked)}
-        className={cn('relative h-6 w-11 flex-shrink-0 rounded-full border transition-colors duration-300', checked ? 'border-page-fg bg-page-fg' : 'border-page-edge bg-page-surface', FOCUS)}>
-        <span className={cn('absolute top-0.5 h-4 w-4 rounded-full transition-transform duration-300 motion-reduce:transition-none', checked ? 'translate-x-[22px] bg-page-bg' : 'translate-x-0.5 bg-page-muted')} />
+        className={cn('relative h-6 w-11 flex-shrink-0 rounded-full border transition-colors duration-base', checked ? 'border-page-fg bg-page-fg' : 'border-page-edge bg-page-surface', FOCUS)}>
+        <span className={cn('absolute top-0.5 h-4 w-4 rounded-full transition-transform duration-base motion-reduce:transition-none', checked ? 'translate-x-[22px] bg-page-bg' : 'translate-x-0.5 bg-page-muted')} />
       </button>
     </li>
   )
@@ -183,7 +181,7 @@ export default function SettingsPage({ side }: { side: Side }) {
             <PasswordField label="Mật khẩu hiện tại" value={cur} onChange={setCur} error={errs.cur} autoComplete="current-password" />
             <PasswordField label="Mật khẩu mới (ít nhất 8 ký tự)" value={next} onChange={setNext} error={errs.next} autoComplete="new-password" />
             <PasswordField label="Nhập lại mật khẩu mới" value={again} onChange={setAgain} error={errs.again} autoComplete="new-password" />
-            <div><button type="submit" className={BTN_SOLID}>Đổi mật khẩu</button></div>
+            <div><button type="submit" className={BTN_ACCENT}>Đổi mật khẩu</button></div>
           </form>
         </Section>
 
@@ -225,7 +223,7 @@ export default function SettingsPage({ side }: { side: Side }) {
               : 'Xóa vĩnh viễn tài khoản của bạn. Nếu bạn là người quản lý duy nhất, công ty, mọi tin tuyển dụng cùng kết nối và tin nhắn với ứng viên cũng bị xóa. Không thể khôi phục.'}
           </p>
           {!deleting ? (
-            <button type="button" className={BTN_LINE} onClick={() => setDeleting(true)}>Xóa tài khoản</button>
+            <button type="button" className={cn(BTN_DANGER, BTN_SM)} onClick={() => setDeleting(true)}>Xóa tài khoản</button>
           ) : (
             <form
               role="alertdialog"
@@ -239,10 +237,10 @@ export default function SettingsPage({ side }: { side: Side }) {
                 <input id="delete-confirm" value={confirmText} onChange={(e) => setConfirmText(e.target.value)} autoComplete="off" className={`${FIELD} mt-2`} />
               </div>
               <div className="flex gap-2">
-                <button type="submit" disabled={confirmText.trim() !== 'XÓA' || !deletePassword || deleteBusy} className={`${BTN_SOLID} disabled:opacity-50`}>
+                <button type="submit" disabled={confirmText.trim() !== 'XÓA' || !deletePassword || deleteBusy} className={cn(BTN_DANGER, BTN_SM)}>
                   {deleteBusy ? 'Đang xóa…' : 'Xóa vĩnh viễn'}
                 </button>
-                <button type="button" className={BTN_LINE} onClick={() => { setDeleting(false); setConfirmText(''); setDeletePassword(''); setDeleteError('') }}>Hủy</button>
+                <button type="button" className={cn(BTN_GHOST, BTN_SM)} onClick={() => { setDeleting(false); setConfirmText(''); setDeletePassword(''); setDeleteError('') }}>Hủy</button>
               </div>
             </form>
           )}

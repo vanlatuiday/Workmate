@@ -7,16 +7,15 @@ import { Initials } from '@components/discover/detail/DetailBlocks'
 import CompanyLogo from '@components/common/CompanyLogo'
 import type { MatchView } from '@context/matchStore'
 import { cn } from '@utils/cn'
-import { FOCUS } from '@utils/focus'
+import { CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import TextReveal from '@components/motion/TextReveal'
 import Reveal from '@components/motion/Reveal'
 import { usePageEnterDelay } from '@components/motion/PageTransition'
 import { CRITERION_LABELS, type CriterionResult, type MatchOutcome } from './score'
 import { companyOf, type MatchJob } from './data'
 
-/** Nút pill đặc / nút pill viền — cùng cỡ để hàng nút đều nhau */
-export const BTN_PRIMARY = `inline-flex items-center justify-center gap-1.5 rounded-full border border-page-fg bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg transition-colors duration-300 hover:bg-page-bg hover:text-page-fg disabled:cursor-default disabled:hover:bg-page-fg disabled:hover:text-page-bg ${FOCUS}`
-export const BTN_SECONDARY = `inline-flex items-center justify-center gap-1.5 rounded-full border border-page-line px-5 py-2.5 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg disabled:cursor-default disabled:hover:border-page-line ${FOCUS}`
+/** Nút dùng chung — re-export từ bộ nút của site để các màn hình ngoài /match vẫn import được */
+export { BTN_PRIMARY, BTN_SECONDARY } from '@utils/ui'
 
 /** Khung chung: eyebrow + tiêu đề + mô tả, rồi nội dung */
 export function MatchFrame({ title, intro, children }: { title: string; intro: string; children: ReactNode }) {
@@ -131,11 +130,7 @@ export function Tabs({
               aria-controls={`${idPrefix}-panel`}
               tabIndex={on ? 0 : -1}
               onClick={() => onChange(t.id)}
-              className={cn(
-                'rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300',
-                on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
-                FOCUS,
-              )}
+              className={cn(CHIP, on ? CHIP_ON : CHIP_OFF)}
             >
               {t.label} (<span className="tnum">{t.count}</span>)
             </button>
@@ -241,11 +236,7 @@ export function ViewToggle({ value, onChange }: { value: MatchView; onChange: (v
             type="button"
             aria-pressed={on}
             onClick={() => onChange(id)}
-            className={cn(
-              'inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm transition-colors duration-300',
-              on ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg',
-              FOCUS,
-            )}
+            className={cn(CHIP, on ? CHIP_ON : CHIP_OFF)}
           >
             <Icon className="h-4 w-4" aria-hidden="true" />
             {label}

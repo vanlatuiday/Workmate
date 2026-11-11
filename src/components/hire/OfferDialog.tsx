@@ -4,6 +4,7 @@ import { describeConversation } from '@pages/public/messages/describe'
 import { offerJob } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_GHOST } from '@utils/ui'
 import DialogShell from '@components/interview/DialogShell'
 import { todayStr } from './format'
 
@@ -51,10 +52,10 @@ export default function OfferDialog({ jobId, seekerId, onClose }: Props) {
         {error && <p role="alert" className="text-sm text-page-fg">{error}</p>}
 
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className={cn('min-h-10 rounded-full border border-page-line px-5 py-2.5 text-sm font-medium text-page-fg hover:border-page-fg', FOCUS)}>
+          <button type="button" onClick={onClose} className={BTN_GHOST}>
             Để sau
           </button>
-          <button type="submit" className={cn('min-h-10 rounded-full border border-page-fg bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg transition-colors duration-300 hover:bg-page-bg hover:text-page-fg', FOCUS)}>
+          <button type="submit" className={BTN_ACCENT}>
             Gửi lời mời
           </button>
         </div>

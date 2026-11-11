@@ -4,14 +4,14 @@ import { AlertTriangle } from 'lucide-react'
 import DialogShell from '@components/interview/DialogShell'
 import { StatusBadge } from '@components/dashboard'
 import { setModeration, type AdminJobRow, type ModerationStatus } from '@services/adminService'
+import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { BTN_DANGER, BTN_GHOST, BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
-// Phần dùng chung của các trang quản trị: kiểu ô nhập/nút, nhãn trạng thái, danh sách cờ,
+// Phần dùng chung của các trang quản trị: kiểu ô nhập, nhãn trạng thái, danh sách cờ,
 // hộp xác nhận / nhập lý do và cụm nút kiểm duyệt một tin.
 
 export const FIELD = `rounded-card border border-page-edge bg-page-surface px-4 py-2.5 text-sm text-page-fg ${FOCUS}`
-export const BTN_SECONDARY = `inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-page-line px-4 py-2 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg ${FOCUS}`
-export const BTN_PRIMARY = `inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-page-fg bg-page-fg px-4 py-2 text-sm font-medium text-page-bg ${FOCUS}`
 
 /** Bỏ dấu + chữ thường để tìm "pha che" khớp "Pha chế" */
 export const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase().trim()
@@ -68,8 +68,8 @@ export function ConfirmDialog({
     <DialogShell titleId={id} title={title} onClose={onCancel}>
       <p className="text-sm leading-relaxed text-page-fg">{message}</p>
       <div className="mt-6 flex flex-wrap justify-end gap-2">
-        <button type="button" onClick={onCancel} className={BTN_SECONDARY}>Hủy</button>
-        <button type="button" onClick={onConfirm} className={BTN_PRIMARY}>{confirmLabel}</button>
+        <button type="button" onClick={onCancel} className={cn(BTN_GHOST, BTN_SM)}>Hủy</button>
+        <button type="button" onClick={onConfirm} className={cn(BTN_PRIMARY, BTN_SM)}>{confirmLabel}</button>
       </div>
     </DialogShell>
   )
@@ -96,7 +96,7 @@ export function ReasonDialog({
               type="button"
               aria-pressed={reason === p}
               onClick={() => setReason(p)}
-              className={`rounded-full border px-3 py-1.5 text-sm transition-colors duration-200 ${FOCUS} ${reason === p ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-line text-page-fg hover:border-page-fg'}`}
+              className={cn(CHIP, reason === p ? CHIP_ON : CHIP_OFF)}
             >
               {p}
             </button>
@@ -105,8 +105,8 @@ export function ReasonDialog({
         <label htmlFor={fieldId} className="mt-4 block text-sm text-page-muted">Lý do (bắt buộc)</label>
         <textarea id={fieldId} rows={3} value={reason} onChange={(e) => setReason(e.target.value)} className={`mt-1 w-full ${FIELD}`} />
         <div className="mt-5 flex flex-wrap justify-end gap-2">
-          <button type="button" onClick={onCancel} className={BTN_SECONDARY}>Hủy</button>
-          <button type="submit" disabled={!ok} className={`${BTN_PRIMARY} disabled:cursor-not-allowed disabled:opacity-40`}>{confirmLabel}</button>
+          <button type="button" onClick={onCancel} className={cn(BTN_GHOST, BTN_SM)}>Hủy</button>
+          <button type="submit" disabled={!ok} className={cn(BTN_PRIMARY, BTN_SM)}>{confirmLabel}</button>
         </div>
       </form>
     </DialogShell>
@@ -133,21 +133,21 @@ export function JobActions({ row, onDone }: { row: AdminJobRow; onDone?: () => v
     <>
       {status === 'pending' && (
         <>
-          <button type="button" onClick={() => apply('approved', `Đã duyệt tin "${job.title}"`)} className={BTN_PRIMARY}>
+          <button type="button" onClick={() => apply('approved', `Đã duyệt tin "${job.title}"`)} className={cn(BTN_PRIMARY, BTN_SM)}>
             Duyệt<span className="sr-only"> {job.title}</span>
           </button>
-          <button type="button" onClick={() => setDialog('reject')} className={BTN_SECONDARY}>
+          <button type="button" onClick={() => setDialog('reject')} className={cn(BTN_DANGER, BTN_SM)}>
             Từ chối<span className="sr-only"> {job.title}</span>
           </button>
         </>
       )}
       {status === 'approved' && (
-        <button type="button" onClick={() => setDialog('hide')} className={BTN_SECONDARY}>
+        <button type="button" onClick={() => setDialog('hide')} className={cn(BTN_DANGER, BTN_SM)}>
           Ẩn tin<span className="sr-only"> {job.title}</span>
         </button>
       )}
       {(status === 'rejected' || status === 'hidden') && (
-        <button type="button" onClick={() => apply('approved', `Đã khôi phục tin "${job.title}"`)} className={BTN_SECONDARY}>
+        <button type="button" onClick={() => apply('approved', `Đã khôi phục tin "${job.title}"`)} className={cn(BTN_SECONDARY, BTN_SM)}>
           Khôi phục<span className="sr-only"> {job.title}</span>
         </button>
       )}

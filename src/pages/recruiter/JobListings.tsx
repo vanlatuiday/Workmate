@@ -7,9 +7,8 @@ import { setJobStatus, useCompanyJobs, useJobNumbers, type CompanyJobRow } from 
 import { useCompanyStore } from '@context/companyStore'
 import { formatRelativeTime } from '@utils/format'
 import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_DANGER, BTN_GHOST, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
-const BTN_PRIMARY = `inline-flex items-center gap-2 rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`
-const BTN_SECONDARY = `inline-flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-full border border-page-line px-4 py-2 text-sm text-page-fg transition-colors duration-300 hover:border-page-fg disabled:cursor-not-allowed disabled:text-page-muted disabled:hover:border-page-line ${FOCUS}`
 
 /** Trạng thái gộp: kiểm duyệt của quản trị thắng, còn lại theo trạng thái đăng tuyển do mình đặt */
 type Combined = 'open' | 'paused' | 'closed' | 'pending' | 'attention'
@@ -93,7 +92,7 @@ export default function JobListings() {
     const t = r.job.title
     // Nút Sửa chỉ có ở tin đăng qua /dang-tin, ở mọi trạng thái (tin bị từ chối/ẩn sửa xong sẽ được duyệt lại)
     const edit = r.posted && (
-      <Link to={`/dang-tin?sua=${r.job.id}`} className={BTN_SECONDARY}>
+      <Link to={`/dang-tin?sua=${r.job.id}`} className={cn(BTN_SECONDARY, BTN_SM)}>
         <Pencil className="h-4 w-4" aria-hidden="true" />
         Sửa<span className="sr-only"> {t}</span>
       </Link>
@@ -110,32 +109,32 @@ export default function JobListings() {
       return (
         <div role="group" aria-label={`Xác nhận đóng tin ${t}`} className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-page-fg">Đóng tin này? Tin sẽ ẩn khỏi trang Việc làm.</span>
-          <button type="button" onClick={() => setClosing(null)} className={BTN_SECONDARY}>Hủy</button>
-          <button type="button" onClick={() => change(r, 'closed')} className={cn(BTN_PRIMARY, 'min-h-10 !px-4 !py-2')}>Xác nhận đóng</button>
+          <button type="button" onClick={() => setClosing(null)} className={cn(BTN_GHOST, BTN_SM)}>Hủy</button>
+          <button type="button" onClick={() => change(r, 'closed')} className={cn(BTN_DANGER, BTN_SM)}>Xác nhận đóng</button>
         </div>
       )
     }
     return (
       <div className="flex flex-wrap items-center gap-2">
         {/* /match chỉ có tin đang hiển thị: tin khác thì mở /match như cũ */}
-        <Link to={r.job.visible ? `/match?job=${encodeURIComponent(r.job.id)}` : '/match'} className={BTN_SECONDARY}>
+        <Link to={r.job.visible ? `/match?job=${encodeURIComponent(r.job.id)}` : '/match'} className={cn(BTN_SECONDARY, BTN_SM)}>
           <Users className="h-4 w-4" aria-hidden="true" />
           Xem ứng viên<span className="sr-only"> {t}</span>
         </Link>
         {edit}
         {r.jobStatus === 'open' ? (
-          <button type="button" onClick={() => change(r, 'paused')} className={BTN_SECONDARY}>
+          <button type="button" onClick={() => change(r, 'paused')} className={cn(BTN_SECONDARY, BTN_SM)}>
             <Pause className="h-4 w-4" aria-hidden="true" />
             Tạm dừng<span className="sr-only"> {t}</span>
           </button>
         ) : (
-          <button type="button" onClick={() => change(r, 'open')} className={BTN_SECONDARY}>
+          <button type="button" onClick={() => change(r, 'open')} className={cn(BTN_SECONDARY, BTN_SM)}>
             <Play className="h-4 w-4" aria-hidden="true" />
             Mở lại<span className="sr-only"> {t}</span>
           </button>
         )}
         {r.jobStatus !== 'closed' && (
-          <button type="button" onClick={() => setClosing(r.job.id)} className={BTN_SECONDARY}>
+          <button type="button" onClick={() => setClosing(r.job.id)} className={cn(BTN_DANGER, BTN_SM)}>
             <XCircle className="h-4 w-4" aria-hidden="true" />
             Đóng tin<span className="sr-only"> {t}</span>
           </button>
@@ -152,7 +151,7 @@ export default function JobListings() {
         title="Tin tuyển dụng"
         description="Quản lý các tin bạn đã đăng, xem ai đang phù hợp với từng vị trí."
         actions={
-          <Link to="/dang-tin" className={BTN_PRIMARY}>
+          <Link to="/dang-tin" className={BTN_ACCENT}>
             <Plus className="h-4 w-4" aria-hidden="true" />
             Đăng tin mới
           </Link>
@@ -167,13 +166,7 @@ export default function JobListings() {
               type="button"
               aria-pressed={tab === t}
               onClick={() => setTab(t)}
-              className={cn(
-                'rounded-full border px-4 py-2 text-sm transition-colors duration-300',
-                tab === t
-                  ? 'border-page-fg bg-page-fg text-page-bg'
-                  : 'border-page-line text-page-fg hover:border-page-fg',
-                FOCUS,
-              )}
+              className={cn(CHIP, tab === t ? CHIP_ON : CHIP_OFF)}
             >
               {t === 'all' ? 'Tất cả' : COMBINED_LABEL[t]} <span className="tnum">({count(t)})</span>
             </button>

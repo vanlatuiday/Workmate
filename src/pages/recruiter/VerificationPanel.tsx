@@ -9,11 +9,9 @@ import {
   type VerificationState,
 } from '@services/companyService'
 import { FOCUS } from '@utils/focus'
+import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import { cn } from '@utils/cn'
 
-const BTN = `inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-300 disabled:opacity-50 ${FOCUS}`
-const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg`
-const BTN_LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 
 const sizeLabel = (b: number) => (b >= 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`)
@@ -104,7 +102,7 @@ export default function VerificationPanel() {
     body = loadError ? (
       <div>
         <p role="alert" className="text-sm text-page-fg">{loadError}</p>
-        <button type="button" onClick={() => { void load() }} className={`${BTN_LINE} mt-3`}>Thử lại</button>
+        <button type="button" onClick={() => { void load() }} className={cn(BTN_SECONDARY, BTN_SM, 'mt-3')}>Thử lại</button>
       </div>
     ) : (
       <SkeletonList rows={2} label="Đang tải trạng thái xác minh…" />
@@ -128,7 +126,7 @@ export default function VerificationPanel() {
           {v.documents.map((d) => <FileRow key={d.id} name={d.name} size={d.size} />)}
         </ul>
         {v.note && <p className="mt-3 whitespace-pre-line break-words text-sm text-page-muted">Ghi chú: {v.note}</p>}
-        <button type="button" disabled={busy} onClick={() => { void withdraw() }} className={`${BTN_LINE} mt-4`}>
+        <button type="button" disabled={busy} onClick={() => { void withdraw() }} className={cn(BTN_DANGER, BTN_SM, 'mt-4')}>
           {busy ? 'Đang rút…' : 'Rút yêu cầu'}
         </button>
         {errorEl}
@@ -158,7 +156,7 @@ export default function VerificationPanel() {
             <input ref={inputRef} id={`${uid}-f`} type="file" multiple accept="application/pdf,image/png,image/jpeg,image/webp"
               className="sr-only" tabIndex={-1} aria-label="Chọn giấy tờ xác minh" onChange={(e) => pick(e.target.files)} />
             <div className="mt-3">
-              <button type="button" disabled={busy || files.length >= VERIFY_MAX_FILES} onClick={() => inputRef.current?.click()} className={`${BTN_LINE} gap-1.5`}>
+              <button type="button" disabled={busy || files.length >= VERIFY_MAX_FILES} onClick={() => inputRef.current?.click()} className={cn(BTN_SECONDARY, BTN_SM)}>
                 <Paperclip className="h-4 w-4" aria-hidden="true" />Chọn giấy tờ
               </button>
               <p className="mt-2 text-xs text-page-muted">PDF, PNG, JPG hoặc WEBP; tối đa {VERIFY_MAX_FILES} tệp, mỗi tệp {sizeLabel(VERIFY_MAX_BYTES)}.</p>
@@ -177,7 +175,7 @@ export default function VerificationPanel() {
             </div>
 
             {errorEl}
-            <button type="submit" disabled={busy || files.length === 0} className={`${BTN_SOLID} mt-4`}>
+            <button type="submit" disabled={busy || files.length === 0} className={cn(BTN_PRIMARY, BTN_SM, 'mt-4')}>
               {busy ? 'Đang gửi…' : rejected ? 'Gửi lại yêu cầu' : 'Gửi yêu cầu xác minh'}
             </button>
           </form>

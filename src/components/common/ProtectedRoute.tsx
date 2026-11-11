@@ -2,7 +2,7 @@ import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@context/authStore'
 import { ROLE_AREAS } from '@constants/roles'
 import type { UserRole } from '@/types'
-import { FOCUS } from '@utils/focus'
+import { BTN_ACCENT, BTN_SECONDARY } from '@utils/ui'
 
 interface Props {
   role: UserRole
@@ -30,13 +30,13 @@ export default function ProtectedRoute({ role }: Props) {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to={own.home}
-              className={`rounded-full bg-page-fg px-5 py-2.5 text-sm font-medium text-page-bg ${FOCUS}`}
+              className={BTN_ACCENT}
             >
               Về {own.label.toLowerCase()}
             </Link>
             <Link
               to="/"
-              className={`rounded-full border border-page-line px-5 py-2.5 text-sm font-medium transition-colors duration-300 hover:border-page-fg ${FOCUS}`}
+              className={BTN_SECONDARY}
             >
               Trang chủ
             </Link>
