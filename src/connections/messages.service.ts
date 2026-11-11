@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Prisma, type Message } from '@prisma/client'
 import type { AuthUser } from '../auth/current-user.decorator'
 import { PrismaService } from '../prisma/prisma.service'
+import { RealtimeGateway } from './realtime.gateway'
 import { messageView, otherSide, PairService, sideOf } from './pair.service'
 
 const PAGE_MAX = 100
@@ -10,7 +11,7 @@ const pairKey = (jobId: string, seekerId: string) => `${jobId}|${seekerId}`
 /** Tin nhắn — chỉ giữa hai bên đã kết nối */
 @Injectable()
 export class MessagesService {
-  constructor(private prisma: PrismaService, private pairs: PairService) {}
+  constructor(private prisma: PrismaService, private pairs: PairService, private realtime: RealtimeGateway) {}
 
   /** Các cuộc trò chuyện của tôi kèm tin cuối + số chưa đọc, mới hoạt động nhất trước */
   async conversations(user: AuthUser) {
@@ -25,7 +26,7 @@ export class MessagesService {
     const mine = side === 'seeker'
       ? Prisma.sql`m."seekerId" = ${user.id}`
       : Prisma.sql`m."jobId" IN (SELECT j."id" FROM "Job" j JOIN "CompanyMember" cm ON cm."companyId" = j."companyId" WHERE cm."userId" = ${user.id})`
-    const [lasts, unreads] = await Promise.all([
+    const [lasts, unreads, peerReads] = await Promise.all([
       this.prisma.$queryRaw<Message[]>`
         SELECT DISTINCT ON (m."jobId", m."seekerId") m.* FROM "Message" m
         WHERE ${mine} ORDER BY m."jobId", m."seekerId", m."at" DESC, m."id" DESC`,
@@ -34,9 +35,16 @@ export class MessagesService {
         LEFT JOIN "ConversationRead" r ON r."userId" = ${user.id} AND r."jobId" = m."jobId" AND r."seekerId" = m."seekerId"
         WHERE ${mine} AND m."from" = ${otherSide(side)}::"Side" AND (r."lastRead" IS NULL OR m."at" > r."lastRead")
         GROUP BY m."jobId", m."seekerId"`,
+      // Phía kia đọc tới đâu (cho "Đã xem"): với người tìm việc là người đọc muộn nhất trong công ty
+      this.prisma.$queryRaw<{ jobId: string; seekerId: string; at: Date }[]>`
+        SELECT r."jobId", r."seekerId", MAX(r."lastRead") AS at FROM "ConversationRead" r
+        JOIN "Message" m ON m."jobId" = r."jobId" AND m."seekerId" = r."seekerId"
+        WHERE ${mine} AND ${side === 'seeker' ? Prisma.sql`r."userId" <> r."seekerId"` : Prisma.sql`r."userId" = r."seekerId"`}
+        GROUP BY r."jobId", r."seekerId"`,
     ])
     const lastOf = new Map(lasts.map((m) => [pairKey(m.jobId, m.seekerId), m]))
     const unreadOf = new Map(unreads.map((u) => [pairKey(u.jobId, u.seekerId), u.unread]))
+    const peerReadOf = new Map(peerReads.map((r) => [pairKey(r.jobId, r.seekerId), r.at]))
 
     return connections
       .map((c) => {
@@ -50,6 +58,8 @@ export class MessagesService {
             : { name: c.seeker.fullName, avatarUrl: c.seeker.showAvatar ? c.seeker.avatarUrl : null },
           ...(last ? { last: messageView(last) } : {}),
           unread: unreadOf.get(key) ?? 0,
+          /** ISO; phía kia đã đọc mọi tin gửi trước mốc này. null = chưa mở lần nào */
+          peerReadAt: peerReadOf.get(key)?.toISOString() ?? null,
         }
       })
       .sort((a, b) => (b.last?.at ?? b.at).localeCompare(a.last?.at ?? a.at))
@@ -92,6 +102,13 @@ export class MessagesService {
       create: { userId: user.id, jobId, seekerId, lastRead },
       update: { lastRead },
     })
-    return { lastRead: lastRead.toISOString() }
+    // Báo phía kia để hiện "Đã xem" ngay
+    const at = lastRead.toISOString()
+    const side = sideOf(user)
+    const others = side === 'seeker'
+      ? (await this.prisma.companyMember.findMany({ where: { company: { jobs: { some: { id: jobId } } } }, select: { userId: true } })).map((m) => m.userId)
+      : [seekerId]
+    this.realtime.toUsers(others, 'read', { jobId, seekerId, by: side, at })
+    return { lastRead: at }
   }
 }
