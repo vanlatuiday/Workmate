@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Users, Building2, FileText, Handshake, ChevronRight } from 'lucide-react'
-import { PageHeader, Panel, StatCard, StatusBadge } from '@components/dashboard'
+import { PageHeader, Panel, SkeletonList, StatCard, StatusBadge } from '@components/dashboard'
 import { useConnectionStore } from '@context/connectionStore'
 import { fetchVerifications, useAdmin, useAdminJobs, useCompanyFlags, useSignupsPerDay } from '@services/adminService'
 import { ROLE_LABELS } from './mockData'
@@ -24,18 +24,20 @@ export default function AdminDashboard() {
   const { verified } = useCompanyFlags()
   const connections = useConnectionStore((st) => st.connections)
   const pendingJobs = jobRows.filter((r) => r.status === 'pending')
-  const flaggedPending = pendingJobs.filter((r) => r.flags.length).length
+  // Cùng điều kiện với tab "Bị gắn cờ" ở trang Kiểm duyệt: tin đang hiện (đã duyệt) có cờ cảnh báo
+  const flaggedLive = jobRows.filter((r) => r.status === 'approved' && r.flags.length > 0).length
   const openReports = reports.filter((r) => r.status === 'open').length
   // Yêu cầu xác minh có giấy tờ đang chờ duyệt
   const [pendingVerif, setPendingVerif] = useState(0)
-  useEffect(() => { void fetchVerifications('pending').then((r) => setPendingVerif(r.data.length)) }, [])
+  const [verifLoaded, setVerifLoaded] = useState(false)
+  useEffect(() => { void fetchVerifications('pending').then((r) => { setPendingVerif(r.data.length); setVerifLoaded(true) }) }, [])
   const unverified = Object.values(verified).filter((v) => !v).length
   const weekMatches = connections.filter((c) => Date.now() - +new Date(c.at) <= WEEK_MS).length
   const todoItems = [
     { id: 't0', label: `${pendingVerif} yêu cầu xác minh chờ duyệt`, detail: 'Xem giấy tờ doanh nghiệp đã gửi', href: '/admin/xac-minh', n: pendingVerif },
     { id: 't1', label: `${unverified} nhà tuyển dụng chưa xác minh`, detail: 'Xem hồ sơ và gắn nhãn xác minh', href: '/admin/xac-minh', n: unverified },
     { id: 't2', label: `${openReports} báo cáo đang mở`, detail: 'Báo cáo tin hoặc ứng viên cần xem xét', href: '/admin/bao-cao', n: openReports },
-    { id: 't3', label: `${pendingJobs.length} tin chờ kiểm duyệt`, detail: flaggedPending ? `${flaggedPending} tin bị gắn cờ cảnh báo` : 'Chưa có tin nào bị gắn cờ', href: '/admin/kiem-duyet', n: pendingJobs.length },
+    { id: 't3', label: `${pendingJobs.length} tin chờ kiểm duyệt`, detail: flaggedLive ? `${flaggedLive} tin đang hiện bị gắn cờ cảnh báo` : 'Chưa có tin nào bị gắn cờ', href: '/admin/kiem-duyet', n: pendingJobs.length },
   ].filter((t) => t.n > 0)
   return (
     <div>
@@ -44,14 +46,15 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard label="Người dùng" value={users.length.toLocaleString('vi-VN')} icon={Users} hint={`${seekerCount} người tìm việc, ${recruiterCount} nhà tuyển dụng`} />
         <StatCard label="NTD chưa xác minh" value={unverified} icon={Building2} href="/admin/xac-minh" hint="Công ty chưa có nhãn xác minh" />
-        <StatCard label="Tin chờ kiểm duyệt" value={pendingJobs.length} icon={FileText} href="/admin/kiem-duyet" hint={`${flaggedPending} tin bị gắn cờ`} />
-        <StatCard label="Kết nối 7 ngày qua" value={weekMatches} icon={Handshake} hint={`${openReports} báo cáo đang mở`} />
+        <StatCard label="Tin chờ kiểm duyệt" value={pendingJobs.length} icon={FileText} href="/admin/kiem-duyet" hint={`${flaggedLive} tin đang hiện bị gắn cờ`} />
+        <StatCard label="Kết nối 7 ngày qua" value={weekMatches} icon={Handshake} hint="Hai bên cùng quan tâm" />
       </div>
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Panel title="Việc cần xử lý">
-          {todoItems.length === 0 && <p className="py-3 text-sm text-page-muted">Không có việc nào cần xử lý.</p>}
-          <ul className="divide-y divide-page-line">
+          {!verifLoaded && <SkeletonList rows={3} label="Đang tải việc cần xử lý…" />}
+          {verifLoaded && todoItems.length === 0 && <p className="py-3 text-sm text-page-muted">Không có việc nào cần xử lý.</p>}
+          {verifLoaded && <ul className="divide-y divide-page-line">
             {todoItems.map((t) => (
               <li key={t.id}>
                 <Link
@@ -69,7 +72,7 @@ export default function AdminDashboard() {
                 </Link>
               </li>
             ))}
-          </ul>
+          </ul>}
         </Panel>
 
         <Panel title="Đăng ký mới" action={<Link to="/admin/nguoi-dung" className={`text-page-muted underline underline-offset-4 hover:text-page-fg rounded-control ${FOCUS}`}>Xem tất cả</Link>}>

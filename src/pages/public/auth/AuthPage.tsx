@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ComponentType } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 import {
   AnimatePresence,
   motion,
@@ -9,7 +9,10 @@ import {
   useTransform,
   type MotionValue,
 } from 'motion/react'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, MapPin, Wallet } from 'lucide-react'
+import { useCatalogStore } from '@context/catalogStore'
+import { useAuthStore } from '@context/authStore'
+import { canVisit } from '@constants/roles'
 import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
 import { useReducedMotion } from '@hooks/useReducedMotion'
@@ -101,7 +104,19 @@ function Slab({
 
 /* ─── Trang ──────────────────────────────────────────────────────────────────── */
 
+/** Đã đăng nhập mà vào /dang-nhap, /dang-ky → về đích như sau khi đăng nhập (state.from nếu được phép, không thì trang chủ) */
 export default function AuthPage() {
+  const user = useAuthStore((s) => s.user)
+  const token = useAuthStore((s) => s.token)
+  const { pathname, state } = useLocation()
+  if (user && token && (pathname === AUTH_PATHS.login || pathname === AUTH_PATHS.register)) {
+    const from = (state as { from?: string } | null)?.from
+    return <Navigate to={from && canVisit(user.role, from) ? from : '/'} replace />
+  }
+  return <AuthCard />
+}
+
+function AuthCard() {
   const { pathname } = useLocation()
   const reduced = useReducedMotion()
   const isDesktop = useMediaQuery('(min-width: 768px)')
@@ -290,6 +305,33 @@ function WelcomeBlock({ mode }: { mode: AuthMode }) {
       <p className="mt-5 max-w-[34ch] text-base text-page-muted">{w.text}</p>
       <div className="mt-8">
         <OutlinePill to={AUTH_PATHS[w.to]} state={state} back={w.back}>{w.cta}</OutlinePill>
+      </div>
+      {mode !== 'forgot' && <LiveJobs />}
+    </div>
+  )
+}
+
+/** Số liệu thật từ danh mục + một tin đang tuyển (không có dữ liệu thì không vẽ gì) */
+function LiveJobs() {
+  const jobs = useCatalogStore((s) => s.jobs)
+  const companies = useCatalogStore((s) => s.companies)
+  const open = jobs.filter((j) => j.visible)
+  const sample = open[0]
+  if (!sample) return null
+  const company = companies.find((c) => c.id === sample.companyId)
+  return (
+    <div className="mt-10 max-w-[34ch]">
+      <p className="tnum text-sm font-medium text-page-fg">
+        {open.length} việc làm đang tuyển{companies.length > 0 && <span className="text-page-muted"> · {companies.length} doanh nghiệp</span>}
+      </p>
+      <div className="mt-3 rounded-card border border-page-line bg-page-bg/60 p-4">
+        <p className="eyebrow text-page-muted">Việc đang tuyển</p>
+        <p className="mt-2 font-display text-base font-semibold text-page-fg">{sample.title}</p>
+        {company && <p className="mt-0.5 text-sm text-page-muted">{company.name}</p>}
+        <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-page-muted">
+          <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" aria-hidden />{sample.district}</span>
+          <span className="tnum inline-flex items-center gap-1"><Wallet className="h-3.5 w-3.5" aria-hidden />{sample.salaryLabel}</span>
+        </p>
       </div>
     </div>
   )

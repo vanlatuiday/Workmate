@@ -41,11 +41,11 @@ function Row({ item }: { item: PairItem }) {
             {info.subtitle}
           </Link>
           {item.status === 'sent' && (
-            <StatusBadge tone={stage === 'considering' ? 'strong' : 'default'}>{capitalize(APPLICATION_STAGE_LABEL[stage ?? 'applied'])}</StatusBadge>
+            <StatusBadge tone={stage === 'considering' ? 'soft' : 'neutral'}>{capitalize(APPLICATION_STAGE_LABEL[stage ?? 'applied'])}</StatusBadge>
           )}
-          {item.status === 'connected' && <StatusBadge tone="strong">Đã kết nối</StatusBadge>}
+          {item.status === 'connected' && <StatusBadge tone="accent">Đã kết nối</StatusBadge>}
           {item.status === 'connected' && <HireStatusChip viewer="seeker" jobId={item.jobId} seekerId={item.seekerId} />}
-          {item.status === 'received' && <StatusBadge tone="default">Doanh nghiệp quan tâm bạn</StatusBadge>}
+          {item.status === 'received' && <StatusBadge tone="soft">Doanh nghiệp quan tâm bạn</StatusBadge>}
         </div>
         <p className="mt-1 text-sm text-page-muted">
           {info.name} · {verb} {formatRelativeTime(item.at)}
@@ -127,7 +127,7 @@ export default function Applications() {
             )}
           >
             {t.label}
-            <span className="tnum ml-1.5 opacity-70">
+            <span className={cn('tnum ml-1.5', tab === t.id ? 'text-page-bg' : 'text-page-muted')}>
               {t.id === 'all' ? mine.length : mine.filter((p) => p.status === t.id).length}
             </span>
           </button>

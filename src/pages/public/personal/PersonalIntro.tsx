@@ -8,20 +8,14 @@ type Props = {
   back?: { to: string; label: string }
 }
 
-/**
- * Phần mở đầu trang Cá nhân. Theo yêu cầu chủ dự án, trên màn hình chỉ còn các tấm ảnh —
- * tiêu đề và chế độ xem giữ lại ở dạng ẩn cho trình đọc màn hình (trang vẫn cần một h1).
- */
+/** Phần mở đầu trang Cá nhân: nhãn nhỏ, tiêu đề trang (h1) và một câu dẫn. */
 export default function PersonalIntro({ eyebrow, title, text, mode }: Props) {
   return (
     <div className="pt-section-sm">
-      <h1 className="sr-only">
-        {eyebrow}: {title}
-      </h1>
-      <p className="sr-only">
-        {mode ? `${mode}. ` : ''}
-        {text}
-      </p>
+      <p className="text-xs font-medium uppercase tracking-[0.18em] text-page-muted">{eyebrow}</p>
+      <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold leading-tight text-page-fg md:text-5xl">{title}</h1>
+      <p className="mt-4 max-w-2xl text-base leading-relaxed text-page-muted md:text-lg">{text}</p>
+      {mode && <p className="mt-3 text-sm text-page-muted">{mode}</p>}
     </div>
   )
 }

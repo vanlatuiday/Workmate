@@ -20,7 +20,6 @@ export default function JobseekerLayout() {
   return (
     <DashboardShell
       navItems={navItems} roleLabel="Người tìm việc" homeHref="/tim-viec"
-      background={{ id: '1554118811-1e0d58224f24' }}
       searchHref={(q) => `/viec-lam?q=${encodeURIComponent(q)}`} searchPlaceholder="Tìm việc làm…"
     />
   )

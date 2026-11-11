@@ -8,7 +8,7 @@ import { JOB_TYPES } from '@constants/index'
 import { useCvStore } from '@context/cvStore'
 import { useProfileStore, type SeekerProfile } from '@context/profileStore'
 import PersonalIntro from './PersonalIntro'
-import { ActionNote, ActionPrimary, ActionText, Actions, EmptyNote, Section, TagList, WeekGrid } from './parts'
+import { ActionNote, ActionPrimary, ActionText, Actions, EmptyNote, PageActions, Section, snippet, TagList, WeekGrid } from './parts'
 
 const EDIT_HREF = '/tim-viec/ho-so'
 
@@ -46,7 +46,7 @@ function buildSeekerEntries({ owner, P, cvCount, applied }: BuildOpts): ArchiveE
       id: 'toi-la-ai',
       number: '01',
       title: 'Tôi là ai?',
-      caption: 'Cuốn sổ ghi chú: những dòng đầu tiên giới thiệu một con người.',
+      caption: P.intro.trim() ? snippet(P.intro) : 'Chưa có câu giới thiệu.',
       photo: { id: '1517842645767-c639042777db', alt: 'Cuốn sổ tay và cây bút đặt trên bàn' },
       cursor: 'Mở',
       content: (
@@ -81,7 +81,7 @@ function buildSeekerEntries({ owner, P, cvCount, applied }: BuildOpts): ArchiveE
       id: 'toi-lam-gi',
       number: '02',
       title: 'Tôi có thể làm gì?',
-      caption: 'Dụng cụ xếp trên nền trắng: mỗi kỹ năng là một món nghề.',
+      caption: P.skills.length ? `${P.skills.slice(0, 4).join(' · ')}${P.skills.length > 4 ? ` · +${P.skills.length - 4}` : ''}` : 'Chưa thêm kỹ năng.',
       photo: { id: '1581783898377-1c85bf937427', alt: 'Bộ dụng cụ làm việc xếp trên nền trắng' },
       cursor: 'Mở',
       content: (
@@ -100,7 +100,7 @@ function buildSeekerEntries({ owner, P, cvCount, applied }: BuildOpts): ArchiveE
       id: 'da-trai-qua',
       number: '03',
       title: 'Những gì tôi đã trải qua',
-      caption: 'Bàn làm việc: nơi những công việc đã qua để lại dấu vết.',
+      caption: P.experience[0] ? snippet(`${P.experience[0].title} · ${P.experience[0].company}`) : 'Chưa có kinh nghiệm.',
       photo: { id: '1488190211105-8b0e65b80b4e', alt: 'Bàn làm việc với máy tính và sổ ghi chép' },
       cursor: 'Mở',
       content: (
@@ -129,7 +129,7 @@ function buildSeekerEntries({ owner, P, cvCount, applied }: BuildOpts): ArchiveE
       id: 'thoi-gian',
       number: '04',
       title: 'Thời gian của tôi',
-      caption: 'Cuốn lịch: các buổi trong tuần tôi có thể đi làm.',
+      caption: `${P.availability.length} buổi rảnh mỗi tuần`,
       photo: { id: '1435527173128-983b87201f4d', alt: 'Cuốn sổ lịch mở trên bàn làm việc' },
       cursor: 'Mở',
       content: (
@@ -152,7 +152,7 @@ function buildSeekerEntries({ owner, P, cvCount, applied }: BuildOpts): ArchiveE
       id: 'dang-tim',
       number: '05',
       title: 'Công việc tôi đang tìm',
-      caption: 'Bản đồ có ghim: nơi và mức thu nhập tôi hướng tới.',
+      caption: `${P.area} · ${salaryText}`,
       photo: { id: '1476973422084-e0fa66ff9456', alt: 'Bản đồ giấy cắm ghim đánh dấu địa điểm' },
       cursor: 'Mở',
       content: (
@@ -183,7 +183,7 @@ function buildSeekerEntries({ owner, P, cvCount, applied }: BuildOpts): ArchiveE
       id: 'ho-so-thanh-tuu',
       number: '06',
       title: 'Hồ sơ và thành tựu',
-      caption: 'Giấy tờ đang được ký: những gì có thể đưa ra làm bằng chứng.',
+      caption: owner ? `${cvCount} CV · ${applied} đơn ứng tuyển` : 'Xem được sau khi hai bên kết nối.',
       photo: { id: '1450101499163-c8848c66ca85', alt: 'Người đang ký lên một tập giấy tờ' },
       cursor: 'Mở',
       content: (
@@ -235,6 +235,16 @@ export default function JobseekerPersonalView({ owner }: Opts) {
           />
         }
       />
+      {owner ? (
+        <PageActions>
+          <ActionPrimary to="/ho-so">Chỉnh sửa hồ sơ</ActionPrimary>
+          <ActionText to="/match">Xem việc phù hợp</ActionText>
+        </PageActions>
+      ) : (
+        <PageActions>
+          <ActionText to="/viec-lam">Quay lại việc làm</ActionText>
+        </PageActions>
+      )}
       <div className="shell pb-section-sm">
         <SeekerReviews seekerId={ME} className="mx-auto max-w-2xl" />
       </div>

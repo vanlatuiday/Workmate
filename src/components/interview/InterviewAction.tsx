@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CalendarCheck, CalendarPlus, Hourglass } from 'lucide-react'
-import { useActiveInterview, type Side } from '@services/connectionService'
+import { useActiveInterview, useHire, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import ChooseSlotDialog from './ChooseSlotDialog'
@@ -11,7 +11,8 @@ import { fmtShort } from './format'
 type Props = { viewer: Side; jobId: string; seekerId: string; compact?: boolean }
 
 const BTN = 'inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-page-fg bg-page-fg font-medium text-page-bg transition-colors duration-300 hover:bg-page-bg hover:text-page-fg'
-const CHIP = 'inline-flex items-center gap-1.5 rounded-full border border-page-line text-page-fg'
+// Chip: nền nhạt, viền mảnh, không hover/con trỏ tay — khác nút
+const CHIP = 'inline-flex cursor-default select-none items-center gap-1.5 rounded-full border border-page-line bg-page-surface text-page-fg'
 
 /**
  * Nút / chip phỏng vấn theo vai trò và trạng thái, dùng ở trang Kết nối và khung chat:
@@ -20,6 +21,7 @@ const CHIP = 'inline-flex items-center gap-1.5 rounded-full border border-page-l
  */
 export default function InterviewAction({ viewer, jobId, seekerId, compact }: Props) {
   const iv = useActiveInterview(jobId, seekerId)
+  const hire = useHire(jobId, seekerId)
   const [open, setOpen] = useState(false)
   const size = compact ? 'px-3.5 py-1.5 text-xs' : 'px-5 py-2.5 text-sm'
   const chipSize = compact ? 'px-3 py-1 text-xs' : 'px-3 py-1 text-xs'
@@ -28,7 +30,7 @@ export default function InterviewAction({ viewer, jobId, seekerId, compact }: Pr
   if (iv?.status === 'confirmed') {
     return (
       <>
-        <span className={cn(CHIP, chipSize)}>
+        <span className={cn(CHIP, 'border-accent bg-accent-soft', chipSize)}>
           <CalendarCheck className={icon} aria-hidden="true" />
           Phỏng vấn {fmtShort(iv.chosen ?? iv.slots[0])}
         </span>
@@ -62,6 +64,8 @@ export default function InterviewAction({ viewer, jobId, seekerId, compact }: Pr
   }
 
   if (viewer !== 'recruiter') return null
+  // Đã có bản ghi nhận việc (mời / đi làm / từ chối / rút / không nhận): qua bước phỏng vấn rồi, không mời nữa
+  if (hire) return null
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} className={cn(BTN, size, FOCUS)}>

@@ -60,15 +60,29 @@ export function ProseBlock({ children }: { children: ReactNode }) {
   return <p className="max-w-2xl leading-relaxed text-page-muted">{children}</p>
 }
 
-/** Danh sách bước đánh số */
+/**
+ * Danh sách bước đánh số: số tròn nổi bật + đường nối giữa các bước
+ * (ngang ở desktop, dọc ở mobile).
+ */
 export function Steps({ items }: { items: { title: string; text: string }[] }) {
   return (
-    <ol className="grid gap-4 md:grid-cols-3">
+    <ol className="grid gap-8 md:grid-cols-3 md:gap-6">
       {items.map((s, i) => (
-        <li key={s.title} className="rounded-card border border-page-line p-6">
-          <span className="text-xs font-medium text-page-muted">Bước {i + 1}</span>
-          <h3 className="mt-2 font-display text-lg font-semibold text-page-fg">{s.title}</h3>
-          <p className="mt-2 text-sm leading-relaxed text-page-muted">{s.text}</p>
+        <li key={s.title} className="relative flex gap-4 md:block">
+          {/* Đường nối tới bước kế: dọc dưới số (mobile) / ngang bên phải số (desktop) */}
+          {i < items.length - 1 && (
+            <span
+              aria-hidden="true"
+              className="absolute left-5 top-12 -bottom-8 w-px bg-page-line md:-bottom-auto md:left-14 md:right-[-1.5rem] md:top-5 md:h-px md:w-auto"
+            />
+          )}
+          <span className="tnum relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-page-fg font-display text-base font-semibold text-page-bg">
+            {i + 1}
+          </span>
+          <div className="md:mt-5">
+            <h3 className="font-display text-lg font-semibold text-page-fg">{s.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-page-muted">{s.text}</p>
+          </div>
         </li>
       ))}
     </ol>

@@ -1,8 +1,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, SendHorizontal } from 'lucide-react'
-import { HireStatusChip } from '@components/hire'
+import { HireAction } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
+import { convKey, useConnectionStore } from '@context/connectionStore'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { markConversationRead, notifyTyping, useActiveInterview, useHire, sendMessage, useIsTyping, useMessages, useHasOlderMessages, loadOlderMessages, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
@@ -11,10 +12,23 @@ import { describeConversation } from './describe'
 import ChatAvatar from './ChatAvatar'
 import FadeIn from './FadeIn'
 
-const QUICK_REPLIES: Record<Side, string[]> = {
-  seeker: ['Em rảnh các tối trong tuần ạ', 'Em có thể đến phỏng vấn khi nào ạ?', 'Em cảm ơn ạ!'],
-  recruiter: ['Bạn có thể đi làm thử tuần sau không?', 'Mình gửi lịch phỏng vấn nhé', 'Cảm ơn bạn!'],
+/** Gợi ý trả lời nhanh. `stage`: chỉ hợp ở giai đoạn đó (bỏ khi đã có lịch phỏng vấn / đã mời nhận việc / đã đi làm) */
+const QUICK_REPLIES: Record<Side, { text: string; stage?: 'interview' | 'trial' }[]> = {
+  seeker: [
+    { text: 'Em rảnh các tối trong tuần ạ', stage: 'interview' },
+    { text: 'Em có thể đến phỏng vấn khi nào ạ?', stage: 'interview' },
+    { text: 'Em cảm ơn ạ!' },
+  ],
+  recruiter: [
+    { text: 'Bạn có thể đi làm thử tuần sau không?', stage: 'trial' },
+    { text: 'Mình gửi lịch phỏng vấn nhé', stage: 'interview' },
+    { text: 'Cảm ơn bạn!' },
+  ],
 }
+
+// 5 dòng chữ text-sm (20px/dòng) + padding dọc 20px
+const MAX_INPUT = 120
+const NO_SCROLLBAR = '[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
 
 const pad = (n: number) => String(n).padStart(2, '0')
 const timeOf = (iso: string) => {
@@ -50,7 +64,16 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
   const typing = useIsTyping(viewer, jobId, seekerId)
   const reduced = useReducedMotion()
   const hasInterview = !!useActiveInterview(jobId, seekerId)
-  const hasHire = !!useHire(jobId, seekerId)
+  const hire = useHire(jobId, seekerId)
+  // Lúc phía kia đọc tin gần nhất (từ backend + sự kiện socket `read`)
+  const peerReadAt = useConnectionStore((s) => s.conversations.find((c) => c.key === convKey(jobId, seekerId))?.peerReadAt)
+  // Gợi ý theo trạng thái cặp: đã đi làm / đã mời nhận việc → bỏ gợi ý hẹn lịch; đã có lịch → bỏ gợi ý gửi lịch
+  const hireActive = hire?.status === 'offered' || hire?.status === 'accepted'
+  const quickReplies = QUICK_REPLIES[viewer].filter((q) => {
+    if (q.stage === 'interview') return !hasInterview && !hireActive
+    if (q.stage === 'trial') return hire?.status !== 'accepted'
+    return true
+  })
   const [draft, setDraft] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -120,7 +143,9 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
     const el = inputRef.current
     if (!el) return
     el.style.height = 'auto'
-    el.style.height = `${Math.min(el.scrollHeight, 120)}px`
+    el.style.height = `${Math.min(el.scrollHeight, MAX_INPUT)}px`
+    // Quá 5 dòng thì mới cuộn (thanh cuộn vẫn ẩn)
+    el.style.overflowY = el.scrollHeight > MAX_INPUT ? 'auto' : 'hidden'
   }, [draft])
 
   const send = (text: string) => {
@@ -143,10 +168,13 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
     [messages],
   )
 
+  // Tin cuối của mình (không tính tin hệ thống): chỗ hiện "Đã xem"
+  const lastMineId = useMemo(() => [...messages].reverse().find((m) => !m.system && m.from === viewer)?.id, [messages, viewer])
+
   return (
     <FadeIn className="flex h-full min-h-0 flex-col">
       <header className="flex items-center gap-2 border-b border-page-line pb-3">
-        <button type="button" onClick={onBack} aria-label="Quay lại danh sách" className={cn('shrink-0 rounded-full border border-page-line p-3 text-page-fg transition-colors duration-300 hover:border-page-fg', hideBackOnWide && 'md:hidden', FOCUS)}>
+        <button type="button" onClick={onBack} aria-label="Quay lại danh sách" className={cn('shrink-0 rounded-full border border-page-line p-3 text-page-fg transition-colors duration-300 hover:border-page-fg hover:bg-page-surface', hideBackOnWide && 'md:hidden', FOCUS)}>
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         </button>
         <ChatAvatar initials={info.initials} url={info.avatarUrl} contain={viewer === 'seeker'} className="h-9 w-9 text-sm" />
@@ -160,10 +188,12 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
       </header>
 
       {/* Phỏng vấn: nút / chip trạng thái theo vai trò (không hiện gì khi người tìm việc chưa có lời mời) */}
-      {(viewer === 'recruiter' || hasInterview || hasHire) && (
+      {/* Chỉ hiện hành động hợp trạng thái: có bản ghi nhận việc thì HireAction lo (chip + hành động có thật,
+          vd. Đánh giá khi đã đi làm); phỏng vấn chỉ còn khi chưa có kết cục nhận việc. */}
+      {(viewer === 'recruiter' || hasInterview || hire) && (
         <div className="flex flex-wrap items-center gap-2 border-b border-page-line py-3">
-          <InterviewAction viewer={viewer} jobId={jobId} seekerId={seekerId} compact />
-          <HireStatusChip viewer={viewer} jobId={jobId} seekerId={seekerId} />
+          {(!hire || hire.status === 'offered') && <InterviewAction viewer={viewer} jobId={jobId} seekerId={seekerId} compact />}
+          {hire && <HireAction viewer={viewer} jobId={jobId} seekerId={seekerId} compact />}
         </div>
       )}
 
@@ -175,8 +205,14 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
             </button>
           </div>
         )}
-        {rows.length === 0 && <p className="py-10 text-center text-sm text-page-muted">Chưa có tin nhắn. Hãy chào trước nhé.</p>}
+        {rows.length === 0 && (
+          <div className="py-10 text-center">
+            <p className="text-sm font-medium text-page-fg">Hãy gửi lời chào đầu tiên</p>
+            <p className="mt-1 text-xs text-page-muted">Chọn một gợi ý bên dưới hoặc tự soạn tin nhắn.</p>
+          </div>
+        )}
         {rows.map(({ m, label }) => {
+          const seen = m.id === lastMineId && !!peerReadAt && new Date(peerReadAt).getTime() >= new Date(m.at).getTime()
           // Tin hệ thống (vd. lời mời phỏng vấn): dòng chữ nhỏ giữa khung, không phải bong bóng
           if (m.system) {
             return (
@@ -197,7 +233,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
               >
                 {m.text}
               </p>
-              <span className="mt-1 text-xs text-page-muted">{timeOf(m.at)}</span>
+              <span className="mt-1 text-xs text-page-muted">{timeOf(m.at)}{seen && ' · Đã xem'}</span>
             </div>
           )
           return (
@@ -223,13 +259,13 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
       </div>
 
       <div className="border-t border-page-line pt-3">
-        <div className="mb-3 flex flex-wrap gap-2">
-          {QUICK_REPLIES[viewer].map((q) => (
+        <div className={cn('-mx-1 mb-3 flex snap-x snap-proximity gap-2 overflow-x-auto px-1 py-1', NO_SCROLLBAR)}>
+          {quickReplies.map(({ text: q }) => (
             <button
               key={q}
               type="button"
               onClick={() => send(q)}
-              className={cn('rounded-full border border-page-edge px-3 py-1.5 text-xs text-page-fg transition-colors duration-300 hover:bg-page-surface', FOCUS)}
+              className={cn('shrink-0 snap-start whitespace-nowrap rounded-full border border-page-edge px-3 py-1.5 text-xs text-page-fg transition-colors duration-300 hover:border-page-fg hover:bg-page-surface', FOCUS)}
             >
               {q}
             </button>
@@ -251,8 +287,9 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
                 }
               }}
               onKeyDown={onKeyDown}
-              placeholder="Nhập tin nhắn… (Enter để gửi, Shift+Enter xuống dòng)"
-              className={cn('block w-full resize-none rounded-card border border-page-edge bg-page-bg px-4 py-2.5 text-sm text-page-fg placeholder:text-page-muted', FOCUS)}
+              placeholder="Nhập tin nhắn…"
+              title="Enter để gửi, Shift+Enter xuống dòng"
+              className={cn('block w-full resize-none overflow-y-hidden rounded-card border border-page-edge bg-page-bg px-4 py-2.5 text-sm text-page-fg placeholder:text-page-muted', NO_SCROLLBAR, FOCUS)}
             />
           </label>
           <button
@@ -260,7 +297,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
             aria-label="Gửi"
             disabled={!draft.trim()}
             onClick={() => send(draft)}
-            className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-page-fg text-page-bg transition-opacity duration-300 disabled:opacity-40', FOCUS)}
+            className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-page-fg text-page-bg transition-opacity duration-300 hover:opacity-80 disabled:opacity-40 disabled:hover:opacity-40', FOCUS)}
           >
             <SendHorizontal aria-hidden="true" className="h-4 w-4" />
           </button>

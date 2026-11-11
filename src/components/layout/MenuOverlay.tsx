@@ -76,7 +76,7 @@ export default function MenuOverlay({ open, onClose, items, actions }: Props) {
           role="dialog"
           aria-modal="true"
           aria-label="Menu điều hướng"
-          className="fixed inset-0 z-[90] bg-wm-charcoal flex flex-col"
+          className="fixed inset-0 z-[90] bg-wm-charcoal [html[data-page=home]_&]:bg-wm-night flex flex-col"
           initial={{ clipPath: 'inset(0 0 100% 0)' }}
           animate={{ clipPath: 'inset(0 0 0% 0)' }}
           exit={{ clipPath: 'inset(0 0 100% 0)' }}
@@ -143,8 +143,8 @@ export default function MenuOverlay({ open, onClose, items, actions }: Props) {
                 onClick={onClose}
                 className={
                   i === actions.length - 1
-                    ? 'bg-wm-ivory text-wm-charcoal font-medium text-sm px-7 py-3 rounded-full hover:bg-wm-mist transition-colors'
-                    : 'border border-wm-graphite text-wm-ivory font-medium text-sm px-7 py-3 rounded-full hover:border-wm-stone transition-colors'
+                    ? 'bg-accent text-accent-fg font-semibold text-sm px-7 py-3 rounded-full hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100 transition-[filter,transform]'
+                    : 'border border-wm-graphite text-wm-ivory font-medium text-sm px-7 py-3 rounded-full hover:border-wm-stone active:scale-[0.97] motion-reduce:active:scale-100 transition-[border-color,transform]'
                 }
               >
                 {action.label}

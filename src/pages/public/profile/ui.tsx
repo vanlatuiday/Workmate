@@ -2,8 +2,8 @@ import type { ReactNode } from 'react'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 
-// Ô nhập kính: giống trang đăng tin — nền ngà trong suốt + nhòe phía sau, viền page-edge giữ đủ tương phản
-export const INPUT = `w-full rounded-control border border-page-edge bg-[color-mix(in_srgb,var(--wm-ivory)_55%,transparent)] backdrop-blur-md px-3 py-2 text-sm text-page-fg ${FOCUS}`
+// Ô nhập: nền bề mặt phẳng, viền page-edge giữ đủ tương phản
+export const INPUT = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 
 /** Chip bật/tắt (loại việc, kỹ năng) */
 export const chip = (on: boolean) =>
@@ -16,7 +16,7 @@ export const chip = (on: boolean) =>
 /** Nhóm trường dạng thẻ kính, số thứ tự mờ ở góc phải (chỉ trang trí); legend thả nổi để nằm trong thẻ. */
 export function Group({ title, index, children }: { title: string; index: number; children: ReactNode }) {
   return (
-    <fieldset data-group className="glass-liquid rounded-card p-5 [--glass-alpha:40%]">
+    <fieldset data-group className="relative rounded-card border border-page-line bg-page-surface p-5">
       <span aria-hidden="true" className="pointer-events-none absolute right-4 top-2 select-none font-display text-5xl font-semibold leading-none text-page-line">
         {String(index).padStart(2, '0')}
       </span>

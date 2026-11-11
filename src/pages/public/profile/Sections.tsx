@@ -4,6 +4,7 @@ import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
 import { FOCUS } from '@utils/focus'
 import { isFutureStart, tomorrowIso } from '@utils/format'
+import PeriodField from './PeriodField'
 import { chip, Group, INPUT } from './ui'
 import { fmtMoney, type ProfileApi } from './useProfileDraft'
 
@@ -53,17 +54,18 @@ export function ExperienceChapter({ api }: { api: ProfileApi }) {
               <label htmlFor={`kn-c-${e.id}`} className="sr-only">Nơi làm</label>
               <input id={`kn-c-${e.id}`} value={e.company} placeholder="Nơi làm" onChange={(ev) => updateExperience(e.id, { company: ev.target.value })} className={INPUT} />
             </div>
-            <div className="flex gap-2">
-              <label htmlFor={`kn-p-${e.id}`} className="sr-only">Thời gian</label>
-              <input id={`kn-p-${e.id}`} value={e.period} placeholder="Thời gian" onChange={(ev) => updateExperience(e.id, { period: ev.target.value })} className={INPUT} />
-              <button type="button" onClick={() => removeExperience(e.id)} aria-label={`Xóa mục ${e.title || 'kinh nghiệm'}`} className={`shrink-0 rounded-full border border-page-edge p-2 text-page-fg hover:border-page-fg ${FOCUS}`}>
-                <X className="h-4 w-4" aria-hidden />
+            <div className="flex items-start sm:justify-end">
+              <button type="button" onClick={() => removeExperience(e.id)} aria-label={`Xóa mục ${e.title || 'kinh nghiệm'}`} className={`flex min-h-11 items-center gap-1 rounded-full border border-page-edge px-3 text-sm text-page-fg hover:border-page-fg ${FOCUS}`}>
+                <X className="h-4 w-4" aria-hidden />Xóa mục này
               </button>
+            </div>
+            <div className="sm:col-span-2">
+              <PeriodField id={`kn-p-${e.id}`} value={e.period} onChange={(v) => updateExperience(e.id, { period: v })} />
             </div>
           </li>
         ))}
       </ul>
-      <button type="button" onClick={addExperience} className={ghostBtn}><Plus className="h-4 w-4" aria-hidden />Thêm kinh nghiệm</button>
+      <button id="pf-add-exp" type="button" onClick={addExperience} className={ghostBtn}><Plus className="h-4 w-4" aria-hidden />Thêm kinh nghiệm</button>
     </Group>
   )
 }
@@ -87,12 +89,13 @@ export function AvailabilityChapter({ api }: { api: ProfileApi }) {
               return (
                 <button
                   key={key}
+                  id={di === 0 && si === 0 ? 'pf-avail' : undefined}
                   type="button"
                   aria-pressed={on}
                   aria-label={`${d} ${s}`}
                   onClick={() => toggleCell(key)}
                   className={`h-8 rounded-control border transition-colors duration-200 motion-reduce:transition-none ${FOCUS} ${
-                    on ? 'border-page-fg bg-page-fg' : 'border-page-line bg-[color-mix(in_srgb,var(--wm-ivory)_55%,transparent)] hover:border-page-fg'
+                    on ? 'border-page-fg bg-page-fg' : 'border-page-line bg-page-surface hover:border-page-fg'
                   }`}
                 />
               )
@@ -126,21 +129,21 @@ export function WantsChapter({ api }: { api: ProfileApi }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block text-sm text-page-muted">
           Lương tối thiểu: <span className="tnum text-page-fg">{fmtMoney(profile.salaryMin)}/giờ</span>
-          <input type="range" min={0} max={100000} step={1000} value={profile.salaryMin}
+          <input id="pf-salary" type="range" min={0} max={100000} step={1000} value={profile.salaryMin}
             onChange={(e) => set('salaryMin', Number(e.target.value))} className={`mt-2 w-full accent-page-fg ${FOCUS}`} />
         </label>
         <label className="block text-sm text-page-muted">
           Khoảng cách tối đa: <span className="tnum text-page-fg">{profile.maxDistanceKm} km</span>
-          <input type="range" min={1} max={30} step={1} value={profile.maxDistanceKm}
+          <input id="pf-distance" type="range" min={1} max={30} step={1} value={profile.maxDistanceKm}
             onChange={(e) => set('maxDistanceKm', Number(e.target.value))} className={`mt-2 w-full accent-page-fg ${FOCUS}`} />
         </label>
       </div>
       <div role="group" aria-label="Loại việc">
         <p className="mb-2 text-sm text-page-muted">Loại việc</p>
         <div className="flex flex-wrap gap-2">
-          {JOB_TYPES.map((t) => {
+          {JOB_TYPES.map((t, ti) => {
             const on = profile.jobTypes.includes(t.value)
-            return <button key={t.value} type="button" aria-pressed={on} onClick={() => toggleJobType(t.value)} className={chip(on)}>{t.label}</button>
+            return <button key={t.value} id={ti === 0 ? 'pf-jobtype' : undefined} type="button" aria-pressed={on} onClick={() => toggleJobType(t.value)} className={chip(on)}>{t.label}</button>
           })}
         </div>
       </div>

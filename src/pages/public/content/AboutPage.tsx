@@ -1,5 +1,5 @@
 // /gioi-thieu — danh sách bài kiểu blog + thanh bên (tìm kiếm, mục trong trang, chủ đề).
-// Nội dung mẫu — xem aboutPosts.ts. Mỗi phần tử của bài hiện lần lượt khi cuộn tới (Rise, chạy lại cả khi cuộn lên).
+// Dữ liệu bài ở aboutPosts.ts. Mỗi phần tử của bài hiện lần lượt khi cuộn tới (Rise, chạy lại cả khi cuộn lên).
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
@@ -118,7 +118,6 @@ export default function AboutPage() {
     <ContentPage
       eyebrow="Giới thiệu"
       title="Việc làm linh hoạt, khớp với cuộc sống của bạn."
-      intro="Nội dung mẫu — sẽ được chủ dự án viết lại."
     >
       <div ref={gridRef} className="grid gap-12 lg:grid-cols-12">
         {/* Danh sách bài */}

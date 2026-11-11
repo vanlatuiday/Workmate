@@ -20,13 +20,19 @@ export default {
           surface: 'var(--page-surface)',
           edge:  'var(--page-edge)',
         },
-        // Màu trạng thái (tokens.json → semantic). *-soft: nền nhạt pha với nền trang, dùng cho badge/ô thông báo
+        // Màu trạng thái cố định (tokens.json → semantic). *-soft: nền nhạt pha với nền trang
         ...Object.fromEntries(
           Object.entries(tokens.semantic)
             .filter(([k]) => !k.startsWith('$'))
             .map(([name, ref]) => [name, tokens.palette[ref]]),
         ),
-        'accent-soft':  'color-mix(in srgb, var(--wm-moss) 14%, var(--page-bg))',
+        // Màu nhấn theo vai trò (tokens.json → roles, biến CSS đặt ở plugin dưới). Không dùng modifier /opacity.
+        accent: {
+          DEFAULT: 'var(--accent)',
+          fg: 'var(--accent-fg)',
+          ink: 'var(--accent-ink)',
+          soft: 'color-mix(in srgb, var(--accent) 8%, var(--page-bg))', // 8%: chữ accent-ink trên nền này ≥ 4.5:1 (đã đo)
+        },
         'warning-soft': 'color-mix(in srgb, var(--wm-amber) 14%, var(--page-bg))',
         'danger-soft':  'color-mix(in srgb, var(--wm-rust) 12%, var(--page-bg))',
       },
@@ -38,9 +44,11 @@ export default {
         // Chữ lớn theo viewport cho các "màn" statement.
         // line-height nới rộng hơn mức thường thấy để dấu tiếng Việt
         // (ố, ạ, ẫ…) không bị cắt khi chữ phóng to.
-        'display-sm': ['clamp(2rem, 4.5vw, 3.25rem)', { lineHeight: '1.12', letterSpacing: '-0.025em' }],
-        'display-md': ['clamp(2.5rem, 6vw, 4.5rem)',  { lineHeight: '1.08', letterSpacing: '-0.03em' }],
-        'display-lg': ['clamp(2.75rem, 7vw, 5.5rem)', { lineHeight: '1.06', letterSpacing: '-0.03em' }],
+        'display-sm': ['clamp(2rem, 4.5vw, 3.25rem)', { lineHeight: '1.2', letterSpacing: '-0.025em' }],
+        'display-md': ['clamp(2.5rem, 6vw, 4.5rem)',  { lineHeight: '1.18', letterSpacing: '-0.03em' }],
+        'display-lg': ['clamp(2.75rem, 7vw, 5.5rem)', { lineHeight: '1.15', letterSpacing: '-0.03em' }],
+        // Cỡ nhỏ nhất của site = 13px (tag, nhãn, chú thích). Trước 11/2026 là 12px mặc định Tailwind.
+        xs: ['0.8125rem', { lineHeight: '1.25rem' }],
       },
       spacing: {
         section:    'clamp(5rem, 12vw, 11rem)',
@@ -73,10 +81,15 @@ export default {
   plugins: [
     // Xuất bảng màu thành biến CSS (--wm-charcoal…) để CSS thuần dùng chung một nguồn
     plugin(({ addBase }) => {
+      const roleVars = (role) =>
+        Object.fromEntries(Object.entries(role).map(([k, ref]) => [`--${k}`, tokens.palette[ref]]))
       addBase({
-        ':root': Object.fromEntries(
-          Object.entries(tokens.palette).map(([name, hex]) => [`--wm-${name}`, hex]),
-        ),
+        ':root': {
+          ...Object.fromEntries(Object.entries(tokens.palette).map(([name, hex]) => [`--wm-${name}`, hex])),
+          ...roleVars(tokens.roles.default),
+        },
+        // Người tìm việc: màu nhấn xanh lá (data-role đặt trên <html> theo tài khoản đang đăng nhập)
+        '[data-role="seeker"]': roleVars(tokens.roles.seeker),
       })
     }),
   ],

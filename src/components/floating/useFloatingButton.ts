@@ -5,9 +5,9 @@ import { create } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 
 export const FLOAT_SIZE = 56 // đường kính nút
-const EDGE = 12 // khoảng cách tới mép trái/phải
+const EDGE = 24 // khoảng cách tới mép trái/phải (vị trí lưu cũ sát mép cũng được kẹp lại vì x luôn tính từ EDGE)
 const TOP = 72 // dưới header 4rem + chút đệm
-const BOTTOM = 76 // đệm đáy: chừa chỗ cho viên tìm kiếm thu gọn ở đáy màn hình điện thoại + thanh vuốt iPhone
+const BOTTOM = 24 // cách mép dưới 24px (cả mobile)
 const DRAG_THRESHOLD = 5 // px: di chuyển ít hơn thế vẫn coi là bấm
 export const GAP = 12 // khoảng cách tối thiểu giữa hai nút cùng mép
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BadgeCheck, Check, ExternalLink, FileText, X } from 'lucide-react'
-import { PageHeader, StatusBadge, EmptyState } from '@components/dashboard'
+import { PageHeader, StatusBadge, EmptyState, SkeletonList } from '@components/dashboard'
 import { useCatalogStore, type CatalogCompany } from '@context/catalogStore'
 import { fetchVerifications, getVerificationDocUrl, reviewVerification, setCompanyVerified, type AdminVerification } from '@services/adminService'
 import { cn } from '@utils/cn'
@@ -71,8 +71,8 @@ function RequestCard({ v, onReviewed, onNotice }: { v: AdminVerification; onRevi
           <p className="mt-1 text-xs text-page-muted">Gửi ngày <span className="tnum">{dateLabel(v.submittedAt)}</span>{v.reviewedAt && <> · xử lý ngày <span className="tnum">{dateLabel(v.reviewedAt)}</span></>}</p>
         </div>
         <div className="flex flex-shrink-0 flex-wrap gap-2">
-          {v.company.locked && <StatusBadge tone="muted">Bị khóa</StatusBadge>}
-          <StatusBadge tone={v.status === 'approved' ? 'strong' : v.status === 'rejected' ? 'muted' : 'default'}>
+          {v.company.locked && <StatusBadge tone="danger">Bị khóa</StatusBadge>}
+          <StatusBadge tone={v.status === 'approved' ? 'accent' : v.status === 'rejected' ? 'danger' : 'neutral'}>
             {v.status === 'approved' ? 'Đã duyệt' : v.status === 'rejected' ? 'Đã từ chối' : 'Chờ duyệt'}
           </StatusBadge>
         </div>
@@ -138,10 +138,12 @@ export default function Verification() {
   const [tab, setTab] = useState<Tab>('req-pending')
   const [requests, setRequests] = useState<AdminVerification[]>([])
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [requestsLoaded, setRequestsLoaded] = useState(false)
   const loadRequests = useCallback(async () => {
     const r = await fetchVerifications()
     setRequests(r.data)
     setLoadError(r.error)
+    setRequestsLoaded(true)
   }, [])
   useEffect(() => { void loadRequests() }, [loadRequests])
   const [notice, setNotice] = useState('')
@@ -206,7 +208,9 @@ export default function Verification() {
 
       <div id="vpanel" role="tabpanel" aria-labelledby={`vtab-${tab}`}>
         {loadError && isReq && <p role="alert" className="mb-4 text-sm text-page-fg">{loadError}</p>}
-        {isReq ? (
+        {isReq && !requestsLoaded && !loadError ? (
+          <SkeletonList rows={3} label="Đang tải yêu cầu xác minh…" />
+        ) : isReq ? (
           visibleReqs.length === 0 ? (
             <EmptyState icon={BadgeCheck} title={TABS.find((t) => t.value === tab)!.empty} />
           ) : (
@@ -227,8 +231,8 @@ export default function Verification() {
                     {c.tagline && <p className="mt-1 text-sm text-page-muted">{c.tagline}</p>}
                   </div>
                   <div className="flex flex-shrink-0 flex-wrap gap-2">
-                    {c.locked && <StatusBadge tone="muted">Bị khóa</StatusBadge>}
-                    <StatusBadge tone={c.verified ? 'strong' : 'default'}>{c.verified ? 'Đã xác minh' : 'Chưa xác minh'}</StatusBadge>
+                    {c.locked && <StatusBadge tone="danger">Bị khóa</StatusBadge>}
+                    <StatusBadge tone={c.verified ? 'accent' : 'neutral'}>{c.verified ? 'Đã xác minh' : 'Chưa xác minh'}</StatusBadge>
                   </div>
                 </div>
                 <div className="mt-5">

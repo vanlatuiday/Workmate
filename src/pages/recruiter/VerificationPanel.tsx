@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { AlertCircle, BadgeCheck, FileText, Paperclip, X } from 'lucide-react'
-import { Panel, StatusBadge } from '@components/dashboard'
+import { Panel, SkeletonList, StatusBadge } from '@components/dashboard'
 import { useCatalogStore } from '@context/catalogStore'
 import { useCompanyStore } from '@context/companyStore'
 import {
@@ -107,7 +107,7 @@ export default function VerificationPanel() {
         <button type="button" onClick={() => { void load() }} className={`${BTN_LINE} mt-3`}>Thử lại</button>
       </div>
     ) : (
-      <p role="status" className="text-sm text-page-muted">Đang tải…</p>
+      <SkeletonList rows={2} label="Đang tải trạng thái xác minh…" />
     )
   } else if (state.verified) {
     body = (

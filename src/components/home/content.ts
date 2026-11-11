@@ -1,7 +1,4 @@
-/**
- * Nội dung mẫu cho trang chủ. Toàn bộ là placeholder để thử trải nghiệm cuộn —
- * thay bằng nội dung thật tại đây, không cần đụng vào các component.
- */
+/** Nội dung trang chủ — sửa tại đây, không cần đụng vào các component. */
 
 export const heroTags = ['Barista', 'Bán hàng', 'Marketing', 'Giao hàng', 'Phục vụ']
 

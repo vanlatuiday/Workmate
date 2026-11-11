@@ -7,7 +7,7 @@ import { useCompanyJobs } from '@services/adminService'
 import { Facts, SampleNote } from '@components/discover/parts'
 import { JOB_TYPES } from '@constants/index'
 import PersonalIntro from './PersonalIntro'
-import { ActionPrimary, ActionText, Actions, EmptyNote, PlainList, Section, TagList } from './parts'
+import { ActionPrimary, ActionText, Actions, EmptyNote, PageActions, PlainList, Section, snippet, TagList } from './parts'
 import { Link } from 'react-router-dom'
 import { FOCUS } from '@utils/focus'
 
@@ -44,7 +44,7 @@ function buildCompanyEntries({ owner, P, openJobs }: BuildOpts): ArchiveEntry[] 
       id: 'chung-toi-la-ai',
       number: '01',
       title: 'Chúng tôi là ai?',
-      caption: 'Một toà nhà: nơi công việc của chúng tôi bắt đầu mỗi ngày.',
+      caption: snippet(P.tagline || P.industry || 'Chưa có giới thiệu ngắn.'),
       photo: { id: '1486406146926-c627a92ad1ab', alt: 'Toà nhà văn phòng nhìn từ bên ngoài' },
       cursor: 'Mở',
       content: (
@@ -66,7 +66,7 @@ function buildCompanyEntries({ owner, P, openJobs }: BuildOpts): ArchiveEntry[] 
       id: 'khong-gian',
       number: '02',
       title: 'Không gian làm việc',
-      caption: 'Một văn phòng sáng: cách chúng tôi sắp xếp chỗ và giờ làm.',
+      caption: P.environment.length ? snippet(P.environment.slice(0, 2).join(' · ')) : 'Chưa mô tả môi trường làm việc.',
       photo: { id: '1497366216548-37526070297c', alt: 'Không gian văn phòng sáng sủa với bàn ghế' },
       cursor: 'Mở',
       content: (
@@ -82,7 +82,7 @@ function buildCompanyEntries({ owner, P, openJobs }: BuildOpts): ArchiveEntry[] 
       id: 'con-nguoi',
       number: '03',
       title: 'Con người của chúng tôi',
-      caption: 'Một nhóm đang trò chuyện: cách chúng tôi làm việc cùng nhau.',
+      caption: P.values.length ? snippet(P.values.slice(0, 4).join(' · ')) : 'Chưa nêu giá trị.',
       photo: { id: '1543269865-cbf427effbad', alt: 'Nhóm người đang trò chuyện cùng nhau' },
       cursor: 'Mở',
       content: (
@@ -104,7 +104,7 @@ function buildCompanyEntries({ owner, P, openJobs }: BuildOpts): ArchiveEntry[] 
       id: 'co-hoi',
       number: '04',
       title: 'Cơ hội đang mở',
-      caption: 'Một danh sách đang viết: những vị trí chúng tôi cần người.',
+      caption: openJobs.length ? `${openJobs.length} vị trí đang mở` : 'Hiện chưa có vị trí đang mở.',
       photo: { id: '1484480974693-6ca0a78fb36b', alt: 'Người đang viết danh sách công việc vào sổ' },
       cursor: 'Mở',
       content: (
@@ -131,7 +131,7 @@ function buildCompanyEntries({ owner, P, openJobs }: BuildOpts): ArchiveEntry[] 
       id: 'tim-ai',
       number: '05',
       title: 'Chúng tôi tìm kiếm ai?',
-      caption: 'Một cái bắt tay: sự tin cậy giữa hai bên khi làm việc cùng.',
+      caption: skillsWanted.length ? snippet(skillsWanted.slice(0, 4).join(' · ')) : 'Kỹ năng lấy từ các tin đang mở.',
       photo: { id: '1521791136064-7986c2920216', alt: 'Hai người bắt tay nhau trong buổi gặp' },
       cursor: 'Mở',
       content: (
@@ -145,7 +145,7 @@ function buildCompanyEntries({ owner, P, openJobs }: BuildOpts): ArchiveEntry[] 
       id: 'ket-noi',
       number: '06',
       title: 'Kết nối với chúng tôi',
-      caption: 'Cây bút viết thư: nơi bắt đầu một cuộc trò chuyện.',
+      caption: P.email || P.phone || 'Chưa nêu cách liên hệ.',
       photo: { id: '1455390582262-044cdead277a', alt: 'Cây bút đang viết thư trên giấy' },
       cursor: 'Mở',
       content: (
@@ -181,6 +181,16 @@ export default function RecruiterPersonalView({ owner }: Opts) {
           />
         }
       />
+      {owner ? (
+        <PageActions>
+          <ActionPrimary to={EDIT_HREF}>Sửa hồ sơ công ty</ActionPrimary>
+          <ActionText to="/dang-tin">Đăng tin</ActionText>
+        </PageActions>
+      ) : (
+        <PageActions>
+          <ActionText to="/viec-lam">Quay lại việc làm</ActionText>
+        </PageActions>
+      )}
       <div className="shell pb-section-sm">
         <CompanyReviews companyId={myCompanyId} className="mx-auto max-w-2xl" />
       </div>

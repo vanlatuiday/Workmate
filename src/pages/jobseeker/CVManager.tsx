@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from 
 import { createPortal } from 'react-dom'
 import toast from 'react-hot-toast'
 import { AlertCircle, FileText, Image as ImageIcon, Upload, X } from 'lucide-react'
-import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { EmptyState, PageHeader, Panel, Skeleton, SkeletonList, StatusBadge } from '@components/dashboard'
 import { CV_MAX_COUNT, CV_TYPES, useCvStore, type CvMeta } from '@context/cvStore'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -50,7 +50,7 @@ function PreviewDialog({ cv, onClose }: { cv: CvMeta; onClose: () => void }) {
         </div>
         <div className="min-h-0 flex-1 overflow-auto p-4">
           {missing && <p className="py-12 text-center text-sm text-page-muted">Không mở được file, vui lòng thử lại.</p>}
-          {!missing && !url && <p className="py-12 text-center text-sm text-page-muted">Đang tải…</p>}
+          {!missing && !url && <div role="status" className="space-y-3 py-6"><span className="sr-only">Đang tải…</span><Skeleton className="mx-auto h-48 w-full max-w-md" /></div>}
           {url && (cv.type === 'application/pdf'
             ? <iframe title={`Xem trước ${cv.name}`} src={url} className="h-full min-h-[60vh] w-full rounded-control border border-page-line" />
             : <img src={url} alt={`Bản xem trước ${cv.name}`} className="mx-auto max-h-full max-w-full object-contain" />)}
@@ -213,7 +213,7 @@ export default function CVManager() {
       </Panel>
 
       {!loaded && items.length === 0 ? (
-        <p className="py-12 text-center text-sm text-page-muted">Đang tải danh sách CV…</p>
+        <Panel><SkeletonList rows={3} label="Đang tải danh sách CV…" /></Panel>
       ) : items.length === 0 ? (
         <EmptyState icon={FileText} title="Chưa có CV nào" description="Tải CV đầu tiên lên để dùng khi ứng tuyển." />
       ) : (

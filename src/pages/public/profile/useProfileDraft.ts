@@ -11,17 +11,18 @@ export type ProfileDraft = SeekerProfile & {
 }
 
 /** Các mục tính vào mức hoàn thiện: nhãn + điều kiện đã điền */
-function checklist(p: ProfileDraft): { label: string; done: boolean }[] {
+/** `hint` = câu gợi ý hiển thị cạnh vòng tiến độ; `target` = id phần tử trên trang để nhảy/focus tới */
+function checklist(p: ProfileDraft): { label: string; hint: string; target: string; done: boolean }[] {
   return [
-    { label: 'tên', done: p.fullName.trim().length > 0 },
-    { label: 'giới thiệu ngắn', done: p.intro.trim().length > 0 },
-    { label: 'ít nhất 3 ca rảnh', done: p.availability.length >= 3 },
-    { label: 'ít nhất 3 kỹ năng', done: p.skills.length >= 3 },
-    { label: 'kinh nghiệm', done: p.experience.length >= 1 },
-    { label: 'mức lương mong muốn', done: p.salaryMin > 0 },
-    { label: 'khoảng cách tối đa', done: p.maxDistanceKm > 0 },
-    { label: 'loại việc', done: p.jobTypes.length >= 1 },
-    { label: 'ảnh đại diện', done: !!p.avatarUrl },
+    { label: 'tên', hint: 'Nhập họ tên', target: 'pf-name', done: p.fullName.trim().length > 0 },
+    { label: 'giới thiệu ngắn', hint: 'Viết giới thiệu ngắn', target: 'pf-intro', done: p.intro.trim().length > 0 },
+    { label: 'ít nhất 3 ca rảnh', hint: 'Chọn ít nhất 3 ca rảnh', target: 'pf-avail', done: p.availability.length >= 3 },
+    { label: 'ít nhất 3 kỹ năng', hint: 'Thêm ít nhất 3 kỹ năng', target: 'pf-skill', done: p.skills.length >= 3 },
+    { label: 'kinh nghiệm', hint: 'Thêm một kinh nghiệm làm việc', target: 'pf-add-exp', done: p.experience.length >= 1 },
+    { label: 'mức lương mong muốn', hint: 'Chọn mức lương mong muốn', target: 'pf-salary', done: p.salaryMin > 0 },
+    { label: 'khoảng cách tối đa', hint: 'Chọn khoảng cách tối đa', target: 'pf-distance', done: p.maxDistanceKm > 0 },
+    { label: 'loại việc', hint: 'Chọn ít nhất một loại việc', target: 'pf-jobtype', done: p.jobTypes.length >= 1 },
+    { label: 'ảnh đại diện', hint: 'Thêm ảnh đại diện', target: 'avatar-file', done: !!p.avatarUrl },
   ]
 }
 
@@ -83,8 +84,14 @@ export function useProfileDraft() {
   const percent = useMemo(() => completeness(profile), [profile])
   const missing = useMemo(() => checklist(profile).filter((i) => !i.done).map((i) => i.label), [profile])
 
+  // Gợi ý cụ thể còn thiếu để đạt 100% — cùng tiêu chí với `completeness`
+  const suggestions = useMemo(
+    () => checklist(profile).filter((i) => !i.done).map((i) => ({ key: i.label, label: i.hint, target: i.target })),
+    [profile],
+  )
+
   return {
-    profile, set, toggleCell, toggleJobType, addSkill, removeSkill,
+    profile, suggestions, set, toggleCell, toggleJobType, addSkill, removeSkill,
     addExperience, updateExperience, removeExperience, setAvatarFile, percent, missing,
   }
 }

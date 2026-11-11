@@ -7,6 +7,7 @@ import { useMatchStore } from '@context/matchStore'
 import { useCandidates, usePositions } from '@pages/public/match/data'
 import { scoreMatch } from '@pages/public/match/score'
 import { expressInterest, useOnNewConnection, usePairStatuses } from '@services/connectionService'
+import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import MessageLink from '@components/messenger/MessageLink'
 
@@ -57,10 +58,10 @@ export default function SavedCandidates() {
                     <li key={key} className="flex flex-col gap-4 py-4 first:pt-0 last:pb-0 lg:flex-row lg:items-center lg:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                          <Link to={candidateHref(cand.id)} className="font-medium text-page-fg underline-offset-4 hover:underline">{cand.name}</Link>
-                          {status === 'sent' && <StatusBadge tone="default">Đã quan tâm</StatusBadge>}
-                          {status === 'received' && <StatusBadge tone="default">Ứng viên quan tâm bạn</StatusBadge>}
-                          {status === 'connected' && <StatusBadge tone="strong">Đã kết nối</StatusBadge>}
+                          <Link to={candidateHref(cand.id)} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>{cand.name}</Link>
+                          {status === 'sent' && <StatusBadge tone="neutral">Đã quan tâm</StatusBadge>}
+                          {status === 'received' && <StatusBadge tone="soft">Ứng viên quan tâm bạn</StatusBadge>}
+                          {status === 'connected' && <StatusBadge tone="accent">Đã kết nối</StatusBadge>}
                         </div>
                         <p className="mt-1 text-sm text-page-muted">{cand.summary}</p>
                         <p className="mt-1 text-xs text-page-muted">{cand.area} · cách {cand.distanceKm} km</p>

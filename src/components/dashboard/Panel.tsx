@@ -12,7 +12,7 @@ type Props = {
 /** Thẻ nội dung chuẩn của dashboard (danh sách, biểu mẫu, khối thông tin). */
 export default function Panel({ title, action, className, children }: Props) {
   return (
-    <section className={cn('glass-card rounded-card p-5 md:p-6', className)}>
+    <section className={cn('rounded-card border border-page-line bg-page-surface p-5 md:p-6', className)}>
       {(title || action) && (
         <div className="mb-4 flex items-center justify-between gap-4">
           {title && <h2 className="font-display text-lg font-medium text-page-fg">{title}</h2>}

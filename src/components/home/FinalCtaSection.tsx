@@ -13,7 +13,7 @@ type Props = {
   onFindJob: () => void
 }
 
-/** Section ⑦ — lời kết trên nền than chì. Footer nằm ngay sau. */
+/** Section ⑦ — lời kết trên nền đen ấm (night). Footer nằm ngay sau. */
 export default function FinalCtaSection({ onFindJob }: Props) {
   const role = useAuthStore((s) => s.user?.role)
   const recruiter = role === 'recruiter'
@@ -26,12 +26,12 @@ export default function FinalCtaSection({ onFindJob }: Props) {
       : null
 
   const button =
-    'group inline-flex min-h-11 items-center gap-2 rounded-full bg-page-fg px-8 py-4 text-sm font-medium text-page-bg transition-opacity duration-300 hover:opacity-90'
+    'group inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-8 py-4 text-sm font-semibold text-accent-fg transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100'
 
   return (
     <section
-      data-theme="charcoal"
-      // Ngà → than chì: đoạn chuyển dài (95% → 35%) để nền tối dần êm; end tới được trước hết trang vì còn footer bên dưới
+      data-theme="night"
+      // Ngà → đen ấm (night): đoạn chuyển dài (95% → 35%) để nền tối dần êm; end tới được trước hết trang vì còn footer bên dưới
       data-theme-start="top 95%"
       data-theme-end="top 35%"
       className="relative z-10 shell py-section" aria-labelledby="home-final-title">

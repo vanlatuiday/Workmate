@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { BriefcaseBusiness, Star } from 'lucide-react'
-import { StatusBadge } from '@components/dashboard'
 import { describeConversation } from '@pages/public/messages/describe'
 import { acceptOffer, declineOffer, rejectCandidate, useActiveInterview, useHire, useReview, withdrawOffer, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import ConfirmDialog from './ConfirmDialog'
 import { hireLabel, todayStr } from './format'
+import HireChip from './HireChip'
 import OfferDialog from './OfferDialog'
 import ReviewDialog from './ReviewDialog'
 
@@ -64,12 +64,7 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
     )
   }
 
-  const tone = hire.status === 'accepted' ? 'strong' : hire.status === 'offered' ? 'default' : 'muted'
-  const chip = (
-    <StatusBadge tone={tone}>
-      {hireLabel(viewer, hire)}
-    </StatusBadge>
-  )
+  const chip = <HireChip status={hire.status}>{hireLabel(viewer, hire)}</HireChip>
 
   // Đã xác nhận đi làm: đánh giá hai chiều mở từ ngày bắt đầu, mỗi phía một lần
   if (hire.status === 'accepted') {

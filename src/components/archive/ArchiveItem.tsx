@@ -121,11 +121,13 @@ const ArchiveItem = forwardRef<HTMLButtonElement, Props>(function ArchiveItem(
         )}
       >
         <div ref={magnetRef} className="will-change-transform">
-          {/* Tấm ảnh như con tem: giấy ngà viền răng cưa — luôn sáng trên mặt bàn tối, nên dùng màu cố định wm-* */}
+          {/* Tem: giấy page-surface viền răng cưa. `stamp-edge` dùng mask nên box-shadow bị cắt →
+              bóng đặt bằng drop-shadow ở lớp bao ngoài (lọc sau mask, theo đúng hình răng cưa). */}
+          <div className="[filter:drop-shadow(0_2px_6px_color-mix(in_srgb,var(--wm-charcoal)_16%,transparent))]">
           <figure
             data-print
             data-tilt={tilt}
-            className="stamp-edge bg-wm-ivory p-3.5 pb-5 text-wm-charcoal md:p-4 md:pb-6"
+            className="stamp-edge bg-page-surface p-3.5 pb-5 text-page-fg md:p-4 md:pb-6"
             style={{ transform: `rotate(${tilt}deg)` }}
           >
             <div className={cn('overflow-hidden rounded-control bg-wm-stone', aspect)}>
@@ -141,10 +143,11 @@ const ArchiveItem = forwardRef<HTMLButtonElement, Props>(function ArchiveItem(
               />
             </div>
             <figcaption className="mt-3 flex items-baseline justify-between gap-4 px-1">
-              <span className="text-xs font-medium text-wm-graphite tnum">{entry.number}</span>
-              <span className="text-right font-display text-base font-semibold md:text-lg">{entry.title}</span>
+              <span className="text-sm font-medium text-page-muted tnum">{entry.number}</span>
+              <span className="text-right font-display text-lg font-semibold text-page-fg md:text-xl">{entry.title}</span>
             </figcaption>
           </figure>
+          </div>
           {/* Chú thích rõ dần khi rê/focus — trên cảm ứng luôn hiện đủ */}
           <p className="mt-3 px-1 text-sm leading-relaxed text-page-muted transition-opacity duration-300 [@media(hover:hover)]:opacity-75 group-hover:opacity-100 group-focus-visible:opacity-100">
             {entry.caption}

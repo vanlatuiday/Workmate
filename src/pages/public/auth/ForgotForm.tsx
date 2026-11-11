@@ -1,10 +1,10 @@
 import toast from 'react-hot-toast'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Info, KeyRound, Lock, User } from 'lucide-react'
+import { Info, KeyRound, Lock, Mail } from 'lucide-react'
 import { apiErrorMessage, authService } from '@services/authService'
 import { AuthField, ErrorBox, Item, LINK_BTN, PRIMARY, ShowPassButton, Stagger, SubmitButton, TEXT_LINK } from './shared'
-import { AUTH_PATHS, useFocusFirst, type AuthFormProps } from './authShared'
+import { AUTH_PATHS, confirmError, loginEmailError, passwordMinError, useFieldTouch, useFocusFirst, type AuthFormProps } from './authShared'
 
 /*
  * Quên mật khẩu — 3 bước trong một form: nhập tài khoản → nhập mã + mật khẩu mới → xong.
@@ -30,6 +30,8 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
   const [errs, setErrs] = useState<{ code?: string; password?: string; confirm?: string }>({})
   const [cooldown, setCooldown] = useState(0)
   const root = useRef<HTMLDivElement>(null)
+  const { touch, show, submit } = useFieldTouch(root)
+  const idErr = loginEmailError(identifier)
   // Vừa chuyển từ chế độ khác sang, hoặc sang bước mới → đưa focus vào ô đầu của bước đó
   useFocusFirst(root, focus || step !== 'request', step)
 
@@ -44,8 +46,7 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
   const requestCode = async (e: React.FormEvent) => {
     e.preventDefault()
     if (loading) return
-    if (!identifier.trim()) {
-      setError('Vui lòng nhập email hoặc tên đăng nhập.')
+    if (submit([{ id: 'fp-identifier', error: idErr }])) {
       shake()
       return
     }
@@ -90,13 +91,15 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
     if (loading) return
     const v = {
       code: /^\d{6}$/.test(code) ? undefined : 'Mã gồm đúng 6 chữ số.',
-      password: password.length >= 8 ? undefined : 'Mật khẩu mới cần ít nhất 8 ký tự.',
-      confirm: confirm === password ? undefined : 'Mật khẩu nhập lại chưa khớp.',
+      password: passwordMinError(password),
+      confirm: confirmError(confirm, password),
     }
     setErrs(v)
     setError('')
     if (v.code || v.password || v.confirm) {
       shake()
+      const firstId = v.code ? 'fp-code' : v.password ? 'fp-password' : 'fp-confirm'
+      root.current?.querySelector<HTMLElement>(`#${firstId}`)?.focus()
       return
     }
     setLoading(true)
@@ -129,18 +132,21 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
         {step === 'request' && (
           <form onSubmit={requestCode} className="mt-5 space-y-4" noValidate>
             <Item>
-              <p className="text-base text-page-muted">Nhập email hoặc tên đăng nhập, chúng tôi sẽ gửi mã xác nhận để bạn đặt mật khẩu mới.</p>
+              <p className="text-base text-page-muted">Nhập email của tài khoản, chúng tôi sẽ gửi mã xác nhận để bạn đặt mật khẩu mới.</p>
             </Item>
             <Item>
               <AuthField
                 id="fp-identifier"
-                label="Email hoặc tên đăng nhập"
-                icon={User}
+                label="Email"
+                icon={Mail}
                 type="text"
+                inputMode="email"
                 autoComplete="username"
+                required
                 value={identifier}
                 onChange={setIdentifier}
-                error={error}
+                onBlur={() => touch('fp-identifier')}
+                error={show('fp-identifier', idErr) ?? (error || undefined)}
               />
             </Item>
             <Item>
@@ -189,7 +195,7 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
               <Item>
                 <AuthField
                   id="fp-password"
-                  label="Mật khẩu mới (ít nhất 8 ký tự)"
+                  label="Mật khẩu mới (tối thiểu 8 ký tự)"
                   icon={Lock}
                   type={showPass ? 'text' : 'password'}
                   autoComplete="new-password"

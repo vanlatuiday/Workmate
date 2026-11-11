@@ -9,7 +9,11 @@
 
   body {
     @apply bg-wm-ivory text-wm-charcoal font-sans antialiased;
+    /* Dấu tiếng Việt cần khoảng dòng rộng; tiêu đề tự đặt leading riêng */
+    line-height: 1.6;
   }
+  h1, h2, h3 { line-height: 1.2; }
+  /* Số liệu (lương, km, giờ ca) thẳng hàng: thêm class tnum (đã có) hoặc tabular-nums */
 
   /* Placeholder theo theme (mặc định của Tailwind là xám lạnh); nhạt hơn chữ thật để không trông như đã nhập */
   input::placeholder,
@@ -93,6 +97,22 @@
   color: var(--page-fg);
 }
 
+/* Theme đen ấm (night) cho các đoạn nền tối của trang chủ (xem tokens.json → themes.night). Cùng 6 biến như trên. */
+.theme-night {
+  --page-bg: var(--wm-night);
+  --page-fg: var(--wm-ivory);
+  --page-surface: color-mix(in srgb, var(--page-fg) 5%, var(--page-bg));
+  --page-edge: color-mix(in srgb, var(--page-fg) 60%, var(--page-bg));
+  --page-muted: color-mix(in srgb, var(--page-fg) 82%, var(--page-bg));
+  --page-line: color-mix(in srgb, var(--page-fg) 18%, var(--page-bg));
+  background-color: var(--page-bg);
+  color: var(--page-fg);
+}
+/* Trang chủ: nền mặc định (trước khi useSectionThemes ghi đè bằng style nội tuyến) là đen ấm, không phải than chì */
+html[data-page='home'] {
+  --page-bg: var(--wm-night);
+}
+
 /* Header kính (mọi trang công khai): nền theo theme nhưng trong 72%, nhòe nội dung cuộn phía sau.
    Đặt SAU .theme-ivory/.theme-charcoal để ghi đè nền đặc của theme gắn trên header. */
 .header-glass {
@@ -107,64 +127,6 @@
 }
 @media (prefers-reduced-transparency: reduce) {
   .header-glass { background-color: var(--page-bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
-}
-
-/* Theme kính (glass) cho khung dashboard: chữ ngà trên ảnh nền nội thất phủ lớp than chì.
-   KHÔNG đặt background-color đặc để ảnh nền lộ ra. --page-bg ~88% than chì để nút chính
-   (bg-page-fg text-page-bg) và ô nhập vẫn tương phản cao; --page-muted là màu đặc để chữ phụ dễ đọc. */
-.theme-glass {
-  --page-fg: var(--wm-ivory);
-  --page-bg: color-mix(in srgb, var(--wm-charcoal) 88%, transparent);
-  /* Mặt phụ (hàng danh sách, ô nhập, hover) tối thêm thay vì sáng thêm — trên ảnh sáng vẫn giữ chữ ngà đủ tương phản */
-  --page-surface: color-mix(in srgb, var(--wm-charcoal) 40%, transparent);
-  --page-edge: color-mix(in srgb, var(--wm-ivory) 55%, transparent);
-  --page-muted: color-mix(in srgb, var(--wm-ivory) 86%, var(--wm-charcoal));
-  --page-line: color-mix(in srgb, var(--wm-ivory) 16%, transparent);
-  color: var(--page-fg);
-  /* Hộp thả <select>, thanh cuộn, ô date… của trình duyệt vẽ theo kiểu tối → chữ ngà không bị chìm trên nền trắng */
-  color-scheme: dark;
-}
-/* Ô nhập không ghi màu viền sẽ lấy xám mặc định của Tailwind → đổi sang ngà mờ (≥3:1). :where = độ ưu tiên 0, class viền của component vẫn thắng */
-.theme-glass :where(input, select, textarea) {
-  border-color: color-mix(in srgb, var(--wm-ivory) 38%, transparent);
-}
-/* Thẻ tự dựng trong các trang (rounded-card + bg-page-surface, không qua Panel) nằm thẳng trên ảnh →
-   làm mờ nền phía sau để chữ không đè lên chi tiết ảnh. Gom ở đây thay vì sửa từng trang. */
-/* Trừ ô nhập: backdrop-filter tạo lớp xếp chồng mới, sẽ che icon đặt đè lên ô (vd. kính lúp) */
-.theme-glass .rounded-card.bg-page-surface:not(input, select, textarea) {
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-}
-.theme-glass option {
-  background-color: var(--wm-charcoal);
-  color: var(--wm-ivory);
-}
-
-@layer components {
-  /* Thẻ kính của dashboard: than chì mờ + làm mờ nền phía sau, viền ngà rất nhạt, không đổ bóng ngoài */
-  .glass-card {
-    background-color: color-mix(in srgb, var(--wm-charcoal) 55%, transparent);
-    -webkit-backdrop-filter: blur(20px) saturate(1.1);
-    backdrop-filter: blur(20px) saturate(1.1);
-    border: 1px solid color-mix(in srgb, var(--wm-ivory) 14%, transparent);
-    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--wm-ivory) 8%, transparent);
-  }
-  /* Biến thể nhẹ cho trạng thái trống (viền nét đứt do class của component) */
-  .glass-card-soft {
-    background-color: color-mix(in srgb, var(--wm-charcoal) 35%, transparent);
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
-  }
-  @supports not (backdrop-filter: blur(1px)) {
-    .glass-card, .glass-card-soft { background-color: color-mix(in srgb, var(--wm-charcoal) 92%, transparent); }
-  }
-  @media (prefers-reduced-transparency: reduce) {
-    .glass-card, .glass-card-soft {
-      background-color: color-mix(in srgb, var(--wm-charcoal) 92%, transparent);
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-    }
-  }
 }
 
 @layer components {

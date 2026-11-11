@@ -1,7 +1,7 @@
 import { forwardRef, type ReactNode } from 'react'
 import { Link, type LinkProps } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { AlertCircle, ArrowLeft, ArrowRight, Eye, EyeOff, Loader2, type LucideIcon } from 'lucide-react'
+import { AlertCircle, ArrowLeft, ArrowRight, Building2, Eye, EyeOff, Loader2, Search, type LucideIcon } from 'lucide-react'
 import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
 import { useReducedMotion } from '@hooks/useReducedMotion'
@@ -58,7 +58,7 @@ export function OutlinePill({ children, back, small, ...props }: LinkProps & { b
 export function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null
   return (
-    <p id={id} role="alert" className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-page-fg">
+    <p id={id} role="alert" className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-danger">
       <AlertCircle className="w-4 h-4 shrink-0" aria-hidden />{message}
     </p>
   )
@@ -68,7 +68,7 @@ export function FieldError({ id, message }: { id: string; message?: string }) {
 export function ErrorBox({ message }: { message: string }) {
   if (!message) return null
   return (
-    <div role="alert" className="flex items-start gap-3 rounded-card border border-page-fg bg-page-surface p-3 text-sm font-medium text-page-fg">
+    <div role="alert" className="flex items-start gap-3 rounded-card border border-page-fg bg-page-surface p-3 text-sm font-medium text-danger">
       <AlertCircle className="w-5 h-5 shrink-0" aria-hidden />
       {message}
     </div>
@@ -113,6 +113,7 @@ export const AuthField = forwardRef<HTMLInputElement, FieldProps>(function AuthF
           onChange={(e) => onChange(e.target.value)}
           placeholder=" "
           aria-invalid={error ? true : undefined}
+          aria-errormessage={error ? errId : undefined}
           aria-describedby={error ? errId : hint ? hintId : undefined}
           className={cn(
             'peer block w-full bg-transparent pb-2 pl-7 pt-6 text-base text-page-fg',
@@ -194,5 +195,72 @@ export function ShowPassButton({ shown, onToggle }: { shown: boolean; onToggle: 
     >
       {shown ? <EyeOff className="w-4 h-4" aria-hidden /> : <Eye className="w-4 h-4" aria-hidden />}
     </button>
+  )
+}
+
+/* ─── Chọn vai trò (segmented control) — đăng nhập và đăng ký dùng chung ─────── */
+
+export type AuthRole = 'jobseeker' | 'recruiter'
+const ROLES: { value: AuthRole; label: string; icon: LucideIcon }[] = [
+  { value: 'jobseeker', label: 'Người tìm việc', icon: Search },
+  { value: 'recruiter', label: 'Nhà tuyển dụng', icon: Building2 },
+]
+
+export function RoleSwitch({ value, onChange }: { value: AuthRole; onChange: (r: AuthRole) => void }) {
+  return (
+    <div role="radiogroup" aria-label="Bạn là ai?" className="flex gap-2">
+      {ROLES.map(({ value: v, label, icon: Icon }) => {
+        const active = value === v
+        return (
+          <button
+            key={v}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            onClick={() => onChange(v)}
+            className={cn(
+              'inline-flex flex-1 items-center justify-center gap-2 rounded-full border px-3 py-2.5 text-sm font-medium transition-colors duration-300',
+              FOCUS,
+              active ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-edge text-page-fg hover:border-page-fg',
+            )}
+          >
+            <Icon className="w-4 h-4 shrink-0" aria-hidden />
+            {label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ─── Độ mạnh mật khẩu ───────────────────────────────────────────────────────── */
+
+const STRENGTH = [
+  { label: 'Yếu', bar: 'bg-danger' },
+  { label: 'Trung bình', bar: 'bg-warning' },
+  { label: 'Mạnh', bar: 'bg-accent' },
+] as const
+
+/** 0 = yếu, 1 = trung bình, 2 = mạnh: theo độ dài + chữ hoa / số / ký tự đặc biệt */
+export function passwordStrength(pw: string): 0 | 1 | 2 {
+  if (pw.length < 8) return 0
+  const kinds = [/[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/].filter((re) => re.test(pw)).length
+  const points = kinds + (pw.length >= 12 ? 1 : 0)
+  return points >= 3 ? 2 : points >= 1 ? 1 : 0
+}
+
+export function PasswordStrength({ password }: { password: string }) {
+  const level = password ? passwordStrength(password) : -1
+  return (
+    <div className="mt-2 flex items-center gap-3" aria-live="polite">
+      <div className="flex flex-1 gap-1" aria-hidden>
+        {STRENGTH.map((s, i) => (
+          <span key={s.label} className={cn('h-1 flex-1 rounded-full transition-colors duration-300', i <= level ? s.bar : 'bg-page-line')} />
+        ))}
+      </div>
+      <span className="min-w-[5.5rem] text-right text-xs font-medium text-page-muted">
+        {level >= 0 ? `Độ mạnh: ${STRENGTH[level as 0 | 1 | 2].label}` : ''}
+      </span>
+    </div>
   )
 }

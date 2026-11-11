@@ -24,6 +24,15 @@ export function formatSalary(salary: SalaryRange): string {
   return 'Thỏa thuận'
 }
 
+/** Lương theo giờ từ dữ liệu nghìn đồng: "25.000–28.000đ/giờ"; bằng nhau → "25.000đ/giờ" */
+export function formatHourlyRangeK(minK: number, maxK: number): string {
+  const f = (k: number) => (k * 1000).toLocaleString('vi-VN')
+  return minK === maxK ? `${f(maxK)}đ/giờ` : `${f(minK)}–${f(maxK)}đ/giờ`
+}
+
+/** Một mốc lương tối thiểu theo giờ: "từ 25.000đ/giờ" */
+export const formatHourlyFromK = (k: number): string => `từ ${(k * 1000).toLocaleString('vi-VN')}đ/giờ`
+
 export function formatVND(amount: number): string {
   if (amount >= 1_000_000) {
     return `${(amount / 1_000_000).toFixed(amount % 1_000_000 === 0 ? 0 : 1)}tr`

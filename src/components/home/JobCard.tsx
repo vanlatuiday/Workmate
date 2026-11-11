@@ -45,8 +45,9 @@ export default function JobCard({
         className={cn(
           'group flex h-full flex-col overflow-hidden rounded-card border border-page-line bg-page-surface',
           'transition-[transform,border-color,box-shadow] duration-500 ease-editorial',
-          'hover:-translate-y-1 hover:border-page-fg hover:shadow-[0_14px_28px_-18px_var(--wm-charcoal)]',
-          'focus-visible:-translate-y-1 focus-visible:border-page-fg focus-visible:shadow-[0_14px_28px_-18px_var(--wm-charcoal)]',
+          'hover:-translate-y-1 hover:border-page-fg hover:shadow-[0_14px_28px_-18px_var(--wm-night)]',
+          'focus-visible:-translate-y-1 focus-visible:border-page-fg focus-visible:shadow-[0_14px_28px_-18px_var(--wm-night)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-page-fg',
+          'active:scale-[0.99] motion-reduce:active:scale-100',
           'motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:focus-visible:translate-y-0',
         )}
       >
@@ -69,12 +70,12 @@ export default function JobCard({
         </div>
 
         <div className="flex flex-1 flex-col p-5">
-          <p className="flex items-center gap-2 text-xs text-page-muted">
+          <p className="flex items-center gap-2 text-sm text-page-muted">
             <CompanyLogo name={company.name} logoUrl={company.logoUrl} decorative className="h-5 w-5 text-[9px]" />
             {company.name}
           </p>
-          <h3 className="mt-1 font-display text-xl font-medium leading-snug text-page-fg">{job.title}</h3>
-          <p className="mt-3 text-sm font-medium text-page-fg">{job.salaryLabel}</p>
+          <h3 className="mt-1 font-display text-xl font-semibold leading-snug text-page-fg">{job.title}</h3>
+          <p className="tnum mt-3 text-base font-semibold text-page-fg">{job.salaryLabel}</p>
           <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-page-muted">
             <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
             {job.district}, Đà Nẵng
@@ -84,7 +85,7 @@ export default function JobCard({
             {typeLabel && (
               <span className="rounded-full border border-page-line px-2.5 py-0.5 text-xs text-page-muted">{typeLabel}</span>
             )}
-            <span className="rounded-full border border-page-line px-2.5 py-0.5 text-xs text-page-muted">{job.shiftLabel}</span>
+            <span className="tnum rounded-full border border-page-line px-2.5 py-0.5 text-xs font-medium text-page-muted">{job.shiftLabel}</span>
           </div>
         </div>
       </Link>

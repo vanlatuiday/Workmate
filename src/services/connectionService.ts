@@ -149,6 +149,12 @@ export async function startConnections() {
             if (!isSeeker()) void loadCandidates().catch(() => undefined)
           }, 150)
         },
+        // Phía kia đánh dấu đã đọc: cập nhật "Đã xem" (bỏ qua sự kiện do chính mình phát)
+        read: (p: { jobId: string; seekerId: string; by: Side; at: string }) => {
+          if (p.by === mySide()) return
+          const key = convKey(p.jobId, toLocal(p.seekerId))
+          setStore((s) => ({ conversations: s.conversations.map((c) => (c.key === key ? { ...c, peerReadAt: p.at } : c)) }))
+        },
         typing: (p: { jobId: string; seekerId: string; from: Side }) => {
           const key = convKey(p.jobId, toLocal(p.seekerId))
           setTyping(key, p.from)

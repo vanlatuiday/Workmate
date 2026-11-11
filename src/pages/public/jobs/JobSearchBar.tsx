@@ -3,6 +3,7 @@ import { ChevronDown, MapPin, Search, SlidersHorizontal, X } from 'lucide-react'
 import { JOB_TYPES } from '@constants/index'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { formatHourlyFromK } from '@utils/format'
 import { DISTRICTS, EMPTY_FILTERS, hasFilters, type JobFilters } from './catalog'
 
 const SALARY_STEPS = [25, 30, 35, 40]
@@ -241,7 +242,7 @@ export default function JobSearchBar({
         ))}
         {showSalary && SALARY_STEPS.map((k) => (
           <Chip key={k} glass={floating} pressed={filters.minSalaryK === k} onClick={() => set({ minSalaryK: filters.minSalaryK === k ? 0 : k })}>
-            Từ {k}k
+            {formatHourlyFromK(k).replace(/^t/, 'T')}
           </Chip>
         ))}
         {showNearMe && (
@@ -277,7 +278,7 @@ export default function JobSearchBar({
       {/* Viên thu gọn + thanh nổi: cùng một chỗ dưới header (điện thoại: đáy màn hình).
           Bấm viên → viên mờ đi, thanh đầy đủ bung ra tại chỗ (scale + opacity), không cuộn trang.
           Reduced motion → đổi trạng thái tức thì. */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 lg:bottom-auto lg:top-[4.75rem] grid justify-items-center px-6">
+      <div className="pointer-events-none fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 lg:bottom-auto lg:top-[4.75rem] grid grid-cols-[minmax(0,1fr)] justify-items-center px-6">
         <button
           ref={pillRef}
           type="button"
@@ -288,7 +289,9 @@ export default function JobSearchBar({
           aria-label="Mở thanh tìm kiếm và bộ lọc"
           className={cn(
             'col-start-1 row-start-1 self-end lg:self-start',
-            'glass-liquid flex max-w-full items-center gap-3 rounded-full py-2 pl-4 pr-2 text-sm text-page-fg [--glass-alpha:55%]',
+            // Điện thoại: dịch trái, chừa chỗ nút chat nổi (24 + 56 + 12px) ở góc phải
+            'max-w-[calc(100%-4.5rem)] justify-self-start sm:max-w-full sm:justify-self-center',
+            'glass-liquid flex items-center gap-3 rounded-full py-2 pl-4 pr-2 text-sm text-page-fg [--glass-alpha:55%]',
             'transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none',
             showPill ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0 lg:-translate-y-2',
             FOCUS,
@@ -308,7 +311,7 @@ export default function JobSearchBar({
           ref={floatRef}
           aria-hidden={!expanded}
           className={cn(
-            'col-start-1 row-start-1 w-full max-w-4xl self-end lg:self-start',
+            'col-start-1 row-start-1 w-full min-w-0 max-w-4xl self-end lg:self-start',
             'origin-bottom transition-[opacity,transform] duration-300 ease-editorial motion-reduce:transition-none lg:origin-top',
             expanded ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-[0.4] opacity-0',
           )}

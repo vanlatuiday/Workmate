@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Bell, BriefcaseBusiness, CalendarCheck, CalendarPlus, CalendarX, Handshake, Heart, HeartHandshake, Hourglass, Star, Undo2, UserCheck, UserX, type LucideIcon } from 'lucide-react'
 import { EmptyState } from '@components/dashboard'
 import { useMessengerStore } from '@context/messengerStore'
+import ChatAvatar from '@pages/public/messages/ChatAvatar'
 import { describeConversation } from '@pages/public/messages/describe'
 import {
   markAllNotificationsRead, markNotificationRead, useNotifications,
@@ -26,6 +27,12 @@ const ICONS: Record<DemoNotification['kind'], LucideIcon> = {
   offer_withdrawn: Undo2,
   rejected: HeartHandshake,
   review: Star,
+}
+
+/** Màu icon loại thông báo (góc avatar): tích cực = accent, từ chối/hủy = danger, còn lại = chữ thường */
+const KIND_TONE: Partial<Record<DemoNotification['kind'], string>> = {
+  connected: 'text-accent-ink', interview_confirmed: 'text-accent-ink', offer_accepted: 'text-accent-ink', offer: 'text-accent-ink',
+  interview_declined: 'text-danger', interview_cancelled: 'text-danger', offer_declined: 'text-danger', offer_withdrawn: 'text-danger', rejected: 'text-danger',
 }
 
 /** Câu mô tả bằng tên thật của hai phía, theo người xem */
@@ -82,24 +89,23 @@ export function MarkAllReadButton({ viewer, className }: { viewer: Side; classNa
       type="button"
       disabled={unread === 0}
       onClick={() => markAllNotificationsRead(viewer)}
-      className={cn('rounded-full border border-page-line px-4 py-2 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg disabled:cursor-default disabled:text-page-muted disabled:hover:border-page-line', FOCUS, className)}
+      className={cn('rounded-full border border-page-line px-4 py-2 text-sm font-medium text-page-fg transition-colors duration-300 hover:border-page-fg hover:bg-page-surface disabled:cursor-default disabled:text-page-muted disabled:hover:border-page-line disabled:hover:bg-transparent', FOCUS, className)}
     >
       Đánh dấu đã đọc tất cả
     </button>
   )
 }
 
-/** Danh sách thông báo chia nhóm Hôm nay / Trước đó. `onNavigate`: gọi sau khi bấm một thông báo (popup dùng để tự đóng). */
+/** Danh sách thông báo chia nhóm Mới (chưa đọc) / Trước đó. `onNavigate`: gọi sau khi bấm một thông báo (popup dùng để tự đóng). */
 export default function NotificationList({ viewer, onNavigate, compact }: { viewer: Side; onNavigate?: () => void; compact?: boolean }) {
   const items = useNotifications(viewer)
   const navigate = useNavigate()
   const openMessenger = useMessengerStore((s) => s.openMessenger)
   // Trong popup tiêu đề popup đã là h2 → tiêu đề nhóm là h3; trang /thong-bao giữ h2
   const Heading = compact ? 'h3' : 'h2'
-  const today = new Date().toDateString()
   const groups = [
-    { label: 'Hôm nay', list: items.filter((n) => new Date(n.at).toDateString() === today) },
-    { label: 'Trước đó', list: items.filter((n) => new Date(n.at).toDateString() !== today) },
+    { label: 'Mới', list: items.filter((n) => !n.read) },
+    { label: 'Trước đó', list: items.filter((n) => n.read) },
   ].filter((g) => g.list.length > 0)
 
   const open = (n: DemoNotification) => {
@@ -117,27 +123,37 @@ export default function NotificationList({ viewer, onNavigate, compact }: { view
     <>
       {groups.map((g) => (
         <div key={g.label} className={compact ? 'mb-5 last:mb-0' : 'mb-8'}>
-          <Heading className="mb-2 text-xs font-medium uppercase tracking-wide text-page-muted">{g.label}</Heading>
-          <ul className="border-t border-page-line">
+          <Heading className="mb-2 px-1 text-xs font-medium text-page-muted">{g.label}</Heading>
+          <ul className="space-y-1">
             {g.list.map((n) => {
               const Icon = ICONS[n.kind]
+              const info = describeConversation(viewer, n.jobId, n.seekerId)
               return (
-                <li key={n.id} className="border-b border-page-line">
+                <li key={n.id}>
                   <button
                     type="button"
                     onClick={() => open(n)}
-                    className={cn('flex w-full items-start gap-4 px-1 py-4 text-left transition-colors duration-300 hover:bg-page-surface', FOCUS)}
+                    // Chưa đọc: nền đậm hơn + chấm; đã đọc: trong suốt. Hover = viền (không trùng nền chưa đọc)
+                    className={cn(
+                      'group flex w-full items-start gap-3 rounded-md border px-3 py-3 text-left transition-colors duration-300',
+                      n.read ? 'border-transparent bg-transparent' : 'border-transparent bg-page-surface',
+                      'hover:border-page-edge',
+                      FOCUS,
+                    )}
                   >
-                    <span aria-hidden="true" className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-page-edge text-page-fg">
-                      <Icon className="h-4 w-4" />
+                    <span className="relative mt-0.5 shrink-0">
+                      <ChatAvatar initials={info.initials} url={info.avatarUrl} contain={viewer === 'seeker'} className="h-10 w-10 text-sm" />
+                      <span aria-hidden="true" className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border border-page-edge bg-page-bg">
+                        <Icon className={cn('h-3 w-3', KIND_TONE[n.kind] ?? 'text-page-fg')} />
+                      </span>
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className={cn('block text-sm leading-relaxed text-page-fg', !n.read && 'font-semibold')}>{sentence(viewer, n)}</span>
+                      <span className={cn('block text-sm leading-relaxed text-page-fg group-hover:underline group-hover:underline-offset-4', !n.read && 'font-semibold')}>{sentence(viewer, n)}</span>
                       <span className="mt-1 block text-xs text-page-muted">{formatRelativeTime(n.at)}</span>
                     </span>
                     {!n.read && (
                       <>
-                        <span aria-hidden="true" className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-page-fg" />
+                        <span aria-hidden="true" className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-accent" />
                         <span className="sr-only">Chưa đọc</span>
                       </>
                     )}

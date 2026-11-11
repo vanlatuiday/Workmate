@@ -16,11 +16,11 @@ const BTN_SOLID = `${BTN} border-page-fg bg-page-fg text-page-bg hover:bg-page-b
 const BTN_LINE = `${BTN} border-page-line text-page-fg hover:border-page-fg`
 
 /** Nhãn + độ đậm của trạng thái nhìn từ người tìm việc */
-const STATUS: Record<PairStatus, { label: string; tone: 'strong' | 'default' | 'muted' }> = {
+const STATUS: Record<PairStatus, { label: string; tone: 'accent' | 'soft' | 'neutral' | 'muted' }> = {
   none: { label: 'Chưa ứng tuyển', tone: 'muted' },
-  sent: { label: 'Chờ phản hồi', tone: 'default' },
-  received: { label: 'Doanh nghiệp quan tâm bạn', tone: 'default' },
-  connected: { label: 'Đã kết nối', tone: 'strong' },
+  sent: { label: 'Chờ phản hồi', tone: 'neutral' },
+  received: { label: 'Doanh nghiệp quan tâm bạn', tone: 'soft' },
+  connected: { label: 'Đã kết nối', tone: 'accent' },
 }
 
 /** Việc đã lưu: các việc bấm "Lưu" ở trang Kết nối, kèm điểm phù hợp và trạng thái ứng tuyển. */
@@ -56,7 +56,7 @@ export default function SavedJobs() {
               const status = statusOf(job.id, ME)
               const stage = status === 'sent' ? stageOf(job.id, ME) : undefined
               const st = stage && stage !== 'applied'
-                ? { label: APPLICATION_STAGE_LABEL[stage].replace(/^./, (c) => c.toUpperCase()), tone: stage === 'considering' ? 'strong' as const : 'default' as const }
+                ? { label: APPLICATION_STAGE_LABEL[stage].replace(/^./, (c) => c.toUpperCase()), tone: stage === 'considering' ? 'soft' as const : 'neutral' as const }
                 : STATUS[status]
               return (
                 <li key={job.id} className="flex flex-col gap-4 py-5 first:pt-0 last:pb-0 lg:flex-row lg:items-center lg:justify-between">

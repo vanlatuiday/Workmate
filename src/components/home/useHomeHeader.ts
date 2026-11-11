@@ -8,9 +8,13 @@ const DELTA = 6
 /**
  * Header trang chủ theo vị trí cuộn. Chỉ ghi data-attribute lên <html>, phần hiển thị nằm ở index.css.
  *
- *   data-header="hero"   đang ở banner ([data-home-hero]) → chỉ logo + nút menu, banner nổi bật
- *   data-header="full"   đã qua banner, hoặc đang lướt lên trên banner → đủ header có nền
- *   data-header-hidden   (chỉ khi "full") đang cuộn xuống → header trượt khuất; cuộn lên → hiện lại
+ *   data-header="hero"   còn ở màn mở đầu (html[data-intro], logo chưa bay về góc) → chỉ logo + nút menu
+ *   data-header="full"   đã qua màn mở đầu: đủ header có nền. Mốc này trùng mốc nút nổi [data-floating]
+ *                        hiện ra (cùng thuộc tính data-intro do IntroHero đặt), và KHÔNG phụ thuộc hướng cuộn.
+ *   data-header-hidden   (chỉ khi "full" và banner đã trôi hẳn khỏi màn) cuộn xuống → header trượt khuất; cuộn lên → hiện lại
+ *
+ * Trước đây "hero" kéo dài tới tận khi mép dưới khối banner (cao 200svh) lên tới header — tức ~2000px — và
+ * phụ thuộc hướng cuộn nên lướt lên ở y=1000 thì hiện, lướt xuống thì không.
  *
  * useLayoutEffect: đặt trạng thái trước khi vẽ khung đầu, để nav không lóe lên rồi mới ẩn.
  */
@@ -32,14 +36,10 @@ export function useHomeHeader() {
       const rect = hero.getBoundingClientRect()
 
       if (rect.bottom > HEADER_H) {
-        // Còn thấy banner. Phần đầu khối hero là intro (lớp sticky đang ghim, logo bay về góc):
-        // ở đó luôn chỉ logo. Từ chỗ banner hiện đủ trở xuống: lướt lên → đủ header, lướt xuống → chỉ logo.
-        // (Lướt lên ngay tại chỗ banner hiện đủ thì IntroHero trôi về intro → không bật header.)
+        // Còn thấy khối banner: chỉ phụ thuộc đã qua màn mở đầu hay chưa (data-intro do IntroHero đặt/gỡ
+        // theo tiến trình cuộn; y > 8 cho chế độ giảm chuyển động, vốn không có data-intro). Không ẩn header ở đây.
         delete html.dataset.headerHidden
-        const pastIntro = -rect.top >= rect.height - window.innerHeight - 2
-        if (!pastIntro || down || !html.dataset.header) html.dataset.header = 'hero'
-        else if (up) html.dataset.header = 'full'
-        else return // chưa đủ xa → giữ trạng thái và mốc cũ để cộng dồn
+        html.dataset.header = !html.hasAttribute('data-intro') && y > 8 ? 'full' : 'hero'
       } else {
         // Qua khỏi banner: cuộn xuống trượt khuất, cuộn lên hiện lại
         html.dataset.header = 'full'
@@ -59,6 +59,9 @@ export function useHomeHeader() {
     const onFocusIn = () => {
       delete html.dataset.headerHidden
     }
+    // IntroHero gỡ/đặt data-intro theo cuộn (có thể sau lượt rAF của ta) → theo dõi thuộc tính để header khớp mốc
+    const observer = new MutationObserver(onScroll)
+    observer.observe(html, { attributes: true, attributeFilter: ['data-intro'] })
 
     update()
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -67,6 +70,7 @@ export function useHomeHeader() {
 
     return () => {
       cancelAnimationFrame(frame)
+      observer.disconnect()
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
       header?.removeEventListener('focusin', onFocusIn)

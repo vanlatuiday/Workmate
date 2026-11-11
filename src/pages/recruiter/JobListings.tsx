@@ -23,7 +23,7 @@ const COMBINED_LABEL: Record<Combined, string> = {
   attention: 'Cần xử lý',
 }
 const TABS: Tab[] = ['all', 'open', 'paused', 'closed', 'pending', 'attention']
-const TONE = { open: 'strong', paused: 'default', closed: 'muted', pending: 'muted', attention: 'default' } as const
+const TONE = { open: 'accent', paused: 'warning', closed: 'muted', pending: 'muted', attention: 'danger' } as const
 
 const combinedOf = (r: CompanyJobRow): Combined =>
   r.status === 'pending' ? 'pending' : r.status === 'approved' ? r.jobStatus : 'attention'
@@ -194,7 +194,7 @@ export default function JobListings() {
       </div>
 
       {/* Giữ sẵn chỗ một dòng để thông báo xuất hiện không đẩy bảng xuống */}
-      <p ref={noticeRef} tabIndex={-1} role="status" className="-mt-2 min-h-5 text-sm text-page-muted focus:outline-none">{notice}</p>
+      <p ref={noticeRef} tabIndex={-1} role="status" className="text-sm text-page-muted focus:outline-none empty:sr-only">{notice}</p>
 
       {shown.length === 0 ? (
         <EmptyState

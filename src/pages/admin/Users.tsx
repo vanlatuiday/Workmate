@@ -17,7 +17,7 @@ const BTN_PRIMARY =
 
 type UserStatus = AdminUser['status']
 
-const STATUS_TONE: Record<UserStatus, 'strong' | 'default'> = { active: 'default', locked: 'strong' }
+const STATUS_TONE: Record<UserStatus, 'accent' | 'danger'> = { active: 'accent', locked: 'danger' }
 const USER_STATUS_LABELS: Record<UserStatus, string> = { active: 'Hoạt động', locked: 'Đã khóa' }
 const joinedAt = (u: AdminUser) => new Date(u.createdAt).toLocaleDateString('vi-VN')
 

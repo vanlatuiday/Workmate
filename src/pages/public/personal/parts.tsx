@@ -119,3 +119,21 @@ export function ActionNote({ children }: { children: ReactNode }) {
 export function Actions({ children }: { children: ReactNode }) {
   return <div className="flex flex-wrap items-center gap-x-5 gap-y-3">{children}</div>
 }
+
+/** Rút gọn câu dài để làm chú thích dưới tem (cắt ở ranh giới từ) */
+export function snippet(text: string, max = 90) {
+  const t = text.replace(/\s+/g, ' ').trim()
+  if (t.length <= max) return t
+  return `${t.slice(0, max).replace(/\s+\S*$/, '')}…`
+}
+
+/** Hành động cuối trang Cá nhân, theo vai trò (các nút do view truyền vào) */
+export function PageActions({ children }: { children: ReactNode }) {
+  return (
+    <div className="shell pb-section-sm">
+      <div className="border-t border-page-line pt-8">
+        <Actions>{children}</Actions>
+      </div>
+    </div>
+  )
+}

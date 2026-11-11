@@ -10,6 +10,7 @@ import { scoreMatch } from '@pages/public/match/score'
 import { findAnyJob } from '@pages/public/jobs/lookup'
 import { fmtSlot, MODE_LABEL } from '@components/interview/format'
 import PlaceText from '@components/interview/PlaceText'
+import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { candidateHref } from '@pages/public/personal/links'
 
@@ -18,13 +19,13 @@ const LINK = `underline-offset-4 hover:underline text-page-fg rounded-control ${
 const DAY_MS = 86_400_000
 
 /** Nhãn + màu huy hiệu của một tin (kiểm duyệt thắng trạng thái đăng tuyển) */
-function badgeOf(r: CompanyJobRow): { label: string; tone: 'strong' | 'default' | 'muted' } {
+function badgeOf(r: CompanyJobRow): { label: string; tone: 'accent' | 'warning' | 'danger' | 'muted' } {
   if (r.status === 'pending') return { label: 'Chờ duyệt', tone: 'muted' }
-  if (r.status === 'rejected') return { label: 'Bị từ chối', tone: 'default' }
-  if (r.status === 'hidden') return { label: 'Bị ẩn', tone: 'default' }
-  if (r.jobStatus === 'paused') return { label: 'Tạm dừng', tone: 'default' }
+  if (r.status === 'rejected') return { label: 'Bị từ chối', tone: 'danger' }
+  if (r.status === 'hidden') return { label: 'Bị ẩn', tone: 'danger' }
+  if (r.jobStatus === 'paused') return { label: 'Tạm dừng', tone: 'warning' }
   if (r.jobStatus === 'closed') return { label: 'Đã đóng', tone: 'muted' }
-  return { label: 'Đang mở', tone: 'strong' }
+  return { label: 'Đang mở', tone: 'accent' }
 }
 
 export default function RecruiterDashboard() {
@@ -87,8 +88,8 @@ export default function RecruiterDashboard() {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Tin đang mở" value={openRows.length} icon={Briefcase} href="/tuyen-dung/tin-dang" hint={`Trên tổng ${rows.length} tin`} />
-        <StatCard label="Ứng viên phù hợp" value={fitTotal} icon={UserCheck} href="/match" hint="Điểm từ 60%, trên các tin đang mở" />
+        <StatCard label="Tin đang mở" value={openRows.length} icon={Briefcase} href="/tuyen-dung/tin-dang" hint={`Trên tổng ${rows.length} tin`} emptyAction={{ text: 'Chưa có tin đang mở', label: 'Đăng tin tuyển dụng', href: '/dang-tin' }} />
+        <StatCard label="Ứng viên phù hợp" value={fitTotal} icon={UserCheck} href="/match" hint="Điểm từ 60%, trên các tin đang mở" emptyAction={{ text: 'Chưa có ứng viên phù hợp', label: 'Tìm ứng viên', href: '/tuyen-dung/tim-ung-vien' }} />
         <StatCard label="Kết nối" value={connectedTotal} icon={Handshake} href="/tuyen-dung/match" hint={working > 0 ? `${working} người đã đi làm` : 'Hai bên cùng quan tâm'} />
         <StatCard
           label="Phỏng vấn 7 ngày tới"
@@ -96,6 +97,7 @@ export default function RecruiterDashboard() {
           icon={CalendarClock}
           href="/lich-phong-van"
           hint={pendingCount > 0 ? `${pendingCount} lời mời chờ ứng viên chọn giờ` : undefined}
+          emptyAction={{ text: 'Chưa có lịch', label: 'Xem ứng viên đã kết nối', href: '/tuyen-dung/match' }}
         />
       </div>
 
@@ -121,7 +123,7 @@ export default function RecruiterDashboard() {
                     {c.name.charAt(0)}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <Link to={candidateHref(c.id)} className="block truncate text-sm font-medium text-page-fg underline-offset-4 hover:underline">{c.name}</Link>
+                    <Link to={candidateHref(c.id)} className={cn('rounded-control block truncate text-sm font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>{c.name}</Link>
                     <p className="truncate text-xs text-page-muted">{job.title}</p>
                   </div>
                   <MatchScore score={score} size="sm" />

@@ -70,10 +70,10 @@ export default function UrgentJobsSection() {
 
   const arrow =
     'hidden sm:inline-flex h-11 w-11 items-center justify-center rounded-full border border-page-line text-page-fg ' +
-    'transition-colors duration-300 hover:border-page-fg disabled:opacity-40 disabled:pointer-events-none'
+    'transition-[border-color,transform] duration-300 hover:border-page-fg active:scale-[0.97] motion-reduce:active:scale-100 disabled:opacity-40 disabled:pointer-events-none'
 
   return (
-    <section ref={ref} data-theme="charcoal" className="relative z-10 shell pt-section-sm pb-10 md:pb-14" aria-labelledby="home-urgent-title">
+    <section ref={ref} data-theme="night" className="relative z-10 shell pt-section-sm pb-10 md:pb-14" aria-labelledby="home-urgent-title">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
         <div>
           <TextReveal
@@ -89,7 +89,8 @@ export default function UrgentJobsSection() {
         <div className="flex items-center gap-3">
           <Link
             to={copy.all.href}
-            className="group inline-flex min-h-11 items-center gap-2 text-sm font-medium text-page-fg"
+            className="group inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-6 text-sm font-semibold text-accent-fg
+                       transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100"
           >
             {copy.all.label}
             <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-editorial group-hover:translate-x-1" aria-hidden />

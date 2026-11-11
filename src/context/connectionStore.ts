@@ -136,6 +136,8 @@ export interface ConversationSummary extends Connection {
   peer: { name: string; avatarUrl?: string | null; companyId?: string }
   last?: Message
   unread: number
+  /** Lúc phía kia đọc tin gần nhất của cuộc trò chuyện (ISO); null/không có = chưa đọc */
+  peerReadAt?: string | null
 }
 
 interface ConnectionState {

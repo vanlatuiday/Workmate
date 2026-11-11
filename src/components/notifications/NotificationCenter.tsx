@@ -151,7 +151,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
             aria-label={unread > 0 ? `Thông báo, ${unread} chưa đọc` : 'Thông báo'}
             style={{ touchAction: 'none', width: SIZE, height: SIZE }}
             className={cn(
-              'flex cursor-grab items-center justify-center rounded-full bg-page-fg text-page-bg ring-1 ring-wm-ivory/40 active:cursor-grabbing',
+              'flex cursor-grab items-center justify-center rounded-full bg-page-fg text-page-bg ring-1 ring-wm-ivory/40 hover:ring-2 hover:ring-wm-ivory/70 active:cursor-grabbing',
               'transition-transform duration-200 hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100',
               FOCUS,
             )}
@@ -161,7 +161,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
           {unread > 0 && (
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-page-fg bg-page-bg px-1 text-xs font-medium text-page-fg"
+              className="pointer-events-none absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border border-page-fg bg-page-bg px-1 text-xs font-medium text-page-fg"
             >
               {unread > 99 ? '99+' : unread}
             </span>
@@ -191,7 +191,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
           data-lenis-prevent
           style={{ transition: reduced ? 'none' : open ? PANEL_OPEN : PANEL_CLOSE }}
           className={cn(
-            'theme-ivory flex max-h-full w-full flex-col overflow-hidden rounded-card border border-page-line bg-page-bg text-page-fg outline-none will-change-transform',
+            'theme-ivory flex max-h-full w-full flex-col overflow-hidden rounded-md border border-page-line bg-page-bg text-page-fg outline-none will-change-transform',
             'sm:max-h-[70vh] sm:w-[380px]',
             open ? 'pointer-events-auto visible scale-100 opacity-100' : 'invisible scale-[0.15] opacity-0',
           )}
@@ -207,7 +207,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
                 type="button"
                 onClick={closeCenter}
                 aria-label="Đóng thông báo"
-                className={cn('rounded-full border border-page-line p-3 text-page-fg transition-colors duration-300 hover:border-page-fg', FOCUS)}
+                className={cn('rounded-full border border-page-line p-3 text-page-fg transition-colors duration-300 hover:border-page-fg hover:bg-page-surface', FOCUS)}
               >
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>

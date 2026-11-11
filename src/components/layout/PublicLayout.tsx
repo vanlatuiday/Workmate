@@ -97,7 +97,7 @@ export default function PublicLayout() {
   const dark = location.pathname === '/'
   // Rời trang chủ: header vừa đổi từ nền tối của trang chủ sang theme ngà. Nếu bật transition ngay thì
   // header tối dần sang ngà ~0,4s trên trang sáng → tắt transition ở lần vẽ đầu, bật lại sau 2 khung hình.
-  // Đổi giữa các trang khác (ngà ↔ than chì ở /ca-nhan) vẫn chuyển màu dần như cũ.
+  // Đổi giữa các trang khác (trang chủ ↔ trang khác) vẫn chuyển màu dần như cũ.
   const [themeAnim, setThemeAnim] = useState(!dark)
   useEffect(() => {
     if (dark) {
@@ -115,8 +115,8 @@ export default function PublicLayout() {
   }, [dark])
   // Đăng nhập / Đăng ký / Quên mật khẩu: toàn màn hình — ẩn header và footer, chỉ giữ logo nhỏ để về trang chủ
   const bare = isAuthPath(location.pathname)
-  // Trang Cá nhân là "mặt bàn" tối → header/footer tối theo cho liền mạch
-  const chrome = location.pathname === '/ca-nhan' ? 'theme-charcoal' : 'theme-ivory'
+  // Mọi trang (kể cả /ca-nhan) dùng chrome ngà; chỉ trang chủ có header tối riêng
+  const chrome = 'theme-ivory'
 
   // Đóng mọi menu khi chuyển trang
   useEffect(() => {
@@ -148,7 +148,7 @@ export default function PublicLayout() {
   return (
     // Nền khung theo màu trang đang mở: header kính trong suốt một phần nên lộ nền phía sau nó.
     // Không gắn class theme lên khung (theme đổi biến --page-* cho cả trang cũ đang mờ dần), chỉ đổi màu nền.
-    <div className={cn('min-h-screen flex flex-col', dark ? 'bg-page-bg' : chrome === 'theme-charcoal' ? 'bg-wm-charcoal' : 'bg-wm-ivory')}>
+    <div className={cn('min-h-screen flex flex-col', dark ? 'bg-page-bg' : 'bg-wm-ivory')}>
       {bare ? (
         <Link
           to="/"

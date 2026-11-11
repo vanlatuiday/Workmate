@@ -1,14 +1,14 @@
 import { useRef, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Building2, Lock, Search, ShieldCheck, User } from 'lucide-react'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Building2, Lock, Mail, Search, ShieldCheck } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { DEMO_ACCOUNTS } from '@constants/demoAccounts'
 import { apiErrorMessage, authService } from '@services/authService'
 import { canVisit } from '@constants/roles'
 import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
-import { AuthField, ErrorBox, Item, ShowPassButton, Stagger, SubmitButton, TEXT_LINK } from './shared'
-import { AUTH_PATHS, useFocusFirst, type AuthFormProps } from './authShared'
+import { AuthField, ErrorBox, Item, RoleSwitch, ShowPassButton, Stagger, SubmitButton, TEXT_LINK, type AuthRole } from './shared'
+import { AUTH_PATHS, loginEmailError, useFieldTouch, useFocusFirst, type AuthFormProps } from './authShared'
 
 /*
  * Đăng nhập — gọi backend thật (authService.login); chỉ còn 3 nút đăng nhập nhanh là của bản demo.
@@ -27,6 +27,9 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
   const prefill = navState?.username
   // Trang đang xem trước khi bị yêu cầu đăng nhập (ProtectedRoute gửi sang)
   const from = navState?.from
+  const [searchParams] = useSearchParams()
+  // Vai trò chỉ chọn nhánh giao diện (link đăng ký đi kèm vai trò); API đăng nhập không cần vai trò
+  const [role, setRole] = useState<AuthRole>(searchParams.get('role') === 'recruiter' ? 'recruiter' : 'jobseeker')
   const [form, setForm] = useState({ username: prefill ?? '', password: '' })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -35,13 +38,13 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
   const { setUser } = useAuthStore()
   const root = useRef<HTMLDivElement>(null)
   useFocusFirst(root, focus)
+  const { touch, show, submit } = useFieldTouch(root)
+  const userErr = loginEmailError(form.username)
+  const passErr = form.password ? undefined : 'Vui lòng nhập mật khẩu'
 
   const login = async (username: string, password: string) => {
-    if (!username.trim() || !password) {
-      setError('Nhập tên đăng nhập và mật khẩu')
-      shake()
-      return
-    }
+    // Đăng nhập nhanh (demo) đi thẳng, đã có giá trị hợp lệ
+    if (!username.trim() || !password) return
     setError('')
     setLoading(true)
     let res
@@ -63,6 +66,11 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (loading) return
+    if (submit([{ id: 'login-username', error: userErr }, { id: 'login-password', error: passErr }])) {
+      setError('')
+      shake()
+      return
+    }
     void login(form.username, form.password)
   }
 
@@ -80,19 +88,26 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
           <h1 className="font-display text-3xl font-semibold text-page-fg">Đăng nhập</h1>
         </Item>
 
-        <form onSubmit={handleSubmit} className="mt-5 space-y-3" noValidate>
+        <Item className="mt-4">
+          <RoleSwitch value={role} onChange={setRole} />
+        </Item>
+
+        <form onSubmit={handleSubmit} className="mt-3 space-y-3" noValidate>
           {error && <Item><ErrorBox message={error} /></Item>}
 
           <Item>
             <AuthField
               id="login-username"
-              label="Tên đăng nhập"
-              icon={User}
+              label="Email"
+              icon={Mail}
               type="text"
+              inputMode="email"
               autoComplete="username"
               required
               value={form.username}
               onChange={(username) => setForm({ ...form, username })}
+              onBlur={() => touch('login-username')}
+              error={show('login-username', userErr)}
             />
           </Item>
 
@@ -106,6 +121,8 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
               required
               value={form.password}
               onChange={(password) => setForm({ ...form, password })}
+              onBlur={() => touch('login-password')}
+              error={show('login-password', passErr)}
               trailing={<ShowPassButton shown={showPass} onToggle={() => setShowPass(!showPass)} />}
             />
             <div className="mt-1 flex justify-end">
@@ -154,7 +171,7 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
         <Item className="mt-4">
           <p className="text-sm text-page-muted text-center">
             Chưa có tài khoản?{' '}
-            <Link to={AUTH_PATHS.register} state={location.state} className={TEXT_LINK}>Đăng ký</Link>
+            <Link to={`${AUTH_PATHS.register}?role=${role}`} state={location.state} className={TEXT_LINK}>Đăng ký</Link>
           </p>
         </Item>
       </div>

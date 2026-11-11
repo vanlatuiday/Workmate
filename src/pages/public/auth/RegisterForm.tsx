@@ -1,26 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Building2, Info, KeyRound, Lock, Mail, Search, User } from 'lucide-react'
+import { Info, KeyRound, Lock, Mail, User } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { useCatalogStore } from '@context/catalogStore'
 import { apiErrorMessage, authService } from '@services/authService'
-import { FOCUS } from '@utils/focus'
-import { cn } from '@utils/cn'
-import { AuthField, ErrorBox, Item, LINK_BTN, ShowPassButton, Stagger, SubmitButton, TEXT_LINK } from './shared'
-import { AUTH_PATHS, useFocusFirst, type AuthFormProps } from './authShared'
+import { AuthField, ErrorBox, Item, LINK_BTN, PasswordStrength, RoleSwitch, ShowPassButton, Stagger, SubmitButton, TEXT_LINK, type AuthRole } from './shared'
+import { AUTH_PATHS, confirmError, passwordMinError, registerEmailError, useFieldTouch, useFocusFirst, type AuthFormProps } from './authShared'
 
 /*
  * Đăng ký 2 bước: điền thông tin → nhập mã gửi về email. Đúng mã máy chủ mới tạo tài khoản và đăng nhập luôn.
  * Là nửa "form" của AuthPage.
  */
 const RESEND_SECONDS = 60
-type Role = 'jobseeker' | 'recruiter'
-
-const ROLES: { value: Role; label: string; icon: typeof Search }[] = [
-  { value: 'jobseeker', label: 'Tìm việc', icon: Search },
-  { value: 'recruiter', label: 'Tuyển dụng', icon: Building2 },
-]
+type Role = AuthRole
 
 export default function RegisterForm({ delay, focus, shake, leave }: AuthFormProps) {
   const location = useLocation()
@@ -44,6 +37,11 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
   // DEMO-ONLY: chỉ có trên máy cá nhân chưa cấu hình email, production không bao giờ có
   const [devCode, setDevCode] = useState('')
   useFocusFirst(root, focus || !!pendingEmail, pendingEmail)
+  const { touch, show, submit } = useFieldTouch(root)
+  const nameErr = form.fullName.trim() ? undefined : role === 'recruiter' ? 'Vui lòng nhập tên người liên hệ' : 'Vui lòng nhập họ và tên'
+  const emailErr = registerEmailError(form.email)
+  const passErr = passwordMinError(form.password)
+  const confirmErr = confirmError(form.confirm, form.password)
 
   // Đếm ngược để mở lại nút "Gửi lại mã"
   useEffect(() => {
@@ -58,8 +56,11 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (loading) return
-    if (form.password !== form.confirm) {
-      setError('Mật khẩu xác nhận không khớp.')
+    if (submit([
+      { id: 'reg-name', error: nameErr }, { id: 'reg-email', error: emailErr },
+      { id: 'reg-password', error: passErr }, { id: 'reg-confirm', error: confirmErr },
+    ])) {
+      setError('')
       shake()
       return
     }
@@ -200,31 +201,10 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
 
         {/* Chọn vai trò */}
         <Item className="mt-4">
-          <div role="radiogroup" aria-label="Bạn là ai?" className="flex gap-2">
-            {ROLES.map(({ value, label, icon: Icon }) => {
-              const active = role === value
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  onClick={() => setRole(value)}
-                  className={cn(
-                    'inline-flex flex-1 items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-colors duration-300',
-                    FOCUS,
-                    active ? 'border-page-fg bg-page-fg text-page-bg' : 'border-page-edge text-page-fg hover:border-page-fg',
-                  )}
-                >
-                  <Icon className="w-4 h-4" aria-hidden />
-                  {label}
-                </button>
-              )
-            })}
-          </div>
+          <RoleSwitch value={role} onChange={setRole} />
         </Item>
 
-        <form onSubmit={handleSubmit} className="mt-3 space-y-2">
+        <form onSubmit={handleSubmit} className="mt-3 space-y-2" noValidate>
           {error && <Item><ErrorBox message={error} /></Item>}
 
           <Item>
@@ -237,6 +217,8 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
               required
               value={form.fullName}
               onChange={(fullName) => setForm({ ...form, fullName })}
+              onBlur={() => touch('reg-name')}
+              error={show('reg-name', nameErr)}
             />
           </Item>
 
@@ -250,6 +232,8 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
               required
               value={form.email}
               onChange={(email) => setForm({ ...form, email })}
+              onBlur={() => touch('reg-email')}
+              error={show('reg-email', emailErr)}
             />
           </Item>
 
@@ -261,11 +245,13 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
               type={showPass ? 'text' : 'password'}
               autoComplete="new-password"
               required
-              minLength={8}
               value={form.password}
               onChange={(password) => setForm({ ...form, password })}
+              onBlur={() => touch('reg-password')}
+              error={show('reg-password', passErr)}
               trailing={<ShowPassButton shown={showPass} onToggle={() => setShowPass(!showPass)} />}
             />
+            <PasswordStrength password={form.password} />
           </Item>
 
           <Item>
@@ -278,6 +264,8 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
               required
               value={form.confirm}
               onChange={(confirm) => setForm({ ...form, confirm })}
+              onBlur={() => touch('reg-confirm')}
+              error={show('reg-confirm', confirmErr)}
             />
           </Item>
 

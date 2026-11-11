@@ -1,12 +1,14 @@
-// /nha-tuyen-dung — nội dung mẫu
+// /nha-tuyen-dung
 import { Link } from 'react-router-dom'
+import { CalendarCheck, Gauge, MessagesSquare, Zap } from 'lucide-react'
+import { useAuthStore } from '@context/authStore'
 import ContentPage, { CTA_PRIMARY, CTA_SECONDARY, CtaRow, Section, Steps } from './ContentPage'
 
 const BENEFITS = [
-  { title: 'Ứng viên đúng lịch', text: 'Chỉ thấy người có giờ rảnh khớp ca làm của bạn.' },
-  { title: 'Điểm phù hợp rõ ràng', text: 'Biết vì sao một ứng viên được gợi ý.' },
-  { title: 'Kết nối hai chiều', text: 'Chỉ trò chuyện khi cả hai bên đã đồng ý.' },
-  { title: 'Đăng tin nhanh', text: 'Tạo tin tuyển trong vài phút, không mất phí.' },
+  { icon: CalendarCheck, title: 'Ứng viên đúng lịch', text: 'Chỉ thấy người có giờ rảnh khớp ca làm của bạn.' },
+  { icon: Gauge, title: 'Điểm phù hợp rõ ràng', text: 'Biết vì sao một ứng viên được gợi ý.' },
+  { icon: MessagesSquare, title: 'Kết nối hai chiều', text: 'Chỉ trò chuyện khi cả hai bên đã đồng ý.' },
+  { icon: Zap, title: 'Đăng tin nhanh', text: 'Tạo tin tuyển trong vài phút, không mất phí.' },
 ]
 
 const STEPS = [
@@ -16,17 +18,20 @@ const STEPS = [
 ]
 
 export default function ForRecruitersPage() {
+  const user = useAuthStore((s) => s.user)
   return (
     <ContentPage
       eyebrow="Nhà tuyển dụng"
       title="Tìm đúng người cho ca làm của bạn."
-      intro="Nội dung mẫu — sẽ được chủ dự án viết lại."
     >
       <Section title="Lợi ích">
         <ul className="grid gap-4 sm:grid-cols-2">
           {BENEFITS.map((b) => (
-            <li key={b.title} className="rounded-card border border-page-line p-6">
-              <h3 className="font-display text-lg font-semibold text-page-fg">{b.title}</h3>
+            <li key={b.title} className="rounded-card border border-page-line p-6 transition-colors duration-300 hover:border-page-fg">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full border border-page-line text-page-fg">
+                <b.icon className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <h3 className="mt-4 font-display text-lg font-semibold text-page-fg">{b.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-page-muted">{b.text}</p>
             </li>
           ))}
@@ -36,8 +41,19 @@ export default function ForRecruitersPage() {
         <Steps items={STEPS} />
       </Section>
       <CtaRow>
-        <Link to="/dang-ky?role=recruiter" className={CTA_PRIMARY}>Đăng ký nhà tuyển dụng</Link>
-        <Link to="/dang-nhap" className={CTA_SECONDARY}>Đã có tài khoản? Đăng nhập</Link>
+        {!user ? (
+          <>
+            <Link to="/dang-ky?role=recruiter" className={CTA_PRIMARY}>Đăng ký nhà tuyển dụng</Link>
+            <Link to="/dang-nhap" className={CTA_SECONDARY}>Đã có tài khoản? Đăng nhập</Link>
+          </>
+        ) : user.role === 'recruiter' ? (
+          <>
+            <Link to="/dang-tin" className={CTA_PRIMARY}>Đăng tin</Link>
+            <Link to="/tuyen-dung" className={CTA_SECONDARY}>Vào khu tuyển dụng</Link>
+          </>
+        ) : (
+          <Link to="/" className={CTA_SECONDARY}>Về trang chủ</Link>
+        )}
       </CtaRow>
     </ContentPage>
   )

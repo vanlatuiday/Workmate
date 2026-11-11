@@ -42,10 +42,10 @@ export default function JobseekerDashboard() {
       />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Đã ứng tuyển" value={appliedCount} icon={ClipboardList} href="/tim-viec/ung-tuyen" />
-        <StatCard label="Việc đã lưu" value={savedCount} icon={Bookmark} href="/tim-viec/da-luu" />
-        <StatCard label="Kết nối" value={connectedCount} icon={Zap} href="/tim-viec/match" />
-        <StatCard label="Phỏng vấn sắp tới" value={upcoming} icon={CalendarCheck} href="/lich-phong-van" />
+        <StatCard label="Đã ứng tuyển" value={appliedCount} icon={ClipboardList} href="/tim-viec/ung-tuyen" emptyAction={{ text: 'Chưa ứng tuyển', label: 'Xem việc phù hợp', href: '/tim-viec/phu-hop' }} />
+        <StatCard label="Việc đã lưu" value={savedCount} icon={Bookmark} href="/tim-viec/da-luu" emptyAction={{ text: 'Chưa lưu việc nào', label: 'Khám phá việc làm', href: '/viec-lam' }} />
+        <StatCard label="Kết nối" value={connectedCount} icon={Zap} href="/tim-viec/match" emptyAction={{ text: 'Chưa có kết nối', label: 'Xem việc phù hợp', href: '/tim-viec/phu-hop' }} />
+        <StatCard label="Phỏng vấn sắp tới" value={upcoming} icon={CalendarCheck} href="/lich-phong-van" emptyAction={{ text: 'Chưa có lịch', label: 'Xem đơn ứng tuyển', href: '/tim-viec/ung-tuyen' }} />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
@@ -121,7 +121,7 @@ export default function JobseekerDashboard() {
                     <p className="font-medium text-page-fg">{info.subtitle}</p>
                     <p className="text-sm text-page-muted">{info.name} · {formatRelativeTime(p.at)}</p>
                   </div>
-                  <StatusBadge tone={p.status === 'connected' ? 'strong' : 'default'}>
+                  <StatusBadge tone={p.status === 'connected' ? 'accent' : p.status === 'sent' ? 'neutral' : 'soft'}>
                     {p.status === 'connected' ? 'Đã kết nối' : p.status === 'sent' ? 'Chờ phản hồi' : 'Doanh nghiệp quan tâm bạn'}
                   </StatusBadge>
                 </li>

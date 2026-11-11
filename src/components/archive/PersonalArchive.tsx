@@ -10,17 +10,17 @@ import type { ArchiveEntry } from './types'
 import { FOCUS } from '@utils/focus'
 
 /**
- * Vị trí từng tấm ảnh trên "mặt bàn" (desktop lg+: lưới 12 cột, lệch có chủ đích;
- * md: 2 cột so le; mobile: một cột). Nhịp: lớn trái → nhỏ phải thấp hơn → … để mắt đi zíc-zắc.
+ * Vị trí từng tấm ảnh trên "mặt bàn" (lg+: 3 cột đều trên lưới 12 cột; md: 2 cột; mobile: một cột).
+ * Mọi tem cùng tỉ lệ 4/5, nghiêng xen kẽ ±2–2,5° cho tự nhiên.
  * `speed` = độ trôi parallax (yPercent) khi cuộn, âm = trôi lên nhanh hơn.
  */
 const SLOTS = [
-  { cls: 'lg:col-start-1 lg:col-span-5', tilt: -2, aspect: 'aspect-[4/5]', speed: -6 },
-  { cls: 'lg:col-start-7 lg:col-span-4 md:mt-24 lg:mt-36', tilt: 2.2, aspect: 'aspect-[4/3]', speed: 4 },
-  { cls: 'lg:col-start-3 lg:col-span-4 lg:-mt-6', tilt: 1.2, aspect: 'aspect-square', speed: -3 },
-  { cls: 'lg:col-start-8 lg:col-span-5 md:mt-24 lg:mt-28', tilt: -1.6, aspect: 'aspect-[3/2]', speed: 5 },
-  { cls: 'lg:col-start-1 lg:col-span-4 lg:mt-10', tilt: -1, aspect: 'aspect-[3/4]', speed: -4 },
-  { cls: 'lg:col-start-6 lg:col-span-5 md:mt-24 lg:mt-32', tilt: 1.8, aspect: 'aspect-[4/3]', speed: 3 },
+  { cls: 'lg:col-span-4', tilt: -2, aspect: 'aspect-[4/5]', speed: 0 },
+  { cls: 'lg:col-span-4', tilt: 2, aspect: 'aspect-[4/5]', speed: 0 },
+  { cls: 'lg:col-span-4', tilt: -2.5, aspect: 'aspect-[4/5]', speed: 0 },
+  { cls: 'lg:col-span-4', tilt: 2.5, aspect: 'aspect-[4/5]', speed: 0 },
+  { cls: 'lg:col-span-4', tilt: 2, aspect: 'aspect-[4/5]', speed: 0 },
+  { cls: 'lg:col-span-4', tilt: -2, aspect: 'aspect-[4/5]', speed: 0 },
 ] as const
 
 type Props = {
@@ -158,6 +158,8 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
     [activeCenter, reduced],
   )
 
+  // Số cột phải chia hết số tem: 2 hoặc 4 tem → lưới 2 cột (2×2) thay vì 3 cột làm tem cuối lẻ loi
+  const twoCols = entries.length === 2 || entries.length === 4
   return (
     <section ref={rootRef} aria-label={label} className="shell relative pb-section">
       <DeskRipple ref={rippleRef} />
@@ -174,7 +176,7 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
           </button>
         </div>
       )}
-      <ul className="mt-6 grid gap-14 md:mt-8 md:grid-cols-2 md:gap-x-10 md:gap-y-12 lg:grid-cols-12 lg:gap-x-8 lg:gap-y-0">
+      <ul className={cn('mt-6 grid gap-12 md:mt-8 md:grid-cols-2 md:gap-x-10 md:gap-y-14 lg:grid-cols-12 lg:gap-x-8 lg:gap-y-16', twoCols && 'lg:mx-auto lg:max-w-4xl')}>
         {entries.map((entry, i) => {
           const slot = SLOTS[i % SLOTS.length]
           return (
@@ -183,7 +185,7 @@ export default function PersonalArchive({ entries, label, eyebrow, themeClass = 
               data-archive-item
               data-id={entry.id}
               data-speed={slot.speed}
-              className={cn('relative', slot.cls, i % 2 === 1 && 'md:mt-24')}
+              className={cn('relative', twoCols ? 'lg:col-span-6' : slot.cls)}
             >
               <div data-parallax>
                 <div data-recede>

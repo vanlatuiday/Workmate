@@ -14,7 +14,8 @@ const toJobs = (f: Parameters<typeof filtersToParams>[0]) => `/viec-lam?${filter
 
 const chip =
   'inline-flex min-h-11 items-center rounded-full border border-page-line px-4 text-sm text-page-muted ' +
-  'transition-colors duration-300 hover:border-page-fg hover:text-page-fg'
+  'transition-[color,border-color,transform] duration-300 hover:border-page-fg hover:text-page-fg focus-visible:border-page-fg focus-visible:text-page-fg ' +
+  'active:scale-[0.97] motion-reduce:active:scale-100'
 
 const CANDIDATES_HREF = '/tuyen-dung/tim-ung-vien'
 
@@ -109,10 +110,10 @@ export default function ExploreSection() {
                            group-hover:scale-[1.04] group-focus-visible:scale-[1.04]
                            motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-focus-visible:scale-100"
               />
-              <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-wm-charcoal/85 via-wm-charcoal/20 to-transparent" />
+              <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-wm-night/85 via-wm-night/20 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-4 text-wm-ivory">
                 <p className="font-display text-xl font-medium leading-tight">{tile.label}</p>
-                <p className="mt-1 text-sm text-wm-mist">{tile.count} {unit}</p>
+                <p className="mt-1 text-sm text-wm-mist"><span className="tnum font-semibold">{tile.count}</span> {unit}</p>
               </div>
             </Link>
           </li>

@@ -305,10 +305,10 @@ export default function StreetSceneSection() {
 
   return (
     // Nền theo hiệu ứng đổi màu của cả trang (liền mạch, không thành dải cắt ngang).
-    // Cùng theme than chì với banner và Việc gấp nên không phải điểm giao; sang ngà do FeatureBlocksSection lo.
+    // Cùng theme đen ấm (night) với banner và Việc gấp nên không phải điểm giao; sang ngà do FeatureBlocksSection lo.
     <section
       ref={ref}
-      data-theme="charcoal"
+      data-theme="night"
       className="relative z-10 py-10 md:py-14"
     >
       <div className="shell">

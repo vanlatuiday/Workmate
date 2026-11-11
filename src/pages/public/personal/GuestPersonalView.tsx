@@ -2,7 +2,7 @@ import PersonalArchive from '@components/archive/PersonalArchive'
 import type { ArchiveEntry } from '@components/archive/types'
 import { SampleNote } from '@components/discover/parts'
 import PersonalIntro from './PersonalIntro'
-import { ActionNote, ActionPrimary, ActionText, Actions, PlainList, Section, WeekGrid } from './parts'
+import { ActionNote, ActionPrimary, ActionText, Actions, PageActions, PlainList, Section, WeekGrid } from './parts'
 
 /** Ví dụ lưới tuần cho khách: vài buổi tối và cuối tuần */
 const SAMPLE = new Set(['0-2', '2-2', '5-0', '6-1'])
@@ -29,7 +29,7 @@ function buildGuestEntries(admin: boolean): ArchiveEntry[] {
       id: 'cau-chuyen',
       number: '01',
       title: 'Câu chuyện của bạn',
-      caption: 'Một người đang viết: hồ sơ bắt đầu từ vài dòng về chính bạn.',
+      caption: 'Hồ sơ bắt đầu từ vài dòng về chính bạn.',
       photo: { id: '1434030216411-0b793f4b4173', alt: 'Người đang viết tay vào cuốn sổ trên bàn gỗ' },
       cursor: 'Mở',
       content: (
@@ -51,7 +51,7 @@ function buildGuestEntries(admin: boolean): ArchiveEntry[] {
       id: 'dieu-co-the-lam',
       number: '02',
       title: 'Điều bạn có thể làm',
-      caption: 'Giá dụng cụ gọn gàng: mỗi kỹ năng là một món bạn có thể cầm lên làm.',
+      caption: 'Mỗi kỹ năng là một việc bạn có thể nhận.',
       photo: { id: '1530124566582-a618bc2615dc', alt: 'Giá treo dụng cụ làm việc xếp ngay ngắn' },
       cursor: 'Mở',
       content: (
@@ -73,7 +73,7 @@ function buildGuestEntries(admin: boolean): ArchiveEntry[] {
       id: 'nhip-song',
       number: '03',
       title: 'Nhịp sống của bạn',
-      caption: 'Đồng hồ cát: thời gian rảnh của bạn được tính theo từng buổi.',
+      caption: 'Thời gian rảnh được tính theo từng buổi.',
       photo: { id: '1501139083538-0139583c060f', alt: 'Chiếc đồng hồ cát đặt trên mặt bàn' },
       cursor: 'Mở',
       content: (
@@ -96,7 +96,7 @@ function buildGuestEntries(admin: boolean): ArchiveEntry[] {
       id: 'co-hoi',
       number: '04',
       title: 'Cơ hội dành cho bạn',
-      caption: 'Một nhóm đang họp: hồ sơ đầy đủ là bước đầu để hai bên gặp nhau.',
+      caption: 'Hồ sơ đầy đủ là bước đầu để hai bên gặp nhau.',
       photo: { id: '1521737604893-d14cc237f11d', alt: 'Nhóm người cùng họp quanh một chiếc bàn' },
       cursor: 'Mở',
       content: (
@@ -133,6 +133,12 @@ export default function GuestPersonalView({ admin }: { admin: boolean }) {
           />
         }
       />
+      {!admin && (
+        <PageActions>
+          <ActionPrimary to="/dang-ky">Đăng ký</ActionPrimary>
+          <ActionText to="/dang-nhap">Đăng nhập</ActionText>
+        </PageActions>
+      )}
       <SampleNote>Nội dung trên trang này là giới thiệu chung, chưa có dữ liệu của ai. Ảnh minh họa từ Unsplash.</SampleNote>
     </>
   )

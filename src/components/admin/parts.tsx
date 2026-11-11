@@ -22,11 +22,12 @@ export const STATUS_LABEL: Record<ModerationStatus, string> = {
   rejected: 'Bị từ chối',
   hidden: 'Bị ẩn',
 }
-export const STATUS_TONE: Record<ModerationStatus, 'strong' | 'default' | 'muted'> = {
-  pending: 'strong',
-  approved: 'default',
-  rejected: 'muted',
-  hidden: 'muted',
+export const STATUS_TONE: Record<ModerationStatus, 'neutral' | 'accent' | 'danger'> = {
+  // Quy ước admin: chờ = xám, đã duyệt/đang mở = accent, từ chối/ẩn/khóa = danger
+  pending: 'neutral',
+  approved: 'accent',
+  rejected: 'danger',
+  hidden: 'danger',
 }
 
 /** Nhãn trạng thái kiểm duyệt của một tin (kèm "Công ty bị khóa" nếu có) */
@@ -37,7 +38,7 @@ export function JobStatusBadges({ row }: { row: AdminJobRow }) {
       <StatusBadge tone={STATUS_TONE[row.status]}>
         {row.status === 'approved' && row.jobStatus !== 'open' ? 'Đã duyệt' : STATUS_LABEL[row.status]}
       </StatusBadge>
-      {row.companyLocked && <StatusBadge tone="strong">Công ty bị khóa</StatusBadge>}
+      {row.companyLocked && <StatusBadge tone="danger">Công ty bị khóa</StatusBadge>}
       {row.jobStatus !== 'open' && <StatusBadge tone="muted">{row.jobStatus === 'paused' ? 'NTD tạm dừng' : 'NTD đã đóng'}</StatusBadge>}
     </span>
   )

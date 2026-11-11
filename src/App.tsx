@@ -90,6 +90,10 @@ export default function App() {
   // Danh mục tin / công ty / cấu hình theo người đang xem: nạp khi mở web và nạp lại mỗi khi đăng nhập/đăng xuất/đổi tài khoản
   const userId = useAuthStore((s) => s.user?.id)
   const role = useAuthStore((s) => s.user?.role)
+  // Màu nhấn theo vai trò (tokens.json → roles): người tìm việc xanh lá, còn lại cam
+  useEffect(() => {
+    document.documentElement.dataset.role = role === 'jobseeker' ? 'seeker' : 'default'
+  }, [role])
   useEffect(() => {
     void loadCatalog(role === 'admin')
     // Hồ sơ người tìm việc: nạp từ máy chủ; khách / tài khoản khác → hồ sơ mẫu trên máy

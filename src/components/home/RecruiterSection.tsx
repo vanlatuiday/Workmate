@@ -47,7 +47,7 @@ export default function RecruiterSection() {
 
   return (
     <section ref={ref} data-theme="ivory" className="relative z-10 shell pb-section" aria-labelledby="home-recruiter-title">
-      <div ref={panelRef} className="grid overflow-hidden rounded-card bg-wm-charcoal text-wm-ivory md:grid-cols-2">
+      <div ref={panelRef} className="grid overflow-hidden rounded-card bg-wm-night text-wm-ivory md:grid-cols-2">
         <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-16">
           <TextReveal
             id="home-recruiter-title"
@@ -58,8 +58,8 @@ export default function RecruiterSection() {
           <Magnetic className="mt-8 self-start">
           <Link
             to={copy.cta.href}
-            className="group inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-wm-ivory px-8 py-3.5 text-sm font-medium
-                       text-wm-charcoal transition-opacity duration-300 hover:opacity-90"
+            className="group inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-accent px-8 py-3.5 text-sm font-semibold
+                       text-accent-fg transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100"
           >
             <RollText>{copy.cta.label}</RollText>
             <ArrowUpRight className="h-4 w-4" aria-hidden />

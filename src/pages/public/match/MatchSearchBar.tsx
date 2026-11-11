@@ -390,7 +390,7 @@ export function FilterMenu({
         <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-300 motion-reduce:transition-none', open && 'rotate-180')} aria-hidden="true" />
       </button>
 
-      {/* Đóng: invisible (rút khỏi thứ tự Tab) + mờ đi */}
+      {/* Đóng: display:none (rút khỏi thứ tự Tab, không kéo rộng trang) */}
       <div
         ref={popRef}
         id={id}
@@ -399,7 +399,7 @@ export function FilterMenu({
           glass ? 'bottom-full mb-2 origin-bottom lg:bottom-auto lg:top-full lg:mb-0 lg:mt-2 lg:origin-top' : 'top-full mt-2 origin-top',
           alignRight ? 'right-0' : 'left-0',
           'transition-[opacity,transform,visibility] duration-200 motion-reduce:transition-none',
-          open ? 'visible scale-100 opacity-100' : 'invisible pointer-events-none scale-95 opacity-0',
+          open ? 'visible scale-100 opacity-100' : 'hidden', // display:none khi đóng để không kéo rộng trang
         )}
       >
         <ul>

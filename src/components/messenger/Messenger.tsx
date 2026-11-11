@@ -120,7 +120,9 @@ function MessengerInner({ viewer }: { viewer: Side }) {
   useEffect(() => {
     if (open) {
       wasOpen.current = true
-      const id = window.setTimeout(() => closeRef.current?.focus(), 60)
+      // Mở bằng bàn phím → focus nút X (có vòng focus); mở bằng chuột/chạm → focus khung (không vòng)
+      const byKeyboard = !!launcherRef.current?.matches(':focus-visible')
+      const id = window.setTimeout(() => (byKeyboard ? closeRef.current : panelRef.current)?.focus({ preventScroll: true }), 60)
       return () => window.clearTimeout(id)
     }
     if (wasOpen.current) {
@@ -171,7 +173,7 @@ function MessengerInner({ viewer }: { viewer: Side }) {
             style={{ touchAction: 'none', width: SIZE, height: SIZE }}
             className={cn(
               // Viền ngà mờ: tách nút khỏi nền tối (trang chủ, dashboard kính); trên nền ngà thì gần như không thấy
-              'flex cursor-grab items-center justify-center rounded-full bg-page-fg text-page-bg ring-1 ring-wm-ivory/40 active:cursor-grabbing',
+              'flex cursor-grab items-center justify-center rounded-full bg-page-fg text-page-bg ring-1 ring-wm-ivory/40 hover:ring-2 hover:ring-wm-ivory/70 active:cursor-grabbing',
               'transition-transform duration-200 hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100',
               FOCUS,
             )}
@@ -181,7 +183,7 @@ function MessengerInner({ viewer }: { viewer: Side }) {
           {unread > 0 && (
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-page-fg bg-page-bg px-1 text-xs font-medium text-page-fg"
+              className="pointer-events-none absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border border-page-fg bg-page-bg px-1 text-xs font-medium text-page-fg"
             >
               {unread > 99 ? '99+' : unread}
             </span>
@@ -200,8 +202,8 @@ function MessengerInner({ viewer }: { viewer: Side }) {
         )}
       />
 
-      {/* Khung chat: giữa màn hình (mobile gần kín màn hình) */}
-      <div ref={wrapRef} className="pointer-events-none fixed inset-3 z-[85] flex items-center justify-center sm:inset-0">
+      {/* Khung chat: giữa màn hình; dưới md (<768px) phủ kín màn hình, không bo góc */}
+      <div ref={wrapRef} className="pointer-events-none fixed inset-0 z-[85] flex items-center justify-center">
         <div
           ref={panelRef}
           role="dialog"
@@ -212,8 +214,8 @@ function MessengerInner({ viewer }: { viewer: Side }) {
           data-lenis-prevent
           style={{ transition: reduced ? 'none' : open ? PANEL_OPEN : PANEL_CLOSE }}
           className={cn(
-            'theme-ivory flex h-full w-full flex-col overflow-hidden rounded-card border border-page-line bg-page-bg text-page-fg outline-none will-change-transform',
-            'sm:h-[min(640px,calc(100svh-2rem))] sm:w-[min(880px,calc(100vw-2rem))] md:w-[min(880px,calc(100vw-4rem))]',
+            'theme-ivory flex h-full w-full flex-col overflow-hidden bg-page-bg text-page-fg outline-none will-change-transform',
+            'md:h-[min(760px,85dvh)] md:w-[min(880px,calc(100vw-4rem))] md:rounded-lg md:border md:border-page-line',
             open ? 'pointer-events-auto visible scale-100 opacity-100' : 'invisible scale-[0.15] opacity-0',
           )}
         >
@@ -221,20 +223,20 @@ function MessengerInner({ viewer }: { viewer: Side }) {
             className={cn('flex min-h-0 flex-1 flex-col', open ? 'opacity-100' : 'opacity-0')}
             style={{ transition: reduced ? 'none' : open ? CONTENT_OPEN : CONTENT_CLOSE }}
           >
-          <div className="flex items-center justify-between gap-4 px-4 pb-2 pt-4 md:px-6 md:pt-5">
+          <div className="flex items-center justify-between gap-4 px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))] md:px-6 md:pt-5">
             <h2 className="font-display text-xl font-semibold text-page-fg">Tin nhắn</h2>
             <button
               ref={closeRef}
               type="button"
               onClick={closeMessenger}
               aria-label="Đóng tin nhắn"
-              className={cn('rounded-full border border-page-line p-3 text-page-fg transition-colors duration-300 hover:border-page-fg', FOCUS)}
+              className={cn('rounded-full border border-page-line p-3 text-page-fg transition-colors duration-300 hover:border-page-fg hover:bg-page-surface', FOCUS)}
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
           {/* Hẹp: một cột (danh sách → chat → quay lại). Từ md: hai cột như trang tin nhắn cũ. */}
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 px-4 pb-4 pt-2 md:grid-cols-[300px_minmax(0,1fr)] md:px-6 md:pb-6">
+          <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2 md:grid-cols-[300px_minmax(0,1fr)] md:px-6 md:pb-6">
             <div className={cn('min-h-0', active ? 'hidden md:block' : 'block')}>
               <ConversationList viewer={viewer} conversations={conversations} activeKey={shown?.key ?? null} onSelect={(c) => setActiveKey(c.key)} />
             </div>

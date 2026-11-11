@@ -11,6 +11,7 @@ import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { formatHourlyFromK } from '@utils/format'
 import type { JobType } from '@/types'
 import { companyOf, SEEKER_JOBS, type MatchJob } from './data'
 import { useCatalogStore } from '@context/catalogStore'
@@ -296,11 +297,11 @@ export default function JobseekerMatch() {
                 />
                 <FilterMenu
                   glass={floating}
-                  label={`Lương từ ${salaryMinK}k`}
+                  label={`Lương ${formatHourlyFromK(salaryMinK)}`}
                   active={salaryMinK !== base.salaryMinK}
                   options={[
-                    { value: String(base.salaryMinK), label: `Theo hồ sơ · từ ${base.salaryMinK}k` },
-                    ...SALARY_STEPS.filter((k) => k !== base.salaryMinK).map((k) => ({ value: String(k), label: `Từ ${k}k` })),
+                    { value: String(base.salaryMinK), label: `Theo hồ sơ · ${formatHourlyFromK(base.salaryMinK)}` },
+                    ...SALARY_STEPS.filter((k) => k !== base.salaryMinK).map((k) => ({ value: String(k), label: formatHourlyFromK(k).replace(/^t/, 'T') })),
                   ]}
                   selected={[String(salaryMinK)]}
                   onSelect={(v) => setSalaryMinK(Number(v))}

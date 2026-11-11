@@ -1,17 +1,18 @@
 import { Link } from 'react-router-dom'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { formatHourlyRangeK } from '@utils/format'
 import type { MatchJob } from './catalog'
 
 const MAX_CHIPS = 4
 
-/** "28–32k" từ khoảng lương (nghìn đồng/giờ); bằng nhau thì chỉ một số */
-const salaryShort = (j: MatchJob) => (j.salaryMinK === j.salaryMaxK ? `${j.salaryMaxK}k` : `${j.salaryMinK}–${j.salaryMaxK}k`)
+/** "28.000–32.000đ/giờ" từ khoảng lương (nghìn đồng/giờ) */
+const salaryShort = (j: MatchJob) => formatHourlyRangeK(j.salaryMinK, j.salaryMaxK)
 
 const CHIP = `inline-flex items-center rounded-full border border-page-line px-3 py-1 text-xs transition-colors duration-300 hover:border-page-fg ${FOCUS}`
 
 /**
- * Các vị trí đang tuyển của một công ty dạng chip ("Pha chế ca tối · 28–32k"), mỗi chip là link tới tin.
+ * Các vị trí đang tuyển của một công ty dạng chip ("Pha chế ca tối · 28.000–32.000đ/giờ"), mỗi chip là link tới tin.
  * Quá 4 vị trí thì chip "+N" dẫn tới trang công ty (nơi có đủ danh sách).
  */
 export default function PositionChips({ jobs, moreHref, heading, className, max = MAX_CHIPS, more = true }: {

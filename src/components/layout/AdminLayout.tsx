@@ -21,7 +21,6 @@ export default function AdminLayout() {
   return (
     <DashboardShell
       navItems={navItems} roleLabel="Quản trị viên" homeHref="/admin"
-      background={{ id: '1497215842964-222b430dc094' }}
       searchHref={(q) => `/admin/nguoi-dung?q=${encodeURIComponent(q)}`} searchPlaceholder="Tìm người dùng…"
     />
   )

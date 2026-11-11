@@ -49,7 +49,7 @@ function MarqueeUnit({ phrase, muted }: { phrase: string; muted?: boolean }) {
 /** Nhãn nhỏ phía trên ảnh: "01 · BÁN THỜI GIAN" */
 function Tag({ index, label }: { index: number; label: string }) {
   return (
-    <p className="inline-block whitespace-nowrap rounded-full bg-page-fg px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-page-bg">
+    <p className="inline-block whitespace-nowrap rounded-full bg-page-fg px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-page-bg">
       {String(index + 1).padStart(2, '0')} · {label}
     </p>
   )
@@ -87,11 +87,26 @@ function detailsOf(row: Row) {
   )
 }
 
+/** Dòng thông tin dạng chữ liền; lương và giờ ca là số liệu → tnum + đậm hơn chữ quanh */
+function Details({ row }: { row: Row }) {
+  const { job } = row
+  return (
+    <>
+      {detailsOf(row).map((d, i) => (
+        <span key={i}>
+          {i > 0 && ' · '}
+          {d === job.salaryLabel || d === job.shiftLabel ? <span className="tnum font-semibold text-page-fg">{d}</span> : d}
+        </span>
+      ))}
+    </>
+  )
+}
+
 /** Nút "Xem chi tiết →" / "Quản lý tin →" của một việc */
 function RowLink({ row, label }: { row: Row; label: string }) {
   return (
-    <Link to={row.href} data-cursor="Xem" className="group inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-page-fg">
-      <span className="border-b border-transparent transition-colors duration-300 group-hover:border-page-fg">{label}</span>
+    <Link to={row.href} data-cursor="Xem" className="group inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent-ink">
+      <span className="border-b border-transparent transition-colors duration-300 group-hover:border-accent-ink group-focus-visible:border-accent-ink">{label}</span>
       <ArrowRight
         className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
         aria-hidden
@@ -375,7 +390,7 @@ export default function NewJobsSection() {
       {/* Hàng phụ: nhãn dữ liệu minh họa + liên kết xem tất cả */}
       <div className="shell mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <p className="inline-block rounded-full border border-page-line px-3 py-1.5 text-xs text-page-muted">{homeSections.sampleNote}</p>
-        <Link to={copy.all.href} className="group inline-flex min-h-11 items-center gap-2 text-sm font-medium text-page-fg">
+        <Link to={copy.all.href} className="group inline-flex min-h-11 items-center gap-2 text-sm font-medium text-page-fg underline-offset-4 hover:underline focus-visible:underline">
           {copy.all.label}
           <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-editorial group-hover:translate-x-1" aria-hidden />
         </Link>
@@ -387,7 +402,7 @@ export default function NewJobsSection() {
             <p className="max-w-md text-base text-page-muted">{mine.empty.body}</p>
             <Link
               to={mine.empty.cta.href}
-              className="inline-flex min-h-11 items-center rounded-full bg-page-fg px-8 py-3.5 text-sm font-medium text-page-bg transition-opacity duration-300 hover:opacity-90"
+              className="inline-flex min-h-11 items-center rounded-full bg-accent px-8 py-3.5 text-sm font-semibold text-accent-fg transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100"
             >
               {mine.empty.cta.label}
             </Link>
@@ -450,8 +465,8 @@ export default function NewJobsSection() {
                     i === active ? 'visible opacity-100' : 'invisible opacity-0',
                   )}
                 >
-                  <h3 className="font-display text-2xl leading-snug text-page-fg lg:text-3xl">{row.job.title}</h3>
-                  <p className="mt-2 max-w-md text-sm leading-relaxed text-page-muted">{detailsOf(row).join(' · ')}</p>
+                  <h3 className="font-display text-2xl font-semibold leading-snug text-page-fg lg:text-3xl">{row.job.title}</h3>
+                  <p className="mt-2 max-w-md text-sm leading-relaxed text-page-muted"><Details row={row} /></p>
                   <div className="mt-1">
                     <RowLink row={row} label={linkLabel} />
                   </div>
@@ -463,7 +478,7 @@ export default function NewJobsSection() {
                 type="button"
                 aria-label="Việc trước"
                 onClick={() => stepRef.current?.(-1)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-page-line text-page-fg"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-page-line text-page-fg transition-[border-color,transform] hover:border-page-fg active:scale-[0.97] motion-reduce:active:scale-100"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden />
               </button>
@@ -474,7 +489,7 @@ export default function NewJobsSection() {
                 type="button"
                 aria-label="Việc sau"
                 onClick={() => stepRef.current?.(1)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-page-line text-page-fg"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-page-line text-page-fg transition-[border-color,transform] hover:border-page-fg active:scale-[0.97] motion-reduce:active:scale-100"
               >
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </button>
@@ -489,8 +504,8 @@ export default function NewJobsSection() {
               <li key={row.job.id} className="flex flex-col items-center border-b border-page-line py-10 text-center">
                 <Tag index={i} label={tagOf(row)} />
                 <JobPhoto job={row.job} alt={row.job.photo.alt} className="mt-4 w-44" />
-                <h3 className="mt-6 font-display text-2xl leading-snug text-page-fg">{row.job.title}</h3>
-                <p className="mt-3 max-w-md text-sm leading-relaxed text-page-muted">{detailsOf(row).join(' · ')}</p>
+                <h3 className="mt-6 font-display text-2xl font-semibold leading-snug text-page-fg">{row.job.title}</h3>
+                <p className="mt-3 max-w-md text-sm leading-relaxed text-page-muted"><Details row={row} /></p>
                 <div className="mt-2">
                   <RowLink row={row} label={linkLabel} />
                 </div>

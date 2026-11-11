@@ -406,7 +406,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
       ref={wrapRef}
       // Banner, Việc gấp và con phố cùng một khối than chì (không đổi sắc giữa chừng); sang ngà ở FeatureBlocksSection.
       // Giảm chuyển động cũng dùng than chì để thứ tự màu giống nhau (khối hero có nền ảnh tối riêng nên vẫn đọc được).
-      data-theme="charcoal"
+      data-theme="night"
       aria-label="Tìm việc"
       // useHomeHeader: còn thấy khối này thì header chỉ có logo + nút menu
       data-home-hero
@@ -428,7 +428,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
         <div data-hero-stage className="relative w-full">
           <div
             data-hero-item
-            className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-wm-charcoal"
+            className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-wm-night"
           >
             <img
               src={photoUrl(homeMedia.hero.id, 1400)}
@@ -439,12 +439,27 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
               height={900}
               className="absolute inset-0 h-full w-full object-cover"
             />
-            {/* Lớp tối phủ ảnh để chữ ngà luôn đọc được */}
-            <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-wm-charcoal/60 via-wm-charcoal/65 to-wm-charcoal/85" />
+            {/* Lớp tối phủ ảnh: chỉ đậm ở nơi có chữ để phần ảnh còn lại giữ độ sáng.
+                Chỉ dùng wm-night (không gradient màu). Độ đậm ước lượng trên điểm sáng nhất của ảnh (trắng):
+                - vầng tròn sau tiêu đề + ô tìm kiếm: 72% (chữ ngà ≥ 4.5:1 kể cả trên nền trắng tuyệt đối)
+                - từ dưới lên: 80% ở mép dưới (gợi ý cuộn, thẻ ngành) tan hết ở ~70% chiều cao
+                - mép trên: 50% → 0 trong 22% đầu (logo + menu của header) */}
+            <div
+              aria-hidden
+              className="absolute inset-0"
+              style={{
+                backgroundImage: [
+                  'linear-gradient(to bottom, color-mix(in srgb, var(--wm-night) 50%, transparent) 0%, transparent 22%)',
+                  'radial-gradient(ellipse 68% 56% at 50% 50%, color-mix(in srgb, var(--wm-night) 72%, transparent) 0%, color-mix(in srgb, var(--wm-night) 72%, transparent) 50%, transparent 100%)',
+                  'linear-gradient(to top, color-mix(in srgb, var(--wm-night) 80%, transparent) 0%, color-mix(in srgb, var(--wm-night) 40%, transparent) 35%, transparent 70%)',
+                ].join(', '),
+              }}
+            />
+            {/* Điện thoại: chữ chiếm gần hết bề ngang nên vầng tròn không đủ phủ → thêm một lớp đều nhẹ */}
+            <div aria-hidden className="absolute inset-0 bg-wm-night/30 sm:hidden" />
 
             <div className="relative shell flex w-full flex-col items-center pt-24 pb-16 text-center text-wm-ivory">
               <p data-hero-item className="eyebrow text-wm-mist">
-                <span className="w-8 h-px bg-wm-mist" />
                 Nền tảng việc làm linh hoạt
               </p>
 
@@ -485,7 +500,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                       placeholder="Vị trí, kỹ năng, ngành nghề…"
                       value={keyword}
                       onChange={(e) => setKeyword(e.target.value)}
-                      className="flex-1 min-w-0 bg-transparent !outline-none text-sm text-wm-ivory placeholder:text-wm-ivory/80"
+                      className="flex-1 min-w-0 bg-transparent !outline-none text-base text-wm-ivory placeholder:text-wm-ivory/80"
                     />
                   </label>
 
@@ -497,15 +512,16 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                       placeholder="Địa điểm…"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      className="flex-1 w-full min-w-0 bg-transparent !outline-none text-sm text-wm-ivory placeholder:text-wm-ivory/80"
+                      className="flex-1 w-full min-w-0 bg-transparent !outline-none text-base text-wm-ivory placeholder:text-wm-ivory/80"
                     />
                   </label>
 
                   <button
                     type="submit"
-                    className="group mt-1.5 sm:mt-0 sm:ml-1.5 min-h-11 rounded-full bg-wm-ivory text-wm-charcoal font-medium text-sm px-8 py-3
-                               hover:bg-wm-mist transition-colors duration-300
-                               focus-visible:!outline-wm-charcoal focus-visible:!outline-offset-[-4px]"
+                    className="group mt-1.5 sm:mt-0 sm:ml-1.5 min-h-11 rounded-full bg-accent text-accent-fg font-semibold text-sm px-8 py-3
+                               hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100
+                               transition-[filter,transform] duration-300
+                               focus-visible:!outline-wm-ivory focus-visible:!outline-offset-[-4px]"
                   >
                     <RollText>Tìm việc</RollText>
                   </button>
@@ -518,7 +534,8 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                     <Link
                       to={`/viec-lam?keyword=${encodeURIComponent(tag)}`}
                       className="flex min-h-9 items-center text-xs text-wm-ivory border border-wm-mist rounded-full px-3 py-1.5
-                                 hover:bg-wm-ivory hover:text-wm-charcoal transition-colors duration-300"
+                                 hover:bg-wm-ivory hover:text-wm-charcoal focus-visible:bg-wm-ivory focus-visible:text-wm-charcoal
+                                 active:scale-[0.97] motion-reduce:active:scale-100 transition-[color,background-color,transform] duration-300"
                     >
                       {tag}
                     </Link>
@@ -536,8 +553,8 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                     to={a.href}
                     className={
                       i === 0 && !copy.search
-                        ? 'group inline-flex min-h-11 items-center gap-2 bg-wm-ivory text-wm-charcoal font-medium text-sm px-8 py-4 rounded-full transition-opacity duration-300 hover:opacity-90'
-                        : 'group inline-flex min-h-11 items-center gap-2 border border-wm-mist text-wm-ivory font-medium text-sm px-6 py-3 rounded-full hover:bg-wm-ivory hover:text-wm-charcoal transition-colors duration-300'
+                        ? 'group inline-flex min-h-11 items-center gap-2 bg-accent text-accent-fg font-semibold text-sm px-8 py-4 rounded-full transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100'
+                        : 'group inline-flex min-h-11 items-center gap-2 border border-wm-mist text-wm-ivory font-medium text-sm px-6 py-3 rounded-full hover:bg-wm-ivory hover:text-wm-charcoal focus-visible:bg-wm-ivory focus-visible:text-wm-charcoal active:scale-[0.97] motion-reduce:active:scale-100 transition-[color,background-color,transform] duration-300'
                     }
                   >
                     <RollText>{a.label}</RollText>
@@ -549,7 +566,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
             </div>
           </div>
           {/* Lớp tối dần khi banner lùi ra sau phần 2 (opacity do GSAP điều khiển) */}
-          <div data-hero-dim aria-hidden className="pointer-events-none absolute inset-0 bg-wm-charcoal opacity-0" />
+          <div data-hero-dim aria-hidden className="pointer-events-none absolute inset-0 bg-wm-night opacity-0" />
         </div>
 
         {/* Gợi ý cuộn — chỉ có ở trạng thái intro, mờ đi ngay khi bắt đầu cuộn */}
@@ -558,7 +575,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
             data-scroll-hint
             aria-hidden
             className="absolute bottom-8 inset-x-0 flex flex-col items-center gap-2
-                       text-[11px] uppercase tracking-[0.2em] text-page-muted"
+                       text-xs uppercase tracking-[0.2em] text-page-muted"
           >
             Cuộn để bắt đầu
             <ArrowDown className="w-3.5 h-3.5" />

@@ -101,7 +101,7 @@ function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPo
           {states.filter((x) => x.st !== 'none').map(({ p, st }) => (
             <li key={p.id} className="min-w-0 max-w-full">
               {/* Tên tin dài: cho xuống dòng thay vì tràn khỏi thẻ ở màn hẹp */}
-              <StatusBadge tone={st === 'connected' ? 'strong' : 'default'} className="whitespace-normal break-words">
+              <StatusBadge tone={st === 'connected' ? 'accent' : 'soft'} className="whitespace-normal break-words">
                 {p.job.title}: {STATUS_LABEL[st as Exclude<PairStatus, 'none'>]}
               </StatusBadge>
             </li>

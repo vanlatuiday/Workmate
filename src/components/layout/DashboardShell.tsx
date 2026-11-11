@@ -7,6 +7,7 @@ import { useNotificationCenterStore } from '@context/notificationCenterStore'
 import { cn } from '@utils/cn'
 import RouteScroll from '@components/common/RouteScroll'
 import { FOCUS } from '@utils/focus'
+import Skeleton, { SkeletonStats } from '@components/dashboard/Skeleton'
 
 export type DashboardNavItem = {
   label: string
@@ -22,8 +23,6 @@ type ShellProps = {
   roleLabel: string
   /** Đường dẫn trang Tổng quan — chỉ sáng khi khớp chính xác */
   homeHref: string
-  /** Ảnh nền Unsplash (chỉ phần id sau "photo-") — trang trí, theo vai trò */
-  background: { id: string }
   /** Có = hiện ô tìm kiếm ở thanh trên; trả về URL đích khi gửi. Không truyền = ẩn ô */
   searchHref?: (q: string) => string
   searchPlaceholder?: string
@@ -58,7 +57,7 @@ function Sidebar({ navItems, roleLabel, homeHref, pathname, onClose }: SidebarPr
   }
 
   return (
-    <aside className="theme-charcoal flex h-full w-full flex-col border-r border-page-line">
+    <aside className="theme-ivory flex h-full w-full flex-col border-r border-page-line">
       {/* Logo */}
       <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-page-line px-5">
         <Link to="/" className={cn('flex items-center gap-2 rounded-control font-display text-lg font-semibold', FOCUS)}>
@@ -100,7 +99,7 @@ function Sidebar({ navItems, roleLabel, homeHref, pathname, onClose }: SidebarPr
               className={cn(
                 ITEM,
                 'font-medium',
-                active ? 'bg-page-fg text-page-bg' : 'text-page-muted hover:bg-page-surface hover:text-page-fg',
+                active ? 'bg-page-fg text-page-bg' : 'text-page-muted hover:bg-page-line hover:text-page-fg',
                 FOCUS,
               )}
             >
@@ -171,10 +170,10 @@ function Rail({ navItems, homeHref, pathname }: Omit<NavProps, 'roleLabel'> & { 
     logout()
     navigate('/dang-nhap')
   }
-  const idle = 'text-page-muted hover:bg-page-surface hover:text-page-fg'
+  const idle = 'text-page-muted hover:bg-page-line hover:text-page-fg'
 
   return (
-    <aside className="glass-card relative z-30 flex h-full w-[72px] flex-col items-center rounded-full py-3">
+    <aside className="relative z-30 flex h-full w-[72px] flex-col items-center rounded-full border border-page-line bg-page-surface py-3">
       <Link to="/" aria-label="Workmate — về trang chủ" className={cn('group', ICON_BTN, idle, FOCUS)}>
         <Briefcase className="h-5 w-5" aria-hidden="true" />
         <RailTip>Workmate</RailTip>
@@ -191,7 +190,7 @@ function Rail({ navItems, homeHref, pathname }: Omit<NavProps, 'roleLabel'> & { 
               to={href}
               aria-label={badge ? `${label} (${badge})` : label}
               aria-current={active ? 'page' : undefined}
-              className={cn('group flex-shrink-0', ICON_BTN, active ? 'bg-page-fg text-page-bg' : idle, FOCUS)}
+              className={cn('group flex-shrink-0', ICON_BTN, active ? 'bg-page-fg text-page-bg ring-1 ring-page-fg' : idle, FOCUS)}
             >
               <Icon className="h-5 w-5" aria-hidden="true" />
               {badge && (
@@ -231,13 +230,25 @@ function LoadingBar() {
   )
 }
 
+/** Khung chờ khi chunk trang đang tải: vạch tiến trình + khối xám đúng bố cục (tiêu đề, ô số liệu, thẻ). */
+function PageFallback() {
+  return (
+    <div className="mx-auto max-w-6xl">
+      <LoadingBar />
+      <Skeleton className="mb-6 h-8 w-64 md:mb-8" />
+      <SkeletonStats />
+      <Skeleton className="mt-6 h-56 w-full rounded-card" />
+    </div>
+  )
+}
+
 /**
- * Khung dùng chung cho 3 dashboard ("kính"): ảnh nền nội thất + rail icon nổi bên trái (lg+) +
- * thanh trên trong suốt + thẻ kính. Dưới lg dùng drawer có nhãn.
+ * Khung dùng chung cho 3 dashboard (nền ngà phẳng): rail icon nổi bên trái (lg+) +
+ * thanh trên + thẻ đặc. Dưới lg dùng drawer có nhãn.
  * Dashboard yên tĩnh: chỉ transition màu, drawer mobile trượt và nội dung hiện dần khi đổi trang
  * (tắt khi giảm chuyển động).
  */
-export default function DashboardShell({ navItems, roleLabel, homeHref, background, searchHref, searchPlaceholder }: ShellProps) {
+export default function DashboardShell({ navItems, roleLabel, homeHref, searchHref, searchPlaceholder }: ShellProps) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const location = useLocation()
   const mainRef = useRef<HTMLElement>(null)
@@ -254,7 +265,6 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, backgrou
     const q = query.trim()
     if (searchHref && q) navigate(searchHref(q))
   }
-  const bgUrl = `https://images.unsplash.com/photo-${background.id}`
   const unreadSeeker = useUnreadCount('seeker')
   const unreadRecruiter = useUnreadCount('recruiter')
   const openNotificationCenter = useNotificationCenterStore((s) => s.openCenter)
@@ -279,18 +289,7 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, backgrou
   const sidebarProps = { navItems, roleLabel, homeHref, pathname: location.pathname }
 
   return (
-    <div className="theme-glass relative isolate flex h-screen overflow-hidden bg-wm-charcoal">
-      {/* Ảnh nền trang trí + lớp phủ than chì đặc (không gradient) để chữ luôn dễ đọc */}
-      <img
-        src={`${bgUrl}?w=1920&q=70&auto=format&fit=crop`}
-        srcSet={`${bgUrl}?w=800&q=70&auto=format&fit=crop 800w, ${bgUrl}?w=1920&q=70&auto=format&fit=crop 1920w`}
-        sizes="100vw"
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 -z-20 h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 -z-10 bg-wm-charcoal/75" aria-hidden="true" />
-
+    <div className="theme-ivory relative isolate flex h-screen overflow-hidden">
       <a
         href="#dashboard-main"
         className={cn(
@@ -309,7 +308,7 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, backgrou
 
       {/* Drawer mobile: luôn có trong DOM để trượt mượt; lúc đóng thì ẩn khỏi bàn phím/trình đọc màn hình */}
       <div
-        className={cn('fixed inset-0 z-50 lg:hidden', !drawerOpen && 'pointer-events-none')}
+        className={cn('fixed inset-0 z-[70] lg:hidden', !drawerOpen && 'pointer-events-none')}
         aria-hidden={!drawerOpen}
       >
         <div
@@ -345,14 +344,14 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, backgrou
             <Menu className="h-5 w-5" aria-hidden="true" />
           </button>
           <div className="min-w-0 md:w-56 md:flex-shrink-0">
-            <span className="glass-card inline-flex max-w-full items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
+            <span className="border border-page-line bg-page-surface inline-flex max-w-full items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
               <Briefcase className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
               <span className="truncate">{roleLabel}</span>
             </span>
           </div>
           {searchHref ? (
             <form role="search" onSubmit={onSearch} className="mx-auto hidden w-full max-w-md md:block">
-              <label className="glass-card relative flex items-center rounded-full">
+              <label className="relative flex items-center rounded-full border border-page-line bg-page-surface">
                 <span className="sr-only">Tìm kiếm</span>
                 <Search className="pointer-events-none absolute left-4 h-4 w-4 text-page-muted" aria-hidden="true" />
                 <input
@@ -375,7 +374,7 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, backgrou
               onClick={openNotificationCenter}
               aria-haspopup="dialog"
               aria-label={hasUnread ? 'Thông báo (có thông báo chưa đọc)' : 'Thông báo'}
-              className={cn('glass-card relative flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-300 hover:border-page-fg', FOCUS)}
+              className={cn('relative flex h-10 w-10 items-center justify-center rounded-full border border-page-line bg-page-surface transition-colors duration-300 hover:border-page-fg', FOCUS)}
             >
               <Bell className="h-5 w-5" aria-hidden="true" />
               {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-page-fg" aria-hidden="true" />}
@@ -406,7 +405,7 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, backgrou
         <main id="dashboard-main" ref={mainRef} className="relative flex-1 overflow-y-auto px-4 pb-4 pt-2 md:px-8 md:pb-8">
           {/* Trang được tải theo nhu cầu (xem App.tsx). RouteScroll nằm cùng Suspense
               để chỉ đặt vị trí cuộn khi nội dung trang đã có. */}
-          <Suspense fallback={<LoadingBar />}>
+          <Suspense fallback={<PageFallback />}>
             {/* key theo route → mỗi trang mới hiện dần + trượt lên rất nhẹ (dash-enter, index.css) */}
             <div key={`page:${location.pathname}`} className="dash-enter mx-auto max-w-6xl">
               <Outlet />

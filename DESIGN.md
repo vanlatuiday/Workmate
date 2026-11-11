@@ -119,15 +119,32 @@ chuyển màu nền theo tiến trình cuộn.
 | `wm-violet` | `#9B7BE0` | Màu nhấn tím rõ, **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
 | `wm-ember` | `#E0705A` | Màu nhấn đỏ cam ấm (rất ít hạt), **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
 
-### Màu trạng thái (2026-11-12, chủ dự án duyệt)
+### Màu nhấn theo vai trò + màu trạng thái (2026-11-12, chủ dự án duyệt)
+Màu nhấn đổi theo người đang đăng nhập (`data-role` trên `<html>`, đặt ở `App.tsx`; nguồn `tokens.json → roles`):
+
+| Vai trò | `bg-accent` (nền nút, chấm, viền) | `text-accent-fg` (chữ trên nền accent) | `text-accent-ink` (chữ/link nhấn trên nền sáng) |
+|---|---|---|---|
+| Nhà tuyển dụng, khách, admin | `wm-clay` #E07A3F | `wm-charcoal` (5.2:1) | `wm-clay-ink` #A34E1C (5.0:1) |
+| Người tìm việc | `wm-fern` #257356 | `wm-ivory` (5.0:1) | `wm-fern` (5.0:1) |
+
+Dùng màu nhấn cho: nút chính quan trọng, link, trạng thái "đang rảnh"/tích cực, tag đang chọn, chấm chưa đọc.
+**Không** dùng `text-accent` (màu nền làm chữ không đủ tương phản với cam) — chữ luôn là `text-accent-ink`.
+`bg-accent-soft` = 8% accent pha nền trang (14% làm chữ nhấn chỉ còn 4.2–4.4:1). Màu nhấn là biến CSS nên không dùng modifier `/opacity`.
+(#2F8F6B chủ dự án đề xuất cho người tìm việc không đạt 4.5:1 với cả chữ sáng lẫn tối → dùng bản đậm #257356.)
+
+Màu trạng thái cố định (không đổi theo vai trò):
 | Tailwind | Màu | Dùng cho |
 |---|---|---|
-| `text-accent` / `bg-accent` / `bg-accent-soft` | `wm-moss` | điểm phù hợp, "Đã kết nối", "Doanh nghiệp quan tâm", CTA phụ, chấm chưa đọc |
 | `border-warning` / `bg-warning-soft`, chữ `text-warning-ink` | `wm-amber` / `wm-amber-ink` | sắp hết hạn, cần bổ sung |
 | `text-danger` / `border-danger` / `bg-danger-soft` | `wm-rust` | lỗi form, từ chối, xóa |
 
-`*-soft` pha 12–14% màu với `--page-bg`, nên đúng trên mọi theme sáng. Chữ trên nền `*-soft` dùng `text-page-fg`
-hoặc chính màu đậm (`text-accent`, `text-warning-ink`, `text-danger`). Luôn kèm chữ/icon, không truyền nghĩa chỉ bằng màu.
+`wm-moss` (#5B6B4E) là accent cũ trong buổi sáng 12/11, không còn dùng. `wm-night` #1C1B19: đen ấm, chỉ cho các
+đoạn nền tối của trang chủ (chữ và nút toàn site vẫn là `wm-charcoal`).
+
+### Chữ (2026-11-12)
+Cỡ nhỏ nhất 13px (`text-xs` đã đổi), chữ phụ ≥ 14px (`text-sm`), nội dung 16px; nội dung line-height 1.6, tiêu đề 1.2
+(display 1.15–1.2). Phân cấp bằng cỡ + độ đậm, không làm mờ màu. Số liệu (lương/giờ, km, giờ ca) `tnum` + đậm hơn chữ quanh.
+Font giữ Plus Jakarta Sans (tiêu đề) + Inter (nội dung).
 
 Hạt màu chỉ hiện trên nền tối (intro, banner, section than chì/graphite); trên nền sáng hạt trở về đơn sắc theo màu chữ trang.
 

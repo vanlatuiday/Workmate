@@ -23,8 +23,9 @@ export default function CandidateCard({ candidate: c, className }: { candidate: 
         className={cn(
           'group flex h-full flex-col overflow-hidden rounded-card border border-page-line bg-page-surface',
           'transition-[transform,border-color,box-shadow] duration-500 ease-editorial',
-          'hover:-translate-y-1 hover:border-page-fg hover:shadow-[0_14px_28px_-18px_var(--wm-charcoal)]',
-          'focus-visible:-translate-y-1 focus-visible:border-page-fg focus-visible:shadow-[0_14px_28px_-18px_var(--wm-charcoal)]',
+          'hover:-translate-y-1 hover:border-page-fg hover:shadow-[0_14px_28px_-18px_var(--wm-night)]',
+          'focus-visible:-translate-y-1 focus-visible:border-page-fg focus-visible:shadow-[0_14px_28px_-18px_var(--wm-night)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-page-fg',
+          'active:scale-[0.99] motion-reduce:active:scale-100',
           'motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:focus-visible:translate-y-0',
         )}
       >
@@ -42,12 +43,12 @@ export default function CandidateCard({ candidate: c, className }: { candidate: 
         </div>
 
         <div className="flex flex-1 flex-col p-5">
-          <p className="text-xs text-page-muted">{availability}</p>
-          <h3 className="mt-1 font-display text-xl font-medium leading-snug text-page-fg">{c.name}</h3>
+          <p className="inline-flex w-fit rounded-full bg-accent px-2.5 py-0.5 text-xs font-semibold text-accent-fg">{availability}</p>
+          <h3 className="mt-2 font-display text-xl font-semibold leading-snug text-page-fg">{c.name}</h3>
           <p className="mt-3 text-sm font-medium text-page-fg">{c.summary}</p>
           <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-page-muted">
             <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
-            {c.area} · {c.distanceKm.toLocaleString('vi-VN')} km
+            {c.area} · <span className="tnum font-semibold text-page-fg">{c.distanceKm.toLocaleString('vi-VN')} km</span>
           </p>
           <div className="mt-auto flex flex-wrap gap-2 pt-4">
             {c.criteria.skills.slice(0, 2).map((s) => (

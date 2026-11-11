@@ -31,10 +31,10 @@ export default function FeatureJobChip({ item }: { item: ChipJob }) {
       />
       <span className="min-w-0">
         <span className="block truncate text-xs text-page-muted">{tag}</span>
-        <span className="block truncate text-sm font-medium group-hover/chip:underline">
+        <span className="block truncate text-sm font-semibold group-hover/chip:underline group-focus-visible/chip:underline">
           {job.title}
         </span>
-        <span className="block truncate text-xs text-page-muted">
+        <span className="tnum block truncate text-sm font-semibold">
           {job.salaryLabel}
         </span>
       </span>

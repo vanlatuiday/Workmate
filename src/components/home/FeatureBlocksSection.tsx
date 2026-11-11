@@ -153,7 +153,7 @@ const FLIP_S = 0.85;
 const FLIP_PERSPECTIVE = 3200;
 
 const pill =
-  "inline-flex min-h-11 items-center gap-2 rounded-full bg-page-fg px-6 py-3 text-sm font-medium text-page-bg transition-opacity duration-300 hover:opacity-90 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-page-fg";
+  "inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-fg transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-page-fg";
 
 /**
  * Một hàng của danh sách: thẻ chia đôi, ảnh trái – chữ phải (mobile: ảnh trên, chữ dưới).
@@ -315,7 +315,7 @@ function BlockRow({
           <button
             type="button"
             onClick={() => flip(false)}
-            className="inline-flex min-h-11 items-center rounded-full border border-page-line px-5 py-3 text-sm font-medium text-page-fg outline-none transition-colors duration-300 hover:border-page-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-page-fg"
+            className="inline-flex min-h-11 items-center rounded-full border border-page-line px-5 py-3 text-sm font-medium text-page-fg outline-none transition-[border-color,transform] duration-300 hover:border-page-fg active:scale-[0.97] motion-reduce:active:scale-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-page-fg"
           >
             Quay lại
           </button>
@@ -631,8 +631,7 @@ export default function FeatureBlocksSection() {
       <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
         <div>
           <p className="eyebrow text-page-muted">
-            <span className="h-px w-8 bg-page-line" />
-            {intro.eyebrow}
+                        {intro.eyebrow}
           </p>
           <TextReveal
             text={title}

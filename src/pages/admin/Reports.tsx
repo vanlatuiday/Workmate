@@ -129,7 +129,7 @@ export default function Reports() {
                     </div>
                     <div className="flex flex-wrap gap-1.5 sm:justify-end">
                       <StatusBadge tone="default">{r.reason}</StatusBadge>
-                      {s.badges.map((b) => <StatusBadge key={b} tone="strong">{b}</StatusBadge>)}
+                      {s.badges.map((b) => <StatusBadge key={b} tone="danger">{b}</StatusBadge>)}
                     </div>
                   </div>
                   {r.note && <p className="mt-3 text-sm text-page-fg">{r.note}</p>}
