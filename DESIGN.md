@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: workmate
-description: "Nền tảng việc làm linh hoạt. Trang công khai là một hành trình cuộn biên tập (editorial): bảng màu trung tính ấm đơn sắc, chữ display lớn, nhiều khoảng trắng, chuyển cảnh theo tiến trình cuộn. Không có màu nhấn bão hòa — tương phản đến từ việc xen kẽ nền sáng/tối, kích thước chữ và chuyển động có chủ đích."
+description: "Nền tảng việc làm linh hoạt. Trang công khai là một hành trình cuộn biên tập (editorial): bảng màu trung tính ấm, chữ display lớn, nhiều khoảng trắng, chuyển cảnh theo tiến trình cuộn. Ba màu trạng thái trầm (xanh rêu, hổ phách, gạch) chỉ dùng cho trạng thái và lỗi; tương phản chính vẫn đến từ nền, kích thước chữ và chuyển động có chủ đích."
 
 # Nguồn sự thật cho màu là src/styles/tokens.json. Bảng dưới phải khớp với file đó.
 colors:
@@ -17,6 +17,10 @@ colors:
   blush: "#D8A9A0"      # màu nhấn (hồng đào nhạt): chỉ cho lớp hạt trang chủ
   violet: "#9B7BE0"     # màu nhấn (tím rõ): chỉ cho lớp hạt trang chủ
   ember: "#E0705A"      # màu nhấn (đỏ cam ấm, rất ít): chỉ cho lớp hạt trang chủ
+  moss: "#5B6B4E"       # accent — điểm phù hợp, trạng thái tích cực, CTA phụ (5.0:1 trên ngà)
+  amber: "#B7791F"      # warning — icon, viền, nền nhạt (3.2:1: KHÔNG dùng cho chữ nhỏ)
+  amber-ink: "#8F5E12"  # warning-ink — chữ cảnh báo (4.9:1 trên ngà)
+  rust: "#B5483B"       # danger — lỗi form, từ chối, xóa (4.7:1 trên ngà)
 
 # Màu theo ngữ cảnh — biến CSS, đổi theo section đang xem (Tailwind: *-page-*)
 semantic:
@@ -91,8 +95,8 @@ Workmate nói về việc làm vừa với nhịp sống, nên giao diện cũng
 chuyển màu nền theo tiến trình cuộn.
 
 **Đặc điểm nhận diện**
-- Đơn sắc ấm: 6 màu, không màu nhấn bão hòa, không gradient màu, không trắng/đen tuyệt đối.
-- Tương phản bằng **xen kẽ sáng/tối** giữa các section, không bằng màu nhấn.
+- Trung tính ấm + ba màu trạng thái trầm (từ 2026-11-12): không gradient màu, không trắng/đen tuyệt đối.
+- Tương phản bằng **xen kẽ sáng/tối** (chỉ trang chủ) và kích thước chữ; màu trạng thái chỉ để báo nghĩa, không trang trí.
 - Chữ display Plus Jakarta Sans, tracking âm vừa phải; line-height nới rộng để dấu tiếng Việt không bị cắt.
 - Chuyển động phản hồi theo cuộn và đảo ngược được; một khoảnh khắc chính là logo bay từ giữa màn hình vào header.
 - Mọi nút hành động là viên thuốc (pill).
@@ -114,6 +118,16 @@ chuyển màu nền theo tiến trình cuộn.
 | `wm-blush` | `#D8A9A0` | Màu nhấn hồng đào nhạt, **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
 | `wm-violet` | `#9B7BE0` | Màu nhấn tím rõ, **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
 | `wm-ember` | `#E0705A` | Màu nhấn đỏ cam ấm (rất ít hạt), **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
+
+### Màu trạng thái (2026-11-12, chủ dự án duyệt)
+| Tailwind | Màu | Dùng cho |
+|---|---|---|
+| `text-accent` / `bg-accent` / `bg-accent-soft` | `wm-moss` | điểm phù hợp, "Đã kết nối", "Doanh nghiệp quan tâm", CTA phụ, chấm chưa đọc |
+| `border-warning` / `bg-warning-soft`, chữ `text-warning-ink` | `wm-amber` / `wm-amber-ink` | sắp hết hạn, cần bổ sung |
+| `text-danger` / `border-danger` / `bg-danger-soft` | `wm-rust` | lỗi form, từ chối, xóa |
+
+`*-soft` pha 12–14% màu với `--page-bg`, nên đúng trên mọi theme sáng. Chữ trên nền `*-soft` dùng `text-page-fg`
+hoặc chính màu đậm (`text-accent`, `text-warning-ink`, `text-danger`). Luôn kèm chữ/icon, không truyền nghĩa chỉ bằng màu.
 
 Hạt màu chỉ hiện trên nền tối (intro, banner, section than chì/graphite); trên nền sáng hạt trở về đơn sắc theo màu chữ trang.
 
@@ -183,8 +197,9 @@ Không dùng bóng đổ trên trang công khai. Chiều sâu đến từ:
 |---|---|---|
 | Nút hành động, tag | `rounded-full` | viên thuốc |
 | Thẻ, thanh tìm kiếm | `rounded-card` | 1rem |
-| Link/nút nhỏ trong header, menu | `rounded-control` | 0.5rem |
-| Ô nhỏ trong hình minh họa | `rounded-md` | 0.375rem |
+| Link/nút nhỏ trong header, menu, ô nhập | `rounded-control` | 0.5rem (8px) |
+| Panel, popup nhỏ | `rounded-md` | 0.875rem (14px) — đã đổi từ mặc định Tailwind 2026-11-12 |
+| Modal, khối lớn | `rounded-lg` | 1.25rem (20px) — đã đổi từ mặc định Tailwind 2026-11-12 |
 | Tấm chuyển cảnh | trong `clip-path` | 2rem → 0 khi phủ kín |
 
 ## Components
@@ -222,8 +237,10 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
 - Viết nội dung tiếng Việt, ngắn, có quan điểm; dữ liệu giả phải ghi rõ là mẫu.
 
 **Không nên**
-- Thêm màu nhấn bão hòa (cam, đỏ, xanh lá, tím…), gradient màu, glow, glassmorphism, bóng đổ nặng.
-  **Ngoại lệ (2026-11-07, chủ dự án duyệt):** khung dashboard 3 vai trò dùng kính mờ trên nền ảnh
+- Thêm màu nhấn bão hòa ngoài ba màu trạng thái ở trên, gradient màu, glow, glassmorphism, bóng đổ nặng.
+  **Đã gỡ (2026-11-12, chủ dự án quyết):** dashboard và trang Cá nhân `/ca-nhan` về nền ngà phẳng, thẻ đặc
+  `page-surface`; bỏ ảnh nền + kính mờ của ngoại lệ dưới đây. Trang chủ giữ nhịp tối–sáng–tối.
+  **(Cũ) Ngoại lệ (2026-11-07, chủ dự án duyệt):** khung dashboard 3 vai trò dùng kính mờ trên nền ảnh
   theo `references/p10.mp4` — `.theme-glass` + `.glass-card` (`styles/index.css`), ảnh nền riêng
   từng vai trò, lớp phủ than chì đặc. Vẫn giữ bảng màu charcoal/ivory, không màu nhấn, không glow,
   không bóng ngoài; có phương án đặc khi trình duyệt không hỗ trợ blur hoặc `prefers-reduced-transparency`.

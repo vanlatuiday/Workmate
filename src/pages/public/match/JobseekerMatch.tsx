@@ -436,7 +436,7 @@ export default function JobseekerMatch() {
                 {DAY_SHORT.map((d, di) => (
                   <span
                     key={d}
-                    className={cn('h-4 rounded-md border', base.slots.includes(`${di}-${si}`) ? 'border-page-fg bg-page-fg' : 'border-page-line')}
+                    className={cn('h-4 rounded-[6px] border', base.slots.includes(`${di}-${si}`) ? 'border-page-fg bg-page-fg' : 'border-page-line')}
                   />
                 ))}
               </div>

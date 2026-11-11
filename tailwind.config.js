@@ -20,6 +20,15 @@ export default {
           surface: 'var(--page-surface)',
           edge:  'var(--page-edge)',
         },
+        // Màu trạng thái (tokens.json → semantic). *-soft: nền nhạt pha với nền trang, dùng cho badge/ô thông báo
+        ...Object.fromEntries(
+          Object.entries(tokens.semantic)
+            .filter(([k]) => !k.startsWith('$'))
+            .map(([name, ref]) => [name, tokens.palette[ref]]),
+        ),
+        'accent-soft':  'color-mix(in srgb, var(--wm-moss) 14%, var(--page-bg))',
+        'warning-soft': 'color-mix(in srgb, var(--wm-amber) 14%, var(--page-bg))',
+        'danger-soft':  'color-mix(in srgb, var(--wm-rust) 12%, var(--page-bg))',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
@@ -39,8 +48,10 @@ export default {
       },
       // Bo góc theo vai trò — xem DESIGN.md mục Shapes. Viên thuốc dùng rounded-full.
       borderRadius: {
-        control: '0.5rem', // link/nút nhỏ trong header, menu
-        card: '1rem',      // thẻ, thanh tìm kiếm
+        control: '0.5rem', // 8px — link/nút nhỏ trong header, menu, ô nhập
+        md: '0.875rem',    // 14px — khối vừa (panel, popup nhỏ)
+        card: '1rem',      // 16px — thẻ, thanh tìm kiếm
+        lg: '1.25rem',     // 20px — modal, khối lớn
       },
       screens: {
         xs: '475px',
