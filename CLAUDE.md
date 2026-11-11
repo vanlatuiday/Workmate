@@ -18,6 +18,7 @@ Alias: `@/`, `@components`, `@pages`, `@hooks`, `@context`, `@services`, `@utils
 - Màu chỉ từ `tokens.json` (`wm-*`, `page-*`); không hex trong component. Bo góc `rounded-full|card|control`.
 - Chuyển động: chỉ transform/opacity, luôn có nhánh `prefers-reduced-motion`; dashboard không dùng hiệu ứng cuộn.
 - Không over-engineer; tái sử dụng component có sẵn; không xóa code chưa rõ vai trò.
+- Nút/icon nổi cố định trên màn hình (vd. nút tin nhắn) phải gắn `data-floating`: tự ẩn ở màn mở đầu trang chủ (chỉ còn chữ Workmate), hiện khi lướt tới banner.
 
 ## Skills
 - `workmate-ui` — **luôn dùng** khi sửa/thêm UI. Ưu tiên: yêu cầu người dùng > DESIGN.md > workmate-ui > skill khác.

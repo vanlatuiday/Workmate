@@ -3,6 +3,7 @@ import { Suspense, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Briefcase, Bell, LogOut, Menu, X, ChevronRight, Search, type LucideIcon } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { useUnreadCount } from '@services/connectionService'
+import { useNotificationCenterStore } from '@context/notificationCenterStore'
 import { cn } from '@utils/cn'
 import RouteScroll from '@components/common/RouteScroll'
 import { FOCUS } from '@utils/focus'
@@ -256,6 +257,7 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, backgrou
   const bgUrl = `https://images.unsplash.com/photo-${background.id}`
   const unreadSeeker = useUnreadCount('seeker')
   const unreadRecruiter = useUnreadCount('recruiter')
+  const openNotificationCenter = useNotificationCenterStore((s) => s.openCenter)
   const hasUnread = (role === 'jobseeker' ? unreadSeeker : role === 'recruiter' ? unreadRecruiter : 0) > 0
 
   // Đổi route thì đóng drawer
@@ -361,14 +363,19 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, backgrou
             <div className="hidden flex-1 md:block" />
           )}
           <div className="ml-auto flex items-center gap-2 md:ml-0">
-            <Link
-              to="/thong-bao"
+            {/* Trung tâm thông báo chỉ có cho người tìm việc / nhà tuyển dụng (NotificationCenter) */}
+            {(role === 'jobseeker' || role === 'recruiter') && (
+            <button
+              type="button"
+              onClick={openNotificationCenter}
+              aria-haspopup="dialog"
               aria-label={hasUnread ? 'Thông báo (có thông báo chưa đọc)' : 'Thông báo'}
               className={cn('glass-card relative flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-300 hover:border-page-fg', FOCUS)}
             >
               <Bell className="h-5 w-5" aria-hidden="true" />
               {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-page-fg" aria-hidden="true" />}
-            </Link>
+            </button>
+            )}
             {settingsHref ? (
               <Link
                 to={settingsHref}

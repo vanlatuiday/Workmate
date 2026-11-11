@@ -1,62 +1,24 @@
 // Tin nhắn nổi toàn trang: nút tròn kéo được (bám mép trái/phải) + khung chat nhỏ mở giữa màn hình.
 // Chỉ hiện cho người tìm việc / nhà tuyển dụng đã đăng nhập. Chỉ dùng transform/opacity để chuyển động.
 // Khung là dialog: bẫy focus, Esc đóng, trả focus về nút; lúc đóng vẫn ở trong DOM nhưng `invisible`.
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type PointerEvent } from 'react'
+import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { MessageCircle, MessageSquare, X } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
-import { getSmoothScroll } from '@hooks/useSmoothScroll'
 import { useMediaQuery } from '@hooks/useMediaQuery'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useMessengerStore } from '@context/messengerStore'
 import { useConversations, useUnreadMessages, type Side } from '@services/connectionService'
 import ChatPane from '@pages/public/messages/ChatPane'
 import ConversationList from '@pages/public/messages/ConversationList'
+import { CONTENT_CLOSE, CONTENT_OPEN, FOCUSABLE, PANEL_CLOSE, PANEL_OPEN } from '@components/floating/panelMotion'
+import { lockScroll } from '@components/floating/scrollLock'
+import { FLOAT_SIZE as SIZE, useFloatingButton, type FloatPos } from '@components/floating/useFloatingButton'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 
-const FOCUSABLE = 'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
 const STORAGE_KEY = 'workmate-messenger-pos'
-const SIZE = 56 // đường kính nút
-const EDGE = 12 // khoảng cách tới mép trái/phải
-const TOP = 72 // dưới header 4rem + chút đệm
-const BOTTOM = 76 // đệm đáy: chừa chỗ cho viên tìm kiếm thu gọn ở đáy màn hình điện thoại + thanh vuốt iPhone
-const DRAG_THRESHOLD = 5 // px: di chuyển ít hơn thế vẫn coi là bấm
-
-// Bung ra: phóng nhanh rồi chậm dần, nảy nhẹ ở cuối (đàn hồi); thu về nhanh và gọn hơn
-const PANEL_OPEN = 'transform 560ms cubic-bezier(0.32, 1.32, 0.6, 1), opacity 220ms ease-out, visibility 0s'
-const PANEL_CLOSE = 'transform 260ms cubic-bezier(0.4, 0, 1, 1), opacity 200ms ease-in 60ms, visibility 0s linear 260ms'
-// Nội dung trong khung hiện sau khi khung đã gần bung xong
-const CONTENT_OPEN = 'opacity 260ms ease-out 180ms'
-const CONTENT_CLOSE = 'opacity 120ms ease-in'
-
-type Pos = { side: 'left' | 'right'; yRatio: number }
-const DEFAULT_POS: Pos = { side: 'right', yRatio: 1 }
-
-function loadPos(): Pos {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return DEFAULT_POS
-    const p = JSON.parse(raw) as Partial<Pos>
-    if ((p.side === 'left' || p.side === 'right') && typeof p.yRatio === 'number' && Number.isFinite(p.yRatio)) {
-      return { side: p.side, yRatio: Math.min(1, Math.max(0, p.yRatio)) }
-    }
-  } catch {
-    /* localStorage bị chặn / JSON hỏng → dùng mặc định */
-  }
-  return DEFAULT_POS
-}
-
-function savePos(p: Pos) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(p))
-  } catch {
-    /* bỏ qua */
-  }
-}
-
-const viewport = () => ({ w: document.documentElement.clientWidth, h: window.innerHeight })
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
+const DEFAULT_POS: FloatPos = { side: 'right', yRatio: 1 }
 
 export default function Messenger() {
   const role = useAuthStore((s) => s.user?.role)
@@ -73,32 +35,31 @@ function MessengerInner({ viewer }: { viewer: Side }) {
   // Từ md: hai cột (danh sách | chat), tự mở hội thoại đầu khi chưa chọn
   const wide = useMediaQuery('(min-width: 768px)')
 
-  const [pos, setPos] = useState<Pos>(loadPos)
-  const [vp, setVp] = useState(viewport)
-  const [dragXY, setDragXY] = useState<{ x: number; y: number } | null>(null)
-  const dragRef = useRef<{ sx: number; sy: number; ox: number; oy: number; moved: boolean } | null>(null)
-  const dragXYRef = useRef<{ x: number; y: number } | null>(null)
-  const suppressClick = useRef(false)
-
   const launcherRef = useRef<HTMLButtonElement>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const wasOpen = useRef(false)
 
-  // Toạ độ nút: x theo mép, y theo tỉ lệ trong vùng cho phép → đổi cỡ cửa sổ là tự kẹp lại
-  const minY = TOP
-  const maxY = Math.max(minY, vp.h - SIZE - BOTTOM)
-  const restX = pos.side === 'left' ? EDGE : vp.w - SIZE - EDGE
-  const restY = minY + pos.yRatio * (maxY - minY)
-  const x = dragXY?.x ?? restX
-  const y = dragXY?.y ?? restY
+  const { x, y, dragging, animate, buttonProps } = useFloatingButton({
+    storageKey: STORAGE_KEY,
+    defaultPos: DEFAULT_POS,
+    rank: 0,
+    open,
+    onActivate: openMessenger,
+    launcherRef,
+    wrapRef,
+    panelRef,
+  })
 
-  useEffect(() => {
-    const onResize = () => setVp(viewport())
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
+  // Gỡ component (đăng xuất, đổi vai trò) thì đóng khung và bỏ hội thoại đang xem
+  useEffect(
+    () => () => {
+      closeMessenger()
+      setActiveKey(null)
+    },
+    [closeMessenger, setActiveKey],
+  )
 
   // Đổi trang thì đóng khung (trừ khi vừa được MessagesPage chuyển hướng để mở khung)
   // So với đường dẫn trước (không dùng cờ "lần đầu" vì StrictMode chạy effect hai lần)
@@ -109,61 +70,6 @@ function MessengerInner({ viewer }: { viewer: Side }) {
     if ((state as { keepMessenger?: boolean } | null)?.keepMessenger) return
     closeMessenger()
   }, [pathname, state, closeMessenger])
-
-  // ---- Kéo nút ----
-  const onPointerDown = (e: PointerEvent<HTMLButtonElement>) => {
-    if (e.button !== 0) return
-    e.currentTarget.setPointerCapture(e.pointerId)
-    dragRef.current = { sx: e.clientX, sy: e.clientY, ox: restX, oy: restY, moved: false }
-  }
-  const onPointerMove = (e: PointerEvent<HTMLButtonElement>) => {
-    const d = dragRef.current
-    if (!d) return
-    const dx = e.clientX - d.sx
-    const dy = e.clientY - d.sy
-    if (!d.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return
-    d.moved = true
-    const next = { x: clamp(d.ox + dx, 0, vp.w - SIZE), y: clamp(d.oy + dy, minY, maxY) }
-    dragXYRef.current = next
-    setDragXY(next)
-  }
-  const endDrag = () => {
-    const d = dragRef.current
-    dragRef.current = null
-    if (!d?.moved || !dragXYRef.current) return
-    // Thả tay: bám mép gần nhất, giữ độ cao
-    const { x: dx, y: dy } = dragXYRef.current
-    const next: Pos = {
-      side: dx + SIZE / 2 < vp.w / 2 ? 'left' : 'right',
-      yRatio: maxY > minY ? clamp((dy - minY) / (maxY - minY), 0, 1) : 1,
-    }
-    dragXYRef.current = null
-    suppressClick.current = true
-    window.setTimeout(() => (suppressClick.current = false), 80)
-    setPos(next)
-    setDragXY(null)
-    savePos(next)
-  }
-  const onClick = () => {
-    if (suppressClick.current) return
-    openMessenger()
-  }
-
-  // ---- Zoom từ nút: gốc biến đổi = tâm nút, tính theo hệ toạ độ của khung ----
-  const updateOrigin = useCallback(() => {
-    const panel = panelRef.current
-    const wrap = wrapRef.current
-    const btn = launcherRef.current
-    if (!panel || !wrap || !btn) return
-    const wr = wrap.getBoundingClientRect()
-    const br = btn.getBoundingClientRect()
-    const left = wr.left + (wr.width - panel.offsetWidth) / 2
-    const top = wr.top + (wr.height - panel.offsetHeight) / 2
-    panel.style.transformOrigin = `${br.left + br.width / 2 - left}px ${br.top + br.height / 2 - top}px`
-  }, [])
-  useLayoutEffect(() => {
-    updateOrigin()
-  }, [open, pos, vp, updateOrigin])
 
   // ---- Bàn phím: Esc đóng, Tab xoay vòng trong khung ----
   useEffect(() => {
@@ -192,19 +98,10 @@ function MessengerInner({ viewer }: { viewer: Side }) {
     return () => document.removeEventListener('keydown', onKey)
   }, [open, closeMessenger])
 
-  // Khóa cuộn trang khi mở
+  // Khóa cuộn trang khi mở (bộ khóa dùng chung có bộ đếm, hai khung không giẫm lên nhau)
   useEffect(() => {
     if (!open) return
-    const html = document.documentElement
-    const prev = html.style.overflow
-    html.style.overflow = 'hidden'
-    // Trang công khai cuộn bằng Lenis: overflow hidden không chặn được → dừng Lenis luôn
-    const lenis = getSmoothScroll()
-    lenis?.stop()
-    return () => {
-      html.style.overflow = prev
-      lenis?.start()
-    }
+    return lockScroll()
   }, [open])
 
   // Mở: focus vào nút X (chờ một nhịp vì khung đang chuyển từ invisible); đóng: trả focus về nút tròn
@@ -239,11 +136,13 @@ function MessengerInner({ viewer }: { viewer: Side }) {
         className={cn(
           'theme-ivory fixed left-0 top-0 z-[60] !bg-transparent', // theme-ivory tự tô nền ngà → bỏ để chỉ còn nút tròn
           // Thả tay thì trượt về mép; đang kéo thì bám theo con trỏ ngay
-          !dragXY && 'transition-transform duration-300 ease-editorial motion-reduce:transition-none',
+          animate && !dragging && 'transition-transform duration-300 ease-editorial motion-reduce:transition-none',
         )}
         style={{ transform: `translate3d(${x}px, ${y}px, 0)` }}
       >
+        {/* data-floating: ẩn trong lúc intro trang chủ (index.css) — mọi nút/icon nổi đều gắn nhãn này */}
         <div
+          data-floating
           className={cn(
             'relative transition-opacity duration-300 motion-reduce:transition-none',
             open && 'pointer-events-none opacity-0',
@@ -252,11 +151,7 @@ function MessengerInner({ viewer }: { viewer: Side }) {
           <button
             ref={launcherRef}
             type="button"
-            onClick={onClick}
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={endDrag}
-            onPointerCancel={endDrag}
+            {...buttonProps}
             tabIndex={open ? -1 : 0}
             aria-hidden={open || undefined}
             aria-haspopup="dialog"

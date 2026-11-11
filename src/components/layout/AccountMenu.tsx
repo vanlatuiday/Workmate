@@ -4,6 +4,7 @@ import { ChevronDown } from 'lucide-react'
 import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
 import { useMessengerStore } from '@context/messengerStore'
+import { useNotificationCenterStore } from '@context/notificationCenterStore'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 
@@ -37,6 +38,7 @@ const ITEM = cn(
 export default function AccountMenu({ initial, area, profileHref, unreadMessages, unreadNotifications, onOpenProfile, onLogout, magnetic }: Props) {
   const [open, setOpen] = useState(false)
   const openMessenger = useMessengerStore((s) => s.openMessenger)
+  const openNotificationCenter = useNotificationCenterStore((s) => s.openCenter)
   const wrapRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -157,12 +159,21 @@ export default function AccountMenu({ initial, area, profileHref, unreadMessages
             <span className="rounded-full bg-page-fg px-2 text-xs font-medium text-page-bg">{unreadMessages}</span>
           )}
         </button>
-        <Link role="menuitem" to="/thong-bao" className={cn(ITEM, 'flex items-center justify-between')} onClick={() => close(false)}>
+        <button
+          type="button"
+          role="menuitem"
+          aria-haspopup="dialog"
+          className={cn(ITEM, 'flex items-center justify-between')}
+          onClick={() => {
+            close(false)
+            openNotificationCenter()
+          }}
+        >
           Thông báo
           {unreadNotifications > 0 && (
             <span className="rounded-full bg-page-fg px-2 text-xs font-medium text-page-bg">{unreadNotifications}</span>
           )}
-        </Link>
+        </button>
         <Link role="menuitem" to="/lich-phong-van" className={ITEM} onClick={() => close(false)}>
           Lịch phỏng vấn
         </Link>

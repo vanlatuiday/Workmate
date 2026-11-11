@@ -93,6 +93,22 @@
   color: var(--page-fg);
 }
 
+/* Header kính (mọi trang công khai): nền theo theme nhưng trong 72%, nhòe nội dung cuộn phía sau.
+   Đặt SAU .theme-ivory/.theme-charcoal để ghi đè nền đặc của theme gắn trên header. */
+.header-glass {
+  background-color: color-mix(in srgb, var(--page-bg) 72%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  /* mép dưới hơi sáng như cạnh tấm kính */
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--page-fg) 8%, transparent);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .header-glass { background-color: color-mix(in srgb, var(--page-bg) 96%, transparent); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .header-glass { background-color: var(--page-bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
 /* Theme kính (glass) cho khung dashboard: chữ ngà trên ảnh nền nội thất phủ lớp than chì.
    KHÔNG đặt background-color đặc để ảnh nền lộ ra. --page-bg ~88% than chì để nút chính
    (bg-page-fg text-page-bg) và ô nhập vẫn tương phản cao; --page-muted là màu đặc để chữ phụ dễ đọc. */
@@ -234,6 +250,15 @@
    vào, IntroHero tự cuộn qua intro để phần đó hiện ra. */
 html[data-intro] [data-header-item],
 html[data-intro] [data-hero-item] {
+  pointer-events: none;
+}
+
+/* Màn mở đầu trang chủ chỉ có chữ Workmate (và dòng "Cuộn để bắt đầu"): mọi nút/icon nổi
+   (nút tin nhắn, và bất cứ thứ gì thêm sau này) gắn `data-floating` để tự ẩn ở đây và hiện lại
+   khi lướt xuống tới banner. Phần tử nên có sẵn transition-opacity để hiện ra mượt. */
+html[data-intro] [data-floating] {
+  opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 }
 

@@ -95,6 +95,24 @@ export default function PublicLayout() {
   // Theme ngà gắn vào header, footer và khung của TỪNG trang (không gắn lên wrapper),
   // nên trang cũ đang mờ dần vẫn giữ màu của chính nó.
   const dark = location.pathname === '/'
+  // Rời trang chủ: header vừa đổi từ nền tối của trang chủ sang theme ngà. Nếu bật transition ngay thì
+  // header tối dần sang ngà ~0,4s trên trang sáng → tắt transition ở lần vẽ đầu, bật lại sau 2 khung hình.
+  // Đổi giữa các trang khác (ngà ↔ than chì ở /ca-nhan) vẫn chuyển màu dần như cũ.
+  const [themeAnim, setThemeAnim] = useState(!dark)
+  useEffect(() => {
+    if (dark) {
+      setThemeAnim(false)
+      return
+    }
+    let inner = 0
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => setThemeAnim(true))
+    })
+    return () => {
+      cancelAnimationFrame(outer)
+      cancelAnimationFrame(inner)
+    }
+  }, [dark])
   // Đăng nhập / Đăng ký / Quên mật khẩu: toàn màn hình — ẩn header và footer, chỉ giữ logo nhỏ để về trang chủ
   const bare = isAuthPath(location.pathname)
   // Trang Cá nhân là "mặt bàn" tối → header/footer tối theo cho liền mạch
@@ -128,7 +146,9 @@ export default function PublicLayout() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-page-bg">
+    // Nền khung theo màu trang đang mở: header kính trong suốt một phần nên lộ nền phía sau nó.
+    // Không gắn class theme lên khung (theme đổi biến --page-* cho cả trang cũ đang mờ dần), chỉ đổi màu nền.
+    <div className={cn('min-h-screen flex flex-col', dark ? 'bg-page-bg' : chrome === 'theme-charcoal' ? 'bg-wm-charcoal' : 'bg-wm-ivory')}>
       {bare ? (
         <Link
           to="/"
@@ -149,17 +169,17 @@ export default function PublicLayout() {
             data-header-bg   — nền header, chỉ hiện khi đã cuộn qua banner
           Qua khỏi banner: cuộn xuống thì header trượt khuất, cuộn lên thì hiện lại.
           Mặc định mọi thứ ở trạng thái cuối, nên không có JS vẫn dùng được.
-          Trang khác: sticky, nền và viền lấy thẳng từ theme ngà. */}
+          Trang khác: sticky, màu lấy từ theme ngà. Cả hai đều là kính (.header-glass, index.css). */}
       <header
         data-site-header={dark ? '' : undefined}
         className={cn(
           'top-0 z-40 text-page-fg',
           // header-theme: màu chuyển dần khi đổi giữa theme ngà và than chì (index.css)
-          dark ? 'fixed inset-x-0' : `sticky header-theme ${chrome} border-b border-page-line`,
+          dark ? 'fixed inset-x-0' : cn('sticky', themeAnim && 'header-theme', chrome, 'header-glass border-b border-page-line'),
         )}
       >
         {dark && (
-          <div data-header-bg aria-hidden className="absolute inset-0 -z-10 bg-page-bg border-b border-page-line" />
+          <div data-header-bg aria-hidden className="header-glass absolute inset-0 -z-10 border-b border-page-line" />
         )}
         <div className="shell">
           {/* Lưới 3 cột: logo | nav đúng giữa header | cụm bên phải */}

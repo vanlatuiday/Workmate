@@ -17,6 +17,7 @@ import { CANDIDATES, MATCH_JOBS, useCandidates } from './match/data'
 import { useCompanyStore } from '@context/companyStore'
 import { scoreMatch } from './match/score'
 import ShiftGrid from './post/ShiftGrid'
+import CompletionRing from '@components/common/CompletionRing'
 import PostPreview from './post/PostPreview'
 
 const DISTRICTS = ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ']
@@ -190,21 +191,10 @@ export default function PostJobPage() {
           aria-hidden
           className="pointer-events-none absolute left-0 top-24 -z-10 h-[70%] w-full object-cover opacity-30 blur-[90px] saturate-150 lg:w-[58%]"
         />
-        <form className="space-y-5 lg:col-span-7" onSubmit={(e) => { e.preventDefault(); submit() }}>
-          {/* Thanh tiến độ dính dưới header */}
-          <div className="glass-liquid sticky top-20 z-20 flex items-center gap-4 rounded-full px-5 py-2 [--glass-alpha:55%]">
-            <span className="tnum whitespace-nowrap text-sm text-page-fg">Đã điền {filled}/4 mục bắt buộc</span>
-            <div
-              role="progressbar"
-              aria-label="Tiến độ điền mục bắt buộc"
-              aria-valuemin={0}
-              aria-valuemax={4}
-              aria-valuenow={filled}
-              className="h-1 flex-1 overflow-hidden rounded-full bg-page-line"
-            >
-              <div className="h-full origin-left rounded-full bg-page-fg transition-transform duration-500 ease-out motion-reduce:transition-none" style={{ transform: `scaleX(${filled / 4})` }} />
-            </div>
-          </div>
+        <form className="space-y-5 lg:col-span-7 lg:grid lg:grid-cols-[4.5rem_minmax(0,1fr)] lg:gap-6 lg:space-y-0" onSubmit={(e) => { e.preventDefault(); submit() }}>
+          {/* Vòng tiến độ: cột trái riêng ở lg (dính, không đè form); mobile nằm đầu cột, không dính */}
+          <CompletionRing value={filled} max={4} label="Số mục bắt buộc đã điền" center={`${filled}/4`} caption="mục bắt buộc" rowText={`Đã điền ${filled}/4 mục bắt buộc`} />
+          <div className="min-w-0 space-y-5">
 
           <Group title="Thông tin chung" index={1}>
             <div>
@@ -373,6 +363,7 @@ export default function PostJobPage() {
             <p className="mt-3 text-sm text-page-muted" aria-live="polite">
               {ready ? (editing ? 'Sẵn sàng lưu.' : 'Sẵn sàng. Tin sẽ được gửi cho quản trị viên duyệt trước khi hiện công khai.') : `Còn thiếu: ${missing.join(', ')}.`}
             </p>
+          </div>
           </div>
         </form>
 

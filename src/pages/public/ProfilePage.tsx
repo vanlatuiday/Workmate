@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { gsap, useGSAP } from '@utils/gsap'
 import { usePageEnterDelay } from '@components/motion/PageTransition'
 import { useReducedMotion } from '@hooks/useReducedMotion'
+import CompletionRing from '@components/common/CompletionRing'
 import { MATCH_JOBS } from './match/data'
 import IntroChapter from './profile/IntroChapter'
 import ProfilePreview from './profile/ProfilePreview'
@@ -41,21 +42,10 @@ export default function ProfilePage() {
             aria-hidden
             className="pointer-events-none absolute left-0 top-24 -z-10 h-[70%] w-full object-cover opacity-30 blur-[90px] saturate-150 lg:w-[58%]"
           />
-          <div ref={formRef} className="space-y-5 lg:col-span-7">
-            {/* Thanh hoàn thiện dính dưới header */}
-            <div className="glass-liquid sticky top-20 z-20 flex items-center gap-4 rounded-full px-5 py-2 backdrop-blur-xl [--glass-alpha:85%]">
-              <span className="tnum whitespace-nowrap text-sm text-page-fg">Hồ sơ hoàn thiện {percent}%</span>
-              <div
-                role="progressbar"
-                aria-label="Mức hoàn thiện hồ sơ"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={percent}
-                className="h-1 flex-1 overflow-hidden rounded-full bg-page-line"
-              >
-                <div className="h-full origin-left rounded-full bg-page-fg transition-transform duration-500 ease-out motion-reduce:transition-none" style={{ transform: `scaleX(${percent / 100})` }} />
-              </div>
-            </div>
+          <div ref={formRef} className="space-y-5 lg:col-span-7 lg:grid lg:grid-cols-[4.5rem_minmax(0,1fr)] lg:gap-6 lg:space-y-0">
+            {/* Vòng hoàn thiện: cột trái riêng ở lg (dính, không đè form); mobile nằm đầu cột, không dính */}
+            <CompletionRing value={percent} max={100} label="Mức hoàn thiện hồ sơ" center={`${percent}%`} caption="hoàn thiện" rowText={`Hồ sơ hoàn thiện ${percent}%`} />
+            <div className="min-w-0 space-y-5">
             <IntroChapter api={api} />
             <SkillsChapter api={api} />
             <ExperienceChapter api={api} />
@@ -63,6 +53,7 @@ export default function ProfilePage() {
             <WantsChapter api={api} />
             <AboutChapter api={api} />
             <PublishTile api={api} />
+            </div>
           </div>
           <aside className="lg:col-span-5 lg:sticky lg:top-24 lg:self-start" aria-label="Xem trước hồ sơ">
             <ProfilePreview api={api} />

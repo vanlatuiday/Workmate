@@ -1,6 +1,7 @@
 import { lazy, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Messenger from '@components/messenger/Messenger'
+import NotificationCenter from '@components/notifications/NotificationCenter'
 import { useAuthStore } from '@context/authStore'
 import { authService } from '@services/authService'
 import { loadCatalog } from '@services/catalogService'
@@ -191,6 +192,8 @@ export default function App() {
     </Routes>
     {/* Tin nhắn nổi: một bản duy nhất cho mọi trang */}
     <Messenger />
+    {/* Thông báo nổi: nút chuông nằm trên nút tin nhắn */}
+    <NotificationCenter />
     </>
   )
 }
