@@ -1,0 +1,555 @@
+// Workmate — sơ đồ database (sinh tự động từ backend/prisma/schema.prisma)
+// Dán toàn bộ nội dung vào https://dbdiagram.io/d để xem sơ đồ.
+
+Enum Role {
+  jobseeker
+  recruiter
+  admin
+}
+
+Enum UserStatus {
+  active
+  locked
+}
+
+Enum Visibility {
+  public
+  connected
+  hidden
+}
+
+Enum EmailDigest {
+  instant
+  daily
+  off
+}
+
+Enum JobType {
+  full_time
+  part_time
+  shift
+  seasonal
+  flexible
+  event
+  freelance
+}
+
+Enum CompanySize {
+  s1_10
+  s11_50
+  s51_200
+  s201_500
+  s500p
+}
+
+Enum VerificationStatus {
+  pending
+  approved
+  rejected
+}
+
+Enum MemberRole {
+  owner
+  member
+}
+
+Enum JobStatus {
+  open
+  paused
+  closed
+}
+
+Enum ModerationStatus {
+  pending
+  approved
+  rejected
+  hidden [note: 'Quản trị viên ẩn một tin đã duyệt']
+}
+
+Enum Side {
+  seeker
+  recruiter
+}
+
+Enum MarkKind {
+  saved
+  skipped
+}
+
+Enum InterviewMode {
+  onsite
+  online
+}
+
+Enum InterviewStatus {
+  pending
+  confirmed
+  declined
+  cancelled
+}
+
+Enum HireStatus {
+  offered
+  accepted
+  declined
+  withdrawn
+  rejected
+}
+
+Enum NotificationKind {
+  interest
+  considering [note: 'Doanh nghiệp đang cân nhắc đơn ứng tuyển']
+  connected
+  interview_invited
+  interview_confirmed
+  interview_declined
+  interview_cancelled
+  offer
+  offer_accepted
+  offer_declined
+  offer_withdrawn
+  rejected
+  review
+}
+
+Enum ReportTarget {
+  job
+  company
+  seeker
+}
+
+Enum ReportStatus {
+  open
+  resolved
+  dismissed
+}
+
+Table User {
+  id varchar [pk, note: 'mặc định cuid()']
+  email varchar [unique, not null]
+  username varchar [unique, note: 'Tên đăng nhập ngắn (tài khoản demo: admin1…); đăng ký mới dùng email']
+  passwordHash varchar [not null]
+  role Role [not null]
+  status UserStatus [not null, default: 'active']
+  tokenVersion int [not null, default: 0, note: 'Tăng khi đổi/đặt lại mật khẩu: mọi token cũ mất hiệu lực']
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, note: 'tự cập nhật khi sửa']
+}
+
+Table PendingRegistration {
+  email varchar [pk]
+  passwordHash varchar [not null]
+  role Role [not null]
+  name varchar [not null]
+  codeHash varchar [not null]
+  attempts int [not null, default: 0, note: 'Số lần nhập sai mã (tối đa 5 thì hủy)']
+  expiresAt timestamp [not null]
+  createdAt timestamp [not null, default: `now()`]
+
+  indexes {
+    (expiresAt)
+  }
+
+  Note: 'Đăng ký đang chờ xác nhận email. Tài khoản chỉ được tạo sau khi nhập đúng mã, nên email giả không sinh ra tài khoản hay công ty rỗng và không ai chiếm trước được email của người khác.'
+}
+
+Table PasswordReset {
+  id varchar [pk, note: 'mặc định cuid()']
+  userId varchar [not null]
+  codeHash varchar [not null]
+  attempts int [not null, default: 0, note: 'Số lần nhập sai mã (tối đa 5 thì mã bị hủy)']
+  expiresAt timestamp [not null]
+  usedAt timestamp
+  createdAt timestamp [not null, default: `now()`]
+
+  indexes {
+    (userId)
+  }
+}
+
+Table UserSettings {
+  userId varchar [pk]
+  notify jsonb [not null, default: '{}', note: 'Loại thông báo đang tắt: { "interest": false, … } — thiếu khóa = bật']
+  emailDigest EmailDigest [not null, default: 'daily']
+  visibility Visibility [not null, default: 'public']
+}
+
+Table SeekerProfile {
+  userId varchar [pk]
+  fullName varchar [not null]
+  phone varchar [not null, default: '']
+  avatarUrl varchar
+  showAvatar boolean [not null, default: true]
+  intro varchar [not null, default: '', note: 'Câu giới thiệu ngắn (1–2 câu)']
+  about varchar [not null, default: '', note: '"Về bạn" — đoạn dài']
+  area varchar [not null, default: '', note: 'Khu vực hiển thị, vd. "Hải Châu, Đà Nẵng"']
+  lat float
+  lng float
+  salaryMinK int [not null, default: 25, note: 'Lương tối thiểu, nghìn đồng/giờ']
+  maxDistanceKm int [not null, default: 5]
+  jobTypes "JobType[]"
+  skills "varchar[]"
+  availability "varchar[]" [note: 'Ô lịch rảnh dạng "ngày-buổi" (ngày 0–6 = T2…CN, buổi 0–2 = sáng/chiều/tối)']
+  availableFrom date [note: 'Ngày bắt đầu đi làm được; null = có thể bắt đầu ngay']
+  published boolean [not null, default: false]
+  updatedAt timestamp [not null, note: 'tự cập nhật khi sửa']
+}
+
+Table SeekerExperience {
+  id varchar [pk, note: 'mặc định cuid()']
+  seekerId varchar [not null]
+  title varchar [not null]
+  company varchar [not null]
+  period varchar [not null, default: '', note: 'Thời gian dạng chữ như frontend đang nhập, vd. "06/2025 – 01/2026"']
+  order int [not null, default: 0]
+
+  indexes {
+    (seekerId)
+  }
+}
+
+Table Cv {
+  id varchar [pk, note: 'mặc định cuid()']
+  seekerId varchar [not null]
+  name varchar [not null]
+  fileKey varchar [not null, note: 'Khóa file trên kho lưu trữ (R2)']
+  mimeType varchar [not null]
+  size int [not null]
+  isDefault boolean [not null, default: false]
+  uploadedAt timestamp [not null, default: `now()`]
+
+  indexes {
+    (seekerId)
+  }
+}
+
+Table Company {
+  id varchar [pk, note: 'mặc định cuid()']
+  slug varchar [unique, not null]
+  name varchar [not null]
+  industry varchar [not null, default: '']
+  district varchar [not null, default: '']
+  address varchar [not null, default: '']
+  lat float
+  lng float
+  size CompanySize [not null, default: 's1_10']
+  tagline varchar [not null, default: '']
+  about varchar [not null, default: '']
+  environment "varchar[]"
+  values "varchar[]"
+  policies "varchar[]"
+  culture varchar [not null, default: '']
+  email varchar [not null, default: '']
+  phone varchar [not null, default: '']
+  logoUrl varchar
+  coverPhoto jsonb [note: 'Ảnh bìa: id ảnh Unsplash (như frontend) hoặc URL đã tải lên']
+  verified boolean [not null, default: false]
+  locked boolean [not null, default: false]
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, note: 'tự cập nhật khi sửa']
+}
+
+Table CompanyVerification {
+  id varchar [pk, note: 'mặc định cuid()']
+  companyId varchar [not null]
+  status VerificationStatus [not null, default: 'pending']
+  note varchar [not null, default: '', note: 'Ghi chú của doanh nghiệp gửi kèm']
+  rejectReason varchar
+  submittedById varchar
+  reviewedById varchar
+  submittedAt timestamp [not null, default: `now()`]
+  reviewedAt timestamp
+
+  indexes {
+    (companyId, submittedAt)
+    (status, submittedAt)
+  }
+
+  Note: 'Một lần doanh nghiệp gửi giấy tờ xin xác minh; admin duyệt hoặc từ chối kèm lý do. Company.verified vẫn là cờ hiệu lực (admin có thể gỡ sau khi đã duyệt).'
+}
+
+Table VerificationDocument {
+  id varchar [pk, note: 'mặc định cuid()']
+  verificationId varchar [not null]
+  name varchar [not null]
+  fileKey varchar [not null]
+  mimeType varchar [not null]
+  size int [not null]
+
+  indexes {
+    (verificationId)
+  }
+
+  Note: 'Giấy tờ đính kèm (bucket riêng tư, chỉ admin xem qua link ký tạm thời)'
+}
+
+Table CompanyMember {
+  companyId varchar [not null]
+  userId varchar [not null]
+  role MemberRole [not null, default: 'owner']
+
+  indexes {
+    (companyId, userId) [pk]
+    (userId)
+  }
+}
+
+Table Job {
+  id varchar [pk, note: 'mặc định cuid()']
+  companyId varchar [not null]
+  authorId varchar
+  title varchar [not null]
+  description varchar [not null, default: '']
+  jobType JobType [not null]
+  district varchar [not null, default: '']
+  address varchar [not null, default: '']
+  lat float
+  lng float
+  salaryMinK int [not null]
+  salaryMaxK int [not null]
+  salaryLabel varchar [not null, note: 'Nhãn hiển thị, vd. "28.000–32.000đ/giờ" hoặc "350.000đ/ngày"']
+  shiftLabel varchar [not null, default: '']
+  slots "varchar[]" [note: 'Ca làm, cùng kiểu ô với lịch rảnh']
+  skills "varchar[]"
+  requiredSkills "varchar[]" [note: 'Kỹ năng bắt buộc (nằm trong skills): ứng viên thiếu thì không được tính là phù hợp']
+  requireAllSlots boolean [not null, default: false, note: 'Ứng viên phải rảnh đủ mọi ca của tin']
+  quantity int [not null, default: 1]
+  radiusKm int [not null, default: 8]
+  photo jsonb [not null, note: 'Ảnh minh họa { id, alt } (Unsplash) hoặc { url, alt }']
+  status JobStatus [not null, default: 'open']
+  moderation ModerationStatus [not null, default: 'pending']
+  moderationReason varchar
+  moderatedAt timestamp
+  postedAt timestamp [not null, default: `now()`]
+  expiresAt timestamp
+  viewCount int [not null, default: 0, note: 'Lượt xem trang chi tiết (mỗi người xem tính tối đa 1 lần/ngày, không tính người trong công ty và admin)']
+  updatedAt timestamp [not null, note: 'tự cập nhật khi sửa']
+
+  indexes {
+    (companyId)
+    (status, moderation)
+  }
+}
+
+Table JobView {
+  jobId varchar [not null]
+  viewerKey varchar [not null, note: '"u:<userId>" hoặc "ip:<băm IP>" với khách']
+  day date [not null]
+
+  indexes {
+    (jobId, viewerKey, day) [pk]
+    (day)
+  }
+
+  Note: 'Chống đếm trùng lượt xem trong ngày (giờ Việt Nam). Chỉ giữ vài ngày gần nhất, JobViewService dọn dần.'
+}
+
+Table SavedJob {
+  seekerId varchar [not null]
+  jobId varchar [not null]
+  at timestamp [not null, default: `now()`]
+
+  indexes {
+    (seekerId, jobId) [pk]
+  }
+}
+
+Table CandidateMark {
+  jobId varchar [not null]
+  seekerId varchar [not null]
+  kind MarkKind [not null]
+  byUserId varchar [not null]
+  at timestamp [not null, default: `now()`]
+
+  indexes {
+    (jobId, seekerId, kind) [pk]
+  }
+
+  Note: 'Nhà tuyển dụng lưu / bỏ qua một ứng viên cho một tin'
+}
+
+Table Interest {
+  jobId varchar [not null]
+  seekerId varchar [not null]
+  from Side [not null]
+  at timestamp [not null, default: `now()`]
+  viewedAt timestamp [note: 'Chỉ dùng cho đơn của người tìm việc: doanh nghiệp mở xem hồ sơ lần đầu']
+  consideringAt timestamp [note: 'Chỉ dùng cho đơn của người tìm việc: doanh nghiệp bấm "Đang cân nhắc"']
+
+  indexes {
+    (jobId, seekerId, from) [pk]
+  }
+
+  Note: 'Một phía bày tỏ quan tâm (người tìm việc: ứng tuyển). Hai phía cùng có → Connection'
+}
+
+Table Connection {
+  jobId varchar [not null]
+  seekerId varchar [not null]
+  at timestamp [not null, default: `now()`]
+
+  indexes {
+    (jobId, seekerId) [pk]
+  }
+}
+
+Table Message {
+  id varchar [pk, note: 'mặc định cuid()']
+  jobId varchar [not null]
+  seekerId varchar [not null]
+  from Side [not null]
+  text varchar [not null]
+  system boolean [not null, default: false, note: 'Dòng hệ thống giữa khung chat (vd. "Đã gửi lời mời phỏng vấn")']
+  at timestamp [not null, default: `now()`]
+
+  indexes {
+    (jobId, seekerId, at)
+  }
+}
+
+Table ConversationRead {
+  userId varchar [not null]
+  jobId varchar [not null]
+  seekerId varchar [not null]
+  lastRead timestamp [not null]
+
+  indexes {
+    (userId, jobId, seekerId) [pk]
+  }
+
+  Note: 'Mỗi tài khoản đọc tới đâu trong một cuộc trò chuyện (đếm tin chưa đọc)'
+}
+
+Table Interview {
+  id varchar [pk, note: 'mặc định cuid()']
+  jobId varchar [not null]
+  seekerId varchar [not null]
+  slots "timestamp[]" [note: '1–3 khung giờ doanh nghiệp đề xuất']
+  chosen timestamp
+  mode InterviewMode [not null]
+  place varchar [not null]
+  note varchar
+  status InterviewStatus [not null, default: 'pending']
+  createdAt timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, note: 'tự cập nhật khi sửa']
+
+  indexes {
+    (jobId, seekerId)
+  }
+}
+
+Table Hire {
+  jobId varchar [not null]
+  seekerId varchar [not null]
+  status HireStatus [not null]
+  startDate date
+  note varchar
+  reason varchar
+  at timestamp [not null, default: `now()`]
+  updatedAt timestamp [not null, note: 'tự cập nhật khi sửa']
+
+  indexes {
+    (jobId, seekerId) [pk]
+  }
+
+  Note: 'Mỗi cặp tối đa một bản ghi; trạng thái cuối thì không đổi nữa'
+}
+
+Table Review {
+  jobId varchar [not null]
+  seekerId varchar [not null]
+  from Side [not null]
+  stars int [not null]
+  tags "varchar[]"
+  comment varchar
+  at timestamp [not null, default: `now()`]
+
+  indexes {
+    (jobId, seekerId, from) [pk]
+  }
+
+  Note: 'Đánh giá hai chiều sau khi đi làm; mỗi (cặp, phía viết) một lần, không sửa'
+}
+
+Table Notification {
+  id varchar [pk, note: 'mặc định cuid()']
+  userId varchar [not null]
+  kind NotificationKind [not null]
+  jobId varchar [not null]
+  seekerId varchar [not null]
+  read boolean [not null, default: false]
+  at timestamp [not null, default: `now()`]
+  emailedAt timestamp [note: 'Đã xử lý gửi email lúc nào; null = chưa']
+
+  indexes {
+    (userId, read, at)
+    (emailedAt, at)
+  }
+}
+
+Table Report {
+  id varchar [pk, note: 'mặc định cuid()']
+  target ReportTarget [not null]
+  targetId varchar [not null]
+  reason varchar [not null]
+  note varchar
+  reporterId varchar [note: 'Người báo; null = khách chưa đăng nhập']
+  status ReportStatus [not null, default: 'open']
+  resolution varchar
+  at timestamp [not null, default: `now()`]
+  resolvedAt timestamp
+
+  indexes {
+    (status, at)
+  }
+}
+
+Table SystemConfig {
+  id int [pk, default: 1]
+  weights jsonb [not null, note: 'Trọng số chấm điểm: { skills, schedule, salary, distance, jobType }']
+  bannedWords "varchar[]"
+  minWageK int [not null, default: 20]
+  defaultRadiusKm int [not null, default: 8]
+  registrationOpen boolean [not null, default: true]
+  updatedAt timestamp [not null, note: 'tự cập nhật khi sửa']
+
+  Note: 'Một dòng duy nhất (id = 1)'
+}
+
+// ───── Quan hệ (khóa ngoại) ─────
+Ref: PasswordReset.userId > User.id [delete: cascade]
+Ref: UserSettings.userId - User.id [delete: cascade]
+Ref: SeekerProfile.userId - User.id [delete: cascade]
+Ref: SeekerExperience.seekerId > SeekerProfile.userId [delete: cascade]
+Ref: Cv.seekerId > SeekerProfile.userId [delete: cascade]
+Ref: CompanyVerification.companyId > Company.id [delete: cascade]
+Ref: VerificationDocument.verificationId > CompanyVerification.id [delete: cascade]
+Ref: CompanyMember.companyId > Company.id [delete: cascade]
+Ref: CompanyMember.userId > User.id [delete: cascade]
+Ref: Job.companyId > Company.id [delete: cascade]
+Ref: Job.authorId > User.id [delete: set null]
+Ref: JobView.jobId > Job.id [delete: cascade]
+Ref: SavedJob.seekerId > SeekerProfile.userId [delete: cascade]
+Ref: SavedJob.jobId > Job.id [delete: cascade]
+Ref: CandidateMark.jobId > Job.id [delete: cascade]
+Ref: CandidateMark.seekerId > SeekerProfile.userId [delete: cascade]
+Ref: CandidateMark.byUserId > User.id [delete: cascade]
+Ref: Interest.jobId > Job.id [delete: cascade]
+Ref: Interest.seekerId > SeekerProfile.userId [delete: cascade]
+Ref: Connection.jobId > Job.id [delete: cascade]
+Ref: Connection.seekerId > SeekerProfile.userId [delete: cascade]
+Ref: Message.jobId > Job.id [delete: cascade]
+Ref: Message.seekerId > SeekerProfile.userId [delete: cascade]
+Ref: ConversationRead.userId > User.id [delete: cascade]
+Ref: ConversationRead.jobId > Job.id [delete: cascade]
+Ref: ConversationRead.seekerId > SeekerProfile.userId [delete: cascade]
+Ref: Interview.jobId > Job.id [delete: cascade]
+Ref: Interview.seekerId > SeekerProfile.userId [delete: cascade]
+Ref: Hire.jobId > Job.id [delete: cascade]
+Ref: Hire.seekerId > SeekerProfile.userId [delete: cascade]
+Ref: Review.jobId > Job.id [delete: cascade]
+Ref: Review.seekerId > SeekerProfile.userId [delete: cascade]
+Ref: Notification.userId > User.id [delete: cascade]
+Ref: Notification.jobId > Job.id [delete: cascade]
+Ref: Notification.seekerId > SeekerProfile.userId [delete: cascade]
+Ref: Report.reporterId > User.id [delete: set null]
