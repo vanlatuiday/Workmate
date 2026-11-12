@@ -38,6 +38,7 @@ import HelpPage from '@pages/public/content/HelpPage'
 import ContactPage from '@pages/public/content/ContactPage'
 import TermsPage from '@pages/public/content/TermsPage'
 import PrivacyPage from '@pages/public/content/PrivacyPage'
+import NotFoundPage from '@pages/public/NotFoundPage'
 
 // Trang dashboard: tải theo nhu cầu (Suspense nằm trong DashboardShell),
 // khách vào trang công khai không phải tải code của ba khu làm việc.
@@ -192,7 +193,9 @@ export default function App() {
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route element={<PublicLayout />}>
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
     </Routes>
     {/* Tin nhắn nổi: một bản duy nhất cho mọi trang */}
     <Messenger />

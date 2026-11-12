@@ -74,7 +74,7 @@ function RequestCard({ v, onReviewed, onNotice }: { v: AdminVerification; onRevi
         </div>
         <div className="flex flex-shrink-0 flex-wrap gap-2">
           {v.company.locked && <StatusBadge tone="danger">Bị khóa</StatusBadge>}
-          <StatusBadge tone={v.status === 'approved' ? 'accent' : v.status === 'rejected' ? 'danger' : 'neutral'}>
+          <StatusBadge tone={v.status === 'approved' ? 'soft' : v.status === 'rejected' ? 'danger' : 'neutral'}>
             {v.status === 'approved' ? 'Đã duyệt' : v.status === 'rejected' ? 'Đã từ chối' : 'Chờ duyệt'}
           </StatusBadge>
         </div>
@@ -233,7 +233,7 @@ export default function Verification() {
                   </div>
                   <div className="flex flex-shrink-0 flex-wrap gap-2">
                     {c.locked && <StatusBadge tone="danger">Bị khóa</StatusBadge>}
-                    <StatusBadge tone={c.verified ? 'accent' : 'neutral'}>{c.verified ? 'Đã xác minh' : 'Chưa xác minh'}</StatusBadge>
+                    <StatusBadge tone={c.verified ? 'soft' : 'neutral'}>{c.verified ? 'Đã xác minh' : 'Chưa xác minh'}</StatusBadge>
                   </div>
                 </div>
                 <div className="mt-5">

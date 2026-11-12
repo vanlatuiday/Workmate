@@ -305,6 +305,8 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
     thẻ cao ≈80% ảnh để ảnh luôn là khối lớn nhất.
   - **Vệt sáng màu ảnh** dưới ảnh đang xem: bản ảnh 160px làm nhòe mạnh (`blur-[56px]`), đặt sau ảnh,
     chỉ đổi opacity theo cuộn (tối đa 0.55). Màu đến từ chính ảnh, không thêm token màu nào.
+  **Ngoại lệ thứ tư (2026-11-13, chủ dự án quyết):** trang Đăng tin `/dang-tin` (`pages/public/PostJobPage.tsx`)
+  giữ thẻ kính mờ, nền loang và ảnh minh họa, dù các dashboard khác đã về nền ngà phẳng. Không “sửa” khi rà soát.
   Giới hạn: không mang các hiệu ứng này sang trang công khai khác khi chưa hỏi; bản giảm chuyển động
   (`StaticGallery`) không có vệt sáng. Ô tìm kiếm ở các trang khác vẫn theo mục **Thanh tìm kiếm** ở trên.
 - Dùng `#000` / `#fff` tuyệt đối.

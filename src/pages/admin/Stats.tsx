@@ -115,14 +115,14 @@ export default function Stats() {
           <div aria-hidden="true" className="flex h-44 items-end gap-1 sm:gap-2">
             {USERS_14.map((d) => (
               <div key={d.date} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
-                <span className="tnum text-[10px] text-page-fg sm:text-xs">{d.count}</span>
+                <span className="tnum text-xs text-page-fg">{d.count}</span>
                 <div className="w-full max-w-8 rounded-t-control bg-page-fg" style={{ height: `${(d.count / maxUsers) * 78}%` }} />
               </div>
             ))}
           </div>
           <div aria-hidden="true" className="mt-2 flex gap-1 border-t border-page-line pt-2 sm:gap-2">
             {USERS_14.map((d) => (
-              <span key={d.date} className="tnum min-w-0 flex-1 text-center text-[10px] text-page-muted sm:text-xs">{d.date.slice(0, 2)}</span>
+              <span key={d.date} className="tnum min-w-0 flex-1 text-center text-xs text-page-muted">{d.date.slice(0, 2)}</span>
             ))}
           </div>
         </div>

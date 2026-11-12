@@ -129,7 +129,7 @@ export default function Recruiters() {
                       <td className="tnum px-3 py-3 text-right text-page-fg">{st.live} / {st.total}</td>
                       <td className="px-5 py-3">
                         <span className="inline-flex flex-wrap gap-1.5">
-                          {verified[c.id] && <StatusBadge tone="accent">Đã xác minh</StatusBadge>}
+                          {verified[c.id] && <StatusBadge tone="soft">Đã xác minh</StatusBadge>}
                           {locked[c.id] && <StatusBadge tone="danger">Bị khóa</StatusBadge>}
                           {!verified[c.id] && !locked[c.id] && <StatusBadge tone="neutral">Chưa xác minh</StatusBadge>}
                         </span>
@@ -170,7 +170,7 @@ export default function Recruiters() {
         >
           <div className="space-y-6">
             <span className="inline-flex flex-wrap gap-1.5">
-              {verified[open.id] && <StatusBadge tone="accent">Đã xác minh</StatusBadge>}
+              {verified[open.id] && <StatusBadge tone="soft">Đã xác minh</StatusBadge>}
               {locked[open.id] && <StatusBadge tone="danger">Bị khóa</StatusBadge>}
               {!verified[open.id] && !locked[open.id] && <StatusBadge tone="neutral">Chưa xác minh</StatusBadge>}
             </span>
@@ -192,7 +192,7 @@ export default function Recruiters() {
                   {stats(open.id).rows.map((r) => (
                     <li key={r.job.id} className="flex items-center justify-between gap-3 py-2.5">
                       <span className="min-w-0 text-sm text-page-fg">{r.job.title}</span>
-                      <StatusBadge tone={r.status === 'approved' ? 'accent' : r.status === 'pending' ? 'neutral' : 'danger'}>{STATUS_LABEL[r.status]}</StatusBadge>
+                      <StatusBadge tone={r.status === 'approved' ? 'soft' : r.status === 'pending' ? 'neutral' : 'danger'}>{STATUS_LABEL[r.status]}</StatusBadge>
                     </li>
                   ))}
                 </ul>

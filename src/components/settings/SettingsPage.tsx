@@ -63,7 +63,7 @@ function Switch({ label, checked, onChange }: { label: string; checked: boolean;
       <span className="text-sm text-page-fg">{label}</span>
       <button type="button" role="switch" aria-checked={checked} aria-label={label} onClick={() => onChange(!checked)}
         className={cn('relative h-6 w-11 flex-shrink-0 rounded-full border transition-colors duration-base', checked ? 'border-page-fg bg-page-fg' : 'border-page-edge bg-page-surface', FOCUS)}>
-        <span className={cn('absolute top-0.5 h-4 w-4 rounded-full transition-transform duration-base motion-reduce:transition-none', checked ? 'translate-x-[22px] bg-page-bg' : 'translate-x-0.5 bg-page-muted')} />
+        <span className={cn('absolute left-0 top-0.5 h-4 w-4 rounded-full transition-transform duration-base motion-reduce:transition-none', checked ? 'translate-x-[22px] bg-page-bg' : 'translate-x-0.5 bg-page-muted')} />
       </button>
     </li>
   )
@@ -171,21 +171,9 @@ export default function SettingsPage({ side }: { side: Side }) {
     <div>
       <PageHeader title="Cài đặt" description="Tài khoản, thông báo và quyền riêng tư. Thay đổi ở phần thông báo và riêng tư được lưu ngay." />
 
-      <div className="flex max-w-3xl flex-col gap-6">
-        <Section title="Tài khoản">
-          <dl className="mb-6 grid gap-4 sm:grid-cols-2">
-            <div><dt className="text-sm text-page-muted">Email</dt><dd className="mt-1 text-sm text-page-fg">{user?.email ?? '—'}</dd></div>
-            <div><dt className="text-sm text-page-muted">Vai trò</dt><dd className="mt-1 text-sm text-page-fg">{side === 'seeker' ? 'Người tìm việc' : 'Doanh nghiệp'}</dd></div>
-          </dl>
-          <form onSubmit={changePassword} noValidate className="flex flex-col gap-4 border-t border-page-line pt-6">
-            <h3 className="font-medium text-page-fg">Đổi mật khẩu</h3>
-            <PasswordField label="Mật khẩu hiện tại" value={cur} onChange={setCur} error={errs.cur} autoComplete="current-password" />
-            <PasswordField label="Mật khẩu mới (ít nhất 8 ký tự)" value={next} onChange={setNext} error={errs.next} autoComplete="new-password" />
-            <PasswordField label="Nhập lại mật khẩu mới" value={again} onChange={setAgain} error={errs.again} autoComplete="new-password" />
-            <div><button type="submit" className={BTN_ACCENT}>Đổi mật khẩu</button></div>
-          </form>
-        </Section>
-
+      <div className="grid max-w-5xl items-start gap-6 lg:grid-cols-2">
+        {/* Cột trái: thông báo + riêng tư; cột phải: tài khoản + vùng nguy hiểm (1 cột dưới lg, thứ tự: tài khoản trước) */}
+        <div className="order-2 flex min-w-0 flex-col gap-6 lg:order-1">
         <FadeIn>
         <Section title="Thông báo">
           <ul className="divide-y divide-page-line">
@@ -221,6 +209,22 @@ export default function SettingsPage({ side }: { side: Side }) {
         </Section>
         </FadeIn>
 
+        </div>
+        <div className="order-1 flex min-w-0 flex-col gap-6 lg:order-2">
+        <Section title="Tài khoản">
+          <dl className="mb-6 grid gap-4 sm:grid-cols-2">
+            <div><dt className="text-sm text-page-muted">Email</dt><dd className="mt-1 text-sm text-page-fg">{user?.email ?? '—'}</dd></div>
+            <div><dt className="text-sm text-page-muted">Vai trò</dt><dd className="mt-1 text-sm text-page-fg">{side === 'seeker' ? 'Người tìm việc' : 'Doanh nghiệp'}</dd></div>
+          </dl>
+          <form onSubmit={changePassword} noValidate className="flex flex-col gap-4 border-t border-page-line pt-6">
+            <h3 className="font-medium text-page-fg">Đổi mật khẩu</h3>
+            <PasswordField label="Mật khẩu hiện tại" value={cur} onChange={setCur} error={errs.cur} autoComplete="current-password" />
+            <PasswordField label="Mật khẩu mới (ít nhất 8 ký tự)" value={next} onChange={setNext} error={errs.next} autoComplete="new-password" />
+            <PasswordField label="Nhập lại mật khẩu mới" value={again} onChange={setAgain} error={errs.again} autoComplete="new-password" />
+            <div><button type="submit" className={BTN_ACCENT}>Đổi mật khẩu</button></div>
+          </form>
+        </Section>
+
         <FadeIn>
         <Section title="Vùng nguy hiểm">
           <p className="mb-4 text-sm text-page-muted">
@@ -252,6 +256,7 @@ export default function SettingsPage({ side }: { side: Side }) {
           )}
         </Section>
         </FadeIn>
+        </div>
       </div>
     </div>
   )

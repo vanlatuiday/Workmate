@@ -403,7 +403,7 @@ export default function DashboardShell({ navItems, roleLabel, homeHref, searchHr
         </header>
 
         {/* Nội dung */}
-        <main id="dashboard-main" ref={mainRef} className="relative flex-1 overflow-y-auto px-4 pb-4 pt-2 md:px-8 md:pb-8">
+        <main id="dashboard-main" ref={mainRef} className="relative flex-1 overflow-y-auto px-4 pb-24 pt-2 md:px-8 md:pb-8">
           {/* Trang được tải theo nhu cầu (xem App.tsx). RouteScroll nằm cùng Suspense
               để chỉ đặt vị trí cuộn khi nội dung trang đã có. */}
           <Suspense fallback={<PageFallback />}>

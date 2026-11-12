@@ -1,18 +1,16 @@
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@context/authStore'
 
 /**
- * /tin-nhan — đường dẫn cũ của trang nhắn tin, nay chỉ còn là cửa chuyển hướng:
- *   chưa đăng nhập → /dang-nhap; admin → /admin; còn lại → mở khung tin nhắn nổi
- *   (đúng hội thoại nếu có `?c=<jobId>|<seekerId>`) rồi thay URL bằng "/".
+ * /tin-nhan — giữ nguyên URL (chia sẻ được `?c=<jobId>|<seekerId>`).
+ *   chưa đăng nhập → /dang-nhap; admin → /admin;
+ *   còn lại: Messenger (App.tsx) tự mở khung theo URL, trang này chỉ là nền ngà trống phía sau khung.
  */
 export default function MessagesPage() {
   const role = useAuthStore((s) => s.user?.role)
-  const [params] = useSearchParams()
-  const c = params.get('c')
+  const { search } = useLocation()
 
-  if (!role) return <Navigate to="/dang-nhap" state={{ from: '/tin-nhan' }} />
+  if (!role) return <Navigate to="/dang-nhap" state={{ from: `/tin-nhan${search}` }} />
   if (role === 'admin') return <Navigate to="/admin" replace />
-  // keepMessenger: Messenger đừng đóng khung khi đổi trang lần này; openChat: Messenger tự mở (xem Messenger.tsx)
-  return <Navigate to="/" replace state={{ keepMessenger: true, openChat: c }} />
+  return <div className="theme-ivory min-h-[70vh]" aria-hidden="true" />
 }

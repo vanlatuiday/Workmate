@@ -18,7 +18,7 @@ const TABS: { id: Tab; label: string; empty: string; test: (r: AdminJobRow) => b
 ]
 
 /** Thẻ một tin cần kiểm duyệt */
-function ModerationCard({ row }: { row: AdminJobRow }) {
+function ModerationCard({ row, hideStatus }: { row: AdminJobRow; hideStatus?: boolean }) {
   const { job } = row
   return (
     <li data-flip-key={job.id} className="rounded-card border border-page-line bg-page-surface p-5">
@@ -32,7 +32,7 @@ function ModerationCard({ row }: { row: AdminJobRow }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-display text-base font-medium text-page-fg">{job.title}</h2>
-            <JobStatusBadges row={row} />
+            <JobStatusBadges row={row} hideStatus={hideStatus} />
           </div>
           <p className="mt-1 text-sm text-page-muted">{companyOf(job.companyId).name}</p>
           <p className="tnum mt-1 text-sm text-page-fg">{job.district} · {job.salaryLabel} · {job.shiftLabel}</p>
@@ -92,7 +92,7 @@ export default function Moderation() {
       {list.length === 0 ? (
         <EmptyState icon={ShieldCheck} title={current.empty} description="Tin mới do doanh nghiệp đăng sẽ xuất hiện ở đây." />
       ) : (
-        <ul ref={flipRef} className="space-y-4">{list.map((r) => <ModerationCard key={r.job.id} row={r} />)}</ul>
+        <ul ref={flipRef} className="space-y-4">{list.map((r) => <ModerationCard key={r.job.id} row={r} hideStatus={tab === 'pending'} />)}</ul>
       )}
 
     </div>

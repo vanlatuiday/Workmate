@@ -133,7 +133,7 @@ export default function Candidates() {
                     <td className="hidden px-3 py-3 text-page-fg md:table-cell">{availabilityText(c)}</td>
                     <td className="tnum px-3 py-3 text-right text-page-fg">{connCount(c.id)}</td>
                     <td className="px-5 py-3">
-                      <StatusBadge tone={locked[c.id] ? 'danger' : 'accent'}>{locked[c.id] ? 'Bị khóa' : 'Hoạt động'}</StatusBadge>
+                      <StatusBadge tone={locked[c.id] ? 'danger' : 'soft'}>{locked[c.id] ? 'Bị khóa' : 'Hoạt động'}</StatusBadge>
                     </td>
                   </tr>
                 ))}
@@ -163,7 +163,7 @@ export default function Candidates() {
           }
         >
           <div className="space-y-6">
-            <StatusBadge tone={locked[open.id] ? 'danger' : 'accent'}>{locked[open.id] ? 'Bị khóa' : 'Hoạt động'}</StatusBadge>
+            <StatusBadge tone={locked[open.id] ? 'danger' : 'soft'}>{locked[open.id] ? 'Bị khóa' : 'Hoạt động'}</StatusBadge>
             <dl className="grid grid-cols-2 gap-4">
               <div><dt className="text-xs text-page-muted">Khu vực</dt><dd className="mt-0.5 text-sm text-page-fg">{open.area}</dd></div>
               <div><dt className="text-xs text-page-muted">Tình trạng</dt><dd className="mt-0.5 text-sm text-page-fg">{availabilityText(open)}</dd></div>

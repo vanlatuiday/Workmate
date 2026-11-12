@@ -187,6 +187,9 @@ function BlockRow({
   const backId = useId();
 
   const [flipped, setFlipped] = useState(false);
+  // Mobile: hai mặt chồng chung một ô lưới nên ô cao bằng mặt sau (dài hơn) → mặt trước thừa khoảng trống.
+  // Khi đã nghỉ ở mặt trước (không đang xoay) thì mặt sau không chiếm chiều cao.
+  const [settled, setSettled] = useState(true);
   const flippedRef = useRef(false);
   const busyRef = useRef(false);
   const timerRef = useRef<number>();
@@ -240,8 +243,11 @@ function BlockRow({
     busyRef.current = true;
     flippedRef.current = to;
     setFlipped(to);
+    setSettled(false);
     const done = () => {
       busyRef.current = false;
+      setSettled(true);
+      if (!wide) requestAnimationFrame(() => ScrollTrigger.refresh()); // chiều cao thẻ mobile vừa đổi
       (to ? backTitleRef : openRef).current?.focus({ preventScroll: true });
     };
     if (reduced) {
@@ -451,6 +457,7 @@ function BlockRow({
             onKeyDown={onEsc}
             className={cn(
               "glass-page flex flex-col [grid-area:1/1] md:absolute",
+              !wide && !flipped && settled && "max-h-0 overflow-hidden",
               reduced ? "md:inset-y-0 md:right-full md:w-full" : "md:inset-0",
               !reduced && "[backface-visibility:hidden] [transform:rotateY(180deg)]",
               reduced && fade,

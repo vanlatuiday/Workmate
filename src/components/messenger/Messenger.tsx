@@ -8,18 +8,22 @@ import { useAuthStore } from '@context/authStore'
 import { useMediaQuery } from '@hooks/useMediaQuery'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useMessengerStore } from '@context/messengerStore'
+import { useNotificationCenterStore } from '@context/notificationCenterStore'
 import { useConversations, useUnreadMessages, type Side } from '@services/connectionService'
 import ChatPane from '@pages/public/messages/ChatPane'
 import ConversationList from '@pages/public/messages/ConversationList'
 import { CONTENT_CLOSE, CONTENT_OPEN, FOCUSABLE, PANEL_CLOSE, PANEL_OPEN } from '@components/floating/panelMotion'
 import { lockScroll } from '@components/floating/scrollLock'
-import { FLOAT_SIZE as SIZE, useFloatingButton, type FloatPos } from '@components/floating/useFloatingButton'
+import { useFloatMetrics, useFloatingButton, type FloatPos } from '@components/floating/useFloatingButton'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { BTN_ICON } from '@utils/ui'
 
 const STORAGE_KEY = 'workmate-messenger-pos'
 const DEFAULT_POS: FloatPos = { side: 'right', yRatio: 1 }
+const ROUTE = '/tin-nhan'
+// Trang chủ theo vai trò: nơi về khi đóng tin nhắn mà không có trang trước trong ứng dụng
+const HOME: Record<Side, string> = { seeker: '/tim-viec', recruiter: '/tuyen-dung' }
 
 export default function Messenger() {
   const role = useAuthStore((s) => s.user?.role)
@@ -31,7 +35,10 @@ function MessengerInner({ viewer }: { viewer: Side }) {
   const { open, activeKey, openMessenger, closeMessenger, setActiveKey } = useMessengerStore()
   const unread = useUnreadMessages()
   const conversations = useConversations()
-  const { pathname, search, hash, state } = useLocation()
+  const { pathname, search } = useLocation()
+  const isRoute = pathname === ROUTE
+  const { size: SIZE } = useFloatMetrics()
+  const inShell = useNotificationCenterStore((s) => s.inShell)
   const navigate = useNavigate()
   const reduced = useReducedMotion()
   // Từ md: hai cột (danh sách | chat), tự mở hội thoại đầu khi chưa chọn
@@ -43,7 +50,7 @@ function MessengerInner({ viewer }: { viewer: Side }) {
   const closeRef = useRef<HTMLButtonElement>(null)
   const wasOpen = useRef(false)
 
-  const { x, y, dragging, animate, buttonProps } = useFloatingButton({
+  const { x, y, dragging, animate, compact, buttonProps } = useFloatingButton({
     storageKey: STORAGE_KEY,
     defaultPos: DEFAULT_POS,
     rank: 0,
@@ -52,6 +59,7 @@ function MessengerInner({ viewer }: { viewer: Side }) {
     launcherRef,
     wrapRef,
     panelRef,
+    noReserve: inShell, // dashboard tự cuộn trong khung riêng, không đệm body
   })
 
   // Gỡ component (đăng xuất, đổi vai trò) thì đóng khung và bỏ hội thoại đang xem
@@ -63,26 +71,43 @@ function MessengerInner({ viewer }: { viewer: Side }) {
     [closeMessenger, setActiveKey],
   )
 
-  // Đổi trang thì đóng khung (trừ khi vừa được MessagesPage chuyển hướng để mở khung)
+  // Đổi trang thì đóng khung (trừ khi vừa vào /tin-nhan: khung mở theo URL, xem bên dưới)
   // So với đường dẫn trước (không dùng cờ "lần đầu" vì StrictMode chạy effect hai lần)
   const prevPath = useRef(pathname)
   useEffect(() => {
     if (prevPath.current === pathname) return
     prevPath.current = pathname
-    if ((state as { keepMessenger?: boolean } | null)?.keepMessenger) return
+    if (pathname === ROUTE) return
     closeMessenger()
-  }, [pathname, state, closeMessenger])
+  }, [pathname, closeMessenger])
 
-  // /tin-nhan chuyển về đây kèm state.openChat (null = danh sách, "jobId|seekerId" = hội thoại).
-  // Mở ở chính khung tin nhắn (đã dựng xong) thay vì ở MessagesPage: tải thẳng /tin-nhan thì effect dọn dẹp
-  // lúc dựng component (StrictMode) chạy sau MessagesPage và đóng khung vừa mở.
-  // Xong thì xóa state để F5 / quay lại trang không mở lại khung.
-  const openChat = (state as { openChat?: string | null } | null)?.openChat
+  // ---- Đồng bộ với URL /tin-nhan?c=<jobId|seekerId> ----
+  // 1) Vào /tin-nhan (tải thẳng, tải lại, liên kết, nút Tiến/Lùi): mở khung, đúng hội thoại nếu có ?c.
+  //    Cố ý mở lại sau khi tải lại trang (thay cho quy tắc cũ "F5 không tự mở lại") để chia sẻ được liên kết hội thoại.
   useEffect(() => {
-    if (openChat === undefined) return
-    openMessenger(openChat)
-    navigate({ pathname, search, hash }, { replace: true, state: { keepMessenger: true } })
-  }, [openChat, openMessenger, navigate, pathname, search, hash])
+    if (isRoute) openMessenger(new URLSearchParams(window.location.search).get('c'))
+  }, [isRoute, openMessenger])
+
+  // 2) Đóng khi đang ở /tin-nhan → về trang trước trong ứng dụng, không có thì về trang chủ của vai trò.
+  //    Mở từ trang khác thì khung chỉ hiện đè lên trang đó, URL giữ nguyên.
+  //    Chỉ phản ứng lúc chuyển mở→đóng (ref), tránh xử lý khi khung đóng dần vì đổi trang.
+  const wasOpenRoute = useRef(false)
+  useEffect(() => {
+    const was = wasOpenRoute.current
+    wasOpenRoute.current = open
+    if (was && !open && isRoute) {
+      const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0
+      if (idx > 0) navigate(-1)
+      else navigate(HOME[viewer], { replace: true })
+    }
+  }, [open, isRoute, navigate, viewer])
+
+  // 3) Đang mở ở /tin-nhan: đổi hội thoại thì cập nhật ?c (replace, không làm đầy lịch sử)
+  useEffect(() => {
+    if (!isRoute || !open) return
+    const want = activeKey ? `?c=${encodeURIComponent(activeKey)}` : ''
+    if (want !== search) navigate({ pathname: ROUTE, search: want }, { replace: true })
+  }, [isRoute, open, activeKey, search, navigate])
 
   // ---- Bàn phím: Esc đóng, Tab xoay vòng trong khung ----
   useEffect(() => {
@@ -171,10 +196,10 @@ function MessengerInner({ viewer }: { viewer: Side }) {
             aria-hidden={open || undefined}
             aria-haspopup="dialog"
             aria-label={unread > 0 ? `Mở tin nhắn (${unread} tin mới)` : 'Mở tin nhắn'}
-            style={{ touchAction: 'none', width: SIZE, height: SIZE }}
+            style={{ touchAction: compact ? 'auto' : 'none', width: SIZE, height: SIZE }}
             className={cn(
               // Viền ngà mờ: tách nút khỏi nền tối (trang chủ, dashboard kính); trên nền ngà thì gần như không thấy
-              'flex cursor-grab items-center justify-center rounded-full bg-page-fg text-page-bg ring-1 ring-wm-ivory/40 hover:ring-2 hover:ring-wm-ivory/70 active:cursor-grabbing',
+              'flex items-center justify-center rounded-full bg-page-fg text-page-bg ring-1 ring-wm-ivory/40 hover:ring-2 hover:ring-wm-ivory/70 md:cursor-grab md:active:cursor-grabbing',
               'transition-transform duration-fast hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100',
               FOCUS,
             )}

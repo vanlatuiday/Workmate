@@ -433,7 +433,7 @@ export default function JobseekerMatch() {
             Lịch rảnh <span className="font-normal text-page-muted">· {base.slots.length} ca/tuần</span>
           </h3>
           {/* Lưới chỉ xem: hàng = buổi, cột = ngày; ô đặc = rảnh */}
-          <div className="mt-2 grid grid-cols-[auto_repeat(7,1fr)] items-center gap-1 text-[11px] text-page-muted" role="img"
+          <div className="mt-2 grid grid-cols-[auto_repeat(7,1fr)] items-center gap-1 text-xs text-page-muted" role="img"
             aria-label={`Lịch rảnh ${base.slots.length} ca mỗi tuần`}>
             <span />
             {DAY_SHORT.map((d) => (

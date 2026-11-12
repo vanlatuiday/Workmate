@@ -6,7 +6,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Bell, X } from 'lucide-react'
 import { CONTENT_CLOSE, CONTENT_OPEN, FOCUSABLE, PANEL_CLOSE, PANEL_OPEN } from '@components/floating/panelMotion'
 import { lockScroll } from '@components/floating/scrollLock'
-import { FLOAT_SIZE as SIZE, GAP, useFloatingButton, type FloatPos } from '@components/floating/useFloatingButton'
+import { useFloatMetrics, useFloatingButton, type FloatPos } from '@components/floating/useFloatingButton'
 import { useAuthStore } from '@context/authStore'
 import { useMessengerStore } from '@context/messengerStore'
 import { useNotificationCenterStore } from '@context/notificationCenterStore'
@@ -33,6 +33,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
   const unread = useUnreadCount(viewer)
   const { pathname } = useLocation()
   const reduced = useReducedMotion()
+  const { size: SIZE, gap: GAP } = useFloatMetrics()
 
   const launcherRef = useRef<HTMLButtonElement>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -41,7 +42,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
   const openerRef = useRef<HTMLElement | null>(null)
   const wasOpen = useRef(false)
 
-  const { x, y, dragging, animate, buttonProps } = useFloatingButton({
+  const { x, y, dragging, animate, compact, buttonProps } = useFloatingButton({
     storageKey: STORAGE_KEY,
     defaultPos: DEFAULT_POS,
     rank: 1,
@@ -51,6 +52,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
     launcherRef,
     wrapRef,
     panelRef,
+    hidden: inShell,
   })
 
   // Gỡ component (đăng xuất, đổi vai trò) thì đóng popup để lần đăng nhập sau không tự bật
@@ -150,9 +152,9 @@ function CenterInner({ viewer }: { viewer: Side }) {
             aria-hidden={open || undefined}
             aria-haspopup="dialog"
             aria-label={unread > 0 ? `Thông báo, ${unread} chưa đọc` : 'Thông báo'}
-            style={{ touchAction: 'none', width: SIZE, height: SIZE }}
+            style={{ touchAction: compact ? 'auto' : 'none', width: SIZE, height: SIZE }}
             className={cn(
-              'flex cursor-grab items-center justify-center rounded-full bg-page-fg text-page-bg ring-1 ring-wm-ivory/40 hover:ring-2 hover:ring-wm-ivory/70 active:cursor-grabbing',
+              'flex items-center justify-center rounded-full bg-page-fg text-page-bg ring-1 ring-wm-ivory/40 hover:ring-2 hover:ring-wm-ivory/70 md:cursor-grab md:active:cursor-grabbing',
               'transition-transform duration-fast hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100',
               FOCUS,
             )}

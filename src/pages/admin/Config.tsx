@@ -134,7 +134,7 @@ export default function Config() {
             onClick={() => patch({ registrationOpen: !form.registrationOpen })}
             className={`relative h-6 w-11 flex-shrink-0 rounded-full border transition-colors duration-fast ${FOCUS} ${form.registrationOpen ? 'border-page-fg bg-page-fg' : 'border-page-edge bg-page-surface'}`}
           >
-            <span aria-hidden="true" className={`absolute top-0.5 h-4 w-4 rounded-full transition-transform duration-base motion-reduce:transition-none ${form.registrationOpen ? 'translate-x-[1.375rem] bg-page-bg' : 'translate-x-0.5 bg-page-fg'}`} />
+            <span aria-hidden="true" className={`absolute left-0 top-0.5 h-4 w-4 rounded-full transition-transform duration-base motion-reduce:transition-none ${form.registrationOpen ? 'translate-x-[1.375rem] bg-page-bg' : 'translate-x-0.5 bg-page-fg'}`} />
           </button>
         </div>
       </Panel>

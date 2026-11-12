@@ -22,22 +22,24 @@ export const STATUS_LABEL: Record<ModerationStatus, string> = {
   rejected: 'Bị từ chối',
   hidden: 'Bị ẩn',
 }
-export const STATUS_TONE: Record<ModerationStatus, 'neutral' | 'accent' | 'danger'> = {
+export const STATUS_TONE: Record<ModerationStatus, 'neutral' | 'soft' | 'danger'> = {
   // Quy ước admin: chờ = xám, đã duyệt/đang mở = accent, từ chối/ẩn/khóa = danger
   pending: 'neutral',
-  approved: 'accent',
+  approved: 'soft',
   rejected: 'danger',
   hidden: 'danger',
 }
 
 /** Nhãn trạng thái kiểm duyệt của một tin (kèm "Công ty bị khóa" nếu có) */
-export function JobStatusBadges({ row }: { row: AdminJobRow }) {
+export function JobStatusBadges({ row, hideStatus }: { row: AdminJobRow; hideStatus?: boolean }) {
   return (
     <span className="inline-flex flex-wrap items-center gap-1.5">
       {/* Đã duyệt nhưng NTD tạm dừng/đóng thì không còn "Đang hiện" — tránh mâu thuẫn với huy hiệu NTD */}
-      <StatusBadge tone={STATUS_TONE[row.status]}>
-        {row.status === 'approved' && row.jobStatus !== 'open' ? 'Đã duyệt' : STATUS_LABEL[row.status]}
-      </StatusBadge>
+      {!hideStatus && (
+        <StatusBadge tone={STATUS_TONE[row.status]}>
+          {row.status === 'approved' && row.jobStatus !== 'open' ? 'Đã duyệt' : STATUS_LABEL[row.status]}
+        </StatusBadge>
+      )}
       {row.companyLocked && <StatusBadge tone="danger">Công ty bị khóa</StatusBadge>}
       {row.jobStatus !== 'open' && <StatusBadge tone="muted">{row.jobStatus === 'paused' ? 'NTD tạm dừng' : 'NTD đã đóng'}</StatusBadge>}
     </span>
