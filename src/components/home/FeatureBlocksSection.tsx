@@ -12,8 +12,8 @@ import TextReveal from "@components/motion/TextReveal";
 import {
   EMPTY_FILTERS,
   filtersToParams,
-  seekerOutcome,
   useAllJobs,
+  useSeekerOutcomes,
   type MatchJob,
 } from "@pages/public/jobs/catalog";
 import { homeMedia } from "./homeMedia";
@@ -507,6 +507,7 @@ const postedMs = (j: MatchJob) =>
 function useChipJobs(blocks: Block[], role: HomeRole): (ChipJob | null)[] {
   const jobs = useAllJobs();
   const companyId = useCompanyStore((s) => s.id);
+  const { outcomeOf } = useSeekerOutcomes();
   return useMemo(() => {
     const newest = (list: MatchJob[]) =>
       [...list].sort((a, b) => postedMs(b) - postedMs(a));
@@ -522,13 +523,14 @@ function useChipJobs(blocks: Block[], role: HomeRole): (ChipJob | null)[] {
       let pick: ChipJob | null = null;
       if (b.id === "schedule") {
         if (role === "jobseeker") {
-          const best = [...jobs].sort(
-            (a, c) => seekerOutcome(c).score - seekerOutcome(a).score,
-          )[0];
+          // Chỉ xét tin đã có điểm từ máy chủ
+          const best = jobs
+            .flatMap((job) => { const o = outcomeOf(job); return o ? [{ job, score: o.score }] : [] })
+            .sort((a, c) => c.score - a.score)[0];
           if (best)
             pick = {
-              job: best,
-              tag: `${Math.round(seekerOutcome(best).score)}% phù hợp lịch của bạn`,
+              job: best.job,
+              tag: `${Math.round(best.score)}% phù hợp lịch của bạn`,
             };
         } else if (newest(jobs)[0]) {
           pick = { job: newest(jobs)[0], tag: "Mới đăng" };
@@ -545,7 +547,7 @@ function useChipJobs(blocks: Block[], role: HomeRole): (ChipJob | null)[] {
       if (pick) used.add(pick.job.id);
       return pick;
     });
-  }, [blocks, role, jobs, companyId]);
+  }, [blocks, role, jobs, companyId, outcomeOf]);
 }
 
 /**

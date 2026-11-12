@@ -7,6 +7,7 @@ import api from './api'
 import { apiErrorMessage } from './authService'
 import { connectRealtime, disconnectRealtime, emitTyping } from './realtime'
 import { loadCandidates } from './candidateService'
+import { scheduleMatchingRefresh } from './matchingService'
 import { useAuthStore } from '@context/authStore'
 import { useCatalogStore } from '@context/catalogStore'
 import { useCandidateStore } from '@context/candidateStore'
@@ -153,7 +154,7 @@ export async function startConnections() {
             void refreshPairs().catch(() => undefined)
             void refreshConversations().catch(() => undefined)
             // Vừa kết nối thì danh sách ứng viên mở họ tên đầy đủ
-            if (!isSeeker()) void loadCandidates().catch(() => undefined)
+            if (!isSeeker()) { void loadCandidates().catch(() => undefined); scheduleMatchingRefresh() }
           }, 150)
         },
         // Phía kia đánh dấu đã đọc: cập nhật "Đã xem" (bỏ qua sự kiện do chính mình phát)

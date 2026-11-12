@@ -9,7 +9,7 @@ import { useMatchStore } from '@context/matchStore'
 import { useInterviews, useMyPairs } from '@services/connectionService'
 import { describeConversation } from '@pages/public/messages/describe'
 import { formatRelativeTime } from '@utils/format'
-import { useAllJobs, seekerOutcome } from '@pages/public/jobs/catalog'
+import { useAllJobs, useSeekerOutcomes } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { FOCUS } from '@utils/focus'
 import FadeIn from '@components/motion/FadeIn'
@@ -34,7 +34,8 @@ export default function JobseekerDashboard() {
   // 3 việc điểm cao nhất theo cách tính chung (catalog.ts)
   const allJobs = useAllJobs()
   const catalogLoaded = useCatalogStore((s) => s.loaded)
-  const jobs = allJobs.map((job) => ({ job, outcome: seekerOutcome(job) }))
+  const { ready: scoresReady, outcomeOf } = useSeekerOutcomes()
+  const jobs = allJobs.flatMap((job) => { const outcome = outcomeOf(job); return outcome ? [{ job, outcome }] : [] })
     .sort((a, b) => b.outcome.score - a.outcome.score)
     .slice(0, 3)
 
@@ -58,7 +59,7 @@ export default function JobseekerDashboard() {
           title="Việc phù hợp với bạn"
           action={<Link to="/tim-viec/phu-hop" className={LINK}>Xem tất cả</Link>}
         >
-          {!catalogLoaded && jobs.length === 0 ? <SkeletonList rows={3} label="Đang tải việc phù hợp…" /> : (
+          {(!catalogLoaded || !scoresReady) && jobs.length === 0 ? <SkeletonList rows={3} label="Đang tải việc phù hợp…" /> : (
           <ul className="divide-y divide-page-line">
             {jobs.map(({ job, outcome }) => (
               <li key={job.id} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">

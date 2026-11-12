@@ -27,6 +27,7 @@ const NOTIFY: Record<Side, { kind: NotificationKind; label: string }[]> = {
     { kind: 'offer_withdrawn', label: 'Lời mời nhận việc bị rút' },
     { kind: 'rejected', label: 'Doanh nghiệp chưa chọn bạn' },
     { kind: 'review', label: 'Doanh nghiệp đánh giá bạn' },
+    { kind: 'job_match', label: 'Việc mới rất phù hợp với bạn' },
   ],
   recruiter: [
     { kind: 'interest', label: 'Ứng viên ứng tuyển tin của bạn' },
@@ -36,6 +37,7 @@ const NOTIFY: Record<Side, { kind: NotificationKind; label: string }[]> = {
     { kind: 'offer_accepted', label: 'Ứng viên xác nhận đi làm' },
     { kind: 'offer_declined', label: 'Ứng viên từ chối nhận việc' },
     { kind: 'review', label: 'Ứng viên đánh giá doanh nghiệp' },
+    { kind: 'candidate_match', label: 'Ứng viên mới rất phù hợp với tin của bạn' },
   ],
 }
 

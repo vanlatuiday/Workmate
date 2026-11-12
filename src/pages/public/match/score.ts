@@ -1,3 +1,4 @@
+// Nguồn sự thật là backend src/matching/score.ts; bản này chỉ cho xem trước khi soạn tin và trang mẫu — sửa công thức thì sửa cả hai.
 // Cách tính điểm phù hợp cho trang /match — dùng chung cho cả hai phía.
 // Mỗi tiêu chí chấm 0–1, nhân trọng số rồi cộng lại thành phần trăm.
 // Đổi thứ tự ưu tiên = gán lại trọng số theo hạng (RANK_WEIGHTS) rồi tính lại.

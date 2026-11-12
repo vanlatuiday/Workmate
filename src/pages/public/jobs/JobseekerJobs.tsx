@@ -10,7 +10,7 @@ import MatchScore from '@components/dashboard/MatchScore'
 import { BTN_SECONDARY } from '@utils/ui'
 import type { DiscoverCompany } from './data'
 import { useSeekerCriteria } from '@context/profileStore'
-import { bestJobOf, companiesMatching, EMPTY_FILTERS, hasFilters, type MatchJob } from './catalog'
+import { bestJobOf, useSeekerOutcomes, companiesMatching, EMPTY_FILTERS, hasFilters, type MatchJob } from './catalog'
 import JobSearchBar from './JobSearchBar'
 import JobsHero from './JobsHero'
 import PositionChips from './PositionChips'
@@ -92,7 +92,8 @@ export default function JobseekerJobs() {
 
 function CompanyDetail({ company: c, jobs, filtered }: { company: DiscoverCompany; jobs: MatchJob[]; filtered: boolean }) {
   // Độ phù hợp của công ty = việc hợp nhất với hồ sơ người đang xem (cách tính chung ở catalog.ts)
-  const best = bestJobOf(c.id)
+  const { outcomeOf } = useSeekerOutcomes()
+  const best = bestJobOf(c.id, outcomeOf)
   return (
     <>
       <DetailHead kicker={`${c.industry} · ${c.district}`} title={c.name} />

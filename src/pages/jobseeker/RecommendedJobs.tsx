@@ -9,7 +9,7 @@ import type { JobType } from '@/types'
 import { useCatalogStore } from '@context/catalogStore'
 import { useMatchStore } from '@context/matchStore'
 import { useSeekerCriteria } from '@context/profileStore'
-import { useAllJobs, seekerOutcome, type MatchJob } from '@pages/public/jobs/catalog'
+import { useAllJobs, useSeekerOutcomes, type MatchJob } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { CRITERION_LABELS, type MatchOutcome } from '@pages/public/match/score'
 import { FOCUS } from '@utils/focus'
@@ -133,7 +133,12 @@ export default function RecommendedJobs() {
   // Điểm tính một lần cho cả danh mục (cùng cách tính với trang Kết nối)
   const allJobs = useAllJobs()
   const criteria = useSeekerCriteria() // đổi hồ sơ -> chấm điểm lại
-  const scored = useMemo<Scored[]>(() => allJobs.map((job) => ({ job, outcome: seekerOutcome(job) })), [allJobs, criteria])
+  const { ready: scoresReady, outcomeOf } = useSeekerOutcomes()
+  // Tin chưa có điểm từ máy chủ (vừa tạo) thì chưa gợi ý
+  const scored = useMemo<Scored[]>(
+    () => allJobs.flatMap((job) => { const outcome = outcomeOf(job); return outcome ? [{ job, outcome }] : [] }),
+    [allJobs, criteria, outcomeOf],
+  )
 
   const jobs = useMemo(() => {
     const list = scored.filter((x) => (type === 'all' || x.job.jobType === type) && x.outcome.score >= minScore)
@@ -186,7 +191,7 @@ export default function RecommendedJobs() {
 
       <p className="mb-4 text-sm text-page-muted" role="status">{jobs.length} việc phù hợp</p>
 
-      {!catalogLoaded && allJobs.length === 0 ? (
+      {(!catalogLoaded && allJobs.length === 0) || !scoresReady ? (
         <SkeletonCards count={3} className="space-y-4" label="Đang tải việc phù hợp…" />
       ) : jobs.length === 0 ? (
         <EmptyState

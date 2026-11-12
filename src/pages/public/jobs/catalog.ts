@@ -1,11 +1,15 @@
-// DANH MỤC VIỆC LÀM DÙNG CHUNG — một nguồn việc làm + một cách tính điểm cho mọi trang phía
+// DANH MỤC VIỆC LÀM DÙNG CHUNG — một nguồn việc làm + điểm do máy chủ tính cho mọi trang phía
 // người tìm việc (Việc làm, trang công ty, Kết nối, dashboard "Việc phù hợp"/"Tổng quan").
 // Đứng riêng để tránh vòng import giữa `jobs/data.ts` và `match/data.ts`.
+import { useCallback } from 'react'
 import type { JobType } from '@/types'
 import type { DiscoverCompany } from './data'
 import { allCompanies, companyOf, type MatchJob } from '@pages/public/match/data'
 import { getVisibleJobs, useVisibleJobs } from '@services/adminService'
 import { getSeekerCriteria } from '@context/profileStore'
+import { useAuthStore } from '@context/authStore'
+import { useMatchingStore } from '@context/matchingStore'
+import { useSeekerMatches } from '@services/matchingService'
 import { scoreMatch, type MatchOutcome } from '@pages/public/match/score'
 
 export type { MatchJob }
@@ -23,15 +27,35 @@ export function jobsOfCompany(companyId: string): MatchJob[] {
   return getAllJobs().filter((j) => j.companyId === companyId)
 }
 
-/** Điểm phù hợp của một việc với hồ sơ người tìm việc demo — cách tính duy nhất (score.ts, 5 tiêu chí) */
-export function seekerOutcome(job: MatchJob): MatchOutcome {
+/**
+ * Điểm phù hợp của một việc với người tìm việc đang đăng nhập: lấy từ máy chủ (services/matchingService).
+ * Chưa có điểm (đang nạp, tin vừa tạo) → undefined. Khách / vai trò khác chỉ thấy bản mẫu tính tại chỗ với hồ sơ demo.
+ * Trong component dùng `useSeekerOutcomes()` để tự cập nhật khi điểm về.
+ */
+export function seekerOutcome(job: MatchJob): MatchOutcome | undefined {
+  if (useAuthStore.getState().user?.role === 'jobseeker') return useMatchingStore.getState().jobs[job.id]
   return scoreMatch(getSeekerCriteria(), job, job.distanceKm)
 }
 
-/** Việc hợp nhất của một công ty (để hiện "Độ phù hợp với bạn") */
-export function bestJobOf(companyId: string): { job: MatchJob; outcome: MatchOutcome } | undefined {
+/** Hook: `ready` = điểm đã về (hoặc không cần chờ), `outcomeOf(job)` như seekerOutcome nhưng cập nhật giao diện */
+export function useSeekerOutcomes() {
+  const isSeeker = useAuthStore((s) => s.user?.role === 'jobseeker')
+  const m = useSeekerMatches()
+  const { outcomeOf } = m
+  const of = useCallback(
+    (job: MatchJob): MatchOutcome | undefined => (isSeeker ? outcomeOf(job.id) : scoreMatch(getSeekerCriteria(), job, job.distanceKm)),
+    [isSeeker, outcomeOf],
+  )
+  return { ready: !isSeeker || m.ready, outcomeOf: of }
+}
+
+/** Việc hợp nhất của một công ty (để hiện "Độ phù hợp với bạn"); `outcomeOf` lấy từ useSeekerOutcomes() */
+export function bestJobOf(
+  companyId: string,
+  outcomeOf: (job: MatchJob) => MatchOutcome | undefined = seekerOutcome,
+): { job: MatchJob; outcome: MatchOutcome } | undefined {
   return jobsOfCompany(companyId)
-    .map((job) => ({ job, outcome: seekerOutcome(job) }))
+    .flatMap((job) => { const outcome = outcomeOf(job); return outcome ? [{ job, outcome }] : [] })
     .sort((a, b) => b.outcome.score - a.outcome.score)[0]
 }
 

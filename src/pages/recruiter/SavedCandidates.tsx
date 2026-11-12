@@ -6,7 +6,7 @@ import { Bookmark } from 'lucide-react'
 import { EmptyState, MatchScore, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
 import { useCandidates, usePositions } from '@pages/public/match/data'
-import { scoreMatch } from '@pages/public/match/score'
+import { useCandidateMatches } from '@services/matchingService'
 import { expressInterest, useOnNewConnection, usePairStatuses } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -29,6 +29,8 @@ export default function SavedCandidates() {
   const statusOf = usePairStatuses('recruiter')
   const positions = usePositions()
   const candidates = useCandidates()
+  // Điểm do máy chủ tính theo từng tin; chưa có điểm thì không hiện phần trăm
+  const { outcomeOf } = useCandidateMatches(positions.map((p) => p.id))
 
   useOnNewConnection(() => notifySuccess('Đã kết nối — giờ hai bên nhắn tin được'))
 
@@ -39,7 +41,7 @@ export default function SavedCandidates() {
       const i = key.indexOf(':')
       if (key.slice(0, i) !== position.id) return []
       const cand = candidates.find((c) => c.id === key.slice(i + 1))
-      return cand ? [{ key, cand, score: scoreMatch(cand.criteria, position.req, cand.distanceKm).score }] : []
+      return cand ? [{ key, cand, score: outcomeOf(position.id, cand.id)?.score, distanceKm: outcomeOf(position.id, cand.id)?.distanceKm ?? cand.distanceKm }] : []
     }),
   })).filter((g) => g.rows.length > 0)
 
@@ -60,7 +62,7 @@ export default function SavedCandidates() {
             <FadeIn key={position.id}>
             <Panel title={position.job.title}>
               <FlipList keys={rows.map((r) => r.key)}>
-                {rows.map(({ key, cand, score }) => {
+                {rows.map(({ key, cand, score, distanceKm }) => {
                   const status = statusOf(position.id, cand.id)
                   return (
                     <li key={key} data-flip-key={key} className="flex flex-col gap-4 py-4 first:pt-0 last:pb-0 lg:flex-row lg:items-center lg:justify-between">
@@ -72,10 +74,10 @@ export default function SavedCandidates() {
                           {status === 'connected' && <StatusBadge tone="accent">Đã kết nối</StatusBadge>}
                         </div>
                         <p className="mt-1 text-sm text-page-muted">{cand.summary}</p>
-                        <p className="mt-1 text-xs text-page-muted">{cand.area} · cách {cand.distanceKm} km</p>
+                        <p className="mt-1 text-xs text-page-muted">{cand.area} · cách {distanceKm} km</p>
                       </div>
                       <div className="flex flex-wrap items-center gap-x-5 gap-y-3 lg:flex-shrink-0">
-                        <MatchScore score={score} size="sm" />
+                        {score !== undefined && <MatchScore score={score} size="sm" />}
                         <div className="flex flex-wrap items-center gap-2">
                           {status === 'none' && (
                             <button

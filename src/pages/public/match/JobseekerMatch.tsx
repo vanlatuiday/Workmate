@@ -18,6 +18,7 @@ import { companyOf, SEEKER_JOBS, type MatchJob } from './data'
 import { useCatalogStore } from '@context/catalogStore'
 import { useSeekerCriteria } from '@context/profileStore'
 import { useAllJobs } from '@pages/public/jobs/catalog'
+import { reweight, useSeekerMatches } from '@services/matchingService'
 import { findAnyJob } from '@pages/public/jobs/lookup'
 import CurvedGallery from './gallery/CurvedGallery'
 import CriteriaDrawer from './CriteriaDrawer'
@@ -106,10 +107,21 @@ export default function JobseekerMatch() {
     return [...allJobs, ...rest]
   }, [allJobs, catalogJobs])
   const visibleIds = useMemo(() => new Set(allJobs.map((j) => j.id)), [allJobs])
+  // Điểm: máy chủ là nguồn sự thật. Đổi thứ tự ưu tiên → nhân lại trọng số trên điểm từng tiêu chí (không gọi lại máy chủ).
+  // Chỉ khi người dùng chỉnh thử lương / bán kính / loại việc tại chỗ (không lưu vào hồ sơ) hoặc tin chưa có điểm
+  // (tin đã ẩn người này còn quan hệ) mới tính tại chỗ bằng scoreMatch.
+  const { ready: scoresReady, weights: serverWeights, outcomeOf } = useSeekerMatches()
+  const tweaked = salaryMinK !== base.salaryMinK || maxDistanceKm !== base.maxDistanceKm
+    || jobTypes.length !== base.jobTypes.length || jobTypes.some((t) => !base.jobTypes.includes(t))
+  const customPriority = priority.some((k, i) => k !== DEFAULT_PRIORITY[i])
   const scored = useMemo(() => {
     const seeker = { ...base, salaryMinK, maxDistanceKm, jobTypes }
-    return pool.map((job) => ({ job, outcome: scoreMatch(seeker, job, job.distanceKm, priority) }))
-  }, [pool, base, salaryMinK, maxDistanceKm, jobTypes, priority])
+    return pool.map((job) => {
+      const server = tweaked ? undefined : outcomeOf(job.id)
+      if (server) return { job, outcome: customPriority ? { ...server, score: reweight(server, weightsOf(priority)) } : server }
+      return { job, outcome: scoreMatch(seeker, job, job.distanceKm, customPriority ? priority : undefined) }
+    })
+  }, [pool, base, salaryMinK, maxDistanceKm, jobTypes, priority, tweaked, customPriority, scoresReady, outcomeOf])
 
   const lists = useMemo(() => {
     const by = (a: { job: MatchJob; outcome: MatchOutcome }, b: { job: MatchJob; outcome: MatchOutcome }) => {
@@ -137,7 +149,7 @@ export default function JobseekerMatch() {
   const flipRef = useFlip<HTMLUListElement>(shown.map((x) => x.job.id))
   // Danh mục chưa về từ máy chủ: hiện khung chờ thay vì "Chưa có việc nào"
   const catalogSettled = useCatalogStore((s) => s.settled)
-  const waiting = !catalogSettled && allJobs.length === 0
+  const waiting = (!catalogSettled && allJobs.length === 0) || !scoresReady
   const detail = open ? scored.find((x) => x.job.id === open.id) : undefined
 
   // Sau khi đổi hạng bằng nút, trả focus về đúng nút vừa bấm (hàng đã đổi chỗ trong DOM)
@@ -159,7 +171,7 @@ export default function JobseekerMatch() {
   }
 
   const [dragKey, setDragKey] = useState<CriterionKey | null>(null)
-  const weights = weightsOf(priority)
+  const weights = customPriority || !serverWeights ? weightsOf(priority) : serverWeights
 
   const toggleType = (t: JobType) =>
     setJobTypes((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]))
@@ -546,7 +558,7 @@ export default function JobseekerMatch() {
               { ...base, salaryMinK, maxDistanceKm, jobTypes, skills: [...base.skills, ...missing] },
               job,
               job.distanceKm,
-              priority,
+              customPriority ? priority : undefined,
             ).score,
           )
         : 0

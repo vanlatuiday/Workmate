@@ -5,6 +5,9 @@ import { useAdminStore } from '@context/adminStore'
 import { useCatalogStore, type CatalogJob, type JobOpenStatus, type ModerationStatus, type SystemConfig } from '@context/catalogStore'
 import { candidatesOf, type MatchCandidate, type MatchJob } from '@pages/public/match/data'
 import { scoreMatch } from '@pages/public/match/score'
+import { useAuthStore } from '@context/authStore'
+import { useMatchingStore } from '@context/matchingStore'
+import { useCandidateMatches } from './matchingService'
 import { useConnectionStore } from '@context/connectionStore'
 import { useCandidateStore } from '@context/candidateStore'
 import toast from 'react-hot-toast'
@@ -118,8 +121,22 @@ export function useCompanyJobs(companyId: string): CompanyJobRow[] {
 /** Điểm tối thiểu để tính là "ứng viên phù hợp" (khớp mức "Phù hợp" ở /match) */
 export const FIT_MIN_SCORE = 60
 
-/** Ứng viên đạt ≥ FIT_MIN_SCORE với một tin, điểm cao trước (cùng cách chấm với /match phía doanh nghiệp) */
+/**
+ * Ứng viên đạt ≥ FIT_MIN_SCORE với một tin, điểm cao trước. Nhà tuyển dụng: điểm do máy chủ tính (cùng nguồn với /match,
+ * đọc từ kho điểm — gọi trong component kèm `useCandidateMatches` để có dữ liệu và tự cập nhật).
+ * Quản trị viên: không có điểm từ máy chủ nên tính tại chỗ bằng scoreMatch (bản xem trước).
+ */
 export function fitCandidatesOf(job: MatchJob): { c: MatchCandidate; score: number }[] {
+  if (useAuthStore.getState().user?.role === 'recruiter') {
+    const items = useMatchingStore.getState().candidates[job.id]?.items ?? {}
+    const all = candidatesOf()
+    return Object.entries(items)
+      .flatMap(([id, o]) => {
+        const c = all.find((x) => x.id === id)
+        return c && o.score >= FIT_MIN_SCORE ? [{ c: { ...c, distanceKm: o.distanceKm }, score: o.score }] : []
+      })
+      .sort((a, b) => b.score - a.score)
+  }
   return candidatesOf()
     .map((c) => ({ c, score: scoreMatch(c.criteria, job, c.distanceKm).score }))
     .filter((x) => x.score >= FIT_MIN_SCORE)
@@ -140,6 +157,7 @@ export function useJobNumbers(jobs: MatchJob[]): Record<string, JobNumbers> {
   const interests = useConnectionStore((s) => s.interests)
   const connections = useConnectionStore((s) => s.connections)
   useCandidateStore((s) => s.list) // fitCandidatesOf đọc thẳng kho ứng viên; đăng ký để tính lại khi nạp xong
+  useCandidateMatches(jobs.map((j) => j.id)) // nạp + theo dõi điểm máy chủ (nhà tuyển dụng)
   return Object.fromEntries(
     jobs.map((j) => [
       j.id,

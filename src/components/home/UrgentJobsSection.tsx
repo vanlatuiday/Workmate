@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { useReducedMotion } from '@hooks/useReducedMotion'
-import { seekerOutcome, useAllJobs } from '@pages/public/jobs/catalog'
+import { useAllJobs, useSeekerOutcomes } from '@pages/public/jobs/catalog'
 import { useSeekerCriteria } from '@context/profileStore'
 import TextReveal from '@components/motion/TextReveal'
 import JobCard from './JobCard'
@@ -30,15 +30,16 @@ export default function UrgentJobsSection() {
   const candidates = useHomeCandidates()
   // Đăng ký hồ sơ để điểm phù hợp tính lại khi người tìm việc sửa hồ sơ
   const criteria = useSeekerCriteria()
+  const { outcomeOf } = useSeekerOutcomes()
 
   const copy = role === 'guest' ? { ...homeSections.urgent, prev: 'Xem các việc trước', next: 'Xem các việc tiếp theo' } : homeSectionsByRole[role].urgent
 
   const scored = useMemo(
     () =>
       role === 'jobseeker'
-        ? allJobs.map((job) => ({ job, score: seekerOutcome(job).score })).sort((a, b) => b.score - a.score).slice(0, COUNT)
+        ? allJobs.flatMap((job) => { const o = outcomeOf(job); return o ? [{ job, score: o.score }] : [] }).sort((a, b) => b.score - a.score).slice(0, COUNT)
         : [],
-    [role, allJobs, criteria],
+    [role, allJobs, criteria, outcomeOf],
   )
   const jobs = allJobs.slice(0, COUNT)
   const shownCandidates = candidates.slice(0, COUNT)

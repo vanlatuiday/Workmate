@@ -6,7 +6,7 @@ import { EmptyState, MatchScore, PageHeader, Panel, SkeletonList, StatusBadge } 
 import { useCatalogStore } from '@context/catalogStore'
 import { useMatchStore } from '@context/matchStore'
 import { APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStages, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
-import { useAllJobs, seekerOutcome } from '@pages/public/jobs/catalog'
+import { useAllJobs, useSeekerOutcomes } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -31,6 +31,7 @@ export default function SavedJobs() {
   const statusOf = usePairStatuses('seeker')
   const stageOf = useApplicationStages()
   const catalogLoaded = useCatalogStore((s) => s.loaded)
+  const { outcomeOf } = useSeekerOutcomes()
 
   useOnNewConnection((c) => {
     if (c.seekerId === ME) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
@@ -87,7 +88,7 @@ export default function SavedJobs() {
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-x-5 gap-y-3 lg:flex-shrink-0">
-                    <MatchScore score={seekerOutcome(job).score} size="sm" />
+                    {outcomeOf(job) && <MatchScore score={outcomeOf(job)!.score} size="sm" />}
                     <div className="flex flex-wrap items-center gap-2">
                       {status === 'none' && (
                         <button

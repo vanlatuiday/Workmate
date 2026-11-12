@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import { notifySuccess } from '@utils/feedback'
 import { Bookmark, BookmarkCheck, MapPin, Search, UserSearch } from 'lucide-react'
-import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
+import { EmptyState, PageHeader, Panel, SkeletonCards, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
 import { availabilityLabel, useCandidates, usePositions, type MatchCandidate, type MatchPosition } from '@pages/public/match/data'
-import { scoreMatch } from '@pages/public/match/score'
+import { useCandidateMatches } from '@services/matchingService'
 import { expressInterest, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
 import { useFlip } from '@hooks/useFlip'
 import PopIcon from '@components/common/PopIcon'
@@ -37,15 +37,17 @@ const STATUS_LABEL: Record<Exclude<PairStatus, 'none'>, string> = {
   connected: 'Đã kết nối',
 }
 
-function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPosition[] }) {
+function CandidateCard({ c, positions, outcomeOf }: { c: MatchCandidate; positions: MatchPosition[]; outcomeOf: (jobId: string, seekerId: string) => { score: number; distanceKm: number } | undefined }) {
   const statusOf = usePairStatuses('recruiter')
   const savedCandidates = useMatchStore((s) => s.savedCandidates)
   const toggleSaved = useMatchStore((s) => s.toggleSavedCandidate)
   const [open, setOpen] = useState(false)
 
   // Tin hợp nhất với ứng viên này
-  const scored = positions.map((p) => ({ p, score: scoreMatch(c.criteria, p.req, c.distanceKm).score })).sort((a, b) => b.score - a.score)
+  // Điểm do máy chủ tính; tin chưa có điểm xếp cuối và không hiện phần trăm
+  const scored = positions.map((p) => ({ p, score: outcomeOf(p.id, c.id)?.score })).sort((a, b) => (b.score ?? -1) - (a.score ?? -1))
   const best = scored[0]
+  const distanceKm = outcomeOf(best.p.id, c.id)?.distanceKm ?? c.distanceKm
   const states = positions.map((p) => ({ p, st: statusOf(p.id, c.id) }))
   // Chỉ chọn được tin chưa quan tâm / chưa kết nối; mặc định tin hợp nhất trong số đó
   const choosable = scored.filter(({ p }) => ['none', 'received'].includes(statusOf(p.id, c.id)))
@@ -75,7 +77,7 @@ function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPo
           <p className="mt-0.5 text-sm text-page-muted">{c.summary}</p>
           <p className="mt-1 inline-flex items-center gap-1 text-xs text-page-muted">
             <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
-            {c.area} · cách {c.distanceKm} km
+            {c.area} · cách {distanceKm} km
           </p>
         </div>
         <StatusBadge tone={ready ? 'default' : 'muted'}>
@@ -89,10 +91,12 @@ function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPo
         ))}
       </ul>
 
-      <p className="mt-4 text-sm text-page-fg">
-        <span className="text-page-muted">Hợp nhất: </span>
-        {best.p.job.title} · <span className="tnum font-medium">{best.score}%</span>
-      </p>
+      {best.score !== undefined && (
+        <p className="mt-4 text-sm text-page-fg">
+          <span className="text-page-muted">Hợp nhất: </span>
+          {best.p.job.title} · <span className="tnum font-medium">{best.score}%</span>
+        </p>
+      )}
 
       {states.some((x) => x.st !== 'none') && (
         <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Trạng thái theo tin">
@@ -114,7 +118,7 @@ function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPo
               Chọn tin tuyển dụng
               <select value={pickedId} onChange={(e) => setPicked(e.target.value)} className={cn(FIELD, 'mt-1 w-full')}>
                 {choosable.map(({ p, score }) => (
-                  <option key={p.id} value={p.id}>{p.job.title} · {score}%</option>
+                  <option key={p.id} value={p.id}>{p.job.title}{score !== undefined && ` · ${score}%`}</option>
                 ))}
               </select>
             </label>
@@ -154,6 +158,7 @@ export default function FindCandidates() {
   // Máy chủ đã lọc người bị khóa và hồ sơ không cho phép tiếp cận
   const ALL_CANDIDATES = useCandidates()
   const positions = usePositions()
+  const { ready: scoresReady, outcomeOf } = useCandidateMatches(positions.map((p) => p.id))
   const ALL_SKILLS = useMemo(() => [...new Set(ALL_CANDIDATES.flatMap((c) => c.criteria.skills))].sort((a, b) => a.localeCompare(b, 'vi')), [ALL_CANDIDATES])
   const AREAS = useMemo(() => [...new Set(ALL_CANDIDATES.map((c) => c.area).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'vi')), [ALL_CANDIDATES])
 
@@ -243,6 +248,8 @@ export default function FindCandidates() {
 
       {positions.length === 0 ? (
         <EmptyState icon={Search} title="Chưa có tin đang hiển thị" description="Cần có tin đang mở đã được duyệt để quan tâm ứng viên." />
+      ) : !scoresReady ? (
+        <SkeletonCards count={3} label="Đang tính độ phù hợp…" />
       ) : list.length === 0 ? (
         <EmptyState
           icon={UserSearch}
@@ -252,7 +259,7 @@ export default function FindCandidates() {
         />
       ) : (
         <ul ref={flipRef} className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {list.map((c) => <CandidateCard key={c.id} c={c} positions={positions} />)}
+          {list.map((c) => <CandidateCard key={c.id} c={c} positions={positions} outcomeOf={outcomeOf} />)}
         </ul>
       )}
 

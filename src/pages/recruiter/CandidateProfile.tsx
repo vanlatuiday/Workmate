@@ -19,7 +19,7 @@ import { useCatalogStore, type CatalogJob } from '@context/catalogStore'
 import { useCompanyStore } from '@context/companyStore'
 import { useConnectionStore } from '@context/connectionStore'
 import { personInitials } from '@pages/public/match/parts'
-import { scoreMatch } from '@pages/public/match/score'
+import { useCandidateMatches } from '@services/matchingService'
 import { EmptyNote, WeekGrid } from '@pages/public/personal/parts'
 import { apiErrorMessage } from '@services/authService'
 import { candidateCvUrl, fetchCandidateProfile, type CandidateProfile as Profile } from '@services/candidateService'
@@ -43,13 +43,12 @@ async function openCv(seekerId: string, download: boolean) {
 }
 
 /** Một tin của công ty: độ phù hợp với ứng viên này và việc có thể làm tiếp */
-function JobRow({ job, profile }: { job: CatalogJob; profile: Profile }) {
+function JobRow({ job, profile, score }: { job: CatalogJob; profile: Profile; score?: number }) {
   const status = usePairStatuses('recruiter')(job.id, profile.id)
   // Mở hồ sơ của người đã ứng tuyển = doanh nghiệp đã xem đơn đó
   useEffect(() => {
     if (status === 'received') markApplicationViewed(job.id, profile.id)
   }, [status, job.id, profile.id])
-  const score = scoreMatch(profile.criteria, job, profile.distanceKm).score
   return (
     <li className="py-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -57,7 +56,7 @@ function JobRow({ job, profile }: { job: CatalogJob; profile: Profile }) {
           <p className="font-medium text-page-fg">{job.title}</p>
           <p className="mt-0.5 text-sm text-page-muted">{job.shiftLabel} · {job.salaryLabel}</p>
         </div>
-        <MatchScore score={score} />
+        {score !== undefined && <MatchScore score={score} />}
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {status === 'none' && (
@@ -111,6 +110,8 @@ export default function CandidateProfile() {
   const companyId = useCompanyStore((s) => s.id)
   const allJobs = useCatalogStore((s) => s.jobs)
   const statusOf = usePairStatuses('recruiter')
+  // Điểm với từng tin của công ty do máy chủ tính
+  const { ready: scoresReady, outcomeOf } = useCandidateMatches(allJobs.filter((j) => j.companyId === companyId).map((j) => j.id))
 
   useEffect(() => {
     let alive = true
@@ -133,8 +134,8 @@ export default function CandidateProfile() {
   // Tin còn nhận ứng viên, cùng những tin đã có quan hệ với người này dù nay đã ẩn
   const jobs = allJobs
     .filter((j) => j.companyId === companyId && (j.visible || statusOf(j.id, profile.id) !== 'none'))
-    .map((job) => ({ job, score: scoreMatch(profile.criteria, job, profile.distanceKm).score }))
-    .sort((a, b) => b.score - a.score)
+    .map((job) => ({ job, score: outcomeOf(job.id, profile.id)?.score }))
+    .sort((a, b) => (b.score ?? -1) - (a.score ?? -1))
   const typeLabels = profile.criteria.jobTypes.map((t) => JOB_TYPES.find((j) => j.value === t)?.label ?? t)
 
   const aside = (
@@ -202,9 +203,11 @@ export default function CandidateProfile() {
 
       <DetailLayout aside={aside}>
         <TextBlock title="Phù hợp với tin của bạn">
-          {jobs.length ? (
+          {!scoresReady && jobs.length ? (
+            <SkeletonList rows={2} label="Đang tính độ phù hợp…" />
+          ) : jobs.length ? (
             <ul className="divide-y divide-page-line border-y border-page-line">
-              {jobs.map(({ job }) => <JobRow key={job.id} job={job} profile={profile} />)}
+              {jobs.map(({ job, score }) => <JobRow key={job.id} job={job} profile={profile} score={score} />)}
             </ul>
           ) : (
             <EmptyNote invite={{ to: '/dang-tin', label: 'Đăng tin tuyển dụng' }}>Công ty chưa có tin đang hiển thị để so với hồ sơ này.</EmptyNote>

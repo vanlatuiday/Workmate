@@ -27,7 +27,8 @@ import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import { SkeletonCards } from '@components/dashboard/Skeleton'
 import { useCatalogStore } from '@context/catalogStore'
 import { useFlip } from '@hooks/useFlip'
-import { DEFAULT_PRIORITY, scoreMatch, weightsOf, type CriterionResult } from './score'
+import { useCandidateMatches } from '@services/matchingService'
+import { DEFAULT_PRIORITY, weightsOf, type CriterionResult } from './score'
 import MessageLink from '@components/messenger/MessageLink'
 
 type TabKey = 'fit' | 'saved' | 'interested' | 'connected'
@@ -96,13 +97,18 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
     if (pos && cd) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
   })
 
-  // Chấm điểm ứng viên của vị trí đang chọn (ưu tiên mặc định), cao trước
+  // Điểm ứng viên của vị trí đang chọn do máy chủ tính (trọng số mặc định), cao trước.
+  // Người chưa có điểm (vừa xuất hiện) thì chưa liệt kê; khoảng cách lấy từ máy chủ (nơi ở → chỗ làm của tin)
+  const { ready: scoresReady, weights: serverWeights, outcomeOf } = useCandidateMatches([position.id])
   const scored = useMemo(
     () =>
       candidates
-        .map((c) => ({ c, key: candidateKey(position.id, c.id), outcome: scoreMatch(c.criteria, req, c.distanceKm) }))
+        .flatMap((c) => {
+          const outcome = outcomeOf(position.id, c.id)
+          return outcome ? [{ c: { ...c, distanceKm: outcome.distanceKm }, key: candidateKey(position.id, c.id), outcome }] : []
+        })
         .sort((a, b) => b.outcome.score - a.outcome.score),
-    [candidates, position.id, req],
+    [candidates, position.id, scoresReady, outcomeOf],
   )
 
   const skipped = scored.filter((x) => skippedCandidates.includes(x.key))
@@ -282,7 +288,9 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
             setLevel('all')
           }}
         >
-          {shown.length === 0 ? (
+          {!scoresReady ? (
+            <SkeletonCards count={3} label="Đang tính độ phù hợp…" />
+          ) : shown.length === 0 ? (
             <EmptyState
               icon={UserX}
               title={
@@ -394,7 +402,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
             />
           </div>
           <DetailSection title="Mức độ khớp với tin">
-            <CriterionBars results={outcome.results} weights={weightsOf(DEFAULT_PRIORITY)} noteOf={recruiterNote} />
+            <CriterionBars results={outcome.results} weights={serverWeights ?? weightsOf(DEFAULT_PRIORITY)} noteOf={recruiterNote} />
             {outcome.unmet.length > 0 && (
               <ImproveHint>
                 Chưa đạt yêu cầu bắt buộc: <strong className="font-medium">{outcome.unmet.join(', ')}</strong>.

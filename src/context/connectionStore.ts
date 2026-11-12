@@ -43,11 +43,12 @@ export interface DemoNotification {
    * người tìm việc chọn giờ / từ chối · interview_cancelled = doanh nghiệp hủy ·
    * offer = doanh nghiệp mời nhận việc · offer_accepted / offer_declined = người tìm việc xác nhận đi làm / từ chối ·
    * offer_withdrawn = doanh nghiệp rút lời mời · rejected = doanh nghiệp không nhận ·
-   * review = phía kia vừa gửi đánh giá sau khi đi làm
+   * review = phía kia vừa gửi đánh giá sau khi đi làm ·
+   * job_match = (người tìm việc) có tin mới rất phù hợp · candidate_match = (doanh nghiệp) có ứng viên mới rất phù hợp
    */
   kind:
     | 'interest' | 'considering' | 'connected' | 'interview_invited' | 'interview_confirmed' | 'interview_declined' | 'interview_cancelled'
-    | 'offer' | 'offer_accepted' | 'offer_declined' | 'offer_withdrawn' | 'rejected' | 'review'
+    | 'offer' | 'offer_accepted' | 'offer_declined' | 'offer_withdrawn' | 'rejected' | 'review' | 'job_match' | 'candidate_match'
   jobId: string
   seekerId: string
   at: string

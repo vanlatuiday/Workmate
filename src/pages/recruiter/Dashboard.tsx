@@ -7,7 +7,7 @@ import { useHires, useInterviews, usePairStatuses } from '@services/connectionSe
 import { useCandidates } from '@pages/public/match/data'
 import { useCatalogStore } from '@context/catalogStore'
 import { useCompanyStore } from '@context/companyStore'
-import { scoreMatch } from '@pages/public/match/score'
+import { useCandidateMatches } from '@services/matchingService'
 import { findAnyJob } from '@pages/public/jobs/lookup'
 import { fmtSlot, MODE_LABEL } from '@components/interview/format'
 import PlaceText from '@components/interview/PlaceText'
@@ -35,6 +35,8 @@ export default function RecruiterDashboard() {
   const rows = useCompanyJobs(useCompanyStore((s) => s.id))
   const candidates = useCandidates()
   const catalogLoaded = useCatalogStore((s) => s.loaded)
+  // Điểm ứng viên do máy chủ tính (cho danh sách "vừa quan tâm")
+  const { outcomeOf } = useCandidateMatches(rows.map((r) => r.job.id))
   const candidateOf = (seekerId: string) => candidates.find((c) => c.id === seekerId)
   // Người đã xác nhận đi làm — thước đo chính của Workmate
   const working = useHires().filter((h) => h.status === 'accepted').length
@@ -72,7 +74,7 @@ export default function RecruiterDashboard() {
       // Chỉ tin đang mở mới hiện ở danh sách này
       const row = rows.find((r) => r.job.id === i.jobId)
       const job = row && row.status === 'approved' && row.jobStatus === 'open' ? row.job : undefined
-      return c && job ? [{ key: `${i.jobId}|${i.seekerId}`, c, job, score: scoreMatch(c.criteria, job, c.distanceKm).score }] : []
+      return c && job ? [{ key: `${i.jobId}|${i.seekerId}`, c, job, score: outcomeOf(job.id, c.id)?.score }] : []
     })
 
   return (
@@ -128,7 +130,7 @@ export default function RecruiterDashboard() {
                     <Link to={candidateHref(c.id)} className={cn('rounded-control block truncate text-sm font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>{c.name}</Link>
                     <p className="truncate text-xs text-page-muted">{job.title}</p>
                   </div>
-                  <MatchScore score={score} size="sm" />
+                  {score !== undefined && <MatchScore score={score} size="sm" />}
                 </li>
               ))}
             </ul>

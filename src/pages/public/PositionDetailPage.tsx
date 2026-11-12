@@ -15,6 +15,8 @@ import { useCatalogStore } from '@context/catalogStore'
 import { useCompanyStore } from '@context/companyStore'
 import { JOB_STATUS_LABELS } from '@pages/recruiter/mockData'
 import { FIT_MIN_SCORE, fitCandidatesOf } from '@services/adminService'
+import { SkeletonList } from '@components/dashboard'
+import { useCandidateMatches } from '@services/matchingService'
 
 const MAX_SHOWN = 20
 
@@ -25,6 +27,7 @@ export default function PositionDetailPage() {
   const job = useCatalogStore((s) => s.jobs.find((j) => j.id === id))
   const catalogSettled = useCatalogStore((s) => s.settled)
   useCandidateStore((s) => s.list) // fitCandidatesOf đọc thẳng kho; đăng ký để tính lại khi nạp xong
+  const { ready: scoresReady } = useCandidateMatches(id ? [id] : []) // điểm do máy chủ tính
 
   if (!companyId || (!job && !catalogSettled)) return <DetailSkeleton label="Đang tải vị trí…" />
   if (!job || job.companyId !== companyId) {
@@ -66,7 +69,9 @@ export default function PositionDetailPage() {
             Tin này chưa hiển thị với người tìm việc nên chưa thể quan tâm ứng viên cho tin này.
           </p>
         )}
-        {candidates.length ? (
+        {!scoresReady ? (
+          <TextBlock title="Ứng viên phù hợp"><SkeletonList rows={2} label="Đang tính độ phù hợp…" /></TextBlock>
+        ) : candidates.length ? (
           <>
             <TextBlock title="Ứng viên phù hợp">
               <p className="leading-relaxed text-page-muted">

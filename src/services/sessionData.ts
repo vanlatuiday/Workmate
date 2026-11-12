@@ -4,6 +4,7 @@ import { useCandidateStore } from '@context/candidateStore'
 import { useCompanyStore } from '@context/companyStore'
 import { useMatchStore } from '@context/matchStore'
 import { useSettingsStore } from '@context/settingsStore'
+import { resetMatching } from './matchingService'
 import { loadAdminSeekers, loadCandidates } from './candidateService'
 import { loadAdminPairs, startConnections, stopConnections } from './connectionService'
 
@@ -15,6 +16,7 @@ export function loadSessionData(role: string | undefined) {
   useMatchStore.getState().clear()
   useCompanyStore.getState().clear()
   useSettingsStore.getState().reset()
+  resetMatching()
   if (!role) return
   if (role === 'admin') {
     void quiet(loadAdminPairs())

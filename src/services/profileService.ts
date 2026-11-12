@@ -3,6 +3,7 @@
 import toast from 'react-hot-toast'
 import api from './api'
 import { apiErrorMessage } from './authService'
+import { scheduleMatchingRefresh } from './matchingService'
 import { useAuthStore } from '@context/authStore'
 import { registerProfileSync, useProfileStore, type SeekerProfile } from '@context/profileStore'
 import type { JobType } from '@/types'
@@ -52,6 +53,7 @@ async function flush(): Promise<void> {
   inflight = inflight.then(async () => {
     try {
       await api.patch<ProfileResponse>('/seeker/profile', toBody(patch))
+      scheduleMatchingRefresh()
     } catch (err) {
       toast.error(`Chưa lưu được hồ sơ: ${apiErrorMessage(err)}`, { id: 'profile-save' })
     }

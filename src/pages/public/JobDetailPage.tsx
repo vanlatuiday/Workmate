@@ -19,7 +19,7 @@ import JobLinks from '@components/discover/detail/JobLinks'
 import { TagList, TextBlock } from '@components/discover/detail/DetailBlocks'
 import ReportButton from '@components/report/ReportButton'
 import api from '@services/api'
-import { jobsOfCompany, seekerOutcome, useAllJobs, type MatchJob } from './jobs/catalog'
+import { jobsOfCompany, useAllJobs, useSeekerOutcomes, type MatchJob } from './jobs/catalog'
 import { findAnyJob } from './jobs/lookup'
 import { companyOf } from './match/data'
 import { CriterionBars, ImproveHint } from './match/detailParts'
@@ -92,7 +92,8 @@ export default function JobDetailPage() {
   const location = useLocation()
   const role = useAuthStore((s) => s.user?.role)
   const visibleJobs = useAllJobs()
-  // Cùng trọng số mà seekerOutcome dùng (Cấu hình hệ thống) để thanh tiêu chí khớp điểm tổng
+  const { outcomeOf } = useSeekerOutcomes()
+  // Cùng trọng số máy chủ dùng (Cấu hình hệ thống) để thanh tiêu chí khớp điểm tổng
   const weights = useCatalogStore((s) => s.config.weights)
   const catalogSettled = useCatalogStore((s) => s.settled)
 
@@ -123,7 +124,7 @@ export default function JobDetailPage() {
   const company = companyOf(job.companyId)
   const hidden = !shown
   const others = jobsOfCompany(company.id).filter((j) => j.id !== job.id)
-  const outcome = role === 'jobseeker' ? seekerOutcome(job) : null
+  const outcome = role === 'jobseeker' ? outcomeOf(job) ?? null : null
   const improved = outcome && outcome.missingSkills.length > 0
   const required = job.requiredSkills ?? []
   const preferred = job.skills.filter((s) => !required.includes(s))

@@ -13,6 +13,7 @@ import { useCatalogStore, type CatalogJob } from '@context/catalogStore'
 import { SkeletonCards } from '@components/dashboard/Skeleton'
 import { JOB_STATUS_LABELS } from '@pages/recruiter/mockData'
 import { fitCandidatesOf, useCompanyJobs } from '@services/adminService'
+import { useCandidateMatches } from '@services/matchingService'
 import JobsHero from './JobsHero'
 import JobSearchBar from './JobSearchBar'
 import { EMPTY_FILTERS, type JobFilters } from './catalog'
@@ -57,7 +58,8 @@ export default function RecruiterJobs() {
   const all = useMemo(() => rows.map((r) => r.job).sort((a, b) => rank(a) - rank(b)).map(toItem), [rows])
   const items = useMemo(() => all.filter((x) => matches(x, filters)), [all, filters])
   // fitCandidatesOf đọc thẳng kho ứng viên: tính lại khi danh sách nạp xong
-  const fitCount = useMemo(() => new Map(all.map((x) => [x.id, fitCandidatesOf(x.position).length])), [all, candidates])
+  const { outcomeOf } = useCandidateMatches(all.map((x) => x.id)) // điểm máy chủ; outcomeOf đổi khi điểm đổi
+  const fitCount = useMemo(() => new Map(all.map((x) => [x.id, fitCandidatesOf(x.position).length])), [all, candidates, outcomeOf])
   return (
     <>
       <JobsHero

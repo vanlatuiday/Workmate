@@ -1,10 +1,11 @@
 // Danh sách thông báo dùng chung cho trang /thong-bao và popup thông báo nổi.
 import { useNavigate } from 'react-router-dom'
-import { Bell, BriefcaseBusiness, CalendarCheck, CalendarPlus, CalendarX, Handshake, Heart, HeartHandshake, Hourglass, Star, Undo2, UserCheck, UserX, type LucideIcon } from 'lucide-react'
+import { Bell, BriefcaseBusiness, CalendarCheck, CalendarPlus, CalendarX, Handshake, Heart, HeartHandshake, Hourglass, Sparkles, Star, Undo2, UserCheck, UserX, type LucideIcon } from 'lucide-react'
 import { EmptyState } from '@components/dashboard'
 import { SkeletonList } from '@components/dashboard/Skeleton'
 import { useMessengerStore } from '@context/messengerStore'
 import ChatAvatar from '@pages/public/messages/ChatAvatar'
+import { candidateHref } from '@pages/public/personal/links'
 import { describeConversation } from '@pages/public/messages/describe'
 import {
   markAllNotificationsRead, markNotificationRead, useConnectionsReady, useNotifications,
@@ -29,11 +30,13 @@ const ICONS: Record<DemoNotification['kind'], LucideIcon> = {
   offer_withdrawn: Undo2,
   rejected: HeartHandshake,
   review: Star,
+  job_match: Sparkles,
+  candidate_match: Sparkles,
 }
 
 /** Màu icon loại thông báo (góc avatar): tích cực = accent, từ chối/hủy = danger, còn lại = chữ thường */
 const KIND_TONE: Partial<Record<DemoNotification['kind'], string>> = {
-  connected: 'text-accent-ink', interview_confirmed: 'text-accent-ink', offer_accepted: 'text-accent-ink', offer: 'text-accent-ink',
+  connected: 'text-accent-ink', interview_confirmed: 'text-accent-ink', offer_accepted: 'text-accent-ink', offer: 'text-accent-ink', job_match: 'text-accent-ink', candidate_match: 'text-accent-ink',
   interview_declined: 'text-danger', interview_cancelled: 'text-danger', offer_declined: 'text-danger', offer_withdrawn: 'text-danger', rejected: 'text-danger',
 }
 
@@ -67,6 +70,10 @@ function sentence(viewer: Side, n: DemoNotification) {
       return `${name} đã rút lời mời nhận việc vị trí ${subtitle}`
     case 'review':
       return `${name} vừa gửi đánh giá sau khi làm việc cùng bạn (vị trí ${subtitle})`
+    case 'job_match':
+      return `Có việc mới rất phù hợp với bạn: ${subtitle} tại ${name}`
+    case 'candidate_match':
+      return `Có ứng viên mới rất phù hợp với vị trí ${subtitle}: ${name}`
     case 'rejected':
       return `${name} cảm ơn bạn đã quan tâm vị trí ${subtitle}, lần này chưa phù hợp. Chúc bạn sớm tìm được việc ưng ý`
   }
@@ -75,6 +82,8 @@ function sentence(viewer: Side, n: DemoNotification) {
 const targetOf = (n: DemoNotification) => {
   switch (n.kind) {
     case 'review': return '/ca-nhan'
+    case 'job_match': return `/viec-lam/${encodeURIComponent(n.jobId)}`
+    case 'candidate_match': return candidateHref(n.seekerId)
     case 'interest': return '/match'
     case 'considering': case 'offer': case 'offer_withdrawn': case 'rejected': return '/tim-viec/ung-tuyen'
     case 'offer_accepted': case 'offer_declined': return '/tuyen-dung/match'
