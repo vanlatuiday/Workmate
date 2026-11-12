@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate, useOutlet } from 'react-router-dom'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { Menu, X, Briefcase } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useAuthStore } from '@context/authStore'
@@ -19,6 +19,7 @@ import { FOCUS } from '@utils/focus'
 import { BTN_PRIMARY, BTN_SECONDARY } from '@utils/ui'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { isAuthPath } from '@pages/public/auth/authShared'
+import DetailSkeleton from '@components/discover/detail/DetailSkeleton'
 import { scrollToHomeBanner } from '@components/home/IntroHero'
 
 /** Mục điều hướng theo người đang xem. Khách thấy lời mời trung lập cho cả hai phía;
@@ -415,9 +416,14 @@ export default function PublicLayout() {
               nên theme ngà/tối của nó không bị đổi giữa chừng */}
           {/* 3 route đăng nhập chung một key 'auth' → chuyển qua lại không chạy hiệu ứng chuyển trang */}
           <PageTransition key={bare ? 'auth' : location.pathname} className={dark ? undefined : 'theme-ivory flex-1'}>
-            {bare ? <AuthOutlet /> : <FrozenOutlet />}
-            {/* Đứng sau FrozenOutlet: chạy khi trang mới đã dựng xong (kể cả pin của trang chủ) */}
-            <RouteScroll />
+            {/* Trang tải theo nhu cầu (lazy): Suspense nằm TRONG khung chuyển trang nên header/footer và
+                trang cũ đang mờ đi không bị ảnh hưởng. RouteScroll cũng nằm trong Suspense → chỉ mount
+                (và cuộn lên đầu / khôi phục vị trí) khi trang thật đã dựng xong, không cuộn lúc đang hiện khung chờ. */}
+            <Suspense fallback={bare ? <div className="min-h-screen" /> : <DetailSkeleton />}>
+              {bare ? <AuthOutlet /> : <FrozenOutlet />}
+              {/* Đứng sau FrozenOutlet: chạy khi trang mới đã dựng xong (kể cả pin của trang chủ) */}
+              <RouteScroll />
+            </Suspense>
           </PageTransition>
         </AnimatePresence>
       </main>

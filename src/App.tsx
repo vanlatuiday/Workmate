@@ -15,30 +15,33 @@ import JobseekerLayout from '@components/layout/JobseekerLayout'
 import RecruiterLayout from '@components/layout/RecruiterLayout'
 import AdminLayout from '@components/layout/AdminLayout'
 
-// Public pages
+// Public pages: trang chủ nạp sẵn (khung hình đầu tiên + intro GSAP không chờ thêm request);
+// các trang còn lại tải theo nhu cầu, Suspense nằm trong PublicLayout (không làm trống header/footer).
 import HomePage from '@pages/public/HomePage'
-import JobsPage from '@pages/public/JobsPage'
-import JobDetailPage from '@pages/public/JobDetailPage'
-import CompaniesPage from '@pages/public/CompaniesPage'
-import CompanyDetailPage from '@pages/public/CompanyDetailPage'
-import PositionDetailPage from '@pages/public/PositionDetailPage'
-import BlogPage from '@pages/public/BlogPage'
-import AuthPage from '@pages/public/auth/AuthPage'
-import PersonalPage from '@pages/public/PersonalPage'
-import MatchPage from '@pages/public/MatchPage'
-import MessagesPage from '@pages/public/MessagesPage'
-import NotificationsPage from '@pages/public/NotificationsPage'
-import SchedulePage from '@pages/public/SchedulePage'
-import PostJobPage from '@pages/public/PostJobPage'
-import ProfilePage from '@pages/public/ProfilePage'
-import AboutPage from '@pages/public/content/AboutPage'
-import ForRecruitersPage from '@pages/public/content/ForRecruitersPage'
-import ArticlePage from '@pages/public/content/ArticlePage'
-import HelpPage from '@pages/public/content/HelpPage'
-import ContactPage from '@pages/public/content/ContactPage'
-import TermsPage from '@pages/public/content/TermsPage'
-import PrivacyPage from '@pages/public/content/PrivacyPage'
-import NotFoundPage from '@pages/public/NotFoundPage'
+const loadJobsPage = () => import('@pages/public/JobsPage')
+const JobsPage = lazy(loadJobsPage)
+const JobDetailPage = lazy(() => import('@pages/public/JobDetailPage'))
+const CompaniesPage = lazy(() => import('@pages/public/CompaniesPage'))
+const CompanyDetailPage = lazy(() => import('@pages/public/CompanyDetailPage'))
+const PositionDetailPage = lazy(() => import('@pages/public/PositionDetailPage'))
+const BlogPage = lazy(() => import('@pages/public/BlogPage'))
+const loadAuthPage = () => import('@pages/public/auth/AuthPage')
+const AuthPage = lazy(loadAuthPage)
+const PersonalPage = lazy(() => import('@pages/public/PersonalPage'))
+const MatchPage = lazy(() => import('@pages/public/MatchPage'))
+const MessagesPage = lazy(() => import('@pages/public/MessagesPage'))
+const NotificationsPage = lazy(() => import('@pages/public/NotificationsPage'))
+const SchedulePage = lazy(() => import('@pages/public/SchedulePage'))
+const PostJobPage = lazy(() => import('@pages/public/PostJobPage'))
+const ProfilePage = lazy(() => import('@pages/public/ProfilePage'))
+const AboutPage = lazy(() => import('@pages/public/content/AboutPage'))
+const ForRecruitersPage = lazy(() => import('@pages/public/content/ForRecruitersPage'))
+const ArticlePage = lazy(() => import('@pages/public/content/ArticlePage'))
+const HelpPage = lazy(() => import('@pages/public/content/HelpPage'))
+const ContactPage = lazy(() => import('@pages/public/content/ContactPage'))
+const TermsPage = lazy(() => import('@pages/public/content/TermsPage'))
+const PrivacyPage = lazy(() => import('@pages/public/content/PrivacyPage'))
+const NotFoundPage = lazy(() => import('@pages/public/NotFoundPage'))
 
 // Trang dashboard: tải theo nhu cầu (Suspense nằm trong DashboardShell),
 // khách vào trang công khai không phải tải code của ba khu làm việc.
@@ -76,7 +79,7 @@ const AdminConfig = lazy(() => import('@pages/admin/Config'))
 
 // Guards
 import ProtectedRoute from '@components/common/ProtectedRoute'
-import CandidateProfile from '@pages/recruiter/CandidateProfile'
+const CandidateProfile = lazy(() => import('@pages/recruiter/CandidateProfile'))
 
 export default function App() {
   // Có token lưu sẵn: hỏi máy chủ một lần để làm mới thông tin người dùng (token hỏng/hết hạn → interceptor tự đăng xuất)
@@ -104,6 +107,20 @@ export default function App() {
     // Kết nối, tin nhắn, thông báo, đã lưu, cài đặt… của tài khoản này (và mở socket)
     loadSessionData(role)
   }, [userId, role])
+
+  // Sau khi trang chủ rảnh: tải trước hai trang hay vào tiếp theo để lần bấm đầu tiên tức thì
+  useEffect(() => {
+    const warm = () => {
+      void loadJobsPage()
+      void loadAuthPage()
+    }
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(warm, { timeout: 4000 })
+      return () => window.cancelIdleCallback(id)
+    }
+    const t = window.setTimeout(warm, 2500)
+    return () => window.clearTimeout(t)
+  }, [])
 
   return (
     <>
