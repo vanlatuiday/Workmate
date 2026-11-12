@@ -18,6 +18,13 @@ export class MatchingController {
     return this.matching.jobsForSeeker(user)
   }
 
+  /** Ứng viên chấm theo mọi tin của công ty tôi: { weights, jobs: { [jobId]: items } } */
+  @Get('candidates')
+  @Roles('recruiter')
+  allCandidates(@CurrentUser() user: AuthUser) {
+    return this.matching.candidatesForCompany(user)
+  }
+
   /** Ứng viên chấm theo một tin của công ty tôi, điểm cao trước */
   @Get('jobs/:jobId/candidates')
   @Roles('recruiter')

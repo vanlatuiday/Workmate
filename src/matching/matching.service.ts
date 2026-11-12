@@ -80,14 +80,31 @@ export class MatchingService {
       select: JOB_SCORE_SELECT,
     })
     if (!job) throw new ForbiddenException('Tin không thuộc công ty của bạn')
-    const mine = { some: { job: { companyId: job.companyId } } }
-    const [seekers, w] = await Promise.all([
-      this.prisma.seekerProfile.findMany({
-        where: { OR: [OPEN_SEEKER_WHERE, { interests: { some: { from: 'seeker', job: { companyId: job.companyId } } } }, { connections: mine }] },
-        select: SEEKER_SCORE_SELECT,
-      }),
+    const [seekers, w] = await Promise.all([this.reachableSeekers(job.companyId), this.weights()])
+    return { weights: w, items: this.rank(seekers, job, w) }
+  }
+
+  /** Mọi tin của công ty tôi trong một lần gọi (dashboard, danh sách tin) — thay cho N lần gọi theo từng tin */
+  async candidatesForCompany(user: AuthUser) {
+    const company = await this.prisma.company.findFirst({ where: { members: { some: { userId: user.id } } }, select: { id: true } })
+    if (!company) throw new ForbiddenException('Tài khoản chưa thuộc doanh nghiệp nào')
+    const [jobs, seekers, w] = await Promise.all([
+      this.prisma.job.findMany({ where: { companyId: company.id }, select: JOB_SCORE_SELECT }),
+      this.reachableSeekers(company.id),
       this.weights(),
     ])
-    return { weights: w, items: seekers.map((s) => ({ seekerId: s.userId, ...scorePair(s, job, w) })).sort((a, b) => b.score - a.score) }
+    return { weights: w, jobs: Object.fromEntries(jobs.map((j) => [j.id, this.rank(seekers, j, w)])) }
+  }
+
+  private rank(seekers: SeekerScoreRow[], job: JobScoreRow, w: Weights) {
+    return seekers.map((s) => ({ seekerId: s.userId, ...scorePair(s, job, w) })).sort((a, b) => b.score - a.score)
+  }
+
+  /** Cùng phạm vi với danh sách ứng viên: hồ sơ tiếp cận được + người đã tự ứng tuyển / đã kết nối với công ty */
+  private reachableSeekers(companyId: string) {
+    return this.prisma.seekerProfile.findMany({
+      where: { OR: [OPEN_SEEKER_WHERE, { interests: { some: { from: 'seeker', job: { companyId } } } }, { connections: { some: { job: { companyId } } } }] },
+      select: SEEKER_SCORE_SELECT,
+    })
   }
 }
