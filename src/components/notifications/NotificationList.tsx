@@ -2,11 +2,12 @@
 import { useNavigate } from 'react-router-dom'
 import { Bell, BriefcaseBusiness, CalendarCheck, CalendarPlus, CalendarX, Handshake, Heart, HeartHandshake, Hourglass, Star, Undo2, UserCheck, UserX, type LucideIcon } from 'lucide-react'
 import { EmptyState } from '@components/dashboard'
+import { SkeletonList } from '@components/dashboard/Skeleton'
 import { useMessengerStore } from '@context/messengerStore'
 import ChatAvatar from '@pages/public/messages/ChatAvatar'
 import { describeConversation } from '@pages/public/messages/describe'
 import {
-  markAllNotificationsRead, markNotificationRead, useNotifications,
+  markAllNotificationsRead, markNotificationRead, useConnectionsReady, useNotifications,
   type DemoNotification, type Side,
 } from '@services/connectionService'
 import { cn } from '@utils/cn'
@@ -100,6 +101,7 @@ export function MarkAllReadButton({ viewer, className }: { viewer: Side; classNa
 /** Danh sách thông báo chia nhóm Mới (chưa đọc) / Trước đó. `onNavigate`: gọi sau khi bấm một thông báo (popup dùng để tự đóng). */
 export default function NotificationList({ viewer, onNavigate, compact }: { viewer: Side; onNavigate?: () => void; compact?: boolean }) {
   const items = useNotifications(viewer)
+  const ready = useConnectionsReady()
   const navigate = useNavigate()
   const openMessenger = useMessengerStore((s) => s.openMessenger)
   // Trong popup tiêu đề popup đã là h2 → tiêu đề nhóm là h3; trang /thong-bao giữ h2
@@ -117,6 +119,7 @@ export default function NotificationList({ viewer, onNavigate, compact }: { view
     else navigate(targetOf(n))
   }
 
+  if (!ready && groups.length === 0) return <SkeletonList rows={compact ? 3 : 4} label="Đang tải thông báo…" />
   if (groups.length === 0) {
     return <EmptyState icon={Bell} title="Chưa có thông báo" description="Khi có người quan tâm, kết nối hoặc hẹn phỏng vấn với bạn, thông báo sẽ hiện ở đây." />
   }

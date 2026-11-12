@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import toast from 'react-hot-toast'
+import { notifyError, notifySuccess } from '@utils/feedback'
 import api from '@services/api'
 import { apiErrorMessage } from '@services/authService'
 import { useAuthStore } from './authStore'
@@ -45,17 +45,20 @@ export const useMatchStore = create<MatchState>()(
   persist(
     (set, get) => {
       /** Đổi danh sách ngay, gửi máy chủ; lỗi thì trả về như cũ */
-      const apply = (next: Partial<Lists>, send: () => Promise<unknown>) => {
+      const apply = (next: Partial<Lists>, send: () => Promise<unknown>, success?: string) => {
         if (!useAuthStore.getState().token) {
-          toast('Đăng nhập để lưu lại')
+          notifyError('Đăng nhập để lưu lại')
           return
         }
         const { savedJobs, savedCandidates, skippedCandidates } = get()
         set(next)
-        send().catch((err: unknown) => {
-          set({ savedJobs, savedCandidates, skippedCandidates })
-          toast.error(apiErrorMessage(err, 'Chưa lưu được, vui lòng thử lại.'))
-        })
+        send().then(
+          () => { if (success) notifySuccess(success) },
+          (err: unknown) => {
+            set({ savedJobs, savedCandidates, skippedCandidates })
+            notifyError(apiErrorMessage(err, 'Chưa lưu được, vui lòng thử lại.'))
+          },
+        )
       }
       return {
         view: 'gallery',
@@ -66,13 +69,13 @@ export const useMatchStore = create<MatchState>()(
         toggleSavedJob: (id) => {
           const on = !get().savedJobs.includes(id)
           const path = `/seeker/saved-jobs/${encodeURIComponent(id)}`
-          apply({ savedJobs: toggle(get().savedJobs, id) }, () => (on ? api.put(path) : api.delete(path)))
+          apply({ savedJobs: toggle(get().savedJobs, id) }, () => (on ? api.put(path) : api.delete(path)), on ? 'Đã lưu tin' : 'Đã bỏ lưu')
         },
         toggleSavedCandidate: (key) => {
           const on = !get().savedCandidates.includes(key)
-          apply({ savedCandidates: toggle(get().savedCandidates, key) }, () => (on ? api.put(markPath(key, 'saved')) : api.delete(markPath(key, 'saved'))))
+          apply({ savedCandidates: toggle(get().savedCandidates, key) }, () => (on ? api.put(markPath(key, 'saved')) : api.delete(markPath(key, 'saved'))), on ? 'Đã lưu ứng viên' : 'Đã bỏ lưu')
         },
-        skipCandidate: (key) => apply({ skippedCandidates: add(get().skippedCandidates, key) }, () => api.put(markPath(key, 'skipped'))),
+        skipCandidate: (key) => apply({ skippedCandidates: add(get().skippedCandidates, key) }, () => api.put(markPath(key, 'skipped')), 'Đã bỏ qua ứng viên'),
         unskipCandidates: (keys) =>
           apply(
             { skippedCandidates: get().skippedCandidates.filter((k) => !keys.includes(k)) },

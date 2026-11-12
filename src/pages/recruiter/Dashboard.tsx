@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
 import { Briefcase, UserCheck, Handshake, CalendarClock, Plus, Video, MapPin, Heart, CalendarX } from 'lucide-react'
-import { PageHeader, Panel, StatCard, StatusBadge, MatchScore, EmptyState } from '@components/dashboard'
+import { PageHeader, Panel, StatCard, StatusBadge, MatchScore, EmptyState, SkeletonList } from '@components/dashboard'
 import { useCompanyJobs, useJobNumbers, type CompanyJobRow } from '@services/adminService'
 import { useConnectionStore } from '@context/connectionStore'
 import { useHires, useInterviews, usePairStatuses } from '@services/connectionService'
 import { useCandidates } from '@pages/public/match/data'
+import { useCatalogStore } from '@context/catalogStore'
 import { useCompanyStore } from '@context/companyStore'
 import { scoreMatch } from '@pages/public/match/score'
 import { findAnyJob } from '@pages/public/jobs/lookup'
@@ -12,6 +13,7 @@ import { fmtSlot, MODE_LABEL } from '@components/interview/format'
 import PlaceText from '@components/interview/PlaceText'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import FadeIn from '@components/motion/FadeIn'
 import { BTN_ACCENT } from '@utils/ui'
 import { candidateHref } from '@pages/public/personal/links'
 
@@ -32,6 +34,7 @@ function badgeOf(r: CompanyJobRow): { label: string; tone: 'accent' | 'warning' 
 export default function RecruiterDashboard() {
   const rows = useCompanyJobs(useCompanyStore((s) => s.id))
   const candidates = useCandidates()
+  const catalogLoaded = useCatalogStore((s) => s.loaded)
   const candidateOf = (seekerId: string) => candidates.find((c) => c.id === seekerId)
   // Người đã xác nhận đi làm — thước đo chính của Workmate
   const working = useHires().filter((h) => h.status === 'accepted').length
@@ -100,6 +103,7 @@ export default function RecruiterDashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <FadeIn className="[&>section]:h-full">
         <Panel
           title="Ứng viên vừa quan tâm"
           action={<Link to="/match" className={LINK}>Xem tất cả</Link>}
@@ -130,11 +134,14 @@ export default function RecruiterDashboard() {
             </ul>
           )}
         </Panel>
+        </FadeIn>
 
+        <FadeIn delay={80} className="[&>section]:h-full">
         <Panel
           title="Tin tuyển dụng"
           action={<Link to="/tuyen-dung/tin-dang" className={LINK}>Quản lý tin</Link>}
         >
+          {!catalogLoaded && rows.length === 0 ? <SkeletonList rows={3} label="Đang tải tin tuyển dụng…" /> : (
           <ul className="divide-y divide-page-line">
             {rows.slice(0, 5).map((r) => {
               const b = badgeOf(r)
@@ -153,9 +160,12 @@ export default function RecruiterDashboard() {
               )
             })}
           </ul>
+          )}
         </Panel>
+        </FadeIn>
       </div>
 
+      <FadeIn>
       <Panel
         title="Lịch phỏng vấn sắp tới"
         action={<Link to="/lich-phong-van" className={LINK}>Xem lịch</Link>}
@@ -188,6 +198,7 @@ export default function RecruiterDashboard() {
           </ul>
         )}
       </Panel>
+      </FadeIn>
     </div>
   )
 }

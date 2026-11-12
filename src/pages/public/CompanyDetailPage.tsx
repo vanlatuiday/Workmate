@@ -8,6 +8,7 @@ import { Facts, PrimaryLink, TextLink } from '@components/discover/parts'
 import DetailHero from '@components/discover/detail/DetailHero'
 import DetailLayout from '@components/discover/detail/DetailLayout'
 import DetailNotFound from '@components/discover/detail/NotFound'
+import DetailSkeleton from '@components/discover/detail/DetailSkeleton'
 import BackLink from '@components/discover/detail/BackLink'
 import JobLinks from '@components/discover/detail/JobLinks'
 import { ImageBlock, TagList, TextBlock } from '@components/discover/detail/DetailBlocks'
@@ -26,6 +27,10 @@ export default function CompanyDetailPage() {
   const myPageHidden = useSettingsStore((s) => isOwner && s.bySide.recruiter.visibility === 'hidden')
   const hiddenPage = !!useCatalogStore((s) => s.companies.find((c) => c.id === id)?.hidden) && !isOwner && role !== 'admin'
 
+  const catalogSettled = useCatalogStore((s) => s.settled)
+
+  // Danh mục chưa về từ máy chủ: khung chờ, không báo "không tìm thấy" sớm
+  if (!company && !catalogSettled) return <DetailSkeleton label="Đang tải công ty…" />
   if (!company) {
     return (
       <DetailNotFound

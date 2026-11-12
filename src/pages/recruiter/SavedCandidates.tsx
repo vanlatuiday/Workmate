@@ -1,6 +1,7 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { candidateHref } from '@pages/public/personal/links'
-import toast from 'react-hot-toast'
+import { notifySuccess } from '@utils/feedback'
 import { Bookmark } from 'lucide-react'
 import { EmptyState, MatchScore, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
@@ -9,9 +10,17 @@ import { scoreMatch } from '@pages/public/match/score'
 import { expressInterest, useOnNewConnection, usePairStatuses } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import FadeIn from '@components/motion/FadeIn'
+import { useFlip } from '@hooks/useFlip'
 import { BTN_ACCENT, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import MessageLink from '@components/messenger/MessageLink'
 
+
+/** Danh sách dòng của một nhóm: sắp xếp lại mượt khi bỏ lưu (mỗi nhóm một ref riêng) */
+function FlipList({ keys, children }: { keys: string[]; children: ReactNode }) {
+  const ref = useFlip<HTMLUListElement>(keys)
+  return <ul ref={ref} className="divide-y divide-page-line">{children}</ul>
+}
 
 /** Ứng viên đã lưu: nhóm theo tin tuyển dụng, kèm điểm với tin đó và trạng thái quan tâm. */
 export default function SavedCandidates() {
@@ -21,7 +30,7 @@ export default function SavedCandidates() {
   const positions = usePositions()
   const candidates = useCandidates()
 
-  useOnNewConnection(() => toast.success('Kết nối thành công'))
+  useOnNewConnection(() => notifySuccess('Đã kết nối — giờ hai bên nhắn tin được'))
 
   // Khóa dạng `positionId:candidateId` → nhóm theo tin; bỏ khóa không còn khớp dữ liệu
   const groups = positions.map((position) => ({
@@ -48,12 +57,13 @@ export default function SavedCandidates() {
       ) : (
         <div className="space-y-6">
           {groups.map(({ position, rows }) => (
-            <Panel key={position.id} title={position.job.title}>
-              <ul className="divide-y divide-page-line">
+            <FadeIn key={position.id}>
+            <Panel title={position.job.title}>
+              <FlipList keys={rows.map((r) => r.key)}>
                 {rows.map(({ key, cand, score }) => {
                   const status = statusOf(position.id, cand.id)
                   return (
-                    <li key={key} className="flex flex-col gap-4 py-4 first:pt-0 last:pb-0 lg:flex-row lg:items-center lg:justify-between">
+                    <li key={key} data-flip-key={key} className="flex flex-col gap-4 py-4 first:pt-0 last:pb-0 lg:flex-row lg:items-center lg:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                           <Link to={candidateHref(cand.id)} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>{cand.name}</Link>
@@ -73,7 +83,6 @@ export default function SavedCandidates() {
                               className={cn(BTN_PRIMARY, BTN_SM)}
                               onClick={() => {
                                 expressInterest('recruiter', position.id, cand.id)
-                                toast.success('Đã quan tâm — chờ ứng viên phản hồi')
                               }}
                             >
                               Quan tâm
@@ -92,7 +101,6 @@ export default function SavedCandidates() {
                             className={cn(BTN_SECONDARY, BTN_SM)}
                             onClick={() => {
                               toggleSaved(key)
-                              toast('Đã bỏ lưu')
                             }}
                           >
                             Bỏ lưu
@@ -102,8 +110,9 @@ export default function SavedCandidates() {
                     </li>
                   )
                 })}
-              </ul>
+              </FlipList>
             </Panel>
+            </FadeIn>
           ))}
         </div>
       )}

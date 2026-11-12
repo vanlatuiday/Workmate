@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import toast from 'react-hot-toast'
 import { describeConversation } from '@pages/public/messages/describe'
 import { confirmInterview, declineInterview, type Interview } from '@services/connectionService'
 import { BTN_ACCENT, BTN_DANGER } from '@utils/ui'
@@ -16,12 +15,10 @@ export default function ChooseSlotDialog({ interview: iv, onClose }: Props) {
 
   const confirm = () => {
     confirmInterview(iv.id, slot)
-    toast.success('Đã xác nhận lịch phỏng vấn')
     onClose()
   }
   const decline = () => {
     declineInterview(iv.id)
-    toast('Đã từ chối lời mời phỏng vấn')
     onClose()
   }
 

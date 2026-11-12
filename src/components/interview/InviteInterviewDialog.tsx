@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import toast from 'react-hot-toast'
 import { Plus, X } from 'lucide-react'
 import { describeConversation } from '@pages/public/messages/describe'
 import { inviteInterview, type InterviewMode } from '@services/connectionService'
@@ -49,7 +48,6 @@ export default function InviteInterviewDialog({ jobId, seekerId, onClose }: Prop
     const place1 = place.trim() || (mode === 'online' ? 'Link họp sẽ gửi qua tin nhắn' : '')
     if (!place1) return setError('Hãy nhập địa điểm phỏng vấn.')
     inviteInterview({ jobId, seekerId, slots: slots.map((d) => d!.toISOString()), mode, place: place1, note: note.trim() || undefined })
-    toast.success(`Đã gửi lời mời phỏng vấn tới ${info.name}`)
     onClose()
   }
 

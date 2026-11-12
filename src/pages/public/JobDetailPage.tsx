@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
+import PopIcon from '@components/common/PopIcon'
 import CompanyLogo from '@components/common/CompanyLogo'
 import { useLocation, useParams } from 'react-router-dom'
-import toast from 'react-hot-toast'
+import { notifySuccess } from '@utils/feedback'
 import { Bookmark, Check } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { useMatchStore } from '@context/matchStore'
@@ -12,12 +13,12 @@ import { Facts, PrimaryLink, TextLink } from '@components/discover/parts'
 import DetailHero from '@components/discover/detail/DetailHero'
 import DetailLayout from '@components/discover/detail/DetailLayout'
 import DetailNotFound from '@components/discover/detail/NotFound'
+import DetailSkeleton from '@components/discover/detail/DetailSkeleton'
 import BackLink from '@components/discover/detail/BackLink'
 import JobLinks from '@components/discover/detail/JobLinks'
 import { TagList, TextBlock } from '@components/discover/detail/DetailBlocks'
 import ReportButton from '@components/report/ReportButton'
 import api from '@services/api'
-import { cn } from '@utils/cn'
 import { jobsOfCompany, seekerOutcome, useAllJobs, type MatchJob } from './jobs/catalog'
 import { findAnyJob } from './jobs/lookup'
 import { companyOf } from './match/data'
@@ -33,17 +34,14 @@ function SeekerActions({ job }: { job: MatchJob }) {
   const status = usePairStatuses('seeker')(job.id, ME)
   const stage = useApplicationStage(job.id, ME)
   const saved = savedJobs.includes(job.id)
-  const toastId = `ung-tuyen-${job.id}`
 
   // Kết nối mới (kể cả do doanh nghiệp đáp lại sau vài giây) → báo thành công
   useOnNewConnection((c) => {
-    if (c.jobId === job.id && c.seekerId === ME) toast.success('Kết nối thành công')
+    if (c.jobId === job.id && c.seekerId === ME) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
   })
 
   const apply = () => {
-    const waiting = status === 'none'
     expressInterest('seeker', job.id, ME)
-    if (waiting) toast.success('Đã ứng tuyển — chờ doanh nghiệp phản hồi', { id: toastId })
   }
 
   return (
@@ -68,7 +66,6 @@ function SeekerActions({ job }: { job: MatchJob }) {
             type="button"
             onClick={() => {
               withdrawInterest('seeker', job.id, ME)
-              toast.dismiss(toastId)
             }}
             className={BTN_DANGER}
           >
@@ -82,7 +79,7 @@ function SeekerActions({ job }: { job: MatchJob }) {
         </MessageLink>
       )}
       <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={BTN_SECONDARY}>
-        <Bookmark className={cn('h-4 w-4', saved && 'fill-current')} aria-hidden="true" />
+        <PopIcon icon={Bookmark} on={saved} />
         {saved ? 'Đã lưu' : 'Lưu'}
       </button>
     </div>
@@ -97,6 +94,7 @@ export default function JobDetailPage() {
   const visibleJobs = useAllJobs()
   // Cùng trọng số mà seekerOutcome dùng (Cấu hình hệ thống) để thanh tiêu chí khớp điểm tổng
   const weights = useCatalogStore((s) => s.config.weights)
+  const catalogSettled = useCatalogStore((s) => s.settled)
 
   const shown = visibleJobs.find((j) => j.id === id)
   // Tin đã ẩn/từ chối vẫn xem được (liên kết cũ) nhưng không ứng tuyển được
@@ -111,6 +109,8 @@ export default function JobDetailPage() {
     api.post(`/jobs/${encodeURIComponent(publicId)}/view`).catch(() => undefined)
   }, [publicId])
 
+  // Danh mục chưa về từ máy chủ: khung chờ, không báo "không tìm thấy" sớm
+  if (!job && !catalogSettled) return <DetailSkeleton label="Đang tải việc làm…" />
   if (!job) {
     return (
       <DetailNotFound

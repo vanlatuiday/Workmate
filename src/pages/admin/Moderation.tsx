@@ -4,6 +4,7 @@ import { EmptyState, PageHeader } from '@components/dashboard'
 import { FlagList, JobActions, JobStatusBadges } from '@components/admin/parts'
 import { companyOf } from '@pages/public/match/data'
 import { useAdminJobs, type AdminJobRow } from '@services/adminService'
+import { useFlip } from '@hooks/useFlip'
 import { cn } from '@utils/cn'
 import { CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { formatRelativeTime } from '@utils/format'
@@ -20,7 +21,7 @@ const TABS: { id: Tab; label: string; empty: string; test: (r: AdminJobRow) => b
 function ModerationCard({ row }: { row: AdminJobRow }) {
   const { job } = row
   return (
-    <li className="rounded-card border border-page-line bg-page-surface p-5">
+    <li data-flip-key={job.id} className="rounded-card border border-page-line bg-page-surface p-5">
       <div className="flex gap-4">
         <img
           src={`https://images.unsplash.com/photo-${job.photo.id}?w=200&q=70&auto=format&fit=crop`}
@@ -68,6 +69,8 @@ export default function Moderation() {
     .filter(current.test)
     .sort((a, b) => (b.job.postedAt ?? '').localeCompare(a.job.postedAt ?? '') || b.flags.length - a.flags.length)
 
+  const flipRef = useFlip<HTMLUListElement>(list.map((r) => r.job.id))
+
   return (
     <div className="space-y-6">
       <PageHeader title="Kiểm duyệt" description="Duyệt tin mới đăng, xem xét tin bị hệ thống gắn cờ và khôi phục tin đã xử lý." />
@@ -89,7 +92,7 @@ export default function Moderation() {
       {list.length === 0 ? (
         <EmptyState icon={ShieldCheck} title={current.empty} description="Tin mới do doanh nghiệp đăng sẽ xuất hiện ở đây." />
       ) : (
-        <ul className="space-y-4">{list.map((r) => <ModerationCard key={r.job.id} row={r} />)}</ul>
+        <ul ref={flipRef} className="space-y-4">{list.map((r) => <ModerationCard key={r.job.id} row={r} />)}</ul>
       )}
 
     </div>

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
+import PopIcon from '@components/common/PopIcon'
 import { Link, useSearchParams } from 'react-router-dom'
-import toast from 'react-hot-toast'
+import { notifySuccess } from '@utils/feedback'
 import { Bookmark, Briefcase, Check, Clock, MapPin, UserCheck, UserX, Wallet, X } from 'lucide-react'
 import InterviewAction from '@components/interview/InterviewAction'
 import ConsiderButton from '@components/application/ConsiderButton'
 import { EmptyState, MatchScore, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
-import { expressInterest, getPairStatus, markApplicationViewed, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
+import { expressInterest, markApplicationViewed, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { candidateHref } from '@pages/public/personal/links'
@@ -23,6 +24,9 @@ import {
   type LevelKey,
 } from './parts'
 import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
+import { SkeletonCards } from '@components/dashboard/Skeleton'
+import { useCatalogStore } from '@context/catalogStore'
+import { useFlip } from '@hooks/useFlip'
 import { DEFAULT_PRIORITY, scoreMatch, weightsOf, type CriterionResult } from './score'
 import MessageLink from '@components/messenger/MessageLink'
 
@@ -38,6 +42,14 @@ function recruiterNote(r: CriterionResult) {
 /** Nhà tuyển dụng: chọn vị trí, xem ứng viên xếp theo điểm, mời / lưu / bỏ qua. */
 export default function RecruiterMatch() {
   const positions = usePositions()
+  const catalogSettled = useCatalogStore((s) => s.settled)
+  if (!positions.length && !catalogSettled) {
+    return (
+      <div className="shell py-section-sm">
+        <SkeletonCards count={3} label="Đang tải vị trí tuyển dụng…" />
+      </div>
+    )
+  }
   if (!positions.length) {
     return (
       <div className="shell py-section-sm">
@@ -81,7 +93,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
   useOnNewConnection((c) => {
     const pos = positions.find((p) => p.id === c.jobId)
     const cd = candidates.find((x) => x.id === c.seekerId)
-    if (pos && cd) toast.success(`Kết nối thành công với ${cd.name} — ${pos.job.title}`)
+    if (pos && cd) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
   })
 
   // Chấm điểm ứng viên của vị trí đang chọn (ưu tiên mặc định), cao trước
@@ -104,6 +116,8 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
   const current = lists[tab].filter((x) => foldMatches([x.c.name, ...x.c.criteria.skills], query))
   // Lọc theo mức phù hợp áp cho cả danh sách lẫn bộ sưu tập
   const shown = filterByLevel(current, level, (x) => x.outcome.score)
+  // Danh sách thẻ sắp xếp lại mượt khi đổi tab / lọc
+  const flipRef = useFlip<HTMLUListElement>(shown.map((x) => x.key))
   const detail = open ? scored.find((x) => x.key === open.id) : undefined
   // Mở khung chi tiết của người đã ứng tuyển = doanh nghiệp đã xem đơn đó
   const detailSeeker = detail?.c.id
@@ -116,11 +130,8 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
   const jobTypeLabel = JOB_TYPES.find((t) => t.value === req.jobType)?.label ?? req.jobType
 
   const invite = (c: MatchCandidate) => {
-    // Ứng viên đã ứng tuyển → bấm là thành kết nối ngay (toast "Kết nối thành công" do useOnNewConnection hiện)
-    const waiting = getPairStatus('recruiter', position.id, c.id) === 'none'
+    // Phản hồi thành công (quan tâm / đã kết nối) do connectionService báo; ở lại tab hiện tại để quan tâm tiếp
     expressInterest('recruiter', position.id, c.id)
-    // Ở lại tab hiện tại để quan tâm tiếp; ứng viên chuyển sang tab Đã quan tâm
-    if (waiting) toast.success('Đã quan tâm — chờ ứng viên phản hồi')
   }
 
   // Hàng nút của một ứng viên — dùng chung cho thẻ danh sách và khung chi tiết.
@@ -177,7 +188,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
           Xem hồ sơ<span className="sr-only"> {c.name}</span>
         </Link>
         <button type="button" aria-pressed={saved} onClick={() => toggleSavedCandidate(key)} className={cn(BTN_SECONDARY, BTN_SM)}>
-          <Bookmark className={cn('h-4 w-4', saved && 'fill-current')} aria-hidden="true" />
+          <PopIcon icon={Bookmark} on={saved} />
           {saved ? 'Đã lưu' : 'Lưu'}
           <span className="sr-only"> {c.name}</span>
         </button>
@@ -186,7 +197,6 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
             type="button"
             onClick={() => {
               skipCandidate(key)
-              toast(`Đã bỏ qua ${c.name}`)
               close?.(true)
             }}
             className={cn(BTN_SECONDARY, BTN_SM)}
@@ -313,10 +323,10 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
               hiddenId={open?.id ?? null}
             />
           ) : (
-            <ul className="grid gap-4 md:grid-cols-2">
+            <ul ref={flipRef} className="grid gap-4 md:grid-cols-2">
               {shown.map(({ c, key, outcome }) => {
                 return (
-                  <li key={key} className="min-w-0">
+                  <li key={key} data-flip-key={key} className="min-w-0">
                     <article className="flex h-full flex-col rounded-card border border-page-line bg-page-surface p-5 md:p-6">
                       <div className="grid grid-cols-[auto_1fr] items-start gap-x-4 gap-y-3 sm:grid-cols-[auto_1fr_auto]">
                         <Avatar text={personInitials(c.name)} />

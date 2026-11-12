@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Eye, Plus, Search, Pencil, Pause, Play, Users, Handshake, FileText, Heart, XCircle } from 'lucide-react'
-import { PageHeader, Panel, StatusBadge, EmptyState } from '@components/dashboard'
+import { PageHeader, Panel, StatusBadge, EmptyState, SkeletonList } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import { setJobStatus, useCompanyJobs, useJobNumbers, type CompanyJobRow } from '@services/adminService'
+import { useCatalogStore } from '@context/catalogStore'
 import { useCompanyStore } from '@context/companyStore'
 import { formatRelativeTime } from '@utils/format'
 import { FOCUS } from '@utils/focus'
+import { notifySuccess } from '@utils/feedback'
+import { useFlip } from '@hooks/useFlip'
 import { BTN_ACCENT, BTN_DANGER, BTN_GHOST, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
 
@@ -45,6 +48,7 @@ const lockedNote = (r: CompanyJobRow) =>
 
 export default function JobListings() {
   const rows = useCompanyJobs(useCompanyStore((s) => s.id))
+  const catalogLoaded = useCatalogStore((s) => s.loaded)
   const numbers = useJobNumbers(rows.map((r) => r.job))
   const [tab, setTab] = useState<Tab>('all')
   const [query, setQuery] = useState('')
@@ -65,12 +69,14 @@ export default function JobListings() {
     setClosing(null)
     const verb = next === 'paused' ? 'Đã tạm dừng' : next === 'closed' ? 'Đã đóng' : 'Đã mở lại'
     setNotice(`${verb} tin "${r.job.title}".`)
+    notifySuccess(`${verb} tin`)
     if (tab !== 'all' && tab !== next) setMoved((n) => n + 1)
   }
 
   const count = (t: Tab) => (t === 'all' ? rows.length : rows.filter((r) => combinedOf(r) === t).length)
   const q = query.trim().toLowerCase()
   const shown = rows.filter((r) => (tab === 'all' || combinedOf(r) === tab) && (!q || r.job.title.toLowerCase().includes(q)))
+  const flipRef = useFlip<HTMLUListElement>(shown.map((r) => r.job.id))
 
   const views = (r: CompanyJobRow) => r.job.views === undefined ? null : (
     <p className="tnum mt-1 inline-flex items-center gap-1.5 text-xs text-page-muted"><Eye className="h-3.5 w-3.5" aria-hidden="true" />{r.job.views.toLocaleString('vi-VN')} lượt xem</p>
@@ -189,7 +195,9 @@ export default function JobListings() {
       {/* Giữ sẵn chỗ một dòng để thông báo xuất hiện không đẩy bảng xuống */}
       <p ref={noticeRef} tabIndex={-1} role="status" className="text-sm text-page-muted focus:outline-none empty:sr-only">{notice}</p>
 
-      {shown.length === 0 ? (
+      {!catalogLoaded && rows.length === 0 ? (
+        <Panel><SkeletonList rows={4} label="Đang tải tin tuyển dụng…" /></Panel>
+      ) : shown.length === 0 ? (
         <EmptyState
           icon={FileText}
           title="Không có tin nào phù hợp"
@@ -249,9 +257,9 @@ export default function JobListings() {
           </Panel>
 
           {/* Dưới 1024px: danh sách thẻ */}
-          <ul className="space-y-4 lg:hidden">
+          <ul ref={flipRef} className="space-y-4 lg:hidden">
             {shown.map((r) => (
-              <li key={r.job.id} className="rounded-card border border-page-line bg-page-surface p-5">
+              <li key={r.job.id} data-flip-key={r.job.id} className="rounded-card border border-page-line bg-page-surface p-5">
                 <div className="flex items-start justify-between gap-3">
                   <h2 className="font-display text-base font-medium text-page-fg">{r.job.title}</h2>
                   <StatusBadge tone={TONE[combinedOf(r)]}>{statusLabel(r)}</StatusBadge>

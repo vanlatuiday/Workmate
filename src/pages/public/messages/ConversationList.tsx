@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { MessageSquare, Search } from 'lucide-react'
 import { EmptyState } from '@components/dashboard'
-import type { ConversationSummary, Side } from '@services/connectionService'
+import { SkeletonList } from '@components/dashboard/Skeleton'
+import { useConnectionsReady, type ConversationSummary, type Side } from '@services/connectionService'
 import { formatRelativeTime } from '@utils/format'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -19,6 +20,7 @@ type Props = {
 /** Danh sách trong khung tin nhắn nổi (tiêu đề do khung giữ): ô lọc theo tên + danh sách hội thoại (tin cuối, giờ, chưa đọc). */
 export default function ConversationList({ viewer, conversations, activeKey, onSelect }: Props) {
   const [query, setQuery] = useState('')
+  const ready = useConnectionsReady()
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -44,7 +46,9 @@ export default function ConversationList({ viewer, conversations, activeKey, onS
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain" data-lenis-prevent>
-        {conversations.length === 0 ? (
+        {!ready && conversations.length === 0 ? (
+          <SkeletonList rows={4} label="Đang tải cuộc trò chuyện…" />
+        ) : conversations.length === 0 ? (
           <EmptyState
             icon={MessageSquare}
             title="Chưa có cuộc trò chuyện nào"

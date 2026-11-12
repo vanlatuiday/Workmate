@@ -1,6 +1,7 @@
+import FadeIn from '@components/motion/FadeIn'
+import { notifySuccess } from '@utils/feedback'
 import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import toast from 'react-hot-toast'
 import { AlertCircle } from 'lucide-react'
 import { PageHeader, Panel } from '@components/dashboard'
 import { useAuthStore } from '@context/authStore'
@@ -125,7 +126,7 @@ export default function SettingsPage({ side }: { side: Side }) {
   const [deleteError, setDeleteError] = useState('')
   const [deleteBusy, setDeleteBusy] = useState(false)
 
-  const saved = () => toast.success('Đã lưu', { duration: 1500 })
+  const saved = () => notifySuccess('Đã lưu')
 
   const changePassword = async (e: FormEvent) => {
     e.preventDefault()
@@ -148,7 +149,7 @@ export default function SettingsPage({ side }: { side: Side }) {
       return
     }
     setCur(''); setNext(''); setAgain('')
-    toast.success('Đã đổi mật khẩu. Các thiết bị khác đã được đăng xuất.')
+    notifySuccess('Đã đổi mật khẩu. Các thiết bị khác đã được đăng xuất.')
   }
 
   const deleteAccount = async () => {
@@ -163,7 +164,7 @@ export default function SettingsPage({ side }: { side: Side }) {
     }
     logout()
     navigate('/')
-    toast.success('Đã xóa tài khoản và dữ liệu của bạn')
+    notifySuccess('Đã xóa tài khoản và dữ liệu của bạn')
   }
 
   return (
@@ -185,6 +186,7 @@ export default function SettingsPage({ side }: { side: Side }) {
           </form>
         </Section>
 
+        <FadeIn>
         <Section title="Thông báo">
           <ul className="divide-y divide-page-line">
             {NOTIFY[side].map((n) => (
@@ -195,7 +197,9 @@ export default function SettingsPage({ side }: { side: Side }) {
             <RadioGroup legend="Email tóm tắt (giao diện mẫu, chưa gửi thật)" options={DIGESTS} value={settings.emailDigest} onChange={(v) => { update(side, { emailDigest: v }); saved() }} />
           </div>
         </Section>
+        </FadeIn>
 
+        <FadeIn>
         <Section title="Quyền riêng tư">
           {side === 'seeker' ? (
             <>
@@ -215,7 +219,9 @@ export default function SettingsPage({ side }: { side: Side }) {
             </>
           )}
         </Section>
+        </FadeIn>
 
+        <FadeIn>
         <Section title="Vùng nguy hiểm">
           <p className="mb-4 text-sm text-page-muted">
             {side === 'seeker'
@@ -245,6 +251,7 @@ export default function SettingsPage({ side }: { side: Side }) {
             </form>
           )}
         </Section>
+        </FadeIn>
       </div>
     </div>
   )

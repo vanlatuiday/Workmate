@@ -1,5 +1,5 @@
+import { notifySuccess } from '@utils/feedback'
 import { useId, useMemo, useState } from 'react'
-import toast from 'react-hot-toast'
 import { Lock, LockOpen, Search, UserCircle } from 'lucide-react'
 import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import DetailDrawer from '@components/admin/DetailDrawer'
@@ -62,12 +62,12 @@ export default function Candidates() {
 
   const unlock = (c: MatchCandidate) => {
     setSeekerLocked(c.id, false)
-    toast.success(`Đã mở khóa ${c.name}`)
+    notifySuccess(`Đã mở khóa ${c.name}`)
   }
   const lock = (c: MatchCandidate) => {
     setSeekerLocked(c.id, true)
     setConfirmLock(false)
-    toast.success(`Đã khóa ${c.name}`)
+    notifySuccess(`Đã khóa ${c.name}`)
   }
 
   return (

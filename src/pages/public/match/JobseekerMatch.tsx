@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import PopIcon from '@components/common/PopIcon'
 import { Link } from 'react-router-dom'
-import toast from 'react-hot-toast'
+import { notifySuccess } from '@utils/feedback'
 import { ArrowDown, ArrowUp, ArrowUpDown, Bookmark, Briefcase, Check, Clock, GripVertical, MapPin, SearchX, SlidersHorizontal, Wallet, X } from 'lucide-react'
 import InterviewAction from '@components/interview/InterviewAction'
 import { EmptyState } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
-import { APPLICATION_STAGE_LABEL, expressInterest, getPairStatus, ME, useApplicationStages, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
+import { APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStages, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
@@ -29,6 +30,8 @@ import {
   type LevelKey,
 } from './parts'
 import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
+import { SkeletonCards } from '@components/dashboard/Skeleton'
+import { useFlip } from '@hooks/useFlip'
 import {
   CRITERION_LABELS,
   DEFAULT_PRIORITY,
@@ -68,8 +71,7 @@ export default function JobseekerMatch() {
   // Kết nối mới (kể cả do doanh nghiệp đáp lại sau vài giây) → báo thành công
   useOnNewConnection((c) => {
     if (c.seekerId !== ME) return
-    const job = findAnyJob(c.jobId)
-    if (job) toast.success(`Kết nối thành công với ${companyOf(job.companyId).name} — ${job.title}`)
+    if (findAnyJob(c.jobId)) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
   })
   const gallery = view === 'gallery'
   // Lenis chỉ chạy ở Bộ sưu tập (canvas WebGL cần cuộn mượt đồng bộ); chế độ Danh sách giữ cuộn thường
@@ -131,6 +133,11 @@ export default function JobseekerMatch() {
   )
   // Lọc theo mức phù hợp áp cho cả danh sách lẫn bộ sưu tập
   const shown = filterByLevel(current, level, (x) => x.outcome.score)
+  // Danh sách thẻ sắp xếp lại mượt khi đổi tab / lọc / sắp xếp
+  const flipRef = useFlip<HTMLUListElement>(shown.map((x) => x.job.id))
+  // Danh mục chưa về từ máy chủ: hiện khung chờ thay vì "Chưa có việc nào"
+  const catalogSettled = useCatalogStore((s) => s.settled)
+  const waiting = !catalogSettled && allJobs.length === 0
   const detail = open ? scored.find((x) => x.job.id === open.id) : undefined
 
   // Sau khi đổi hạng bằng nút, trả focus về đúng nút vừa bấm (hàng đã đổi chỗ trong DOM)
@@ -158,10 +165,8 @@ export default function JobseekerMatch() {
     setJobTypes((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]))
 
   const apply = (job: MatchJob) => {
-    // Phía kia đã quan tâm → bấm là thành kết nối ngay (toast "Kết nối thành công" do useOnNewConnection hiện)
-    const waiting = getPairStatus('seeker', job.id, ME) === 'none'
+    // Phản hồi thành công (ứng tuyển / đã kết nối) do connectionService báo
     expressInterest('seeker', job.id, ME)
-    if (waiting) toast.success('Đã ứng tuyển — chờ doanh nghiệp phản hồi')
   }
 
   // Hàng nút của một vị trí — dùng chung cho thẻ danh sách và khung chi tiết.
@@ -214,7 +219,7 @@ export default function JobseekerMatch() {
           </>
         )}
         <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={cn(BTN_SECONDARY, BTN_SM)}>
-          <Bookmark className={cn('h-4 w-4', saved && 'fill-current')} aria-hidden="true" />
+          <PopIcon icon={Bookmark} on={saved} />
           {saved ? 'Đã lưu' : 'Lưu'}
           <span className="sr-only"> {job.title}</span>
         </button>
@@ -346,7 +351,9 @@ export default function JobseekerMatch() {
               setLevel('all')
             }}
           >
-            {shown.length === 0 ? (
+            {waiting ? (
+              <SkeletonCards count={3} className="mx-auto max-w-3xl space-y-4" label="Đang tải việc phù hợp…" />
+            ) : shown.length === 0 ? (
               <EmptyState
                 icon={SearchX}
                 title={
@@ -389,9 +396,9 @@ export default function JobseekerMatch() {
               />
               </div>
             ) : (
-              <ul className="mx-auto max-w-3xl space-y-4">
+              <ul ref={flipRef} className="mx-auto max-w-3xl space-y-4">
                 {shown.map(({ job, outcome }) => (
-                  <li key={job.id}>
+                  <li key={job.id} data-flip-key={job.id}>
                     <JobCard job={job} outcome={outcome} actions={jobActions(job)} />
                   </li>
                 ))}

@@ -3,15 +3,18 @@ import { useId, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Bookmark, BookmarkCheck, ChevronDown, MapPin, SearchX } from 'lucide-react'
 import { JOB_TYPES } from '@constants/index'
-import { EmptyState, MatchScore, PageHeader } from '@components/dashboard'
+import { EmptyState, MatchScore, PageHeader, SkeletonCards } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import type { JobType } from '@/types'
+import { useCatalogStore } from '@context/catalogStore'
 import { useMatchStore } from '@context/matchStore'
 import { useSeekerCriteria } from '@context/profileStore'
 import { useAllJobs, seekerOutcome, type MatchJob } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { CRITERION_LABELS, type MatchOutcome } from '@pages/public/match/score'
 import { FOCUS } from '@utils/focus'
+import PopIcon from '@components/common/PopIcon'
+import { useFlip } from '@hooks/useFlip'
 import { BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 
 const FIELD = `rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
@@ -51,7 +54,7 @@ function JobCard({ job, outcome, saved, onToggleSave }: Scored & { saved: boolea
   const typeLabel = JOB_TYPES.find((t) => t.value === job.jobType)?.label
 
   return (
-    <article className="rounded-card border border-page-line bg-page-surface p-5 md:p-6">
+    <article data-flip-key={job.id} className="rounded-card border border-page-line bg-page-surface p-5 md:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h2 className="font-display text-lg font-medium text-page-fg">{job.title}</h2>
@@ -81,7 +84,7 @@ function JobCard({ job, outcome, saved, onToggleSave }: Scored & { saved: boolea
           onClick={onToggleSave}
           className={cn(BTN_SECONDARY, BTN_SM, saved && 'border-page-fg')}
         >
-          {saved ? <BookmarkCheck className="h-4 w-4" aria-hidden="true" /> : <Bookmark className="h-4 w-4" aria-hidden="true" />}
+          <PopIcon icon={saved ? BookmarkCheck : Bookmark} on={saved} fill={false} />
           {saved ? 'Đã lưu' : 'Lưu'}
         </button>
         <Link
@@ -122,6 +125,7 @@ export default function RecommendedJobs() {
   const [sort, setSort] = useState<SortKey>('match')
   const savedJobs = useMatchStore((s) => s.savedJobs)
   const toggleSave = useMatchStore((s) => s.toggleSavedJob)
+  const catalogLoaded = useCatalogStore((s) => s.loaded)
   const typeId = useId()
   const scoreId = useId()
   const sortId = useId()
@@ -142,6 +146,7 @@ export default function RecommendedJobs() {
     )
   }, [scored, type, minScore, sort])
 
+  const flipRef = useFlip<HTMLDivElement>(jobs.map((x) => x.job.id))
 
   const reset = () => {
     setType('all')
@@ -181,7 +186,9 @@ export default function RecommendedJobs() {
 
       <p className="mb-4 text-sm text-page-muted" role="status">{jobs.length} việc phù hợp</p>
 
-      {jobs.length === 0 ? (
+      {!catalogLoaded && allJobs.length === 0 ? (
+        <SkeletonCards count={3} className="space-y-4" label="Đang tải việc phù hợp…" />
+      ) : jobs.length === 0 ? (
         <EmptyState
           icon={SearchX}
           title="Không có việc nào khớp bộ lọc"
@@ -189,7 +196,7 @@ export default function RecommendedJobs() {
           action={<button type="button" onClick={reset} className={BTN_SECONDARY}>Xóa bộ lọc</button>}
         />
       ) : (
-        <div className="space-y-4">
+        <div ref={flipRef} className="space-y-4">
           {jobs.map(({ job, outcome }) => (
             <JobCard key={job.id} job={job} outcome={outcome} saved={savedJobs.includes(job.id)} onToggleSave={() => toggleSave(job.id)} />
           ))}

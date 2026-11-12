@@ -1,5 +1,4 @@
 import { useRef, useState, type KeyboardEvent } from 'react'
-import toast from 'react-hot-toast'
 import { Star } from 'lucide-react'
 import DialogShell from '@components/interview/DialogShell'
 import { REVIEW_MAX_COMMENT, REVIEW_MAX_TAGS, submitReview, type Side } from '@services/connectionService'
@@ -46,7 +45,6 @@ export default function ReviewDialog({ viewer, jobId, seekerId, targetName, onCl
           e.preventDefault()
           if (!stars) return
           submitReview({ jobId, seekerId, from: viewer, stars, tags, comment })
-          toast.success('Đã gửi đánh giá. Cảm ơn bạn!')
           onClose()
         }}
         className="space-y-5"

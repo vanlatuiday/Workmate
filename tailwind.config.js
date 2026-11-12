@@ -69,9 +69,16 @@ export default {
           from: { opacity: '0', transform: 'translateY(8px)' },
           to:   { opacity: '1', transform: 'none' },
         },
+        // Icon vừa bật trạng thái (lưu, thích, đã gửi) nảy nhẹ một lần — utils/feedback.ts → POP
+        pop: {
+          '0%':   { transform: 'scale(1)' },
+          '40%':  { transform: 'scale(1.25)' },
+          '100%': { transform: 'scale(1)' },
+        },
       },
       animation: {
         'logo-in': 'logo-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both',
+        pop: 'pop 300ms cubic-bezier(0.22, 1, 0.36, 1)',
       },
       transitionTimingFunction: {
         editorial: 'cubic-bezier(0.22, 1, 0.36, 1)',

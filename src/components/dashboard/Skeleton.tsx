@@ -34,3 +34,47 @@ export function SkeletonStats({ count = 4 }: { count?: number }) {
     </div>
   )
 }
+
+/** Lưới thẻ chờ tải (thẻ việc, thẻ công ty, thẻ ứng viên): ảnh tùy chọn + tiêu đề + 2 dòng + hàng nút */
+export function SkeletonCards({
+  count = 3,
+  image = false,
+  className = 'grid gap-4 md:grid-cols-2 xl:grid-cols-3',
+  label = 'Đang tải danh sách…',
+}: { count?: number; image?: boolean; className?: string; label?: string }) {
+  return (
+    <div role="status" aria-live="polite" className={className}>
+      <span className="sr-only">{label}</span>
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} className="rounded-card border border-page-line bg-page-surface p-5">
+          {image && <Skeleton className="mb-4 aspect-[4/3] w-full rounded-control" />}
+          <div className="flex items-start gap-3">
+            <Skeleton className="h-11 w-11 shrink-0 rounded-full" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          </div>
+          <Skeleton className="mt-4 h-3 w-full" />
+          <Skeleton className="mt-2 h-3 w-5/6" />
+          <div className="mt-5 flex gap-2">
+            <Skeleton className="h-9 w-24 rounded-full" />
+            <Skeleton className="h-9 w-16 rounded-full" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** Khung chat chờ tải: bong bóng hai phía xen kẽ */
+export function SkeletonChat({ count = 5, label = 'Đang tải tin nhắn…' }: { count?: number; label?: string }) {
+  return (
+    <div role="status" aria-live="polite" className="flex flex-col gap-3 p-4">
+      <span className="sr-only">{label}</span>
+      {Array.from({ length: count }, (_, i) => (
+        <Skeleton key={i} className={i % 2 ? 'h-10 w-1/2 self-end rounded-card' : 'h-12 w-2/3 rounded-card'} />
+      ))}
+    </div>
+  )
+}

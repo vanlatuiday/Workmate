@@ -1,5 +1,5 @@
+import { notifySuccess } from '@utils/feedback'
 import { useId, useState } from 'react'
-import toast from 'react-hot-toast'
 import { AlertTriangle } from 'lucide-react'
 import DialogShell from '@components/interview/DialogShell'
 import { StatusBadge } from '@components/dashboard'
@@ -125,7 +125,7 @@ export function JobActions({ row, onDone }: { row: AdminJobRow; onDone?: () => v
   const apply = (next: ModerationStatus, message: string, reason?: string) => {
     setModeration(job.id, next, reason)
     setDialog(null)
-    toast.success(message)
+    notifySuccess(message)
     onDone?.()
   }
 

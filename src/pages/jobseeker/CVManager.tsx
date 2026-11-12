@@ -1,6 +1,7 @@
+import FadeIn from '@components/motion/FadeIn'
+import { notifyError, notifySuccess } from '@utils/feedback'
 import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from 'react'
 import { createPortal } from 'react-dom'
-import toast from 'react-hot-toast'
 import { AlertCircle, FileText, Image as ImageIcon, Upload, X } from 'lucide-react'
 import { EmptyState, PageHeader, Panel, Skeleton, SkeletonList, StatusBadge } from '@components/dashboard'
 import { CV_MAX_COUNT, CV_TYPES, useCvStore, type CvMeta } from '@context/cvStore'
@@ -70,7 +71,7 @@ function CvRow({ cv, isDefault, onPreview }: { cv: CvMeta; isDefault: boolean; o
   const saveName = async () => {
     setEditing(false)
     const err = await rename(cv.id, draft)
-    if (err) toast.error(err)
+    if (err) notifyError(err)
   }
   const onNameKey = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') void saveName()
@@ -84,20 +85,20 @@ function CvRow({ cv, isDefault, onPreview }: { cv: CvMeta; isDefault: boolean; o
       a.href = await fileUrl(cv.id, true)
       a.click()
     } catch {
-      toast.error('Không tải được file, vui lòng thử lại.')
+      notifyError('Không tải được file, vui lòng thử lại.')
     }
   }
 
   const doRemove = async () => {
     const err = await remove(cv.id)
-    if (err) return toast.error(err)
-    toast.success('Đã xóa CV')
+    if (err) return notifyError(err)
+    notifySuccess('Đã xóa CV')
   }
 
   const makeDefault = async () => {
     const err = await setDefault(cv.id)
-    if (err) return toast.error(err)
-    toast.success('Đã đặt làm CV mặc định')
+    if (err) return notifyError(err)
+    notifySuccess('Đã đặt làm CV mặc định')
   }
 
   return (
@@ -173,7 +174,7 @@ export default function CVManager() {
       for (const f of Array.from(files)) {
         const err = await add(f)
         if (err) return setError(err)
-        toast.success(`Đã tải lên “${f.name}”`)
+        notifySuccess(`Đã tải lên “${f.name}”`)
       }
     } finally {
       setUploading(false)
@@ -215,11 +216,13 @@ export default function CVManager() {
       ) : items.length === 0 ? (
         <EmptyState icon={FileText} title="Chưa có CV nào" description="Tải CV đầu tiên lên để dùng khi ứng tuyển." />
       ) : (
-        <Panel title={`CV của bạn (${items.length}/${CV_MAX_COUNT})`}>
-          <ul className="divide-y divide-page-line">
-            {items.map((cv) => <CvRow key={cv.id} cv={cv} isDefault={cv.id === defaultId} onPreview={() => setPreviewId(cv.id)} />)}
-          </ul>
-        </Panel>
+        <FadeIn>
+          <Panel title={`CV của bạn (${items.length}/${CV_MAX_COUNT})`}>
+            <ul className="divide-y divide-page-line">
+              {items.map((cv) => <CvRow key={cv.id} cv={cv} isDefault={cv.id === defaultId} onPreview={() => setPreviewId(cv.id)} />)}
+            </ul>
+          </Panel>
+        </FadeIn>
       )}
 
       <p className="mt-4 text-xs text-page-muted">CV lưu riêng tư trên Workmate: chỉ bạn và doanh nghiệp đã kết nối với bạn xem được.</p>

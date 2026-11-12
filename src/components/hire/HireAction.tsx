@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import toast from 'react-hot-toast'
 import { BriefcaseBusiness, Star } from 'lucide-react'
 import { describeConversation } from '@pages/public/messages/describe'
 import { acceptOffer, declineOffer, rejectCandidate, useActiveInterview, useHire, useReview, withdrawOffer, type Side } from '@services/connectionService'
@@ -52,7 +51,6 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
             cancelLabel="Quay lại"
             onConfirm={(reason) => {
               rejectCandidate(jobId, seekerId, reason)
-              toast('Đã gửi lời cảm ơn tới ứng viên')
             }}
             onClose={close}
           />
@@ -106,7 +104,6 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
             cancelLabel="Giữ lời mời"
             onConfirm={() => {
               withdrawOffer(jobId, seekerId)
-              toast('Đã rút lời mời')
             }}
             onClose={close}
           />
@@ -121,7 +118,6 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
         type="button"
         onClick={() => {
           acceptOffer(jobId, seekerId)
-          toast.success('Đã xác nhận đi làm. Chúc bạn một khởi đầu thuận lợi!')
         }}
         className={cn(BTN_PRIMARY, size)}
       >
@@ -138,7 +134,6 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
           cancelLabel="Quay lại"
           onConfirm={(reason) => {
             declineOffer(jobId, seekerId, reason)
-            toast('Đã từ chối lời mời')
           }}
           onClose={close}
         />

@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Bookmark, CalendarCheck, ClipboardList, MapPin, Zap } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { JOB_TYPES } from '@constants/index'
-import { EmptyState, MatchScore, PageHeader, Panel, StatCard, StatusBadge } from '@components/dashboard'
+import { EmptyState, MatchScore, PageHeader, Panel, SkeletonList, StatCard, StatusBadge } from '@components/dashboard'
+import { useCatalogStore } from '@context/catalogStore'
 import { useMatchStore } from '@context/matchStore'
 import { useInterviews, useMyPairs } from '@services/connectionService'
 import { describeConversation } from '@pages/public/messages/describe'
@@ -11,6 +12,7 @@ import { formatRelativeTime } from '@utils/format'
 import { useAllJobs, seekerOutcome } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { FOCUS } from '@utils/focus'
+import FadeIn from '@components/motion/FadeIn'
 import { BTN_ACCENT } from '@utils/ui'
 import { useProfileStore } from '@context/profileStore'
 import { completeness } from '@pages/public/profile/useProfileDraft'
@@ -31,6 +33,7 @@ export default function JobseekerDashboard() {
   const recent = pairs.slice(0, 3)
   // 3 việc điểm cao nhất theo cách tính chung (catalog.ts)
   const allJobs = useAllJobs()
+  const catalogLoaded = useCatalogStore((s) => s.loaded)
   const jobs = allJobs.map((job) => ({ job, outcome: seekerOutcome(job) }))
     .sort((a, b) => b.outcome.score - a.outcome.score)
     .slice(0, 3)
@@ -50,11 +53,12 @@ export default function JobseekerDashboard() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        <FadeIn className="lg:col-span-2 [&>section]:h-full">
         <Panel
           title="Việc phù hợp với bạn"
-          className="lg:col-span-2"
           action={<Link to="/tim-viec/phu-hop" className={LINK}>Xem tất cả</Link>}
         >
+          {!catalogLoaded && jobs.length === 0 ? <SkeletonList rows={3} label="Đang tải việc phù hợp…" /> : (
           <ul className="divide-y divide-page-line">
             {jobs.map(({ job, outcome }) => (
               <li key={job.id} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
@@ -79,8 +83,11 @@ export default function JobseekerDashboard() {
               </li>
             ))}
           </ul>
+          )}
         </Panel>
+        </FadeIn>
 
+        <FadeIn delay={80} className="[&>section]:h-full">
         <Panel title="Hồ sơ của bạn" action={<Link to="/tim-viec/ho-so" className={LINK}>Hoàn thiện</Link>}>
           <p className="tnum font-display text-3xl font-medium text-page-fg">{PROFILE_PERCENT}%</p>
           <div
@@ -103,11 +110,12 @@ export default function JobseekerDashboard() {
             Cập nhật hồ sơ <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </Panel>
+        </FadeIn>
       </div>
 
+      <FadeIn className="mt-6">
       <Panel
         title="Đơn ứng tuyển gần đây"
-        className="mt-6"
         action={<Link to="/tim-viec/ung-tuyen" className={LINK}>Xem tất cả</Link>}
       >
         {recent.length === 0 ? (
@@ -131,6 +139,7 @@ export default function JobseekerDashboard() {
           </ul>
         )}
       </Panel>
+      </FadeIn>
 
     </div>
   )

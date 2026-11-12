@@ -5,6 +5,7 @@ import { PageHeader, Panel, SkeletonList, StatCard, StatusBadge } from '@compone
 import { useConnectionStore } from '@context/connectionStore'
 import { fetchVerifications, useAdmin, useAdminJobs, useCompanyFlags, useSignupsPerDay } from '@services/adminService'
 import { ROLE_LABELS } from './mockData'
+import FadeIn from '@components/motion/FadeIn'
 import { FOCUS } from '@utils/focus'
 
 
@@ -51,6 +52,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <FadeIn className="[&>section]:h-full">
         <Panel title="Việc cần xử lý">
           {!verifLoaded && <SkeletonList rows={3} label="Đang tải việc cần xử lý…" />}
           {verifLoaded && todoItems.length === 0 && <p className="py-3 text-sm text-page-muted">Không có việc nào cần xử lý.</p>}
@@ -74,7 +76,9 @@ export default function AdminDashboard() {
             ))}
           </ul>}
         </Panel>
+        </FadeIn>
 
+        <FadeIn delay={80} className="[&>section]:h-full">
         <Panel title="Đăng ký mới" action={<Link to="/admin/nguoi-dung" className={`text-page-muted underline underline-offset-4 hover:text-page-fg rounded-control ${FOCUS}`}>Xem tất cả</Link>}>
           <ul className="divide-y divide-page-line">
             {recentSignups.map((u) => (
@@ -88,9 +92,11 @@ export default function AdminDashboard() {
             ))}
           </ul>
         </Panel>
+        </FadeIn>
       </div>
 
-      <Panel title="Người dùng mới 7 ngày" className="mt-6">
+      <FadeIn className="mt-6">
+      <Panel title="Người dùng mới 7 ngày">
         <div role="img" aria-label={chartSummary} className="flex h-48 items-end gap-2 sm:gap-4">
           {newUsersPerDay.map((d) => (
             <div key={d.date} aria-hidden="true" className="flex h-full flex-1 flex-col justify-end items-center gap-2">
@@ -108,6 +114,7 @@ export default function AdminDashboard() {
           ))}
         </div>
       </Panel>
+      </FadeIn>
 
     </div>
   )

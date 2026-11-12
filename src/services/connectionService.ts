@@ -2,7 +2,7 @@
 // Giao diện chỉ dùng các hàm ở đây. Đọc từ `connectionStore`; thao tác ghi gọi máy chủ rồi cập nhật kho,
 // máy chủ từ chối thì báo lỗi bằng toast. Sự kiện socket giữ kho khớp khi phía kia thay đổi.
 import { useEffect, useMemo, useState } from 'react'
-import toast from 'react-hot-toast'
+import { notifyError, notifySuccess } from '@utils/feedback'
 import api from './api'
 import { apiErrorMessage } from './authService'
 import { connectRealtime, disconnectRealtime, emitTyping } from './realtime'
@@ -46,17 +46,24 @@ const toServer = (seekerId: string) => (isSeeker() ? currentUser()?.id ?? seeker
 const localize = <T extends { seekerId: string }>(r: T): T => ({ ...r, seekerId: toLocal(r.seekerId) })
 const pairPath = (jobId: string, seekerId: string) => `${encodeURIComponent(jobId)}/${encodeURIComponent(toServer(seekerId))}`
 
-/** Bọc thao tác ghi: lỗi thì toast; luôn nạp lại trạng thái các cặp để kho khớp máy chủ */
-async function write(run: () => Promise<unknown>, fallback: string): Promise<boolean> {
+/**
+ * Bọc thao tác ghi: lỗi thì báo lỗi; luôn nạp lại trạng thái các cặp để kho khớp máy chủ.
+ * `success` (chuỗi hoặc hàm chạy SAU khi đã nạp lại, trả chuỗi/null) là phản hồi thành công duy nhất cho thao tác này.
+ */
+async function write(run: () => Promise<unknown>, fallback: string, success?: string | (() => string | null)): Promise<boolean> {
+  let ok = false
   try {
     await run()
-    return true
+    ok = true
   } catch (err) {
-    toast.error(apiErrorMessage(err, fallback))
-    return false
-  } finally {
-    await refreshPairs().catch(() => undefined)
+    notifyError(apiErrorMessage(err, fallback))
   }
+  await refreshPairs().catch(() => undefined)
+  if (ok && success) {
+    const msg = typeof success === 'function' ? success() : success
+    if (msg) notifySuccess(msg)
+  }
+  return ok
 }
 
 // ─── Nạp dữ liệu ────────────────────────────────────────────────────────────
@@ -213,13 +220,16 @@ export function getPairStatus(viewer: Side, jobId: string, seekerId: string): Pa
 export function expressInterest(from: Side, jobId: string, seekerId: string) {
   if (getPairStatus(from, jobId, seekerId) === 'sent' || getPairStatus(from, jobId, seekerId) === 'connected') return
   setStore((s) => ({ interests: [...s.interests, { from, jobId, seekerId, at: new Date().toISOString() }] }))
-  void write(() => api.post(`/connections/${pairPath(jobId, seekerId)}/interest`), 'Chưa gửi được quan tâm, vui lòng thử lại.')
+  void write(() => api.post(`/connections/${pairPath(jobId, seekerId)}/interest`), 'Chưa gửi được quan tâm, vui lòng thử lại.', () =>
+    getPairStatus(from, jobId, seekerId) === 'connected'
+      ? 'Đã kết nối — giờ hai bên nhắn tin được'
+      : from === 'seeker' ? 'Đã ứng tuyển — chờ doanh nghiệp phản hồi' : 'Đã quan tâm — chờ ứng viên phản hồi')
 }
 
 /** Rút quan tâm — không rút được khi đã kết nối */
 export function withdrawInterest(from: Side, jobId: string, seekerId: string) {
   setStore((s) => ({ interests: s.interests.filter((i) => !(i.from === from && i.jobId === jobId && i.seekerId === seekerId)) }))
-  void write(() => api.delete(`/connections/${pairPath(jobId, seekerId)}/interest`), 'Chưa rút được quan tâm, vui lòng thử lại.')
+  void write(() => api.delete(`/connections/${pairPath(jobId, seekerId)}/interest`), 'Chưa rút được quan tâm, vui lòng thử lại.', from === 'seeker' ? 'Đã rút đơn ứng tuyển' : 'Đã rút quan tâm')
 }
 
 // ─── Tiến độ đơn ứng tuyển: chờ phản hồi → đã xem → đang cân nhắc ───────────
@@ -349,11 +359,22 @@ export async function loadOlderMessages(jobId: string, seekerId: string): Promis
     })
     return data.length > 0
   } catch (err) {
-    toast.error(apiErrorMessage(err, 'Chưa tải được tin cũ hơn.'))
+    notifyError(apiErrorMessage(err, 'Chưa tải được tin cũ hơn.'))
     return false
   } finally {
     loadingOlder.delete(key)
   }
+}
+
+/** Hook: đang chờ trang tin nhắn đầu về (để hiện khung chờ thay vì khung trống) */
+export function useMessagesLoading(jobId: string, seekerId: string): boolean {
+  const key = convKey(jobId, seekerId)
+  return useConnectionStore((s) => !s.messages[key])
+}
+
+/** Hook: dữ liệu kết nối / hội thoại / thông báo đã nạp xong lần đầu chưa (trước đó danh sách trống chưa có nghĩa là "không có gì") */
+export function useConnectionsReady(): boolean {
+  return useConnectionStore((s) => s.hydrated)
 }
 
 /** Hook: tin nhắn của một cuộc trò chuyện, cũ trước mới sau; tải về lần đầu mở */
@@ -367,7 +388,7 @@ export function useMessages(jobId: string, seekerId: string): Message[] {
         messages: { ...s.messages, [key]: data.map(localize) },
         olderDone: { ...s.olderDone, [key]: data.length < FIRST_PAGE },
       })))
-      .catch((err) => toast.error(apiErrorMessage(err, 'Chưa tải được tin nhắn.')))
+      .catch((err) => notifyError(apiErrorMessage(err, 'Chưa tải được tin nhắn.')))
   }, [key, jobId, seekerId])
   return list ?? NO_MESSAGES
 }
@@ -395,7 +416,7 @@ export async function sendMessage(_from: Side, jobId: string, seekerId: string, 
     onMessage(data)
     return true
   } catch (err) {
-    toast.error(apiErrorMessage(err, 'Chưa gửi được tin nhắn, vui lòng thử lại.'))
+    notifyError(apiErrorMessage(err, 'Chưa gửi được tin nhắn, vui lòng thử lại.'))
     return false
   }
 }
@@ -425,11 +446,11 @@ const IV_ERROR = 'Chưa cập nhật được lịch phỏng vấn, vui lòng th
 
 /** Doanh nghiệp mời phỏng vấn — chỉ khi đã kết nối; 1–3 khung giờ (ISO) */
 export const inviteInterview = (input: Pick<Interview, 'jobId' | 'seekerId' | 'slots' | 'mode' | 'place' | 'note'>) =>
-  void write(() => api.post('/interviews', { ...input, seekerId: toServer(input.seekerId) }), IV_ERROR)
+  void write(() => api.post('/interviews', { ...input, seekerId: toServer(input.seekerId) }), IV_ERROR, 'Đã gửi lời mời phỏng vấn')
 /** Người tìm việc chọn một khung giờ trong lời mời */
-export const confirmInterview = (id: string, slot: string) => void write(() => api.post(`/interviews/${id}/confirm`, { slot }), IV_ERROR)
-export const declineInterview = (id: string) => void write(() => api.post(`/interviews/${id}/decline`), IV_ERROR)
-export const cancelInterview = (id: string) => void write(() => api.post(`/interviews/${id}/cancel`), IV_ERROR)
+export const confirmInterview = (id: string, slot: string) => void write(() => api.post(`/interviews/${id}/confirm`, { slot }), IV_ERROR, 'Đã xác nhận lịch phỏng vấn')
+export const declineInterview = (id: string) => void write(() => api.post(`/interviews/${id}/decline`), IV_ERROR, 'Đã từ chối lời mời phỏng vấn')
+export const cancelInterview = (id: string) => void write(() => api.post(`/interviews/${id}/cancel`), IV_ERROR, 'Đã hủy lịch phỏng vấn')
 
 // ─── Nhận việc → xác nhận đi làm ────────────────────────────────────────────
 
@@ -447,16 +468,16 @@ const HIRE_ERROR = 'Chưa cập nhật được quyết định nhận việc, v
 
 /** Doanh nghiệp mời nhận việc — chỉ khi đã kết nối và cặp chưa có bản ghi nhận việc */
 export const offerJob = (input: { jobId: string; seekerId: string; startDate: string; note?: string }) =>
-  void write(() => api.post('/hires/offer', { ...input, seekerId: toServer(input.seekerId) }), HIRE_ERROR)
+  void write(() => api.post('/hires/offer', { ...input, seekerId: toServer(input.seekerId) }), HIRE_ERROR, 'Đã gửi lời mời nhận việc')
 /** Doanh nghiệp không nhận (kèm lý do không bắt buộc) */
 export const rejectCandidate = (jobId: string, seekerId: string, reason?: string) =>
-  void write(() => api.post(`/hires/${pairPath(jobId, seekerId)}/reject`, { reason }), HIRE_ERROR)
+  void write(() => api.post(`/hires/${pairPath(jobId, seekerId)}/reject`, { reason }), HIRE_ERROR, 'Đã gửi lời cảm ơn tới ứng viên')
 /** Doanh nghiệp rút lời mời khi còn chờ */
-export const withdrawOffer = (jobId: string, seekerId: string) => void write(() => api.post(`/hires/${pairPath(jobId, seekerId)}/withdraw`), HIRE_ERROR)
+export const withdrawOffer = (jobId: string, seekerId: string) => void write(() => api.post(`/hires/${pairPath(jobId, seekerId)}/withdraw`), HIRE_ERROR, 'Đã rút lời mời')
 /** Người tìm việc xác nhận đi làm — lúc này cặp mới tính là "đã đi làm" */
-export const acceptOffer = (jobId: string, seekerId: string) => void write(() => api.post(`/hires/${pairPath(jobId, seekerId)}/accept`), HIRE_ERROR)
+export const acceptOffer = (jobId: string, seekerId: string) => void write(() => api.post(`/hires/${pairPath(jobId, seekerId)}/accept`), HIRE_ERROR, 'Đã xác nhận đi làm. Chúc bạn một khởi đầu thuận lợi!')
 export const declineOffer = (jobId: string, seekerId: string, reason?: string) =>
-  void write(() => api.post(`/hires/${pairPath(jobId, seekerId)}/decline`, { reason }), HIRE_ERROR)
+  void write(() => api.post(`/hires/${pairPath(jobId, seekerId)}/decline`, { reason }), HIRE_ERROR, 'Đã từ chối lời mời')
 
 // ─── Đánh giá hai chiều sau khi đi làm ──────────────────────────────────────
 
@@ -508,7 +529,7 @@ export function reviewStats(list: { stars: number }[]): { average: number; count
 /** Gửi đánh giá — máy chủ kiểm tra đã tới ngày đi làm và chưa đánh giá */
 export const submitReview = (input: { jobId: string; seekerId: string; from: Side; stars: number; tags: string[]; comment?: string }) => {
   const { jobId, seekerId, stars, tags, comment } = input
-  void write(() => api.post('/reviews', { jobId, seekerId: toServer(seekerId), stars, tags, comment: comment?.trim() || undefined }), 'Chưa gửi được đánh giá, vui lòng thử lại.')
+  void write(() => api.post('/reviews', { jobId, seekerId: toServer(seekerId), stars, tags, comment: comment?.trim() || undefined }), 'Chưa gửi được đánh giá, vui lòng thử lại.', 'Đã gửi đánh giá. Cảm ơn bạn!')
 }
 
 // ─── Danh sách cho dashboard ────────────────────────────────────────────────

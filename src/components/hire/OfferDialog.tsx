@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import toast from 'react-hot-toast'
 import { describeConversation } from '@pages/public/messages/describe'
 import { offerJob } from '@services/connectionService'
 import { cn } from '@utils/cn'
@@ -24,7 +23,6 @@ export default function OfferDialog({ jobId, seekerId, onClose }: Props) {
     if (!date) return setError('Hãy chọn ngày bắt đầu làm.')
     if (date < today) return setError('Ngày bắt đầu không được ở quá khứ.')
     offerJob({ jobId, seekerId, startDate: date, note: note.trim() || undefined })
-    toast.success(`Đã gửi lời mời nhận việc tới ${info.name}`)
     onClose()
   }
 

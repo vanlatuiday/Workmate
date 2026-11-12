@@ -1,5 +1,6 @@
+import FadeIn from '@components/motion/FadeIn'
+import { notifyError, notifySuccess } from '@utils/feedback'
 import { useId, useState } from 'react'
-import toast from 'react-hot-toast'
 import { X } from 'lucide-react'
 import { PageHeader, Panel } from '@components/dashboard'
 import { ConfirmDialog, FIELD } from '@components/admin/parts'
@@ -37,9 +38,9 @@ export default function Config() {
     if (!weightsOk) return
     try {
       await updateConfig(form)
-      toast.success('Đã lưu cấu hình')
+      notifySuccess('Đã lưu cấu hình')
     } catch (err) {
-      toast.error(apiErrorMessage(err, 'Chưa lưu được cấu hình.'))
+      notifyError(apiErrorMessage(err, 'Chưa lưu được cấu hình.'))
     }
   }
 
@@ -89,6 +90,7 @@ export default function Config() {
         </div>
       </Panel>
 
+      <FadeIn>
       <Panel title="Kiểm duyệt tin">
         <p className="text-sm font-medium text-page-fg" id={`${uid}-words`}>Từ cấm</p>
         <p className="mt-1 text-xs text-page-muted">Tin chứa từ này bị tự gắn cờ khi kiểm duyệt.</p>
@@ -118,7 +120,9 @@ export default function Config() {
           {numField('defaultRadiusKm', 'Bán kính mặc định khi đăng tin', 'km', 'Bán kính tuyển gợi ý cho tin mới.')}
         </div>
       </Panel>
+      </FadeIn>
 
+      <FadeIn>
       <Panel title="Tài khoản">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -134,6 +138,7 @@ export default function Config() {
           </button>
         </div>
       </Panel>
+      </FadeIn>
 
       <div className="flex flex-wrap gap-3">
         <button type="button" onClick={() => setConfirm('defaults')} className={cn(BTN_SECONDARY, BTN_SM)}>Khôi phục mặc định</button>
@@ -143,7 +148,7 @@ export default function Config() {
         <ConfirmDialog
           title="Khôi phục mặc định" confirmLabel="Khôi phục" onCancel={() => setConfirm(null)}
           message="Đưa mọi cấu hình về giá trị ban đầu? Báo cáo và trạng thái kiểm duyệt giữ nguyên."
-          onConfirm={() => { updateConfig(DEFAULT_CONFIG); setForm(DEFAULT_CONFIG); setConfirm(null); toast.success('Đã khôi phục cấu hình mặc định') }}
+          onConfirm={() => { updateConfig(DEFAULT_CONFIG); setForm(DEFAULT_CONFIG); setConfirm(null); notifySuccess('Đã khôi phục cấu hình mặc định') }}
         />
       )}
     </div>

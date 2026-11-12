@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react'
-import toast from 'react-hot-toast'
+import { notifySuccess } from '@utils/feedback'
 import { Bookmark, BookmarkCheck, MapPin, Search, UserSearch } from 'lucide-react'
 import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
 import { availabilityLabel, useCandidates, usePositions, type MatchCandidate, type MatchPosition } from '@pages/public/match/data'
 import { scoreMatch } from '@pages/public/match/score'
 import { expressInterest, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
+import { useFlip } from '@hooks/useFlip'
+import PopIcon from '@components/common/PopIcon'
 import { useQueryParam } from '@hooks/useQueryParam'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -56,15 +58,13 @@ function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPo
 
   const send = () => {
     if (!pickedId) return
-    const title = positions.find((p) => p.id === pickedId)?.job.title
-    const connecting = statusOf(pickedId, c.id) === 'received'
+    // Phản hồi thành công do expressInterest (connectionService) báo
     expressInterest('recruiter', pickedId, c.id)
-    if (!connecting) toast.success(`Đã quan tâm ${c.name} — ${title}`)
     setOpen(false)
   }
 
   return (
-    <li className="flex min-w-0 flex-col rounded-card border border-page-line bg-page-surface p-5">
+    <li data-flip-key={c.id} className="flex min-w-0 flex-col rounded-card border border-page-line bg-page-surface p-5">
       {/* flex-wrap: màn hẹp thì nhãn "Bắt đầu…" xuống dòng thay vì đẩy thẻ tràn ngang */}
       <div className="flex flex-wrap items-start gap-3">
         <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-page-line font-display text-sm font-medium text-page-fg" aria-hidden="true">
@@ -133,10 +133,9 @@ function CandidateCard({ c, positions }: { c: MatchCandidate; positions: MatchPo
             aria-pressed={isSaved}
             onClick={() => {
               toggleSaved(key)
-              toast(isSaved ? 'Đã bỏ lưu' : 'Đã lưu ứng viên')
             }}
           >
-            {isSaved ? <BookmarkCheck className="h-4 w-4" aria-hidden="true" /> : <Bookmark className="h-4 w-4" aria-hidden="true" />}
+            <PopIcon icon={isSaved ? BookmarkCheck : Bookmark} on={isSaved} fill={false} />
             {isSaved ? 'Đã lưu' : 'Lưu'}
           </button>
         </div>
@@ -160,7 +159,7 @@ export default function FindCandidates() {
 
   useOnNewConnection((c) => {
     const cand = ALL_CANDIDATES.find((x) => x.id === c.seekerId)
-    if (cand) toast.success(`Kết nối thành công với ${cand.name}`)
+    if (cand) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
   })
 
   const list = useMemo(() => {
@@ -175,6 +174,7 @@ export default function FindCandidates() {
     )
   }, [ALL_CANDIDATES, q, area, skills, sessions, salaryCap])
 
+  const flipRef = useFlip<HTMLUListElement>(list.map((c) => c.id))
   const toggle = <T,>(arr: T[], v: T) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v])
   const hasFilter = !!(q || area || skills.length || sessions.length || salaryCap)
   const reset = () => {
@@ -251,7 +251,7 @@ export default function FindCandidates() {
           action={<button type="button" onClick={reset} className={cn(BTN_PRIMARY, BTN_SM)}>Xóa bộ lọc</button>}
         />
       ) : (
-        <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <ul ref={flipRef} className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {list.map((c) => <CandidateCard key={c.id} c={c} positions={positions} />)}
         </ul>
       )}

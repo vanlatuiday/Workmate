@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useCatalogStore } from '@context/catalogStore'
+import { SkeletonCards } from '@components/dashboard/Skeleton'
 import { SearchX } from 'lucide-react'
 import EmptyState from '@components/dashboard/EmptyState'
 import DiscoverGallery from '@components/discover/DiscoverGallery'
@@ -23,6 +24,7 @@ export default function JobseekerJobs() {
   // Quản trị viên duyệt/ẩn tin hoặc khóa công ty → tính lại danh sách
   const moderation = useCatalogStore((s) => s.jobs)
   const locked = useCatalogStore((s) => s.companies)
+  const settled = useCatalogStore((s) => s.settled)
   const criteria = useSeekerCriteria() // bộ lọc "gần tôi" dùng khoảng cách tối đa trong hồ sơ
   // Chỉ giữ công ty có việc khớp; đổi danh sách thì remount bộ sưu tập cho sạch
   const items = useMemo<Item[]>(
@@ -51,7 +53,11 @@ export default function JobseekerJobs() {
         stats={[[items.length, 'công ty'], [jobCount, 'việc']]}
       />
       <JobSearchBar filters={filters} onChange={setFilters} showNearMe />
-      {items.length === 0 ? (
+      {items.length === 0 && !settled ? (
+        <div className="shell py-section-sm">
+          <SkeletonCards count={6} image label="Đang tải danh sách công ty…" />
+        </div>
+      ) : items.length === 0 ? (
         <div className="shell py-section-sm">
           <EmptyState
             icon={SearchX}

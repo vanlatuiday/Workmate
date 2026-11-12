@@ -7,6 +7,8 @@ import type { JobType } from '@/types'
 import { useProfileStore } from '@context/profileStore'
 import { completeness } from '@pages/public/profile/useProfileDraft'
 import { DAY_SHORT, SESSIONS } from './mockData'
+import FadeIn from '@components/motion/FadeIn'
+import { notifySuccess } from '@utils/feedback'
 import { FOCUS } from '@utils/focus'
 import { BTN_ACCENT, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
@@ -104,6 +106,7 @@ export default function Profile() {
       experience,
     })
     setSaved(true)
+    notifySuccess('Đã lưu hồ sơ')
   }
 
   return (
@@ -128,6 +131,7 @@ export default function Profile() {
       </Panel>
 
       <div className="space-y-6">
+        <FadeIn>
         <Panel>
           <fieldset className="min-w-0">
             <legend className={LEGEND}>Thông tin cơ bản</legend>
@@ -140,7 +144,9 @@ export default function Profile() {
             </div>
           </fieldset>
         </Panel>
+        </FadeIn>
 
+        <FadeIn>
         <Panel>
           <fieldset className="min-w-0">
             <legend className={LEGEND}>Mong muốn</legend>
@@ -167,7 +173,9 @@ export default function Profile() {
             </div>
           </fieldset>
         </Panel>
+        </FadeIn>
 
+        <FadeIn>
         <Panel>
           <fieldset className="min-w-0">
             <legend className={LEGEND}>Lịch rảnh trong tuần</legend>
@@ -218,7 +226,9 @@ export default function Profile() {
             <p className="tnum mt-3 text-xs text-page-muted">Đã chọn {slots.size} / 21 buổi</p>
           </fieldset>
         </Panel>
+        </FadeIn>
 
+        <FadeIn>
         <Panel>
           <fieldset className="min-w-0">
             <legend className={LEGEND}>Kỹ năng</legend>
@@ -260,7 +270,9 @@ export default function Profile() {
             <p role="status" className="mt-2 text-xs text-page-muted">{skillDup ? 'Kỹ năng đã có' : ''}</p>
           </fieldset>
         </Panel>
+        </FadeIn>
 
+        <FadeIn>
         <Panel>
           <fieldset className="min-w-0">
             <legend className={LEGEND}>Kinh nghiệm</legend>
@@ -288,6 +300,7 @@ export default function Profile() {
             )}
           </fieldset>
         </Panel>
+        </FadeIn>
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-4">

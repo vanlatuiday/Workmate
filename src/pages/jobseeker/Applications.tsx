@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import toast from 'react-hot-toast'
+import { notifySuccess } from '@utils/feedback'
 import { ClipboardList } from 'lucide-react'
 import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { HireStatusChip, OfferCard } from '@components/hire'
@@ -12,6 +12,8 @@ import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { BTN_ACCENT, BTN_DANGER, BTN_PRIMARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { formatRelativeTime } from '@utils/format'
+import { useFlip } from '@hooks/useFlip'
+import FadeIn from '@components/motion/FadeIn'
 import MessageLink from '@components/messenger/MessageLink'
 
 
@@ -32,7 +34,7 @@ function Row({ item }: { item: PairItem }) {
   const stage = useApplicationStage(item.jobId, item.seekerId)
   const verb = item.status === 'received' ? 'quan tâm' : applied ? 'ứng tuyển' : 'cập nhật'
   return (
-    <li className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 md:flex-row md:items-center md:justify-between">
+    <li data-flip-key={`${item.jobId}|${item.seekerId}`} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 md:flex-row md:items-center md:justify-between">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <Link to={`/viec-lam/${item.jobId}`} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>
@@ -65,7 +67,6 @@ function Row({ item }: { item: PairItem }) {
             className={cn(BTN_DANGER, BTN_SM)}
             onClick={() => {
               withdrawInterest('seeker', item.jobId, item.seekerId)
-              toast('Đã rút đơn ứng tuyển')
             }}
           >
             Rút đơn
@@ -84,12 +85,14 @@ export default function Applications() {
   const [tab, setTab] = useState<Tab>('all')
 
   useOnNewConnection((c) => {
-    if (c.seekerId === ME) toast.success('Kết nối thành công')
+    // Phía kia vừa đồng ý (realtime); cùng câu với service nên không báo hai lần
+    if (c.seekerId === ME) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
   })
 
   const mine = pairs.filter((p) => p.status === 'sent' || p.status === 'connected')
   const waiting = pairs.filter((p) => p.status === 'received')
   const shown = tab === 'all' ? mine : mine.filter((p) => p.status === tab)
+  const flipRef = useFlip<HTMLUListElement>(shown.map((p) => `${p.jobId}|${p.seekerId}`))
 
   return (
     <div>
@@ -136,11 +139,13 @@ export default function Applications() {
           action={<Link to="/match" className={BTN_ACCENT}>Tới trang Kết nối</Link>}
         />
       ) : (
+        <FadeIn>
         <Panel>
-          <ul className="divide-y divide-page-line">
+          <ul ref={flipRef} className="divide-y divide-page-line">
             {shown.map((p) => <Row key={`${p.jobId}|${p.seekerId}`} item={p} />)}
           </ul>
         </Panel>
+        </FadeIn>
       )}
 
     </div>

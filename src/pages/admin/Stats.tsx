@@ -1,3 +1,4 @@
+import FadeIn from '@components/motion/FadeIn'
 import { useMemo, type ReactNode } from 'react'
 import { PageHeader, Panel, StatCard } from '@components/dashboard'
 import { JOB_TYPES } from '@constants/index'
@@ -98,6 +99,7 @@ export default function Stats() {
         <StatCard label="Báo cáo đang mở" value={openReports} href="/admin/bao-cao" hint="Bấm để xử lý" />
       </div>
 
+      <FadeIn>
       <Panel title="Phễu kết nối">
         <BarList
           max={top}
@@ -105,7 +107,9 @@ export default function Stats() {
           summary={`Phễu kết nối: ${funnel.map((f) => `${f.label} ${f.value} (${pct(f.value, top)}%)`).join('; ')}`}
         />
       </Panel>
+      </FadeIn>
 
+      <FadeIn>
       <Panel title="Người dùng mới 14 ngày">
         <div role="img" aria-label={`Người dùng mới 14 ngày gần nhất, tổng ${totalUsers}. ${USERS_14.map((d) => `${d.date}: ${d.count}`).join('; ')}`}>
           <div aria-hidden="true" className="flex h-44 items-end gap-1 sm:gap-2">
@@ -123,18 +127,23 @@ export default function Stats() {
           </div>
         </div>
       </Panel>
+      </FadeIn>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <FadeIn className="[&>section]:h-full">
         <Panel title="Tin đang hiện theo quận">
           {byDistrict.length ? (
             <BarList max={byDistrict[0].value} rows={byDistrict} summary={`Tin đang hiện theo quận: ${byDistrict.map((r) => `${r.label} ${r.value}`).join('; ')}`} />
           ) : <Empty>Chưa có tin nào đang hiện.</Empty>}
         </Panel>
+        </FadeIn>
+        <FadeIn delay={80} className="[&>section]:h-full">
         <Panel title="Tin đang hiện theo loại việc">
           {byType.length ? (
             <BarList max={byType[0].value} rows={byType} summary={`Tin đang hiện theo loại việc: ${byType.map((r) => `${r.label} ${r.value}`).join('; ')}`} />
           ) : <Empty>Chưa có tin nào đang hiện.</Empty>}
         </Panel>
+        </FadeIn>
       </div>
     </div>
   )

@@ -8,6 +8,7 @@ import PlaceText from '@components/interview/PlaceText'
 import { fmtSlot, MODE_LABEL } from '@components/interview/format'
 import { EmptyState, StatusBadge } from '@components/dashboard'
 import { useAuthStore } from '@context/authStore'
+import FadeIn from '@components/motion/FadeIn'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { cancelInterview, useInterviews, type Interview, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
@@ -122,7 +123,7 @@ function Schedule({ viewer }: { viewer: Side }) {
           ))}
         </ol>
 
-        <div className="mt-8">
+        <FadeIn className="mt-8">
           <Tabs
             idPrefix="schedule"
             label="Nhóm lịch phỏng vấn"
@@ -149,7 +150,7 @@ function Schedule({ viewer }: { viewer: Side }) {
               <ul className="space-y-3">{lists[tab].map(card)}</ul>
             )}
           </Tabs>
-        </div>
+        </FadeIn>
       </div>
 
       {choosing && <ChooseSlotDialog interview={choosing} onClose={() => setChoosing(null)} />}

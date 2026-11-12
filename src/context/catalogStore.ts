@@ -89,6 +89,8 @@ interface CatalogState {
   adminRows: AdminJobData[] | null
   /** Đã nạp từ máy chủ ít nhất một lần */
   loaded: boolean
+  /** Lần nạp đầu đã xong (thành công hay lỗi) — dùng để hiện khung chờ thay vì "không tìm thấy" nháy lên */
+  settled: boolean
 
   /** Nạp lại danh mục theo người đang đăng nhập; lỗi mạng thì giữ dữ liệu hiện có */
   load: () => Promise<void>
@@ -105,6 +107,7 @@ export const useCatalogStore = create<CatalogState>()((set) => ({
   config: DEFAULT_CONFIG,
   adminRows: null,
   loaded: false,
+  settled: false,
 
   load: async () => {
     try {
@@ -118,9 +121,11 @@ export const useCatalogStore = create<CatalogState>()((set) => ({
         // giữ danh sách từ cấm đã nạp (nếu là admin)
         config: { ...s.config, ...cfg.data },
         loaded: true,
+        settled: true,
       }))
     } catch {
       /* máy chủ tắt / lỗi mạng: dùng dữ liệu mẫu ban đầu */
+      set({ settled: true })
     }
   },
   upsertJob: (job) =>

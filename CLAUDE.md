@@ -16,7 +16,8 @@ Alias: `@/`, `@components`, `@pages`, `@hooks`, `@context`, `@services`, `@utils
 ## Quy ước code
 - UI và comment bằng tiếng Việt; route tiếng Việt không dấu.
 - Màu chỉ từ `tokens.json` (`wm-*`, `page-*`); không hex trong component. Bo góc `rounded-full|card|control`.
-- Chuyển động: chỉ transform/opacity, luôn có nhánh `prefers-reduced-motion`; dashboard không dùng hiệu ứng cuộn.
+- Chuyển động: chỉ transform/opacity, luôn có nhánh `prefers-reduced-motion`; dashboard không dùng hiệu ứng theo tiến trình cuộn (GSAP). Bốn hiệu ứng điểm nhấn dùng chung mọi trang: xem DESIGN.md → Motion mục 7.
+- Nút/chip: chỉ dùng hằng trong `src/utils/ui.ts`; mỗi màn hình tối đa một `BTN_ACCENT`.
 - Không over-engineer; tái sử dụng component có sẵn; không xóa code chưa rõ vai trò.
 - Nút/icon nổi cố định trên màn hình (vd. nút tin nhắn) phải gắn `data-floating`: tự ẩn ở màn mở đầu trang chủ (chỉ còn chữ Workmate), hiện khi lướt tới banner.
 

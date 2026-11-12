@@ -4,6 +4,8 @@ import { BadgeCheck, Check, ExternalLink, FileText, X } from 'lucide-react'
 import { PageHeader, StatusBadge, EmptyState, SkeletonList } from '@components/dashboard'
 import { useCatalogStore, type CatalogCompany } from '@context/catalogStore'
 import { fetchVerifications, getVerificationDocUrl, reviewVerification, setCompanyVerified, type AdminVerification } from '@services/adminService'
+import { useFlip } from '@hooks/useFlip'
+import { notifySuccess } from '@utils/feedback'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { BTN_DANGER, BTN_GHOST, BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
@@ -55,12 +57,13 @@ function RequestCard({ v, onReviewed, onNotice }: { v: AdminVerification; onRevi
       setBusy(false)
       return
     }
+    notifySuccess(status === 'approved' ? 'Đã duyệt yêu cầu xác minh' : 'Đã từ chối yêu cầu xác minh')
     onNotice(status === 'approved' ? `Đã duyệt xác minh cho ${v.company.name}.` : `Đã từ chối yêu cầu của ${v.company.name}.`)
     await onReviewed()
   }
 
   return (
-    <li className="rounded-card border border-page-line bg-page-surface p-5 md:p-6">
+    <li data-flip-key={v.id} className="rounded-card border border-page-line bg-page-surface p-5 md:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h2 className="font-display text-lg font-medium text-page-fg">
@@ -163,8 +166,11 @@ export default function Verification() {
     // Máy chủ từ chối thì setCompanyVerified đã báo lỗi và kho giữ nguyên: không báo thành công
     const now = useCatalogStore.getState().companies.find((x) => x.id === c.id)?.verified
     if (now === c.verified) return
+    notifySuccess(c.verified ? 'Đã bỏ nhãn xác minh' : 'Đã gắn nhãn xác minh')
     setNotice(c.verified ? `Đã bỏ nhãn xác minh của ${c.name}.` : `Đã xác minh ${c.name}.`)
   }
+
+  const flipRef = useFlip<HTMLUListElement>(isReq ? visibleReqs.map((r) => r.id) : visible.map((c) => c.id))
 
   const onTabKey = (e: React.KeyboardEvent, index: number) => {
     // Điều hướng tab bằng phím mũi tên, Home, End
@@ -209,16 +215,16 @@ export default function Verification() {
           visibleReqs.length === 0 ? (
             <EmptyState icon={BadgeCheck} title={TABS.find((t) => t.value === tab)!.empty} />
           ) : (
-            <ul className="space-y-4">
+            <ul ref={flipRef} className="space-y-4">
               {visibleReqs.map((v) => <RequestCard key={v.id} v={v} onReviewed={loadRequests} onNotice={setNotice} />)}
             </ul>
           )
         ) : visible.length === 0 ? (
           <EmptyState icon={BadgeCheck} title={TABS.find((t) => t.value === tab)!.empty} />
         ) : (
-          <ul className="space-y-4">
+          <ul ref={flipRef} className="space-y-4">
             {visible.map((c) => (
-              <li key={c.id} className="rounded-card border border-page-line bg-page-surface p-5 md:p-6">
+              <li key={c.id} data-flip-key={c.id} className="rounded-card border border-page-line bg-page-surface p-5 md:p-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <h2 className="font-display text-lg font-medium text-page-fg">{c.name}</h2>

@@ -5,6 +5,7 @@ import { Facts, PrimaryLink, TextLink } from '@components/discover/parts'
 import DetailHero from '@components/discover/detail/DetailHero'
 import DetailLayout from '@components/discover/detail/DetailLayout'
 import DetailNotFound from '@components/discover/detail/NotFound'
+import DetailSkeleton from '@components/discover/detail/DetailSkeleton'
 import BackLink from '@components/discover/detail/BackLink'
 import CandidateCard from '@components/discover/detail/CandidateCard'
 import { TextBlock } from '@components/discover/detail/DetailBlocks'
@@ -22,9 +23,10 @@ export default function PositionDetailPage() {
   const { id } = useParams()
   const companyId = useCompanyStore((s) => s.id)
   const job = useCatalogStore((s) => s.jobs.find((j) => j.id === id))
+  const catalogSettled = useCatalogStore((s) => s.settled)
   useCandidateStore((s) => s.list) // fitCandidatesOf đọc thẳng kho; đăng ký để tính lại khi nạp xong
 
-  if (!companyId) return <p role="status" className="shell py-section-sm text-sm text-page-muted">Đang tải…</p>
+  if (!companyId || (!job && !catalogSettled)) return <DetailSkeleton label="Đang tải vị trí…" />
   if (!job || job.companyId !== companyId) {
     return <DetailNotFound title="Không tìm thấy vị trí" text="Tin này không thuộc công ty của bạn hoặc đường dẫn đã thay đổi." />
   }

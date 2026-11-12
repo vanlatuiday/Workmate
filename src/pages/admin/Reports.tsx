@@ -1,5 +1,5 @@
+import { notifySuccess } from '@utils/feedback'
 import { useMemo, useState } from 'react'
-import toast from 'react-hot-toast'
 import { Flag } from 'lucide-react'
 import { EmptyState, PageHeader, StatusBadge } from '@components/dashboard'
 import { ConfirmDialog, ReasonDialog, STATUS_LABEL } from '@components/admin/parts'
@@ -10,6 +10,7 @@ import {
   resolveReport, setCompanyLocked, setModeration, setSeekerLocked, useAdmin, useCompanyFlags,
   type Report,
 } from '@services/adminService'
+import { useFlip } from '@hooks/useFlip'
 import { cn } from '@utils/cn'
 import { BTN_DANGER, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
@@ -77,11 +78,11 @@ export default function Reports() {
     const s = subjectOf(r)
     if (kind === 'dismiss') {
       resolveReport(r.id, 'dismissed', resolution)
-      toast.success('Đã bỏ qua báo cáo')
+      notifySuccess('Đã bỏ qua báo cáo')
     } else if (kind === 'hide' && s.jobId) {
       setModeration(s.jobId, 'hidden', resolution)
       resolveReport(r.id, 'actioned', `Đã ẩn tin. ${resolution ?? ''}`.trim())
-      toast.success(`Đã ẩn tin "${s.name}"`)
+      notifySuccess(`Đã ẩn tin "${s.name}"`)
     } else if (kind === 'lock') {
       if (r.target !== 'seeker' && s.companyId) {
         setCompanyLocked(s.companyId, true)
@@ -90,11 +91,12 @@ export default function Reports() {
         setSeekerLocked(r.targetId, true)
         resolveReport(r.id, 'actioned', `Đã khóa ${s.name}.`)
       }
-      toast.success('Đã khóa tài khoản bị báo cáo')
+      notifySuccess('Đã khóa tài khoản bị báo cáo')
     }
     setAction(null)
   }
 
+  const flipRef = useFlip<HTMLUListElement>(shown.map((r) => r.id))
   const subjectName = action ? subjectOf(action.report).name : ''
 
   return (
@@ -116,11 +118,11 @@ export default function Reports() {
         {shown.length === 0 ? (
           <EmptyState icon={Flag} title={tab === 'open' ? 'Không còn báo cáo nào đang mở.' : 'Chưa có báo cáo nào được xử lý.'} />
         ) : (
-          <ul className="space-y-4">
+          <ul ref={flipRef} className="space-y-4">
             {shown.map((r) => {
               const s = subjectOf(r)
               return (
-                <li key={r.id} className="rounded-card border border-page-line bg-page-surface p-5 md:p-6">
+                <li key={r.id} data-flip-key={r.id} className="rounded-card border border-page-line bg-page-surface p-5 md:p-6">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <p className="text-xs text-page-muted">{r.target === 'job' ? 'Tin tuyển dụng' : r.target === 'company' ? 'Công ty' : 'Ứng viên'}</p>

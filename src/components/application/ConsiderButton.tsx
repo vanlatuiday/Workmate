@@ -1,4 +1,4 @@
-import toast from 'react-hot-toast'
+import { notifySuccess } from '@utils/feedback'
 import { Hourglass } from 'lucide-react'
 import { considerApplication, useApplicationStage } from '@services/connectionService'
 
@@ -33,7 +33,7 @@ export default function ConsiderButton({ jobId, seekerId, className, srLabel }: 
       title="Ứng viên sẽ thấy đơn đang được cân nhắc"
       onClick={() => {
         void considerApplication(jobId, seekerId).then((ok) => {
-          if (ok) toast.success('Đã báo ứng viên: hồ sơ đang được cân nhắc')
+          if (ok) notifySuccess('Đã báo ứng viên: hồ sơ đang được cân nhắc')
         })
       }}
     >

@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react'
 import TextReveal from '@components/motion/TextReveal'
 import Reveal from '@components/motion/Reveal'
+import FadeIn from '@components/motion/FadeIn'
 import { usePageEnterDelay } from '@components/motion/PageTransition'
 
 export default function ContentPage({
@@ -43,10 +44,10 @@ export default function ContentPage({
 /** Một mục: tiêu đề h2 + nội dung */
 export function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section>
+    <FadeIn as="section">
       <h2 className="font-display text-xl font-semibold text-page-fg">{title}</h2>
       <div className="mt-4">{children}</div>
-    </section>
+    </FadeIn>
   )
 }
 

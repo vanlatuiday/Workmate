@@ -1,6 +1,7 @@
+import FadeIn from '@components/motion/FadeIn'
+import { notifyError, notifySuccess } from '@utils/feedback'
 import { useId, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import toast from 'react-hot-toast'
 import { AlertCircle, Plus, X } from 'lucide-react'
 import { PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { useCatalogStore } from '@context/catalogStore'
@@ -88,14 +89,14 @@ function LogoPanel({ name }: { name: string }) {
     const err = await uploadCompanyLogo(file)
     setBusy(false)
     if (err) setError(err)
-    else toast.success('Đã cập nhật logo công ty')
+    else notifySuccess('Đã cập nhật logo công ty')
   }
   const remove = async () => {
     setError(null); setBusy(true)
     const err = await removeCompanyLogo()
     setBusy(false)
     if (err) setError(err)
-    else toast.success('Đã xóa logo công ty')
+    else notifySuccess('Đã xóa logo công ty')
   }
 
   return (
@@ -160,9 +161,9 @@ export default function CompanyProfile() {
       await update({ ...form, name: form.name.trim(), email: form.email.trim() })
       // Trang công khai đọc từ danh mục
       await useCatalogStore.getState().load()
-      toast.success('Đã lưu hồ sơ công ty')
+      notifySuccess('Đã lưu hồ sơ công ty')
     } catch (err) {
-      toast.error(apiErrorMessage(err, 'Chưa lưu được hồ sơ công ty, vui lòng thử lại.'))
+      notifyError(apiErrorMessage(err, 'Chưa lưu được hồ sơ công ty, vui lòng thử lại.'))
     } finally {
       setSaving(false)
     }
@@ -217,6 +218,7 @@ export default function CompanyProfile() {
             </div>
           </Panel>
 
+          <FadeIn>
           <Panel title="Ảnh bìa">
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {COVER_CHOICES.map((c) => {
@@ -233,7 +235,9 @@ export default function CompanyProfile() {
               })}
             </ul>
           </Panel>
+          </FadeIn>
 
+          <FadeIn>
           <Panel title="Môi trường, giá trị, chính sách">
             <div className="flex flex-col gap-6">
               <ListEditor label="Môi trường làm việc" items={form.environment} onChange={(v) => set('environment', v)} placeholder="Vd. Đồng nghiệp thân thiện" />
@@ -241,13 +245,17 @@ export default function CompanyProfile() {
               <ListEditor label="Chính sách" items={form.policies} onChange={(v) => set('policies', v)} placeholder="Vd. Trả lương đúng hạn" />
             </div>
           </Panel>
+          </FadeIn>
 
+          <FadeIn>
           <Panel title="Văn hóa">
             <Field label="Văn hóa công ty">
               {(p) => <textarea {...p} rows={4} value={form.culture} onChange={(e) => set('culture', e.target.value)} className={FIELD} />}
             </Field>
           </Panel>
+          </FadeIn>
 
+          <FadeIn>
           <Panel title="Liên hệ">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Email" error={errors.email}>
@@ -258,6 +266,7 @@ export default function CompanyProfile() {
               </Field>
             </div>
           </Panel>
+          </FadeIn>
 
           {/* Thanh hành động */}
           <div className="flex flex-wrap items-center gap-3">

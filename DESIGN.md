@@ -264,7 +264,15 @@ Nguyên tắc:
 3. **Chỉ transform và opacity**; màu nền đổi qua biến CSS, một listener duy nhất (`useSectionThemes`).
 4. Mọi chuyển động có phương án `prefers-reduced-motion` (tắt hẳn hoặc hiện ngay trạng thái cuối) và không phụ thuộc hover cho chức năng chính.
 5. Không animation lặp vô hạn không có lý do, không âm thanh.
-6. **Phạm vi**: chuyển động nặng chỉ ở trang công khai. Dashboard (ứng viên/NTD/admin) yên tĩnh — chỉ transition màu/hover ngắn.
+6. **Phạm vi**: chuyển động nặng (theo tiến trình cuộn, GSAP, con trỏ tùy biến) chỉ ở trang chủ và trang công khai. Dashboard yên tĩnh.
+7. **Bốn hiệu ứng điểm nhấn dùng chung mọi trang (2026-11-12, chủ dự án duyệt)** — kể cả dashboard, vì đều nhẹ và chạy một lần:
+   | Hiệu ứng | Dùng | Ở đâu |
+   |---|---|---|
+   | Hiện ra khi cuộn tới | `<FadeIn>` (components/motion) — mờ→rõ + trôi 12px, 500ms, một lần; phần đã ở trong màn hình lúc mở trang hiện ngay | các khối/danh sách nằm dưới màn hình đầu; không bọc từng dòng nhỏ; không dùng ở trang chủ |
+   | Thẻ bấm được | `CARD_HOVER` (utils/ui) — viền đậm + nhấc 2px | thẻ là link (thẻ việc, công ty, ứng viên) |
+   | Phản hồi thành công | `notifySuccess()` (utils/feedback) + icon `POP` | lưu/bỏ lưu tin, ứng tuyển, quan tâm, kết nối, gửi lời mời/đánh giá/báo cáo; không cho thao tác tự lưu |
+   | Sắp xếp mượt khi lọc | `useFlip(keys)` (hooks) + `data-flip-key` | danh sách đổi theo bộ lọc/sắp xếp: /viec-lam (bản danh sách), /match, tìm ứng viên, đơn ứng tuyển, việc đã lưu |
+   Chờ tải: skeleton cùng kiểu (`Skeleton`, `SkeletonList`, `SkeletonStats`, `SkeletonCards`, `SkeletonChat` trong components/dashboard) thay cho khoảng trắng hoặc chữ "Đang tải…".
 
 Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components/home/*`.
 

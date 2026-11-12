@@ -1,6 +1,8 @@
+import FadeIn from '@components/motion/FadeIn'
+import { SkeletonList } from '@components/dashboard'
+import { notifyError } from '@utils/feedback'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import toast from 'react-hot-toast'
 import { ArrowLeft, Check, Download, FileText } from 'lucide-react'
 import { MatchScore } from '@components/dashboard'
 import { Facts } from '@components/discover/parts'
@@ -36,7 +38,7 @@ async function openCv(seekerId: string, download: boolean) {
     else window.location.href = url
   } catch (err) {
     tab?.close()
-    toast.error(apiErrorMessage(err, 'Chưa mở được CV, vui lòng thử lại.'))
+    notifyError(apiErrorMessage(err, 'Chưa mở được CV, vui lòng thử lại.'))
   }
 }
 
@@ -59,7 +61,7 @@ function JobRow({ job, profile }: { job: CatalogJob; profile: Profile }) {
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {status === 'none' && (
-          <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={() => { expressInterest('recruiter', job.id, profile.id); toast.success('Đã quan tâm, chờ ứng viên phản hồi') }}>
+          <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={() => expressInterest('recruiter', job.id, profile.id)}>
             Quan tâm<span className="sr-only"> cho vị trí {job.title}</span>
           </button>
         )}
@@ -125,7 +127,7 @@ export default function CandidateProfile() {
     return <DetailNotFound title="Chưa tải được hồ sơ" text="Kết nối tới máy chủ đang có vấn đề, vui lòng thử lại sau." />
   }
   if (!profile) {
-    return <p role="status" className="shell py-section-sm text-sm text-page-muted">Đang tải hồ sơ…</p>
+    return <div className="shell py-section-sm"><SkeletonList rows={4} label="Đang tải hồ sơ…" /></div>
   }
 
   // Tin còn nhận ứng viên, cùng những tin đã có quan hệ với người này dù nay đã ẩn
@@ -219,6 +221,7 @@ export default function CandidateProfile() {
           {profile.criteria.skills.length ? <TagList items={profile.criteria.skills} /> : <EmptyNote>Ứng viên chưa nêu kỹ năng.</EmptyNote>}
         </TextBlock>
 
+        <FadeIn>
         <TextBlock title="Kinh nghiệm">
           {profile.experience.length ? (
             <ol className="space-y-4 border-l border-page-line pl-5">
@@ -234,16 +237,21 @@ export default function CandidateProfile() {
             <EmptyNote>Ứng viên chưa nêu kinh nghiệm.</EmptyNote>
           )}
         </TextBlock>
+        </FadeIn>
 
+        <FadeIn>
         <TextBlock title="Lịch rảnh trong tuần">
           <WeekGrid on={new Set(profile.criteria.slots)} />
         </TextBlock>
+        </FadeIn>
 
+        <FadeIn>
         <TextBlock title="Loại việc mong muốn">
           {typeLabels.length ? <TagList items={typeLabels} /> : <EmptyNote>Ứng viên chưa nêu loại việc.</EmptyNote>}
         </TextBlock>
+        </FadeIn>
 
-        <SeekerReviews seekerId={profile.id} />
+        <FadeIn><SeekerReviews seekerId={profile.id} /></FadeIn>
 
         <p className="text-sm text-page-muted">
           Tìm thêm người khác ở <Link to="/tuyen-dung/tim-ung-vien" className={`rounded-control text-page-fg underline underline-offset-4 ${FOCUS}`}>Tìm ứng viên</Link>.

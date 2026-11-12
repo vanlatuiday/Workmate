@@ -1,5 +1,5 @@
 import { useId, useState } from 'react'
-import toast from 'react-hot-toast'
+import { notifyError, notifySuccess } from '@utils/feedback'
 import { Flag } from 'lucide-react'
 import DialogShell from '@components/interview/DialogShell'
 import { useAuthStore } from '@context/authStore'
@@ -38,10 +38,10 @@ function ReportDialog({ target, targetId, name, onClose }: Omit<Props, 'classNam
     setSending(true)
     try {
       await fileReport({ target, targetId, reason, note: note.trim() || undefined, by: role === 'jobseeker' ? 'seeker' : role === 'recruiter' ? 'recruiter' : 'guest' })
-      toast.success('Đã gửi báo cáo, quản trị viên sẽ xem xét')
+      notifySuccess('Đã gửi báo cáo, quản trị viên sẽ xem xét')
       onClose()
     } catch (err) {
-      toast.error(apiErrorMessage(err, 'Chưa gửi được báo cáo, vui lòng thử lại.'))
+      notifyError(apiErrorMessage(err, 'Chưa gửi được báo cáo, vui lòng thử lại.'))
       setSending(false)
     }
   }

@@ -9,7 +9,8 @@ import type { GalleryItem } from '@components/discover/types'
 import { STATUS_LABEL } from '@components/admin/parts'
 import { useCandidateStore } from '@context/candidateStore'
 import { useCompanyStore } from '@context/companyStore'
-import type { CatalogJob } from '@context/catalogStore'
+import { useCatalogStore, type CatalogJob } from '@context/catalogStore'
+import { SkeletonCards } from '@components/dashboard/Skeleton'
 import { JOB_STATUS_LABELS } from '@pages/recruiter/mockData'
 import { fitCandidatesOf, useCompanyJobs } from '@services/adminService'
 import JobsHero from './JobsHero'
@@ -52,6 +53,7 @@ export default function RecruiterJobs() {
   const { filters, setFilters } = useJobFilters()
   const rows = useCompanyJobs(useCompanyStore((s) => s.id))
   const candidates = useCandidateStore((s) => s.list)
+  const settled = useCatalogStore((s) => s.settled)
   const all = useMemo(() => rows.map((r) => r.job).sort((a, b) => rank(a) - rank(b)).map(toItem), [rows])
   const items = useMemo(() => all.filter((x) => matches(x, filters)), [all, filters])
   // fitCandidatesOf đọc thẳng kho ứng viên: tính lại khi danh sách nạp xong
@@ -65,7 +67,11 @@ export default function RecruiterJobs() {
         stats={[[items.length, 'vị trí']]}
       />
       <JobSearchBar filters={filters} onChange={setFilters} showDistrict={false} showSalary={false} placeholder="Tên vị trí, lịch làm…" />
-      {all.length === 0 ? (
+      {all.length === 0 && !settled ? (
+        <div className="shell py-section-sm">
+          <SkeletonCards count={3} label="Đang tải tin tuyển dụng…" />
+        </div>
+      ) : all.length === 0 ? (
         <div className="shell py-section-sm">
           <EmptyState icon={SearchX} title="Chưa có tin nào" description="Đăng tin đầu tiên để Workmate gợi ý ứng viên khớp lịch gần nơi làm." />
         </div>

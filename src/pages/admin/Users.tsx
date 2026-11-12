@@ -6,6 +6,8 @@ import type { UserRole } from '@/types'
 import { ROLE_LABELS } from './mockData'
 import { useAdminStore, type AdminUser } from '@context/adminStore'
 import { apiErrorMessage } from '@services/authService'
+import { useFlip } from '@hooks/useFlip'
+import { notifySuccess } from '@utils/feedback'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { BTN_DANGER, BTN_GHOST, BTN_SECONDARY, BTN_SM } from '@utils/ui'
@@ -87,11 +89,14 @@ export default function Users() {
     )
   }, [users, query, role, status])
 
+  const flipRef = useFlip<HTMLUListElement>(filtered.map((u) => u.id))
+
   const toggleLock = async (u: AdminUser) => {
     const locking = u.status !== 'locked'
     setConfirmId(null)
     try {
       await setUserLocked(u.id, locking)
+      notifySuccess(locking ? 'Đã khóa tài khoản' : 'Đã mở khóa tài khoản')
       setNotice(`${locking ? 'Đã khóa' : 'Đã mở khóa'} tài khoản ${u.name.replace(/\.$/, '')}.`)
     } catch (err) {
       setNotice(apiErrorMessage(err, `Chưa đổi được trạng thái tài khoản ${u.name}.`))
@@ -188,9 +193,9 @@ export default function Users() {
           </div>
 
           {/* Dưới 1024px: danh sách thẻ */}
-          <ul className="mt-2 space-y-3 xl:hidden">
+          <ul ref={flipRef} className="mt-2 space-y-3 xl:hidden">
             {filtered.map((u) => (
-              <li key={u.id} className="rounded-card border border-page-line bg-page-surface p-4">
+              <li key={u.id} data-flip-key={u.id} className="rounded-card border border-page-line bg-page-surface p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-medium text-page-fg">{u.name}</p>

@@ -1,5 +1,5 @@
+import { notifySuccess } from '@utils/feedback'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
-import toast from 'react-hot-toast'
 import { AlertCircle, BadgeCheck, FileText, Paperclip, X } from 'lucide-react'
 import { Panel, SkeletonList, StatusBadge } from '@components/dashboard'
 import { useCatalogStore } from '@context/catalogStore'
@@ -74,7 +74,7 @@ export default function VerificationPanel() {
     const err = await submitVerification(files, note)
     if (err) setError(err)
     else {
-      toast.success('Đã gửi yêu cầu xác minh')
+      notifySuccess('Đã gửi yêu cầu xác minh')
       setFiles([]); setNote('')
     }
     // Lỗi 409 (đã có yêu cầu / đã xác minh) cũng cần đồng bộ lại trạng thái
@@ -86,7 +86,7 @@ export default function VerificationPanel() {
     setError(null); setBusy(true)
     const err = await withdrawVerification()
     if (err) setError(err)
-    else toast.success('Đã rút yêu cầu xác minh')
+    else notifySuccess('Đã rút yêu cầu xác minh')
     await load()
     setBusy(false)
   }

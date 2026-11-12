@@ -1,11 +1,12 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, SendHorizontal } from 'lucide-react'
+import { SkeletonChat } from '@components/dashboard/Skeleton'
 import { HireAction } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import { convKey, useConnectionStore } from '@context/connectionStore'
 import { useReducedMotion } from '@hooks/useReducedMotion'
-import { markConversationRead, notifyTyping, useActiveInterview, useHire, sendMessage, useIsTyping, useMessages, useHasOlderMessages, loadOlderMessages, type Side } from '@services/connectionService'
+import { markConversationRead, notifyTyping, useActiveInterview, useHire, sendMessage, useIsTyping, useMessages, useMessagesLoading, useHasOlderMessages, loadOlderMessages, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { BTN_ICON, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, LINK } from '@utils/ui'
@@ -62,6 +63,7 @@ type Props = {
 export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = false, hideBackOnWide = false }: Props) {
   const info = describeConversation(viewer, jobId, seekerId)
   const messages = useMessages(jobId, seekerId)
+  const loadingMessages = useMessagesLoading(jobId, seekerId)
   const typing = useIsTyping(viewer, jobId, seekerId)
   const reduced = useReducedMotion()
   const hasInterview = !!useActiveInterview(jobId, seekerId)
@@ -206,7 +208,8 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
             </button>
           </div>
         )}
-        {rows.length === 0 && (
+        {loadingMessages && <SkeletonChat />}
+        {!loadingMessages && rows.length === 0 && (
           <div className="py-10 text-center">
             <p className="text-sm font-medium text-page-fg">Hãy gửi lời chào đầu tiên</p>
             <p className="mt-1 text-xs text-page-muted">Chọn một gợi ý bên dưới hoặc tự soạn tin nhắn.</p>
