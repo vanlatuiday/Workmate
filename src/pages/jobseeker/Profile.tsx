@@ -1,5 +1,5 @@
 import { useId, useState, type FormEvent } from 'react'
-import { Plus, X } from 'lucide-react'
+import { Check, Plus, X } from 'lucide-react'
 import { JOB_TYPES } from '@constants/index'
 import { PageHeader, Panel } from '@components/dashboard'
 import { cn } from '@utils/cn'
@@ -182,12 +182,12 @@ export default function Profile() {
             <p className="mb-4 break-words text-sm text-page-muted">
               Bấm vào ô để bật hoặc tắt buổi bạn có thể đi làm. Hệ thống dùng lịch này để chọn việc không trùng giờ.
             </p>
-            {/* Lưới có thể cuộn ngang trên màn hình hẹp, nằm trong khung có nhãn */}
-            <div className="relative overflow-x-auto" role="group" aria-label="Lịch rảnh theo thứ và buổi" tabIndex={0}>
-              <table className="w-full min-w-[420px] border-separate border-spacing-1.5 text-sm">
+            {/* Lưới vừa khung ở mọi cỡ màn hình (cột cố định); màn hẹp ô đang bật hiện dấu tích thay chữ "Rảnh" */}
+            <div role="group" aria-label="Lịch rảnh theo thứ và buổi">
+              <table className="w-full table-fixed border-separate border-spacing-1 text-sm sm:border-spacing-1.5">
                 <thead>
                   <tr>
-                    <td><span className="sr-only">Buổi</span></td>
+                    <td className="w-11 sm:w-16"><span className="sr-only">Buổi</span></td>
                     {DAY_SHORT.map((d, i) => (
                       <th key={d} scope="col" abbr={DAY_FULL[i]} className="pb-1 text-center font-medium text-page-muted">{d}</th>
                     ))}
@@ -196,7 +196,7 @@ export default function Profile() {
                 <tbody>
                   {SESSIONS.map((s, si) => (
                     <tr key={s}>
-                      <th scope="row" className="pr-2 text-left font-medium text-page-muted">{s}</th>
+                      <th scope="row" className="pr-1 text-left font-medium text-page-muted sm:pr-2">{s}</th>
                       {DAY_SHORT.map((_, di) => {
                         const key = `${di}-${si}`
                         const on = slots.has(key)
@@ -213,7 +213,12 @@ export default function Profile() {
                                 FOCUS,
                               )}
                             >
-                              {on ? 'Rảnh' : ''}
+                              {on && (
+                                <>
+                                  <Check className="mx-auto h-4 w-4 sm:hidden" aria-hidden="true" />
+                                  <span className="hidden sm:inline" aria-hidden="true">Rảnh</span>
+                                </>
+                              )}
                             </button>
                           </td>
                         )
