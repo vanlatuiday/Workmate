@@ -84,9 +84,13 @@ function MessengerInner({ viewer }: { viewer: Side }) {
   // ---- Đồng bộ với URL /tin-nhan?c=<jobId|seekerId> ----
   // 1) Vào /tin-nhan (tải thẳng, tải lại, liên kết, nút Tiến/Lùi): mở khung, đúng hội thoại nếu có ?c.
   //    Cố ý mở lại sau khi tải lại trang (thay cho quy tắc cũ "F5 không tự mở lại") để chia sẻ được liên kết hội thoại.
+  //    Theo dõi cả ?c: URL đổi sang hội thoại khác khi đang mở thì chuyển theo (đọc store trực tiếp để không lặp với bước 3).
   useEffect(() => {
-    if (isRoute) openMessenger(new URLSearchParams(window.location.search).get('c'))
-  }, [isRoute, openMessenger])
+    if (!isRoute) return
+    const c = new URLSearchParams(search).get('c')
+    const st = useMessengerStore.getState()
+    if (!st.open || c !== st.activeKey) openMessenger(c)
+  }, [isRoute, search, openMessenger])
 
   // 2) Đóng khi đang ở /tin-nhan → về trang trước trong ứng dụng, không có thì về trang chủ của vai trò.
   //    Mở từ trang khác thì khung chỉ hiện đè lên trang đó, URL giữ nguyên.
@@ -102,11 +106,15 @@ function MessengerInner({ viewer }: { viewer: Side }) {
     }
   }, [open, isRoute, navigate, viewer])
 
-  // 3) Đang mở ở /tin-nhan: đổi hội thoại thì cập nhật ?c (replace, không làm đầy lịch sử)
+  // 3) Đang mở ở /tin-nhan: người dùng đổi hội thoại thì cập nhật ?c (replace, không làm đầy lịch sử).
+  //    Chỉ chạy khi activeKey đổi, không khi URL đổi — nếu không sẽ ghi đè ?c mới bằng hội thoại cũ.
+  const prevKey = useRef(activeKey)
   useEffect(() => {
+    const changed = prevKey.current !== activeKey
+    prevKey.current = activeKey
     if (!isRoute || !open) return
     const want = activeKey ? `?c=${encodeURIComponent(activeKey)}` : ''
-    if (want !== search) navigate({ pathname: ROUTE, search: want }, { replace: true })
+    if ((changed || !search) && want !== search) navigate({ pathname: ROUTE, search: want }, { replace: true })
   }, [isRoute, open, activeKey, search, navigate])
 
   // ---- Bàn phím: Esc đóng, Tab xoay vòng trong khung ----

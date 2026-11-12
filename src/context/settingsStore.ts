@@ -15,7 +15,7 @@ export type EmailDigest = 'instant' | 'daily' | 'off'
 export interface SideSettings {
   /** Loại thông báo đang bật (thiếu khóa = bật) */
   notify: Partial<Record<NotificationKind, boolean>>
-  /** Gửi email tóm tắt (giao diện mẫu — chưa gửi thật) */
+  /** Email thông báo: gửi ngay / tóm tắt 8:00 sáng (giờ VN) / tắt — backend gửi thật */
   emailDigest: EmailDigest
   /** Người tìm việc: ai xem được hồ sơ (máy chủ áp dụng) · Doanh nghiệp: công khai trang công ty */
   visibility: ProfileVisibility

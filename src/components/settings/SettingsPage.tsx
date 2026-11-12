@@ -40,8 +40,8 @@ const NOTIFY: Record<Side, { kind: NotificationKind; label: string }[]> = {
 }
 
 const DIGESTS: { value: EmailDigest; label: string }[] = [
-  { value: 'instant', label: 'Ngay lập tức' },
-  { value: 'daily', label: 'Mỗi ngày' },
+  { value: 'instant', label: 'Gửi ngay khi có thông báo' },
+  { value: 'daily', label: 'Tóm tắt mỗi ngày lúc 8:00' },
   { value: 'off', label: 'Tắt' },
 ]
 const VISIBILITIES: { value: ProfileVisibility; label: string }[] = [
@@ -182,7 +182,7 @@ export default function SettingsPage({ side }: { side: Side }) {
             ))}
           </ul>
           <div className="mt-6 border-t border-page-line pt-6">
-            <RadioGroup legend="Email tóm tắt (giao diện mẫu, chưa gửi thật)" options={DIGESTS} value={settings.emailDigest} onChange={(v) => { update(side, { emailDigest: v }); saved() }} />
+            <RadioGroup legend="Email thông báo" options={DIGESTS} value={settings.emailDigest} onChange={(v) => { update(side, { emailDigest: v }); saved() }} />
           </div>
         </Section>
         </FadeIn>

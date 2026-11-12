@@ -148,6 +148,13 @@ export function suggestRoutes(pathname: string, role?: UserRole | null): RouteEn
     if (s >= THRESHOLD) bump(r.to, s)
   }
 
+  // Đã đăng nhập mà gõ trang chỉ dành cho khách (đăng nhập/đăng ký) hoặc "dashboard":
+  // gợi ý trang chính của vai trò thay vì một trang khớp ngẫu nhiên
+  if (role) {
+    const guestHit = PUBLIC.some((r) => r.guestOnly && Math.max(similarity(full, compact(r.to)), similarity(full, compact(r.label))) >= THRESHOLD)
+    if (guestHit || ALIASES[full] === '/dang-nhap' || ALIASES[full] === '/dang-ky' || full === 'dashboard') bump(defaultsFor(role)[0], 1)
+  }
+
   const byTo = new Map(routes.map((r) => [r.to, r]))
   const hits = [...scored.entries()]
     .filter(([to]) => byTo.has(to) && to !== '/')
