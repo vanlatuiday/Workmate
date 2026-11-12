@@ -15,6 +15,9 @@ import { NotificationsService } from './notifications.service'
 import { PairService } from './pair.service'
 import { RealtimeGateway } from './realtime.gateway'
 import { ReviewsService } from './reviews.service'
+import { MatchAlertService } from '../matching/match-alert.service'
+import { MatchingController } from '../matching/matching.controller'
+import { MatchingService } from '../matching/matching.service'
 
 /** Mọi thứ gắn với cặp (tin, người tìm việc): quan tâm, kết nối, tin nhắn, phỏng vấn, nhận việc, đánh giá, thông báo */
 @Module({
@@ -22,8 +25,10 @@ import { ReviewsService } from './reviews.service'
   controllers: [
     ConnectionsController, SavedJobsController, CandidateMarksController, MessagesController,
     InterviewsController, HiresController, ReviewsController, NotificationsController,
-    CandidatesController, AdminPairsController, AccountController,
+    CandidatesController, AdminPairsController, AccountController, MatchingController,
   ],
-  providers: [RealtimeGateway, PairService, AccountService, CandidatesService, ConnectionsService, MessagesService, InterviewsService, HiresService, ReviewsService, NotificationsService, NotificationMailService],
+  providers: [RealtimeGateway, PairService, AccountService, CandidatesService, ConnectionsService, MessagesService, InterviewsService, HiresService, ReviewsService, NotificationsService, NotificationMailService,
+    // Điểm phù hợp phía máy chủ + thông báo việc/ứng viên mới (cần RealtimeGateway nên đặt chung module)
+    MatchingService, MatchAlertService],
 })
 export class ConnectionsModule {}

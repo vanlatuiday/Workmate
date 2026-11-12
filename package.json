@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "node -r ts-node/register/transpile-only --test test/notification-mail.spec.ts",
+    "test": "node -r ts-node/register/transpile-only --test test/notification-mail.spec.ts test/matching.spec.ts",
     "dev": "nest start --watch",
     "build": "nest build",
     "start": "node dist/main.js",

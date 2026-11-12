@@ -110,6 +110,8 @@ Enum NotificationKind {
   offer_withdrawn
   rejected
   review
+  job_match [note: 'Có tin mới rất phù hợp với người tìm việc (từ 80%)']
+  candidate_match [note: 'Có ứng viên mới rất phù hợp với tin đang mở (từ 80%)']
 }
 
 Enum ReportTarget {
@@ -193,6 +195,7 @@ Table SeekerProfile {
   availableFrom date [note: 'Ngày bắt đầu đi làm được; null = có thể bắt đầu ngay']
   published boolean [not null, default: false]
   updatedAt timestamp [not null, note: 'tự cập nhật khi sửa']
+  matchAlertedAt timestamp [note: 'Lần cuối MatchAlertService xét hồ sơ này để báo doanh nghiệp (< updatedAt → xét lại). Ghi bằng SQL thô để không đổi updatedAt']
 }
 
 Table SeekerExperience {
@@ -323,6 +326,7 @@ Table Job {
   postedAt timestamp [not null, default: `now()`]
   expiresAt timestamp
   viewCount int [not null, default: 0, note: 'Lượt xem trang chi tiết (mỗi người xem tính tối đa 1 lần/ngày, không tính người trong công ty và admin)']
+  matchAlertedAt timestamp [note: 'Đã xét để báo người tìm việc phù hợp chưa (null = chưa, xét khi tin được duyệt và đang mở)']
   updatedAt timestamp [not null, note: 'tự cập nhật khi sửa']
 
   indexes {

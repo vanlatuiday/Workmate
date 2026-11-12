@@ -32,6 +32,8 @@ export function lineOf({ kind, side, jobTitle: job, companyName: company }: Mail
     case 'offer_declined': return `Ứng viên đã từ chối nhận việc vị trí ${job}`
     case 'offer_withdrawn': return `${company} đã rút lời mời nhận việc vị trí ${job}`
     case 'rejected': return `${company} chưa chọn bạn cho vị trí ${job}`
+    case 'job_match': return `Việc mới rất phù hợp với bạn: ${job} tại ${company}`
+    case 'candidate_match': return `Có ứng viên mới rất phù hợp với vị trí ${job}`
     case 'review': return forSeeker ? `${company} đã đánh giá bạn ở vị trí ${job}` : `Ứng viên đã đánh giá doanh nghiệp ở vị trí ${job}`
   }
 }
