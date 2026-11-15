@@ -7,17 +7,21 @@ import { useExperienceStore } from '@context/experienceStore'
 import RollText from '@components/motion/RollText'
 
 export type MenuItem = { label: string; href: string }
+/** Nút cuối menu: link (href) hoặc hành động (onClick, vd. Đăng xuất) */
+export type MenuAction = { label: string; href?: string; onClick?: () => void }
 
 type Props = {
+  /** id để nút mở menu trỏ tới bằng aria-controls */
+  id?: string
   open: boolean
   onClose: () => void
   items: MenuItem[]
   /** Hiện dưới danh sách chính — đăng nhập / đăng ký hoặc dashboard. */
-  actions: MenuItem[]
+  actions: MenuAction[]
 }
 
 /** Menu phủ toàn màn hình, link đánh số 01–0n. */
-export default function MenuOverlay({ open, onClose, items, actions }: Props) {
+export default function MenuOverlay({ id, open, onClose, items, actions }: Props) {
   const reduced = useReducedMotion()
   const panelRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
@@ -59,30 +63,34 @@ export default function MenuOverlay({ open, onClose, items, actions }: Props) {
   useEffect(() => {
     if (!open) return
     const prev = document.body.style.overflow
+    // Trả tiêu điểm về nút đã mở menu khi đóng
+    const opener = document.activeElement as HTMLElement | null
     document.body.style.overflow = 'hidden'
     closeRef.current?.focus()
     return () => {
       document.body.style.overflow = prev
+      if (opener && document.contains(opener)) opener.focus()
     }
   }, [open])
 
-  const duration = reduced ? 0 : 0.7
+  const duration = reduced ? 0 : 0.35
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
           ref={panelRef}
+          id={id}
           role="dialog"
           aria-modal="true"
           aria-label="Menu điều hướng"
-          className="fixed inset-0 z-[90] bg-wm-charcoal [html[data-page=home]_&]:bg-wm-night flex flex-col"
-          initial={{ clipPath: 'inset(0 0 100% 0)' }}
-          animate={{ clipPath: 'inset(0 0 0% 0)' }}
-          exit={{ clipPath: 'inset(0 0 100% 0)' }}
-          transition={{ duration, ease: [0.76, 0, 0.24, 1] }}
+          className="theme-night fixed inset-0 z-[90] flex flex-col bg-wm-night"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration, ease: [0.2, 0.8, 0.2, 1] }}
         >
-          <div className="shell w-full flex items-center justify-between h-16 shrink-0">
+          <div className="flex h-[72px] w-full shrink-0 items-center justify-between px-5 md:px-8">
             <span className="eyebrow text-wm-sage">Menu</span>
             <button
               ref={closeRef}
@@ -94,7 +102,7 @@ export default function MenuOverlay({ open, onClose, items, actions }: Props) {
             </button>
           </div>
 
-          <nav className="shell w-full flex-1 flex flex-col justify-center overflow-y-auto py-8">
+          <nav aria-label="Menu điều hướng" className="flex w-full flex-1 flex-col justify-center overflow-y-auto px-5 py-8 md:px-8">
             <ul>
               {items.map((item, i) => (
                 <li key={item.href} className="overflow-hidden">
@@ -104,20 +112,20 @@ export default function MenuOverlay({ open, onClose, items, actions }: Props) {
                     exit={{ y: '110%' }}
                     transition={{
                       duration: reduced ? 0 : 0.7,
-                      delay: reduced ? 0 : 0.18 + i * 0.06,
+                      delay: reduced ? 0 : 0.15 + i * 0.07,
                       ease: [0.22, 1, 0.36, 1],
                     }}
                   >
                     <Link
                       to={item.href}
                       onClick={onClose}
-                      className="group flex w-full items-baseline gap-5 md:gap-8 py-2 md:py-3"
+                      className="group flex w-full items-baseline gap-5 py-1.5 md:gap-8 md:py-2.5"
                     >
                       <span className="text-xs text-wm-sage tnum shrink-0">
                         {String(i + 1).padStart(2, '0')}
                       </span>
                       <span
-                        className="font-display text-display-sm font-semibold text-wm-mist
+                        className="font-serif text-[clamp(1.875rem,8.5vw,3.25rem)] font-medium leading-[1.25] text-wm-mist
                                    group-hover:text-wm-ivory transition-colors duration-fast"
                       >
                         <RollText>{item.label}</RollText>
@@ -130,26 +138,35 @@ export default function MenuOverlay({ open, onClose, items, actions }: Props) {
           </nav>
 
           <motion.div
-            className="shell w-full pb-10 flex flex-wrap items-center gap-3 shrink-0"
+            className="flex w-full shrink-0 flex-wrap items-center gap-3 px-5 pb-10 md:px-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.5 }}
           >
-            {actions.map((action, i) => (
-              <Link
-                key={action.href}
-                to={action.href}
-                onClick={onClose}
-                className={
-                  i === actions.length - 1
-                    ? 'bg-accent text-accent-fg font-semibold text-sm px-7 py-3 rounded-full hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100 transition-[filter,transform]'
-                    : 'border border-wm-graphite text-wm-ivory font-medium text-sm px-7 py-3 rounded-full hover:border-wm-stone active:scale-[0.97] motion-reduce:active:scale-100 transition-[border-color,transform]'
-                }
-              >
-                {action.label}
-              </Link>
-            ))}
+            {actions.map((action, i) => {
+              const cls =
+                i === actions.length - 1
+                  ? 'bg-accent text-accent-fg font-semibold text-sm px-7 py-3 rounded-full hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100 transition-[filter,transform]'
+                  : 'border border-wm-graphite text-wm-ivory font-medium text-sm px-7 py-3 rounded-full hover:border-wm-stone active:scale-[0.97] motion-reduce:active:scale-100 transition-[border-color,transform]'
+              return action.href ? (
+                <Link key={action.label} to={action.href} onClick={onClose} className={cls}>
+                  {action.label}
+                </Link>
+              ) : (
+                <button
+                  key={action.label}
+                  type="button"
+                  className={cls}
+                  onClick={() => {
+                    onClose()
+                    action.onClick?.()
+                  }}
+                >
+                  {action.label}
+                </button>
+              )
+            })}
 
             {/* Chất lượng hiệu ứng nền WebGL — vô nghĩa khi đã tắt chuyển động */}
             {!reduced && (

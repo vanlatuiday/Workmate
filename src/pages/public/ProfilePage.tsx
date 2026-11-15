@@ -35,7 +35,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="theme-ivory min-h-[calc(100svh-4rem)] overflow-x-clip bg-page-bg text-page-fg">
+    <div className="theme-ivory min-h-[calc(100svh-4.5rem)] overflow-x-clip bg-page-bg text-page-fg">
       <div className="shell py-section-sm">
         <h1 className="sr-only">Hồ sơ của bạn</h1>
         <div className="relative isolate grid grid-cols-1 gap-10 lg:grid-cols-12">

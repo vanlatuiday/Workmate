@@ -109,13 +109,13 @@ export default function AccountMenu({ initial, area, profileHref, unreadMessages
           onClick={() => setOpen((o) => !o)}
           onKeyDown={onButtonKey}
           className={cn(
-            'group flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-sm text-page-muted transition-colors duration-fast hover:text-page-fg',
+            'hd-chip group flex items-center gap-2 rounded-full py-1 pl-1 pr-2 text-sm lg:pr-3',
             FOCUS,
           )}
         >
           <span
             aria-hidden="true"
-            className="relative flex h-7 w-7 items-center justify-center rounded-full border border-page-edge text-xs font-medium text-page-fg"
+            className="relative flex h-7 w-7 items-center justify-center rounded-full border border-current text-xs font-medium"
           >
             {initial}
             {unreadMessages + unreadNotifications > 0 && (
@@ -124,7 +124,10 @@ export default function AccountMenu({ initial, area, profileHref, unreadMessages
           </span>
           {unreadMessages > 0 && <span className="sr-only">{`, ${unreadMessages} tin nhắn chưa đọc`}</span>}
           {unreadNotifications > 0 && <span className="sr-only">{`, ${unreadNotifications} thông báo chưa đọc`}</span>}
-          <RollText>Trang cá nhân</RollText>
+          {/* Dưới lg: chỉ còn vòng chữ tắt + mũi tên cho vừa chỗ cạnh menu giữa */}
+          <span className="max-lg:sr-only">
+            <RollText>Trang cá nhân</RollText>
+          </span>
           <ChevronDown
             aria-hidden="true"
             className={cn('h-4 w-4 transition-transform duration-base motion-reduce:transition-none', open && 'rotate-180')}

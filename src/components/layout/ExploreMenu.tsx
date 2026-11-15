@@ -1,7 +1,6 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
-import RollText from '@components/motion/RollText'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import type { MenuItem } from '@components/layout/MenuOverlay'
@@ -24,14 +23,23 @@ const ITEM = cn(
  * Mục "Khám phá ▾" trong menu chính của header: bấm mở menu nhỏ các trang thông tin.
  * Theo mẫu menu button của WAI-ARIA (như AccountMenu): mũi tên lên/xuống chuyển mục, Esc đóng.
  */
-export default function ExploreMenu() {
+type Props = {
+  /** Đang ở một trang trong nhóm Khám phá (do HeaderNav tính để chia sẻ viên nền active) */
+  current?: boolean
+  /** Viên nền active dùng chung (layoutId) khi mục này được chọn/hover */
+  pill?: ReactNode
+  /** Báo cho HeaderNav biết chuột/focus đang ở mục này */
+  onHover?: (hovering: boolean) => void
+}
+
+export default function ExploreMenu({ current: currentProp, pill, onHover }: Props) {
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const menuId = useId()
   const { pathname } = useLocation()
-  const current = EXPLORE_ITEMS.some((i) => pathname === i.href || pathname.startsWith(i.href + '/'))
+  const current = currentProp ?? EXPLORE_ITEMS.some((i) => pathname === i.href || pathname.startsWith(i.href + '/'))
 
   const items = () => [...(menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])]
 
@@ -90,16 +98,16 @@ export default function ExploreMenu() {
         aria-controls={menuId}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onButtonKey}
-        className={cn(
-          'group flex items-center gap-1 rounded-control px-3 py-2 text-sm font-medium transition-colors',
-          current || open ? 'text-page-fg' : 'text-page-muted hover:text-page-fg',
-          FOCUS,
-        )}
+        onMouseEnter={() => onHover?.(true)}
+        onFocus={() => onHover?.(true)}
+        data-current={current || open ? '' : undefined}
+        className={cn('hd-link', FOCUS)}
       >
-        <RollText>Khám phá</RollText>
+        {pill}
+        <span className="hd-label relative z-[1]">Khám phá</span>
         <ChevronDown
           aria-hidden="true"
-          className={cn('h-4 w-4 transition-transform duration-base motion-reduce:transition-none', open && 'rotate-180')}
+          className={cn('relative z-[1] h-4 w-4 transition-transform duration-base motion-reduce:transition-none', open && 'rotate-180')}
         />
       </button>
 

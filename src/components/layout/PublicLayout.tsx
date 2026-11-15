@@ -1,54 +1,24 @@
-import { Link, useLocation, useNavigate, useOutlet } from 'react-router-dom'
+import { Link, useLocation, useOutlet } from 'react-router-dom'
 import { Suspense, useEffect, useRef, useState } from 'react'
-import { Menu, X, Briefcase } from 'lucide-react'
-import { AnimatePresence, motion } from 'motion/react'
+import { Briefcase } from 'lucide-react'
+import { AnimatePresence } from 'motion/react'
 import { useAuthStore } from '@context/authStore'
 import { ROLE_AREAS } from '@constants/roles'
-import type { UserRole } from '@/types'
 import { cn } from '@utils/cn'
-import MenuOverlay, { type MenuItem } from '@components/layout/MenuOverlay'
-import { useUnreadCount, useUnreadMessages } from '@services/connectionService'
-import AccountMenu from '@components/layout/AccountMenu'
-import ExploreMenu, { EXPLORE_ITEMS } from '@components/layout/ExploreMenu'
+import MenuOverlay from '@components/layout/MenuOverlay'
+import { EXPLORE_ITEMS } from '@components/layout/ExploreMenu'
+import SiteHeader from '@components/layout/SiteHeader'
+import Wordmark from '@components/layout/Wordmark'
+import { NAV } from '@components/layout/navLinks'
 import RouteScroll from '@components/common/RouteScroll'
-import PageCurtain, { useCurtainNavigate } from '@components/motion/PageCurtain'
+import PageCurtain from '@components/motion/PageCurtain'
 import PageTransition from '@components/motion/PageTransition'
 import { PERSONAL_HREF } from '@pages/public/personal/links'
-import RollText from '@components/motion/RollText'
 import { FOCUS } from '@utils/focus'
-import { BTN_PRIMARY, BTN_SECONDARY } from '@utils/ui'
-import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useHeaderSurface } from '@hooks/useHeaderSurface'
 import { isAuthPath } from '@pages/public/auth/authShared'
 import DetailSkeleton from '@components/discover/detail/DetailSkeleton'
 import DustField from '@components/motion/DustField'
-import { scrollToHomeBanner } from '@components/home/IntroHero'
-
-/** Mục điều hướng theo người đang xem. Khách thấy lời mời trung lập cho cả hai phía;
-    đã đăng nhập thì chỉ thấy lối tắt tới việc của vai trò mình. */
-const NAV: Record<UserRole | 'guest', MenuItem[]> = {
-  guest: [
-    { label: 'Việc làm', href: '/viec-lam' },
-    { label: 'Nhà tuyển dụng', href: '/nha-tuyen-dung' },
-    { label: 'Kết nối', href: '/match' },
-  ],
-  jobseeker: [
-    { label: 'Việc làm', href: '/viec-lam' },
-    { label: 'Hồ sơ', href: '/ho-so' },
-    { label: 'Kết nối', href: '/match' },
-  ],
-  // Tối đa 3 mục để header gọn; các trang khác của nhà tuyển dụng nằm trong khu tuyển dụng
-  recruiter: [
-    { label: 'Việc làm', href: '/viec-lam' },
-    { label: 'Kết nối', href: '/match' },
-    { label: 'Đăng tin', href: '/dang-tin' },
-  ],
-  admin: [
-    { label: 'Xác minh', href: '/admin/xac-minh' },
-    { label: 'Người dùng', href: '/admin/nguoi-dung' },
-  ],
-}
-
 
 /** Link nhỏ trong footer */
 const FOOT_LINK = `link-underline rounded-control hover:text-page-fg ${FOCUS}`
@@ -80,43 +50,18 @@ function AuthOutlet() {
   return last.current
 }
 
+/** id của menu phủ — nút hamburger trong header trỏ tới bằng aria-controls */
+const MENU_ID = 'site-menu'
+
 export default function PublicLayout() {
-  const [mobileOpen, setMobileOpen] = useState(false)
   const [overlayOpen, setOverlayOpen] = useState(false)
   const { user, logout } = useAuthStore()
   const location = useLocation()
-  const reduced = useReducedMotion()
-  // Tin nhắn chưa đọc (gọi hook luôn; admin không có hội thoại → 0)
-  const unreadAsSeeker = useUnreadMessages()
-  const unreadAsRecruiter = useUnreadMessages()
-  const notifAsSeeker = useUnreadCount('seeker')
-  const notifAsRecruiter = useUnreadCount('recruiter')
-  const unreadNotifications = user?.role === 'jobseeker' ? notifAsSeeker : user?.role === 'recruiter' ? notifAsRecruiter : 0
-  const unreadMessages = user?.role === 'jobseeker' ? unreadAsSeeker : user?.role === 'recruiter' ? unreadAsRecruiter : 0
-
   // Trang chủ dùng nền tối (page-* do useSectionThemes điều khiển); các trang còn lại dùng theme ngà.
   // `dark` phải đổi ngay khi đổi route: IntroHero tìm data-brand-logo… lúc mount.
   // Theme ngà gắn vào header, footer và khung của TỪNG trang (không gắn lên wrapper),
   // nên trang cũ đang mờ dần vẫn giữ màu của chính nó.
   const dark = location.pathname === '/'
-  // Rời trang chủ: header vừa đổi từ nền tối của trang chủ sang theme ngà. Nếu bật transition ngay thì
-  // header tối dần sang ngà ~0,4s trên trang sáng → tắt transition ở lần vẽ đầu, bật lại sau 2 khung hình.
-  // Đổi giữa các trang khác (trang chủ ↔ trang khác) vẫn chuyển màu dần như cũ.
-  const [themeAnim, setThemeAnim] = useState(!dark)
-  useEffect(() => {
-    if (dark) {
-      setThemeAnim(false)
-      return
-    }
-    let inner = 0
-    const outer = requestAnimationFrame(() => {
-      inner = requestAnimationFrame(() => setThemeAnim(true))
-    })
-    return () => {
-      cancelAnimationFrame(outer)
-      cancelAnimationFrame(inner)
-    }
-  }, [dark])
   // Đăng nhập / Đăng ký / Quên mật khẩu: toàn màn hình — ẩn header và footer, chỉ giữ logo nhỏ để về trang chủ
   const bare = isAuthPath(location.pathname)
   // Câu chuyện của tôi (/ca-nhan): nền kem như mọi trang, nhưng cuối trang là footer tối có hạt bụi như trang chủ
@@ -124,11 +69,8 @@ export default function PublicLayout() {
   // Trang chủ có header riêng (useHomeHeader). Trang khác: header tự sáng/tối theo khối đang nằm dưới nó
   // (khối đánh dấu data-surface="dark|light" — hook useHeaderSurface); không có khối đánh dấu thì ngà như cũ.
   const headerSurface = useHeaderSurface(!dark && !bare)
-  const chrome = headerSurface === 'dark' ? 'theme-night' : 'theme-ivory'
-
-  // Đóng mọi menu khi chuyển trang
+  // Đóng menu phủ khi chuyển trang
   useEffect(() => {
-    setMobileOpen(false)
     setOverlayOpen(false)
   }, [location.pathname])
 
@@ -136,278 +78,34 @@ export default function PublicLayout() {
   const area = user ? ROLE_AREAS[user.role] : null
   const dashboardHref = area?.home ?? '/tim-viec'
   const navLinks = NAV[user?.role ?? 'guest']
-  // Nav chính (3 mục + "Khám phá") hiện từ lg — tablet không đủ chỗ cạnh cụm tài khoản.
-  // Hẹp hơn thì dùng nút menu (dropdown / menu phủ).
-  const navShow = 'lg:flex'
-  const navHide = 'lg:hidden'
-
-  // Trang cá nhân: đã đăng nhập → mở bằng màn phủ từ trên xuống (cùng hướng menu phủ cũ);
-  // khách → sang đăng nhập, xong quay lại trang cá nhân.
-  const curtainGo = useCurtainNavigate()
-  const navigate = useNavigate()
   const profileTo = user ? PERSONAL_HREF : '/dang-nhap'
-  const openProfile = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
-    e.preventDefault()
-    if (user) curtainGo(PERSONAL_HREF, 'Trang cá nhân', undefined, 'down')
-    else navigate('/dang-nhap', { state: { from: PERSONAL_HREF } })
-  }
 
   return (
     // Nền khung theo màu trang đang mở: header kính trong suốt một phần nên lộ nền phía sau nó.
     // Không gắn class theme lên khung (theme đổi biến --page-* cho cả trang cũ đang mờ dần), chỉ đổi màu nền.
     <div className={cn('min-h-screen flex flex-col', dark ? 'bg-page-bg' : bare ? 'bg-wm-night' : 'bg-wm-ivory')}>
       {bare ? (
-        <Link
-          to="/"
-          className={cn(
-            'theme-night absolute left-6 top-5 z-40 flex items-center gap-2 rounded-control font-display text-lg font-semibold tracking-tight md:left-10',
-            FOCUS,
-          )}
-        >
-          <Briefcase className="h-5 w-5" aria-hidden="true" />
-          Workmate
-        </Link>
-      ) : (
-      <>
-      {/* Header. Trang chủ: cố định trên cùng, màu theo section đang xem (biến --page-*),
-          và được IntroHero điều khiển qua các data-attribute bên dưới:
-            data-brand-logo  — logo đi từ giữa màn hình vào header
-            data-header-item — các cụm, ẩn khi đang ở banner (useHomeHeader + index.css)
-            data-header-bg   — nền header, chỉ hiện khi đã cuộn qua banner
-          Qua khỏi banner: cuộn xuống thì header trượt khuất, cuộn lên thì hiện lại.
-          Mặc định mọi thứ ở trạng thái cuối, nên không có JS vẫn dùng được.
-          Trang khác: sticky, màu lấy từ theme ngà. Cả hai đều là kính (.header-glass, index.css). */}
-      <header
-        data-site-header={dark ? '' : undefined}
-        className={cn(
-          'top-0 z-40 text-page-fg',
-          // header-theme: màu chuyển dần khi đổi giữa theme ngà và than chì (index.css)
-          dark ? 'fixed inset-x-0' : cn('sticky', themeAnim && 'header-theme', chrome, 'header-glass border-b border-page-line'),
-        )}
-      >
-        {dark && (
-          <div data-header-bg aria-hidden className="header-glass absolute inset-0 -z-10 border-b border-page-line" />
-        )}
-        <div className="shell">
-          {/* Lưới 3 cột: logo | nav đúng giữa header | cụm bên phải */}
-          <div className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-x-6">
-            {/* Logo */}
-            <Link
-              to="/"
-              // Đang ở trang chủ: cuộn mượt về banner thay vì tải lại trang
-              onClick={(e) => {
-                if (location.pathname === '/' && scrollToHomeBanner()) e.preventDefault()
-              }}
-              data-brand-logo={dark ? '' : undefined}
-              className={cn(
-                'justify-self-start flex items-center gap-2 font-display font-semibold text-xl tracking-tight text-page-fg rounded-control',
-                FOCUS,
-              )}
-            >
-              {/* Hiện dần rất nhẹ lúc mở trang — chạy trên phần tử con vì transform
-                  của chính logo do intro điều khiển */}
-              <span className={cn('flex items-center gap-2', dark && 'animate-logo-in')}>
-                <Briefcase className="w-5 h-5" />
-                Workmate
-              </span>
-            </Link>
-
-            {/* Desktop nav */}
-            {/* Nav chính chỉ hiện từ lg — hẹp hơn thì không đủ chỗ,
-                các link này đã có trong menu phủ hoặc dropdown */}
-            <nav
-              data-header-item={dark ? '' : undefined}
-              className={cn('hidden items-center gap-1 whitespace-nowrap', navShow)}
-            >
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  aria-current={location.pathname === link.href ? 'page' : undefined}
-                  className={cn(
-                    'group relative px-3 py-2 rounded-control text-sm font-medium transition-colors',
-                    location.pathname === link.href ? 'text-page-fg' : 'text-page-muted hover:text-page-fg',
-                    FOCUS,
-                  )}
-                >
-                  <RollText>{link.label}</RollText>
-                  {/* Gạch chân mục đang chọn — cùng layoutId nên trượt sang mục mới khi đổi trang */}
-                  {location.pathname === link.href && (
-                    <motion.span
-                      layoutId="nav-underline"
-                      aria-hidden="true"
-                      className="absolute inset-x-3 bottom-1 h-px bg-page-fg"
-                      transition={reduced ? { duration: 0 } : { duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    />
-                  )}
-                </Link>
-              ))}
-              {/* Trang thông tin chung (Giới thiệu, Công ty, Cẩm nang…) gom vào một mục */}
-              <ExploreMenu />
-            </nav>
-
-            {/* Bên phải: đã đăng nhập → một nút tài khoản (khu làm việc, trang cá nhân, đăng xuất);
-                khách → chỉ Đăng nhập / Đăng ký. Cùng một cụm để intro trang chủ hiện một lần. */}
-            {/* col-start-3: dưới lg nav bị ẩn, không ghim cột thì cụm này rơi vào cột giữa */}
-            <div className="col-start-3 flex items-center justify-end gap-1">
-              <div data-header-item={dark ? '' : undefined} className="hidden md:flex items-center gap-1 whitespace-nowrap">
-                {user && area ? (
-                  <AccountMenu
-                    initial={user.email?.[0]?.toUpperCase() ?? 'U'}
-                    area={{ label: area.label, href: dashboardHref }}
-                    profileHref={profileTo}
-                    unreadMessages={unreadMessages}
-                    unreadNotifications={unreadNotifications}
-                    onOpenProfile={openProfile}
-                    onLogout={logout}
-                    magnetic={dark}
-                  />
-                ) : (
-                  <>
-                    <Link
-                      to="/dang-nhap"
-                      className={cn('group text-sm text-page-muted hover:text-page-fg transition-colors px-2 py-2 rounded-control', FOCUS)}
-                    >
-                      <RollText>Đăng nhập</RollText>
-                    </Link>
-                    <span aria-hidden="true" className="text-sm text-page-muted">/</span>
-                    <Link
-                      to="/dang-ky"
-                      className={cn('group text-sm text-page-muted hover:text-page-fg transition-colors px-2 py-2 rounded-control', FOCUS)}
-                    >
-                      <RollText>Đăng ký</RollText>
-                    </Link>
-                  </>
-                )}
-              </div>
-
-              {/* Trang chủ: menu phủ toàn màn hình khi nav chính ẩn (dưới lg); trang khác giữ dropdown */}
-              {dark ? (
-                // data-header-menu: nút này vẫn hiện khi đang ở banner (cả màn rộng) — xem index.css
-                <div data-header-item data-header-menu className={navHide}>
-                  <button
-                    onClick={() => setOverlayOpen(true)}
-                    aria-expanded={overlayOpen}
-                    aria-label="Mở menu"
-                    className={cn(
-                      'flex items-center p-2 -mr-2 text-page-muted hover:text-page-fg transition-colors rounded-control',
-                      FOCUS,
-                    )}
-                  >
-                    <Menu className="w-5 h-5" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  className={cn(
-                    navHide,
-                    'p-2 -mr-2 rounded-control transition-colors text-page-muted hover:text-page-fg',
-                    FOCUS,
-                  )}
-                  onClick={() => setMobileOpen(!mobileOpen)}
-                  aria-expanded={mobileOpen}
-                  aria-label={mobileOpen ? 'Đóng menu' : 'Mở menu'}
-                >
-                  {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                </button>
-              )}
-            </div>
-          </div>
+        // Trang đăng nhập toàn màn hình: chỉ giữ logo (cùng kiểu header mới) để về trang chủ
+        <div className="theme-night site-header absolute left-0 top-0 z-40 px-5 py-5 md:px-8" data-tone="dark">
+          <Wordmark />
         </div>
-
-        {/* Dropdown khi nav chính ẩn — chỉ dùng cho các trang ngoài trang chủ */}
-        {mobileOpen && !dark && (
-          <div className={cn(navHide, 'border-t border-page-line bg-page-bg px-6 pb-4 pt-2 space-y-1')}>
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                onClick={() => setMobileOpen(false)}
-                aria-current={location.pathname === link.href ? 'page' : undefined}
-                className={cn(
-                  'block px-3 py-2 rounded-control text-sm transition-colors hover:bg-page-surface',
-                  location.pathname === link.href ? 'text-page-fg font-medium' : 'text-page-muted hover:text-page-fg',
-                  FOCUS,
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-            {/* Trang thông tin chung — trên màn rộng nằm trong "Khám phá" */}
-            <p className="px-3 pb-1 pt-3 text-xs font-medium uppercase tracking-[0.18em] text-page-muted">Khám phá</p>
-            {EXPLORE_ITEMS.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                onClick={() => setMobileOpen(false)}
-                aria-current={location.pathname === link.href ? 'page' : undefined}
-                className={cn(
-                  'block px-3 py-2 rounded-control text-sm transition-colors hover:bg-page-surface',
-                  location.pathname === link.href ? 'text-page-fg font-medium' : 'text-page-muted hover:text-page-fg',
-                  FOCUS,
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <Link
-              to={profileTo}
-              onClick={(e) => {
-                setMobileOpen(false)
-                openProfile(e)
-              }}
-              className={cn('block px-3 py-2 rounded-control text-sm text-page-muted transition-colors hover:bg-page-surface hover:text-page-fg', FOCUS)}
-            >
-              Trang cá nhân
-            </Link>
-            <div className="pt-2 flex flex-col gap-2">
-              {user ? (
-                <>
-                  <Link
-                    to={dashboardHref}
-                    className={cn(BTN_PRIMARY, 'w-full')}
-                  >
-                    {area?.label}
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={logout}
-                    className={cn(BTN_SECONDARY, 'w-full')}
-                  >
-                    Đăng xuất
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/dang-nhap"
-                    className={cn(BTN_SECONDARY, 'w-full')}
-                  >
-                    Đăng nhập
-                  </Link>
-                  <Link
-                    to="/dang-ky"
-                    className={cn(BTN_PRIMARY, 'w-full')}
-                  >
-                    Đăng ký
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-      </header>
-      </>
+      ) : (
+        // Header cố định 72px (SiteHeader). Trang chủ: do IntroHero + useHomeHeader điều khiển qua data-attribute,
+        // màu theo section; trang khác: tự sáng/tối theo khối nằm dưới (data-surface) và ẩn khi cuộn xuống.
+        <SiteHeader home={dark} surface={headerSurface} menuOpen={overlayOpen} menuId={MENU_ID} onOpenMenu={() => setOverlayOpen(true)} />
       )}
 
       <MenuOverlay
+        id={MENU_ID}
         open={overlayOpen}
         onClose={() => setOverlayOpen(false)}
         items={[...navLinks, ...EXPLORE_ITEMS, { label: 'Trang cá nhân', href: profileTo }]}
         actions={
           user
-            ? [{ label: area?.label ?? '', href: dashboardHref }]
+            ? [
+                { label: 'Đăng xuất', onClick: logout },
+                { label: area?.label ?? '', href: dashboardHref },
+              ]
             : [
                 { label: 'Đăng nhập', href: '/dang-nhap' },
                 { label: 'Đăng ký', href: '/dang-ky' },
@@ -416,7 +114,8 @@ export default function PublicLayout() {
       />
 
       {/* Page content — đổi route: trang cũ mờ đi nhanh, trang mới trượt từ trên xuống vào chỗ */}
-      <main className={cn('flex-1', !dark && 'flex flex-col')}>
+      {/* pt-[72px]: header cố định không còn chiếm chỗ trong luồng. Trang chủ và trang đăng nhập (bare) tự nằm dưới header */}
+      <main className={cn('flex-1', !dark && 'flex flex-col', !dark && !bare && 'pt-[72px]')}>
         <AnimatePresence mode="wait">
           {/* Trang đang mờ đi giữ nguyên className cũ (AnimatePresence giữ element cũ),
               nên theme ngà/tối của nó không bị đổi giữa chừng */}

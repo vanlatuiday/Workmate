@@ -447,3 +447,283 @@ html[data-page='home'] :focus-visible {
       inset 0 0 24px color-mix(in srgb, var(--wm-ivory) 45%, transparent);
   }
 }
+
+/* ═══════════ Header mới (SiteHeader) ═══════════
+   Cố định, cao 72px, trong suốt ở đầu trang. Màu qua biến --h-*:
+   - data-tone="dark"  : đúng bản thiết kế (nền tối, chữ ngà/trắng)
+   - data-tone="light" : bản đảo cho trang kem (chữ than chì)
+   - không có data-tone (trang chủ): suy từ --page-fg / --page-bg do useSectionThemes điều khiển.
+   Đặt CUỐI file để nền trong suốt thắng nền đặc của .theme-ivory / .theme-night gắn trên header.
+   Chỉ animate transform/opacity (và màu chữ); co 72→60 làm bằng transform. */
+.site-header {
+  background-color: transparent;
+  color: var(--h-fg);
+  --h-fg: var(--page-fg);
+  --h-link: color-mix(in srgb, var(--page-fg) 70%, transparent);
+  --h-link-hover: var(--page-fg);
+  --h-glass: color-mix(in srgb, var(--page-fg) 5%, transparent);
+  --h-glass-line: color-mix(in srgb, var(--page-fg) 10%, transparent);
+  --h-active: color-mix(in srgb, var(--page-fg) 10%, transparent);
+  --h-bg: color-mix(in srgb, var(--page-bg) 72%, transparent);
+  --h-bg-line: color-mix(in srgb, var(--page-fg) 6%, transparent);
+  --h-dot: var(--wm-leaf);
+  --h-btn-bg: var(--page-fg);
+  --h-btn-fg: var(--page-bg);
+  --h-btn-chip: var(--page-bg);
+  --h-btn-arrow: var(--page-fg);
+}
+.site-header[data-tone='dark'] {
+  --h-fg: #f3efe6;
+  --h-link: rgba(255, 255, 255, 0.7);
+  --h-link-hover: #fff;
+  --h-glass: rgba(255, 255, 255, 0.05);
+  --h-glass-line: rgba(255, 255, 255, 0.1);
+  --h-active: rgba(255, 255, 255, 0.1);
+  --h-bg: rgba(10, 15, 13, 0.7);
+  --h-bg-line: rgba(255, 255, 255, 0.06);
+  --h-dot: var(--wm-leaf); /* #3DDC84 */
+  --h-btn-bg: #fff;
+  --h-btn-fg: var(--wm-night);
+  --h-btn-chip: var(--wm-night);
+  --h-btn-arrow: #fff;
+}
+.site-header[data-tone='light'] {
+  --h-fg: var(--wm-charcoal);
+  --h-link: rgba(36, 37, 34, 0.7);
+  --h-link-hover: var(--wm-charcoal);
+  --h-glass: rgba(36, 37, 34, 0.04);
+  --h-glass-line: rgba(36, 37, 34, 0.12);
+  --h-active: rgba(36, 37, 34, 0.08);
+  --h-bg: rgba(250, 244, 234, 0.75);
+  --h-bg-line: rgba(36, 37, 34, 0.08);
+  --h-dot: var(--wm-fern); /* #1B7D45: xanh sáng trên nền kem thiếu tương phản */
+  --h-btn-bg: var(--wm-charcoal);
+  --h-btn-fg: var(--wm-ivory);
+  --h-btn-chip: var(--wm-ivory);
+  --h-btn-arrow: var(--wm-charcoal);
+}
+
+/* Lúc tải trang: cả header trượt xuống + hiện dần. `backwards` (không phải both): xong là gỡ hẳn animation,
+   header không còn giữ opacity/transform nào (opacity<1 sẽ làm hỏng backdrop-filter bên trong). */
+.hd-inner {
+  animation: hd-in 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s backwards;
+}
+@keyframes hd-in {
+  from { opacity: 0; transform: translateY(-20px); }
+}
+/* Trang chủ: logo do IntroHero đo/di chuyển nên không để transform của cha chen vào — chỉ hiện dần */
+html[data-page='home'] .hd-inner {
+  animation-name: hd-fade;
+}
+@keyframes hd-fade {
+  from { opacity: 0; }
+}
+
+/* Thanh nội dung (72px): cuộn quá 80px thì nhích lên 6px, nền co còn 60px bằng scaleY */
+.hd-bar {
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.site-header[data-scrolled] .hd-bar {
+  transform: translateY(-6px);
+}
+.hd-bg {
+  background-color: var(--h-bg);
+  border-bottom: 1px solid var(--h-bg-line);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  transform-origin: top;
+  transition:
+    opacity 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.site-header[data-scrolled] .hd-bg {
+  opacity: 1;
+  transform: scaleY(0.8333); /* 60 / 72 */
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .hd-bg { background-color: color-mix(in srgb, var(--h-bg) 96%, transparent); }
+}
+
+/* Chữ Workmate + chấm xanh đập nhẹ như nhịp tim */
+.hd-wordmark {
+  color: var(--h-fg);
+  transition: color 0.3s;
+}
+.hd-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 9999px;
+  background: var(--h-dot);
+  transition: background-color 0.3s;
+  animation: hd-beat 2.4s ease-in-out infinite;
+}
+.hd-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--h-dot);
+  opacity: 0;
+  animation: hd-ring 2.4s ease-out infinite;
+}
+@keyframes hd-beat {
+  0%, 56%, 100% { transform: scale(1); }
+  14% { transform: scale(1.3); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.18); }
+}
+@keyframes hd-ring {
+  0% { transform: scale(1); opacity: 0.45; }
+  60%, 100% { transform: scale(2.8); opacity: 0; }
+}
+
+/* Viên kính chứa menu giữa */
+.hd-glass {
+  background: var(--h-glass);
+  border: 1px solid var(--h-glass-line);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+/* Link menu: 14px, sáng dần khi hover, gạch chân vẽ từ trái sang phải */
+.hd-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 16px; /* 2 link cạnh nhau cách 32px chữ-chữ */
+  border-radius: 9999px;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+  color: var(--h-link);
+  transition: color 0.25s;
+}
+.hd-link:hover,
+.hd-link:focus-visible,
+.hd-link[aria-current='page'],
+.hd-link[data-current] {
+  color: var(--h-link-hover);
+}
+.hd-label {
+  position: relative;
+  z-index: 1;
+}
+.hd-label::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hd-link:hover .hd-label::after,
+.hd-link:focus-visible .hd-label::after {
+  transform: scaleX(1);
+}
+.hd-pill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--h-active);
+}
+/* Chip tài khoản / liên kết phụ cùng ngôn ngữ kính */
+.hd-chip {
+  background: var(--h-glass);
+  border: 1px solid var(--h-glass-line);
+  color: var(--h-link);
+  transition: color 0.25s, background-color 0.3s, border-color 0.3s;
+}
+.hd-chip:hover { color: var(--h-link-hover); }
+.hd-quiet {
+  font-size: 14px;
+  color: var(--h-link);
+  transition: color 0.25s;
+}
+.hd-quiet:hover { color: var(--h-link-hover); }
+
+/* Nút Đăng nhập: viên trắng + chấm tròn đen chứa mũi tên */
+.hd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 6px 6px 18px;
+  border-radius: 9999px;
+  background: var(--h-btn-bg);
+  color: var(--h-btn-fg);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.3s, color 0.3s;
+}
+.hd-btn:hover { transform: scale(1.04); }
+.hd-btn__chip {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background: var(--h-btn-chip);
+  color: var(--h-btn-arrow);
+  overflow: hidden;
+}
+.hd-btn__arrow { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.hd-btn:hover .hd-btn__arrow { transform: translateX(3px); }
+
+/* Nút hamburger 2 gạch (dưới 768px) */
+.hd-burger {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: var(--h-glass);
+  border: 1px solid var(--h-glass-line);
+  color: var(--h-fg);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+.hd-burger i {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hd-burger:hover i:first-child { transform: translateX(-2px); }
+.hd-burger:hover i:last-child { transform: translateX(2px); }
+
+/* Giảm chuyển động: không trượt, không đập, không so le — trạng thái đổi tức thì */
+@media (prefers-reduced-motion: reduce) {
+  .hd-inner,
+  .hd-dot,
+  .hd-dot::after { animation: none; }
+  [data-site-header],
+  .hd-bar,
+  .hd-bg,
+  .hd-btn,
+  .hd-btn__arrow,
+  .hd-label::after,
+  .hd-burger i { transition: none; }
+  .hd-btn:hover { transform: none; }
+  .hd-btn:hover .hd-btn__arrow { transform: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .hd-bg { background-color: var(--page-bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .hd-glass { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* Tablet (768–1023px): menu giữa hơi sát hơn để chừa chỗ cho cụm Đăng ký / Đăng nhập bên phải */
+@media (max-width: 1023px) {
+  .hd-link { padding-inline: 12px; }
+}
