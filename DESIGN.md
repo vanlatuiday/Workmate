@@ -178,6 +178,22 @@ Giai đoạn 2 = trang con công khai: dải đầu trang tối có hạt bụi 
 (bands phải trải dưới cả header — header hiện là thanh sticky trong luồng nên lúc đó cần chồng lên dải). Giai đoạn 3 = danh sách công ty `/cong-ty` toàn tối.
 `/ca-nhan` (Câu chuyện của tôi) cùng nền kem như mọi trang — chỉ khác kiểu chữ và bố cục, không khác màu; riêng footer của trang này tối có hạt bụi như trang chủ (PublicLayout, `nightFooter`).
 
+### Header (QUY TẮC CỐ ĐỊNH — chủ dự án chốt 2026-11-16)
+Áp cho MỌI trang có thanh trên cùng (PublicLayout → `SiteHeader`), kể cả trang chủ. Không đổi khi chưa hỏi chủ dự án.
+- **Hình thức**: cố định trên cùng, cao 72px, lề ngang 24 / 40 / 56px (điện thoại / md / lg). **Không nền, không viền** ở mọi vị trí cuộn:
+  chỉ có logo cũ (icon cặp + "Workmate") chìm vào nền và hai viên thuốc kính đậm không viền (menu giữa; Đăng nhập / tài khoản bên phải).
+  Chữ 16px in đậm (600), bằng cỡ chữ nội dung. Rê chuột: chỉ **sáng lên** — không gạch chân, không phóng to, viên sáng nằm yên sau trang đang mở.
+  Tự đổi tông theo khối bên dưới (`data-surface`): chữ sáng trên nền tối, chữ tối trên nền kem. Dưới 1024px: chỉ logo + nút 2 gạch.
+- **Ẩn / hiện**:
+  1. **Cuộn xuống → ẩn.** Luôn luôn — kể cả ngay sau khi bấm logo/link trên header (chuột vẫn ở mép trên, focus chuột còn trên link).
+     Chỉ giữ header lại khi người dùng đang **dùng bàn phím** trong header (`:focus-visible`) hoặc đang **mở menu xổ** (`aria-expanded="true"`).
+  2. **Cuộn lên → hiện.**
+  3. **Di chuột lên sát mép trên (≤ 80px) → hiện** (chỉ chuột/bút; cảm ứng dùng vuốt lên). Việc chuột đang nằm trên header KHÔNG được chặn lệnh ẩn ở (1).
+  4. **Vào trang / bấm từ trang khác về trang chủ → header hiện**; lần tự cuộn tới banner lúc vào trang (≈0,9s) không làm ẩn.
+  5. Trang chủ: trong màn mở đầu chỉ có logo + nút menu; qua màn mở đầu thì áp (1)–(4) ngay, header vừa hiện giữ thêm ~120px cuộn rồi mới cho ẩn.
+- **Code**: `components/layout/SiteHeader.tsx`, `hooks/useHeaderScroll.ts` (trang thường), `components/home/useHomeHeader.ts` (trang chủ),
+  `hooks/useHeaderPeek.ts` (di chuột lên mép trên). Trạng thái ẩn = `html[data-header-hidden]`. Đổi một chỗ phải giữ đúng cả 5 điều trên ở mọi trang.
+
 ### Chữ (2026-11-12)
 Cỡ nhỏ nhất 13px (`text-xs` đã đổi), chữ phụ ≥ 14px (`text-sm`), nội dung 16px; nội dung line-height 1.6, tiêu đề 1.2
 (display 1.15–1.2). Phân cấp bằng cỡ + độ đậm, không làm mờ màu. Số liệu (lương/giờ, km, giờ ca) `tnum` + đậm hơn chữ quanh.

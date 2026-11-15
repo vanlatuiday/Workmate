@@ -4,8 +4,10 @@ import { useEffect, type RefObject } from 'react'
 const PEEK_ZONE = 80
 
 /**
- * Header đang ẩn (html[data-header-hidden], do cuộn xuống) → đưa chuột lên sát mép trên là hiện lại.
- * Chuột còn nằm trên header thì không cho ẩn: đặt html[data-header-hover] để hook cuộn bỏ qua lệnh ẩn.
+ * Header đang ẩn (html[data-header-hidden], do cuộn xuống) → DI chuột lên sát mép trên là hiện lại.
+ * Chỉ gọi ra khi chuột di chuyển vào dải này; KHÔNG chặn việc ẩn khi cuộn xuống — trước đây có chặn
+ * ("chuột còn trên header thì không ẩn") nên bấm logo/link rồi lăn chuột ngay (chuột vẫn ở mép trên)
+ * thì header không bao giờ ẩn. Quy tắc cố định: cuộn xuống luôn ẩn (DESIGN.md → Header).
  * Chỉ áp cho chuột/bút (có hover); màn cảm ứng vẫn dùng cuộn lên để gọi header.
  */
 export function useHeaderPeek(ref: RefObject<HTMLElement | null>) {
@@ -18,30 +20,17 @@ export function useHeaderPeek(ref: RefObject<HTMLElement | null>) {
 
     const update = () => {
       frame = 0
-      if (lastY >= 0 && lastY <= PEEK_ZONE) {
-        delete html.dataset.headerHidden
-        html.dataset.headerHover = ''
-      } else if (!header.matches(':hover')) {
-        delete html.dataset.headerHover
-      }
+      if (lastY >= 0 && lastY <= PEEK_ZONE) delete html.dataset.headerHidden
     }
     const onMove = (e: PointerEvent) => {
       if (e.pointerType === 'touch') return
       lastY = e.clientY
       if (!frame) frame = requestAnimationFrame(update)
     }
-    const onLeave = () => {
-      lastY = -1
-      delete html.dataset.headerHover
-    }
-
     window.addEventListener('pointermove', onMove, { passive: true })
-    document.addEventListener('pointerleave', onLeave)
     return () => {
       cancelAnimationFrame(frame)
       window.removeEventListener('pointermove', onMove)
-      document.removeEventListener('pointerleave', onLeave)
-      delete html.dataset.headerHover
     }
   }, [ref])
 }

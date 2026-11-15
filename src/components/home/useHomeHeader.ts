@@ -57,7 +57,8 @@ export function useHomeHeader() {
         if (down) {
           // Đang dùng bàn phím trong header thì không giấu nó đi
           // Chuột đang ở trên header (useHeaderPeek đặt data-header-hover) cũng không giấu
-          if (!header?.contains(document.activeElement) && !('headerHover' in html.dataset)) html.dataset.headerHidden = ''
+          // Chỉ focus bàn phím (:focus-visible) mới tính — bấm chuột vào logo để về trang chủ vẫn để focus trong header
+          if (!header?.querySelector(':focus-visible, [aria-expanded="true"]')) html.dataset.headerHidden = ''
         } else if (up) delete html.dataset.headerHidden
         else return
       }

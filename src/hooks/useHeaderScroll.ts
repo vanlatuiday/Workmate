@@ -34,7 +34,9 @@ export function useHeaderScroll(ref: RefObject<HTMLElement | null>, hide: boolea
       if (y <= SCROLLED_AT) {
         delete html.dataset.headerHidden
       } else if (y - lastY > DELTA) {
-        const busy = header.contains(document.activeElement) || header.querySelector('[aria-expanded="true"]') || 'headerHover' in html.dataset
+        // Chỉ focus BÀN PHÍM (:focus-visible) mới giữ header lại — bấm chuột vào logo/link cũng để lại focus
+        // trong header, nếu tính cả trường hợp đó thì sau khi bấm sang trang khác header không bao giờ ẩn nữa
+        const busy = header.querySelector(':focus-visible') || header.querySelector('[aria-expanded="true"]')
         if (!busy) html.dataset.headerHidden = ''
       } else if (lastY - y > DELTA) {
         delete html.dataset.headerHidden
