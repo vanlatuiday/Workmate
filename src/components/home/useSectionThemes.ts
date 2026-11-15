@@ -88,6 +88,9 @@ export function useSectionThemes(scope: RefObject<HTMLElement>) {
         last = bg + fg
         root.style.setProperty('--page-bg', bg)
         root.style.setProperty('--page-fg', fg)
+        // Tông của khối đang xem cho header (chữ than chì = nền sáng) — SiteHeader đổi sang "kính trắng nổi"
+        // trên khối sáng giống các trang khác. Đổi cùng mốc 50% với màu chữ.
+        root.dataset.homeTone = fg === tokens.palette.charcoal ? 'light' : 'dark'
       }
 
       ScrollTrigger.create({ start: 0, end: 'max', onUpdate: apply })
@@ -102,6 +105,7 @@ export function useSectionThemes(scope: RefObject<HTMLElement>) {
         ScrollTrigger.removeEventListener('refresh', apply)
         root.style.removeProperty('--page-bg')
         root.style.removeProperty('--page-fg')
+        delete root.dataset.homeTone
       }
     },
     { scope },

@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
@@ -35,6 +35,7 @@ type Props = {
 export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu }: Props) {
   const { user, logout } = useAuthStore()
   const headerRef = useRef<HTMLElement>(null)
+  const homeTone = useHomeTone(home)
   // Trang chủ: useHomeHeader lo ẩn/hiện; ở đây chỉ co lại + nền khi cuộn
   useHeaderScroll(headerRef, !home)
   // Header đang ẩn: đưa chuột lên sát mép trên thì hiện lại (mọi trang, kể cả trang chủ)
@@ -67,7 +68,9 @@ export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu
     <header
       ref={headerRef}
       data-site-header=""
-      data-tone={home ? undefined : surface}
+      // Trang chủ: chỉ gắn 'light' khi khối đang xem là nền sáng (html[data-home-tone], useSectionThemes);
+      // khối tối giữ màu theo biến --page-* như cũ
+      data-tone={home ? (homeTone === 'light' ? 'light' : undefined) : surface}
       className={cn(
         'site-header fixed inset-x-0 top-0 z-40 h-[72px]',
         // Theme đặt biến --page-* cho viền focus, menu thả xuống…; trang chủ dùng biến của :root
@@ -134,4 +137,19 @@ export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu
       </div>
     </header>
   )
+}
+
+/** Tông khối trang chủ đang nằm dưới header (useSectionThemes ghi html[data-home-tone]) */
+function useHomeTone(home: boolean): string | undefined {
+  const [tone, setTone] = useState<string | undefined>(() => (home ? document.documentElement.dataset.homeTone : undefined))
+  useEffect(() => {
+    if (!home) return
+    const html = document.documentElement
+    const read = () => setTone(html.dataset.homeTone)
+    read()
+    const mo = new MutationObserver(read)
+    mo.observe(html, { attributes: true, attributeFilter: ['data-home-tone'] })
+    return () => mo.disconnect()
+  }, [home])
+  return home ? tone : undefined
 }

@@ -187,7 +187,7 @@ Giai đoạn 2 = trang con công khai: dải đầu trang tối có hạt bụi 
   **Trên nền trắng/kem — "kính trắng nổi" (2026-11-16)**: viên menu, chip tài khoản, nút 2 gạch = kính trắng rgba(255,255,255,.72–.8),
   nhòe 14px, viền rgba(22,24,22,.08–.1), bóng nhiều lớp (cuộn quá 40px thì bóng đậm hơn). Mục thường #4A4D4A weight 500; rê chuột chữ #161816
   + nền rgba(22,24,22,.05); mục đang mở = viên **#161816** chữ #F6F2E8 weight 600, **trượt 0,4s** sang mục mới khi đổi trang (không trượt
-  theo chuột). Nút tròn rê chuột phóng 1.06. Biến `--nav-*` trong index.css để sau thêm kiểu nền tối. Trên nền tối vẫn như cũ (rê chuột chỉ sáng lên).
+  theo chuột). Nút tròn rê chuột phóng 1.06. Biến `--nav-*` trong index.css để sau thêm kiểu nền tối. Trang chủ cũng áp kiểu này khi khối đang xem là nền sáng (`html[data-home-tone]` do useSectionThemes ghi). Trên nền tối vẫn như cũ (rê chuột chỉ sáng lên).
 - **Ẩn / hiện**:
   1. **Cuộn xuống → ẩn.** Luôn luôn — kể cả ngay sau khi bấm logo/link trên header (chuột vẫn ở mép trên, focus chuột còn trên link).
      Chỉ giữ header lại khi người dùng đang **dùng bàn phím** trong header (`:focus-visible`) hoặc đang **mở menu xổ** (`aria-expanded="true"`).
