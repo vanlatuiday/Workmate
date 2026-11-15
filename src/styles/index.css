@@ -36,7 +36,7 @@
 @property --page-fg {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f3f0e9; /* = wm-ivory; @property không nhận var() nên phải ghi thẳng */
+  initial-value: #f6f6f2; /* = wm-ivory; @property không nhận var() nên phải ghi thẳng */
 }
 :root {
   transition: --page-fg 0.45s cubic-bezier(0.22, 1, 0.36, 1);
@@ -108,13 +108,28 @@
   background-color: var(--page-bg);
   color: var(--page-fg);
 }
+/* Bề mặt TỐI (DESIGN.md → Hai nền): màu nhấn và màu trạng thái chuyển sang bản dành cho nền tối
+   (tokens.json → roles.*.accent-dark*; --danger / --warning-ink sáng hơn). Nhờ vậy BTN_ACCENT, text-accent-ink,
+   text-danger… đặt trong khối tối tự đúng màu, không cần class riêng. .surface-dark dùng khi chỉ cần hoán đổi
+   mà không đổi nền trang (vd. thẻ tối đặt trên nền sáng). */
+.theme-night,
+.theme-charcoal,
+.surface-dark {
+  --accent: var(--accent-dark);
+  --accent-fg: var(--accent-dark-fg);
+  --accent-ink: var(--accent-dark-ink);
+  --danger: var(--wm-rust-light);
+  --warning-ink: var(--wm-amber-light);
+  color-scheme: dark; /* ô chọn, thanh cuộn, ô nhập gốc của trình duyệt theo nền tối */
+}
 /* Trang chủ: nền mặc định (trước khi useSectionThemes ghi đè bằng style nội tuyến) là đen ấm, không phải than chì */
 html[data-page='home'] {
   --page-bg: var(--wm-night);
 }
 
 /* Header kính (mọi trang công khai): nền theo theme nhưng trong 72%, nhòe nội dung cuộn phía sau.
-   Đặt SAU .theme-ivory/.theme-charcoal để ghi đè nền đặc của theme gắn trên header. */
+   Đặt SAU .theme-ivory/.theme-charcoal để ghi đè nền đặc của theme gắn trên header.
+   Header tự đổi giữa .theme-ivory ↔ .theme-night theo khối đang nằm dưới nó (PublicLayout, useHeaderSurface). */
 .header-glass {
   background-color: color-mix(in srgb, var(--page-bg) 72%, transparent);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
@@ -127,6 +142,10 @@ html[data-page='home'] {
 }
 @media (prefers-reduced-transparency: reduce) {
   .header-glass { background-color: var(--page-bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+/* Giảm chuyển động: header đổi sáng/tối tức thì */
+@media (prefers-reduced-motion: reduce) {
+  .header-theme { transition: none; }
 }
 
 @layer components {
@@ -316,6 +335,25 @@ html[data-page='home'] :focus-visible {
     border: 1px solid color-mix(in srgb, var(--wm-charcoal) 12%, transparent);
     box-shadow: inset 0 1px 0 var(--wm-ivory);
   }
+  /* Thẻ kính TỐI (đăng nhập / đăng ký / form bắt đầu — DESIGN.md → Hai nền): trắng 6% trên đen rêu,
+     viền mảnh 8%, nhòe nền (hạt bụi phía sau). Đặt trong .theme-night. --auth-edge: đường gạch chân ô nhập,
+     ngà 55% → ≥ 3:1 trên kính (đã đo 5,4:1). */
+  .glass-dark {
+    --auth-edge: color-mix(in srgb, var(--wm-ivory) 55%, var(--wm-night));
+    background-color: rgb(255 255 255 / 0.06);
+    -webkit-backdrop-filter: blur(24px) saturate(1.05);
+    backdrop-filter: blur(24px) saturate(1.05);
+    border: 1px solid rgb(255 255 255 / 0.08);
+  }
+  /* Tự điền của trình duyệt không được đổi ô thành nền vàng/trắng trên kính tối */
+  .glass-dark input:-webkit-autofill {
+    -webkit-text-fill-color: var(--page-fg);
+    caret-color: var(--page-fg);
+    transition: background-color 9999s ease-out;
+  }
+  .glass-dark .auth-sheen {
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.07), transparent);
+  }
   /* Vệt sáng trắng nhẹ theo chuột (AuthPage dời bằng transform) */
   .auth-sheen {
     background: radial-gradient(closest-side, color-mix(in srgb, var(--wm-ivory) 90%, transparent), transparent);
@@ -329,8 +367,14 @@ html[data-page='home'] :focus-visible {
   }
   @supports not (backdrop-filter: blur(1px)) {
     .glass-light { background-color: color-mix(in srgb, var(--wm-ivory) 96%, transparent); }
+    .glass-dark { background-color: color-mix(in srgb, var(--wm-ivory) 8%, var(--wm-night)); }
   }
   @media (prefers-reduced-transparency: reduce) {
+    .glass-dark {
+      background-color: color-mix(in srgb, var(--wm-ivory) 8%, var(--wm-night));
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
     .glass-light {
       background-color: color-mix(in srgb, var(--wm-ivory) 96%, transparent);
       -webkit-backdrop-filter: none;

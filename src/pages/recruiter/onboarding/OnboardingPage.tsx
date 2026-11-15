@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
-import { useMotionValue } from 'motion/react'
 import { Briefcase, AlertCircle } from 'lucide-react'
 import { useBannedCheck } from '@hooks/useBannedCheck'
 import { GateError, GateSkeleton, useEnsureCompany } from '@components/common/OnboardingGate'
@@ -11,7 +10,7 @@ import { apiErrorMessage } from '@services/authService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { BTN_ACCENT, BTN_GHOST, BTN_SECONDARY, BTN_SM } from '@utils/ui'
-import { BackdropSlabs } from '@pages/public/auth/AuthPage'
+import DustField from '@components/motion/DustField'
 import { EMAIL_RE } from '../CompanyProfile'
 import { StepContact, StepCulture, StepIntro, StepName, StepTax, type Draft, type SetDraft } from './steps'
 
@@ -48,7 +47,6 @@ export default function OnboardingPage() {
 
 function Wizard() {
   const navigate = useNavigate()
-  const still = useMotionValue(0)
   const [params, setParams] = useSearchParams()
   const logout = useAuthStore((s) => s.logout)
   const profile = useCompanyStore((s) => s.profile)
@@ -146,11 +144,9 @@ function Wizard() {
   const optional = step >= 3
 
   return (
-    <div className="theme-ivory relative isolate min-h-screen overflow-x-hidden bg-page-bg text-page-fg">
-      {/* Nền: cùng phiến hình học nhạt như trang Đăng ký, đứng yên (không parallax) */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <BackdropSlabs px={still} py={still} />
-      </div>
+    <div className="theme-night relative isolate min-h-screen overflow-x-hidden bg-page-bg text-page-fg">
+      {/* Nền đen rêu + hạt bụi, cùng trang Đăng nhập/Đăng ký */}
+      <DustField className="-z-10" />
 
       <header className="flex h-16 items-center justify-between px-4 sm:px-6">
         <Link to="/" className={cn('flex items-center gap-2 rounded-control font-display text-lg font-semibold', FOCUS)}>
@@ -160,8 +156,8 @@ function Wizard() {
       </header>
 
       <main className="mx-auto w-full max-w-[720px] px-4 pb-10 pt-4 md:pb-14 md:pt-8">
-        {/* Thẻ kính sáng duy nhất (DESIGN.md: ngoại lệ thứ năm) */}
-        <div className="glass-light rounded-card p-5 sm:p-8 md:p-10">
+        {/* Thẻ kính tối duy nhất (DESIGN.md: ngoại lệ thứ năm), giống thẻ Đăng ký */}
+        <div className="glass-dark rounded-card p-5 sm:p-8 md:p-10">
           <p className="text-sm font-medium text-page-muted" aria-live="polite">Bước {step}/{TOTAL}</p>
           <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-page-line" role="progressbar" aria-label="Tiến độ" aria-valuemin={1} aria-valuemax={TOTAL} aria-valuenow={step}>
             <div className="h-full w-full origin-left rounded-full bg-page-fg transition-transform duration-base ease-editorial motion-reduce:transition-none" style={{ transform: `scaleX(${step / TOTAL})` }} />

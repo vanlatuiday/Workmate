@@ -1,14 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ComponentType } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import {
-  AnimatePresence,
-  motion,
-  useAnimationControls,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  type MotionValue,
-} from 'motion/react'
+import { AnimatePresence, motion, useAnimationControls, useMotionValue, useSpring } from 'motion/react'
 import { ArrowLeft, MapPin, Wallet } from 'lucide-react'
 import { useCatalogStore } from '@context/catalogStore'
 import { useAuthStore } from '@context/authStore'
@@ -18,6 +10,7 @@ import { cn } from '@utils/cn'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { FINE_POINTER, useMediaQuery } from '@hooks/useMediaQuery'
 import { usePageEnterDelay } from '@components/motion/PageTransition'
+import DustField from '@components/motion/DustField'
 import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
 import ForgotForm from './ForgotForm'
@@ -25,7 +18,8 @@ import { OutlinePill } from './shared'
 import { AUTH_PATHS, EASE, MODE_ORDER, modeOfPath, type AuthFormProps, type AuthMode } from './authShared'
 
 /*
- * Đăng nhập / Đăng ký / Quên mật khẩu — MỘT thẻ kính sáng chia hai nửa, theo references/p11.mp4.
+ * Đăng nhập / Đăng ký / Quên mật khẩu — MỘT thẻ kính TỐI chia hai nửa (bố cục theo references/p11.mp4),
+ * trên nền đen rêu #0A0F0D có hạt bụi (DESIGN.md → Hai nền; từ 2026-11-15, trước đó là kính sáng trên nền ngà).
  * Cả 3 route dùng cùng component này nên React giữ nguyên thẻ khi chuyển chế độ; PublicLayout
  * cũng không chạy hiệu ứng chuyển trang giữa 3 route này. Chế độ lấy từ đường dẫn, nên link
  * và nút Back của trình duyệt vẫn chạy.
@@ -33,7 +27,7 @@ import { AUTH_PATHS, EASE, MODE_ORDER, modeOfPath, type AuthFormProps, type Auth
  *   đăng nhập : [ FORM    | chào mừng ]
  *   đăng ký   : [ chào mừng |    FORM ]    quên mật khẩu: giống đăng ký
  *
- * Ngoại lệ DESIGN.md (chủ dự án duyệt, chỉ cho 3 trang này): kính mờ, vệt sáng trắng nhẹ
+ * Ngoại lệ DESIGN.md (chủ dự án duyệt, chỉ cho 3 trang này): kính mờ tối, vệt sáng rất nhẹ
  * theo chuột, làm nhòe ngắn lúc hai nửa đổi chỗ. Mọi hiệu ứng đều có nhánh giảm chuyển động.
  * Mobile (< md): xếp dọc — thanh chào mừng gọn trên, form bên dưới trượt ngang khi đổi chế độ.
  */
@@ -67,53 +61,6 @@ const WELCOME: Record<AuthMode, { title: string; text: string; cta: string; to: 
 const SWAP_X = 28
 /** Đường kính vệt sáng (px) */
 const SHEEN = 520
-
-/* ─── Nền: các khối hình học bằng code ───────────────────────────────────────── */
-
-/**
- * Một tấm "phiến" nghiêng. Lớp ngoài chỉ chịu parallax (x, y, rotate nhẹ theo chuột, transform thuần);
- * lớp trong giữ góc nghiêng cố định. Mặt phiến + một dải mỏng bên dưới giả độ dày.
- */
-function Slab({
-  px,
-  py,
-  depth,
-  position,
-  face,
-  tilt,
-}: {
-  px: MotionValue<number>
-  py: MotionValue<number>
-  /** Độ "gần" (0.3 xa → 1 gần): phiến gần dịch nhiều hơn */
-  depth: number
-  position: string
-  face: string
-  tilt: string
-}) {
-  const x = useTransform(px, [-0.5, 0.5], [-34 * depth, 34 * depth])
-  const y = useTransform(py, [-0.5, 0.5], [-22 * depth, 22 * depth])
-  const rotate = useTransform(px, [-0.5, 0.5], [-1.4 * depth, 1.4 * depth])
-  return (
-    <motion.div aria-hidden className={cn('absolute', position)} style={{ x, y, rotate }}>
-      <div className={cn('relative h-full w-full border border-wm-ivory', face, tilt)}>
-        <span className="absolute inset-x-0 top-full h-3 border border-t-0 border-wm-ivory bg-wm-sage/40" />
-      </div>
-    </motion.div>
-  )
-}
-
-/** Bộ phiến nền của trang Đăng nhập/Đăng ký; form bắt đầu của nhà tuyển dụng dùng lại (truyền giá trị 0 = đứng yên) */
-export function BackdropSlabs({ px, py }: { px: MotionValue<number>; py: MotionValue<number> }) {
-  return (
-    <>
-      <Slab px={px} py={py} depth={0.5} position="left-[-8%] top-[6%] h-[34%] w-[52%]" face="bg-wm-stone" tilt="-rotate-[14deg] -skew-x-[14deg]" />
-      <Slab px={px} py={py} depth={1} position="right-[-10%] bottom-[4%] h-[40%] w-[56%]" face="bg-wm-mist" tilt="-rotate-[10deg] skew-x-[16deg]" />
-      <Slab px={px} py={py} depth={0.8} position="left-[6%] bottom-[-6%] h-[30%] w-[30%]" face="bg-wm-sage/45" tilt="rotate-[12deg] -skew-x-[18deg]" />
-      <Slab px={px} py={py} depth={0.35} position="right-[8%] top-[4%] h-[20%] w-[26%]" face="bg-wm-olive/20" tilt="rotate-[8deg] skew-x-[14deg]" />
-      <Slab px={px} py={py} depth={0.65} position="left-[34%] top-[44%] h-[7%] w-[44%]" face="bg-wm-stone/70" tilt="-rotate-[22deg] -skew-x-[10deg]" />
-    </>
-  )
-}
 
 /* ─── Trang ──────────────────────────────────────────────────────────────────── */
 
@@ -170,26 +117,11 @@ function AuthCard() {
     await controls.start({ opacity: 0, scale: 0.98, transition: { duration: 0.35, ease: EASE } })
   }, [controls, reduced])
 
-  /* Con trỏ (chỉ chuột thật, không giảm chuyển động): vệt sáng trên thẻ + parallax nền */
+  /* Con trỏ (chỉ chuột thật, không giảm chuyển động): vệt sáng trên thẻ */
   const cardRef = useRef<HTMLDivElement>(null)
   const sheenX = useSpring(useMotionValue(0), { stiffness: 140, damping: 24, mass: 0.6 })
   const sheenY = useSpring(useMotionValue(0), { stiffness: 140, damping: 24, mass: 0.6 })
   const sheenOpacity = useSpring(0, { stiffness: 120, damping: 24 })
-  const rawX = useMotionValue(0)
-  const rawY = useMotionValue(0)
-  const px = useSpring(rawX, { stiffness: 50, damping: 20, mass: 0.8 })
-  const py = useSpring(rawY, { stiffness: 50, damping: 20, mass: 0.8 })
-
-  useEffect(() => {
-    if (!finePointer || !isDesktop) return
-    const onMove = (e: PointerEvent) => {
-      rawX.set(e.clientX / window.innerWidth - 0.5)
-      rawY.set(e.clientY / window.innerHeight - 0.5)
-    }
-    window.addEventListener('pointermove', onMove, { passive: true })
-    return () => window.removeEventListener('pointermove', onMove)
-  }, [finePointer, isDesktop, rawX, rawY])
-
   const onCardMove = (e: React.PointerEvent) => {
     const r = cardRef.current?.getBoundingClientRect()
     if (!r) return
@@ -228,11 +160,9 @@ function AuthCard() {
   }
 
   return (
-    <div className="relative isolate flex min-h-screen items-center justify-center px-4 pb-10 pt-24 md:px-8">
-      {/* Nền: phiến hình học màu nhạt (đá, sương, xô thơm, chút ô liu) — chỉ để lớp kính có thứ để làm mờ */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <BackdropSlabs px={px} py={py} />
-      </div>
+    <div className="theme-night relative isolate flex min-h-screen items-center justify-center overflow-hidden px-4 pb-10 pt-24 md:px-8">
+      {/* Nền đen rêu + hạt bụi trôi chậm — cũng là thứ để lớp kính làm mờ */}
+      <DustField className="-z-10" />
 
       {/* Về trang chủ (logo Workmate ở góc trái do PublicLayout vẽ) */}
       <Link
@@ -251,7 +181,7 @@ function AuthCard() {
         animate={controls}
         onPointerMove={finePointer && isDesktop ? onCardMove : undefined}
         onPointerLeave={finePointer && isDesktop ? () => sheenOpacity.set(0) : undefined}
-        className="glass-light relative w-full max-w-[1040px] overflow-hidden rounded-card md:min-h-[620px]"
+        className="glass-dark relative w-full max-w-[1040px] overflow-hidden rounded-card md:min-h-[620px]"
       >
         {/* Vệt sáng trắng nhẹ theo chuột — dời bằng transform, nằm dưới nội dung */}
         {finePointer && isDesktop && (
@@ -271,7 +201,7 @@ function AuthCard() {
               animate={{ x: formLeft ? 28 : -28 }}
               transition={reduced ? { duration: 0 } : { duration: 0.65, ease: EASE }}
               style={{ rotate: 7 }}
-              className="pointer-events-none absolute -top-[10%] left-1/2 z-0 h-[120%] w-[3px] border-l border-r border-l-page-line border-r-wm-ivory"
+              className="pointer-events-none absolute -top-[10%] left-1/2 z-0 h-[120%] w-[3px] border-l border-r border-l-page-line border-r-transparent"
             />
             {half('left', formLeft ? 'form' : 'welcome')}
             {half('right', formLeft ? 'welcome' : 'form')}
@@ -336,7 +266,7 @@ function LiveJobs() {
       <p className="tnum text-sm font-medium text-page-fg">
         {open.length} việc làm đang tuyển{companies.length > 0 && <span className="text-page-muted"> · {companies.length} doanh nghiệp</span>}
       </p>
-      <div className="mt-3 rounded-card border border-page-line bg-page-bg/60 p-4">
+      <div className="mt-3 rounded-card border border-page-line bg-page-surface p-4">
         <p className="eyebrow text-page-muted">Việc đang tuyển</p>
         <p className="mt-2 font-display text-base font-semibold text-page-fg">{sample.title}</p>
         {company && <p className="mt-0.5 text-sm text-page-muted">{company.name}</p>}

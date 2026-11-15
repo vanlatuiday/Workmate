@@ -87,7 +87,7 @@ void main() {
   // Bảng màu trung tính ấm: than chì → xám đậm, quầng sáng ngà rất nhẹ quanh con trỏ
   vec3 base  = vec3(0.141, 0.145, 0.133);   // charcoal #242522
   vec3 slate = vec3(0.235, 0.239, 0.212);   // giữa charcoal và graphite #454640
-  vec3 ivory = vec3(0.953, 0.941, 0.914);   // ivory #F3F0E9
+  vec3 ivory = vec3(0.965, 0.965, 0.949);   // ivory #F6F6F2
 
   vec3 col = mix(base, slate, smoothstep(0.35, 0.85, n));
   float glow = exp(-3.0 * length(toMouse));

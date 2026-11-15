@@ -2,6 +2,10 @@ import plugin from 'tailwindcss/plugin'
 // Bảng màu Workmate — nguồn duy nhất, xem src/styles/tokens.json và DESIGN.md
 import tokens from './src/styles/tokens.json'
 
+/** Màu từ biến CSS nhưng vẫn dùng được modifier /opacity (vd. border-danger/30) */
+const varWithAlpha = (name) => ({ opacityValue }) =>
+  opacityValue === undefined || String(opacityValue).includes('var(') ? `var(${name})` : `color-mix(in srgb, var(${name}) ${Number(opacityValue) * 100}%, transparent)`
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -21,11 +25,10 @@ export default {
           edge:  'var(--page-edge)',
         },
         // Màu trạng thái cố định (tokens.json → semantic). *-soft: nền nhạt pha với nền trang
-        ...Object.fromEntries(
-          Object.entries(tokens.semantic)
-            .filter(([k]) => !k.startsWith('$'))
-            .map(([name, ref]) => [name, tokens.palette[ref]]),
-        ),
+        // danger / warning-ink đổi theo bề mặt (nền tối dùng bản sáng hơn: --danger, --warning-ink); có hỗ trợ /opacity
+        warning: tokens.palette[tokens.semantic.warning],
+        danger: varWithAlpha('--danger'),
+        'warning-ink': varWithAlpha('--warning-ink'),
         // Màu nhấn theo vai trò (tokens.json → roles, biến CSS đặt ở plugin dưới). Không dùng modifier /opacity.
         accent: {
           DEFAULT: 'var(--accent)',
@@ -34,7 +37,7 @@ export default {
           soft: 'color-mix(in srgb, var(--accent) 8%, var(--page-bg))', // 8%: chữ accent-ink trên nền này ≥ 4.5:1 (đã đo)
         },
         'warning-soft': 'color-mix(in srgb, var(--wm-amber) 14%, var(--page-bg))',
-        'danger-soft':  'color-mix(in srgb, var(--wm-rust) 12%, var(--page-bg))',
+        'danger-soft':  'color-mix(in srgb, var(--danger) 12%, var(--page-bg))',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
@@ -100,6 +103,9 @@ export default {
         ':root': {
           ...Object.fromEntries(Object.entries(tokens.palette).map(([name, hex]) => [`--wm-${name}`, hex])),
           ...roleVars(tokens.roles.default),
+          // Trạng thái theo bề mặt: nền sáng dùng bản đậm, nền tối (.surface-dark…) dùng bản sáng
+          '--danger': tokens.palette.rust,
+          '--warning-ink': tokens.palette['amber-ink'],
         },
         // Người tìm việc: màu nhấn xanh lá (data-role đặt trên <html> theo tài khoản đang đăng nhập)
         '[data-role="seeker"]': roleVars(tokens.roles.seeker),

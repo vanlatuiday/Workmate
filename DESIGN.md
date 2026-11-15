@@ -11,7 +11,7 @@ colors:
   olive: "#858B70"      # viền khung thẻ (thẻ ảnh dọc ở trang chủ) — chỉ dùng cho viền, không làm nền/chữ
   stone: "#D9D3C8"      # nền khu việc làm
   mist: "#E1DED5"       # bề mặt phụ (chỉ dùng có chủ đích)
-  ivory: "#F3F0E9"      # nền sáng chính, chữ trên nền tối
+  ivory: "#F6F6F2"      # nền sáng chính (trắng ấm), chữ trên nền tối
   lavender: "#A99CCB"   # màu nhấn: chỉ cho lớp hạt WebGL trang chủ (ParticleField)
   ice: "#9FB7D6"        # màu nhấn (xanh băng nhạt): chỉ cho lớp hạt trang chủ
   blush: "#D8A9A0"      # màu nhấn (hồng đào nhạt): chỉ cho lớp hạt trang chủ
@@ -21,6 +21,11 @@ colors:
   amber: "#B7791F"      # warning — icon, viền, nền nhạt (3.2:1: KHÔNG dùng cho chữ nhỏ)
   amber-ink: "#8F5E12"  # warning-ink — chữ cảnh báo (4.9:1 trên ngà)
   rust: "#B5483B"       # danger — lỗi form, từ chối, xóa (4.7:1 trên ngà)
+
+  night: "#0A0F0D"      # nền tối (đen ánh rêu) — xem mục Hai nền
+  leaf: "#3DDC84"       # màu nhấn người tìm việc trên nền TỐI
+  rust-light: "#F08A7B" # danger trên nền tối
+  amber-light: "#D9A441" # warning-ink trên nền tối
 
 # Màu theo ngữ cảnh — biến CSS, đổi theo section đang xem (Tailwind: *-page-*)
 semantic:
@@ -112,7 +117,7 @@ chuyển màu nền theo tiến trình cuộn.
 | `wm-olive` | `#858B70` | Viền khung thẻ (chủ dự án chọn) — chỉ làm viền |
 | `wm-stone` | `#D9D3C8` | Nền khu việc làm |
 | `wm-mist` | `#E1DED5` | Bề mặt phụ, chữ phụ trong menu |
-| `wm-ivory` | `#F3F0E9` | Nền sáng chính, chữ trên nền tối |
+| `wm-ivory` | `#F6F6F2` | Nền sáng chính (trắng ấm), chữ trên nền tối |
 | `wm-lavender` | `#A99CCB` | Màu nhấn, **chỉ** cho lớp hạt trang chủ (một phần hạt ánh tím). Không dùng cho chữ, nền, nút |
 | `wm-ice` | `#9FB7D6` | Màu nhấn xanh băng nhạt, **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
 | `wm-blush` | `#D8A9A0` | Màu nhấn hồng đào nhạt, **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
@@ -125,12 +130,12 @@ Màu nhấn đổi theo người đang đăng nhập (`data-role` trên `<html>`
 | Vai trò | `bg-accent` (nền nút, chấm, viền) | `text-accent-fg` (chữ trên nền accent) | `text-accent-ink` (chữ/link nhấn trên nền sáng) |
 |---|---|---|---|
 | Nhà tuyển dụng, khách, admin | `wm-clay` #E07A3F | `wm-charcoal` (5.2:1) | `wm-clay-ink` #A34E1C (5.0:1) |
-| Người tìm việc | `wm-fern` #257356 | `wm-ivory` (5.0:1) | `wm-fern` (5.0:1) |
+| Người tìm việc | `wm-fern` #1B7D45 | `wm-ivory` (4.8:1) | `wm-fern` (4.8:1) |
 
 Dùng màu nhấn cho: nút chính quan trọng, link, trạng thái "đang rảnh"/tích cực, tag đang chọn, chấm chưa đọc.
 **Không** dùng `text-accent` (màu nền làm chữ không đủ tương phản với cam) — chữ luôn là `text-accent-ink`.
 `bg-accent-soft` = 8% accent pha nền trang (14% làm chữ nhấn chỉ còn 4.2–4.4:1). Màu nhấn là biến CSS nên không dùng modifier `/opacity`.
-(#2F8F6B chủ dự án đề xuất cho người tìm việc không đạt 4.5:1 với cả chữ sáng lẫn tối → dùng bản đậm #257356.)
+(Chủ dự án đề xuất #1F8A4C, nhưng chữ ngà trên đó chỉ ~4.0:1 → dùng #1B7D45, 4.8:1 trên #F6F6F2. Trước 2026-11-15 là #257356.)
 
 Màu trạng thái cố định (không đổi theo vai trò):
 | Tailwind | Màu | Dùng cho |
@@ -138,15 +143,47 @@ Màu trạng thái cố định (không đổi theo vai trò):
 | `border-warning` / `bg-warning-soft`, chữ `text-warning-ink` | `wm-amber` / `wm-amber-ink` | sắp hết hạn, cần bổ sung |
 | `text-danger` / `border-danger` / `bg-danger-soft` | `wm-rust` | lỗi form, từ chối, xóa |
 
-`wm-moss` (#5B6B4E) là accent cũ trong buổi sáng 12/11, không còn dùng. `wm-night` #1C1B19: đen ấm, chỉ cho các
-đoạn nền tối của trang chủ (chữ và nút toàn site vẫn là `wm-charcoal`).
+`wm-moss` (#5B6B4E) là accent cũ trong buổi sáng 12/11, không còn dùng. `wm-night` #0A0F0D (từ 2026-11-15; trước đó #1C1B19): đen ánh rêu — nền tối của trang chủ, đăng nhập/đăng ký, form bắt đầu
+(chữ và nút trên nền sáng vẫn là `wm-charcoal`).
+
+### Hai nền (2026-11-15, chủ dự án duyệt — giai đoạn 1/3)
+Mọi trang là sự đan xen của hai bề mặt; không bao giờ đen/trắng tuyệt đối.
+
+| | Nền tối | Nền sáng |
+|---|---|---|
+| Màu nền | `wm-night` **#0A0F0D** (đen ánh rêu) — class `.theme-night` | `wm-ivory` **#F6F6F2** (trắng ấm) — `.theme-ivory` |
+| Thẻ | nền `rgba(255,255,255,.04)` (kính: tới .08), viền mảnh `rgba(255,255,255,.08)` | bề mặt trắng ngà + bóng mềm |
+| Hạt bụi | có (`DustField`, xem dưới) | không |
+| Chữ | ngà #F6F6F2; chữ phụ 82% (≈10,6:1 trên kính tối) | than chì; chữ phụ 82% |
+
+**Màu nhấn theo bề mặt** (vẫn theo VAI TRÒ — người tìm việc xanh lá; khách/nhà tuyển dụng/admin cam đất). Bề mặt tối tự hoán đổi
+`--accent*` sang bản `accent-dark*` (`.theme-night`, `.theme-charcoal`, `.surface-dark` trong `index.css`), nên `BTN_ACCENT`, `text-accent-ink`
+dùng nguyên không cần class riêng:
+| Vai trò | Nền sáng: nền nút / chữ trên nút / chữ nhấn | Nền tối: nền nút / chữ trên nút / chữ nhấn |
+|---|---|---|
+| Người tìm việc | `fern` #1B7D45 / ngà / `fern` — 4,8:1 | `leaf` #3DDC84 / `night` / `leaf` — 10,8:1 |
+| Khách, nhà tuyển dụng, admin | `clay` #E07A3F / than chì / `clay-ink` #A34E1C | `clay` / `night` (6,5:1) / `clay` (6,5:1 trên night) |
+Màu trạng thái trên nền tối: `--danger` = `rust-light` #F08A7B (7,0:1 trên kính tối), `--warning-ink` = `amber-light` #D9A441 (7,6:1);
+`text-danger`, `text-warning-ink`, `bg-danger-soft` tự đổi theo bề mặt.
+
+**Header đổi màu theo khối bên dưới** (trang công khai ngoài trang chủ): khối tự đánh dấu `data-surface="dark"` hoặc `"light"`;
+`useHeaderSurface` (IntersectionObserver trên dải 2px ngay dưới mép header) chọn `.theme-night` / `.theme-ivory` cho header —
+chữ sáng trên khối tối, chữ tối trên khối sáng. Không có khối đánh dấu → ngà như cũ. Trang chủ giữ logic riêng (`useHomeHeader`). Giảm chuyển động: đổi tức thì.
+
+**Hạt bụi** (`components/motion/DustField.tsx`, canvas 2D): hạt 1–2px, độ đục 0,2–0,6, trôi rất chậm; `density="low"` (thưa) cho dải đầu trang con.
+≤ 30 khung/giây, dừng khi ẩn tab/khuất khối; giảm chuyển động → một khung tĩnh. Trang chủ vẫn dùng `ParticleField` WebGL riêng.
+
+**Lộ trình**: giai đoạn 1 (đã làm) = token, header tự đổi màu, đăng nhập/đăng ký/quên mật khẩu và form bắt đầu nền tối kính tối.
+Giai đoạn 2 = trang con công khai: dải đầu trang tối có hạt bụi + nội dung trắng ấm + footer tối; popup = thẻ trắng trên màn phủ tối
+(bands phải trải dưới cả header — header hiện là thanh sticky trong luồng nên lúc đó cần chồng lên dải). Giai đoạn 3 = danh sách công ty `/cong-ty` toàn tối.
+`/ca-nhan` (Câu chuyện của tôi) giữ nền trắng ấm.
 
 ### Chữ (2026-11-12)
 Cỡ nhỏ nhất 13px (`text-xs` đã đổi), chữ phụ ≥ 14px (`text-sm`), nội dung 16px; nội dung line-height 1.6, tiêu đề 1.2
 (display 1.15–1.2). Phân cấp bằng cỡ + độ đậm, không làm mờ màu. Số liệu (lương/giờ, km, giờ ca) `tnum` + đậm hơn chữ quanh.
 Font giữ Plus Jakarta Sans (tiêu đề) + Inter (nội dung).
 
-Hạt màu chỉ hiện trên nền tối (intro, banner, section than chì/graphite); trên nền sáng hạt trở về đơn sắc theo màu chữ trang.
+Hạt màu chỉ hiện trên nền tối (intro, banner, section night/than chì/graphite); trên nền sáng hạt trở về đơn sắc theo màu chữ trang.
 
 Có sẵn dưới 3 dạng, cùng một nguồn `tokens.json`: class Tailwind `bg-wm-*`/`text-wm-*`,
 biến CSS `--wm-*`, và `THEMES` trong `useSectionThemes.ts`.
@@ -202,7 +239,7 @@ và class `.btn-*`, `.card`, `.input`, `.badge-*` khỏi `index.css`. Mọi tran
 
 ## Elevation & Depth
 
-Không dùng bóng đổ trên trang công khai. Chiều sâu đến từ:
+Không dùng bóng đổ trên trang công khai (trừ thẻ trên nền sáng ở giai đoạn 2, xem Hai nền). Chiều sâu đến từ:
 1. Đổi nền giữa các section (sáng ↔ tối).
 2. Bề mặt `page-surface` nhỉnh hơn nền + viền `page-line`.
 3. Lớp nhiễu hạt `.grain` rất mờ (7%) phủ toàn trang.
@@ -293,10 +330,11 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
   từng vai trò, lớp phủ than chì đặc. Vẫn giữ bảng màu charcoal/ivory, không màu nhấn, không glow,
   không bóng ngoài; có phương án đặc khi trình duyệt không hỗ trợ blur hoặc `prefers-reduced-transparency`.
   Kính mờ chỉ dùng trong dashboard, không đưa ra trang công khai.
-  **Ngoại lệ thứ hai (2026-11-07, chủ dự án duyệt):** Đăng nhập / Đăng ký / Quên mật khẩu
-  (`pages/public/auth/*`) theo `references/p11.mp4` — một thẻ kính **sáng** chia hai nửa trên nền ngà
-  có khối hình học màu nhạt; được phép: kính mờ, vệt sáng trắng nhẹ theo chuột, làm nhòe ngắn
-  (`filter: blur`) lúc hai nửa đổi chỗ. Mọi hiệu ứng có nhánh giảm chuyển động.
+  **Ngoại lệ thứ hai (2026-11-07, đổi 2026-11-15, chủ dự án duyệt):** Đăng nhập / Đăng ký / Quên mật khẩu
+  (`pages/public/auth/*`) theo bố cục `references/p11.mp4` — một thẻ kính **tối** `.glass-dark` chia hai nửa, toàn trang nền
+  `wm-night` #0A0F0D + hạt bụi `DustField` (thay các phiến hình học sáng cũ); được phép: kính mờ, vệt sáng rất nhẹ theo chuột,
+  làm nhòe ngắn (`filter: blur`) lúc hai nửa đổi chỗ. Có nền đặc dự phòng khi không có backdrop-filter / `prefers-reduced-transparency`.
+  Mọi hiệu ứng có nhánh giảm chuyển động.
   **Ngoại lệ thứ ba (2026-11-08, chủ dự án duyệt):** trang Việc làm `/viec-lam`, bản cuộn
   (`components/discover/ScrollGallery.tsx` bố cục `jobs`, `pages/public/jobs/JobSearchBar.tsx`). Được phép:
   - **Kính mờ** `.glass-liquid` (kèm bóng mềm của nó) cho: ô tìm kiếm đầu trang, viên thu gọn dính dưới
@@ -309,8 +347,8 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
   giữ thẻ kính mờ, nền loang và ảnh minh họa, dù các dashboard khác đã về nền ngà phẳng. Không “sửa” khi rà soát.
   Giới hạn: không mang các hiệu ứng này sang trang công khai khác khi chưa hỏi; bản giảm chuyển động
   (`StaticGallery`) không có vệt sáng. Ô tìm kiếm ở các trang khác vẫn theo mục **Thanh tìm kiếm** ở trên.
-  **Ngoại lệ thứ năm (2026-11-15, chủ dự án yêu cầu):** form bắt đầu của nhà tuyển dụng `/tuyen-dung/bat-dau` (`pages/recruiter/onboarding/*`) dùng thẻ kính sáng `.glass-light` trên nền ngà có khối hình học nhạt như trang Đăng ký, để liền mạch sau khi đăng ký; kính nhẹ, không glow, có phương án đặc (no backdrop-filter / prefers-reduced-transparency), chuyển bước chỉ opacity/transform và có nhánh giảm chuyển động.
-- Dùng `#000` / `#fff` tuyệt đối.
+  **Ngoại lệ thứ năm (2026-11-15, đổi cùng ngày, chủ dự án yêu cầu):** form bắt đầu của nhà tuyển dụng `/tuyen-dung/bat-dau` (`pages/recruiter/onboarding/*`) theo trang Đăng ký: nền `wm-night` + hạt bụi, một thẻ kính tối `.glass-dark`; chữ, ô nhập, nút, cảnh báo dùng biến `page-*`/`accent`/`danger` nên tự đúng màu trên nền tối (`TaxCodeField` dùng chung với khung Xác minh sáng không cần thêm prop). Không glow; có phương án đặc; chuyển bước chỉ opacity/transform, có nhánh giảm chuyển động.
+- Dùng `#000` / `#fff` tuyệt đối (nền tối là `#0A0F0D`, nền sáng `#F6F6F2`).
 - Viết hex trực tiếp trong component — thêm vào `tokens.json` nếu thật sự cần màu mới.
 - Đánh số 01/02/03 cho nội dung không phải trình tự thật.
 - Đưa hiệu ứng cuộn/con trỏ tùy biến vào dashboard.
@@ -320,4 +358,4 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
 - **[giả định]** Thang `title/body/body-sm` ghi theo cách code đang dùng class Tailwind mặc định; chưa có token riêng.
 - **[giả định]** Trạng thái lỗi/thành công của form chưa được thiết kế cho bảng màu này (không có đỏ/xanh). Khi cần, ưu tiên biểu tượng + chữ thay vì chỉ màu, và hỏi chủ dự án trước khi thêm màu ngữ nghĩa.
 - Màu trong shader nền intro (`HeroCanvas.tsx`) ghi trực tiếp dưới dạng số thực theo charcoal/graphite/ivory — đổi bảng màu thì sửa cả ở đó.
-- Skill `frontend-design` liệt kê “nền kem gần #F4F1EA” và “nhãn in hoa phía trên mọi tiêu đề” là dấu hiệu giao diện do AI tạo. Ivory `#F3F0E9` và `.eyebrow` là lựa chọn có chủ đích của chủ dự án — giữ nguyên, nhưng dùng eyebrow tiết chế ở trang mới.
+- Skill `frontend-design` liệt kê “nền kem gần #F4F1EA” và “nhãn in hoa phía trên mọi tiêu đề” là dấu hiệu giao diện do AI tạo. Ivory `#F6F6F2` và `.eyebrow` là lựa chọn có chủ đích của chủ dự án — giữ nguyên, nhưng dùng eyebrow tiết chế ở trang mới.
