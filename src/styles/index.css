@@ -733,3 +733,34 @@ html[data-page='home'] .hd-inner {
 @media (max-width: 1023px) {
   .hd-link { padding-inline: 12px; }
 }
+
+/* ─── Thanh bên dashboard: kính sáng nổi (components/layout/sidebar) ─── */
+.sb-glass {
+  background-color: color-mix(in srgb, var(--wm-ivory) 62%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--wm-charcoal) 10%, transparent);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 20px 60px color-mix(in srgb, var(--wm-charcoal) 14%, transparent);
+}
+/* Tooltip / menu / ô kết quả / nút thu gọn: kính mờ đậm hơn để chữ luôn đọc rõ */
+.sb-tip {
+  background-color: color-mix(in srgb, var(--wm-ivory) 82%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--wm-charcoal) 10%, transparent);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 10px 30px color-mix(in srgb, var(--wm-charcoal) 14%, transparent);
+}
+/* Viên kính "lỏng" sau mục đang chọn / đang rê chuột */
+.sb-pill {
+  background-color: rgb(255 255 255 / 0.72);
+  border: 1px solid color-mix(in srgb, var(--wm-charcoal) 12%, transparent);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 2px 8px color-mix(in srgb, var(--wm-charcoal) 6%, transparent);
+  will-change: transform, height;
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .sb-glass { background-color: color-mix(in srgb, var(--wm-ivory) 96%, transparent); }
+  .sb-tip { background-color: var(--wm-ivory); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .sb-glass, .sb-tip { background-color: var(--wm-ivory); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
