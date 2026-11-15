@@ -3,6 +3,7 @@
 // Chạy: npx prisma db seed — chạy lại nhiều lần được (xóa sạch mọi bảng rồi nạp lại).
 // Nguồn dữ liệu: npm run db:export-demo (chỉ chạy lại khi dữ liệu demo ở frontend đổi).
 import { readFileSync } from 'node:fs'
+import { DEFAULT_CONFIG } from '../src/common/system-config.service'
 import { join } from 'node:path'
 import { randomBytes } from 'node:crypto'
 import { PrismaClient } from '@prisma/client'
@@ -241,7 +242,7 @@ async function main() {
   })
   const cfg = admin.config
   await prisma.systemConfig.create({
-    data: { id: 1, weights: cfg.weights, bannedWords: cfg.bannedWords, minWageK: cfg.minWageK, defaultRadiusKm: cfg.defaultRadiusKm, registrationOpen: cfg.registrationOpen },
+    data: { id: 1, weights: cfg.weights, bannedWords: DEFAULT_CONFIG.bannedWords, suspectWords: DEFAULT_CONFIG.suspectWords, minWageK: cfg.minWageK, defaultRadiusKm: cfg.defaultRadiusKm, registrationOpen: cfg.registrationOpen },
   })
 
   // ── Tóm tắt ──

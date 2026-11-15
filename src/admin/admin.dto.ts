@@ -39,6 +39,10 @@ export class ConfigDto {
   @Transform(({ value }) => (Array.isArray(value) ? value.map((w) => (typeof w === 'string' ? w.trim() : w)).filter(Boolean) : value))
   bannedWords?: string[]
 
+  @IsOptional() @IsArray() @ArrayMaxSize(200) @IsString({ each: true }) @MaxLength(100, { each: true })
+  @Transform(({ value }) => (Array.isArray(value) ? value.map((w) => (typeof w === 'string' ? w.trim() : w)).filter(Boolean) : value))
+  suspectWords?: string[]
+
   @IsOptional() @IsInt() @Min(0) @Max(1000)
   minWageK?: number
 

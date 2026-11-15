@@ -329,6 +329,8 @@ model Job {
   photo            Json
   status           JobStatus        @default(open)
   moderation       ModerationStatus @default(pending)
+  /// Quyết định duyệt gần nhất do hệ thống tự đưa ra (tự duyệt / tự từ chối / giữ lại), không phải admin
+  autoModerated    Boolean          @default(false)
   moderationReason String?
   moderatedAt      DateTime?
   postedAt         DateTime         @default(now())
@@ -605,7 +607,10 @@ model SystemConfig {
   id               Int      @id @default(1)
   /// Trọng số chấm điểm: { skills, schedule, salary, distance, jobType }
   weights          Json
+  /// Cấm tuyệt đối: tin chứa cụm này bị tự từ chối
   bannedWords      String[]
+  /// Đáng ngờ: tin chứa cụm này được giữ chờ admin duyệt
+  suspectWords     String[] @default([])
   minWageK         Int      @default(20)
   defaultRadiusKm  Int      @default(8)
   registrationOpen Boolean  @default(true)

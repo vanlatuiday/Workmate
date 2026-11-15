@@ -5,7 +5,11 @@ import type { PublicConfig, SystemConfigDto } from '../catalog/catalog.types'
 /** Mặc định giống DEFAULT_CONFIG ở frontend (adminStore) */
 export const DEFAULT_CONFIG: SystemConfigDto = {
   weights: { skills: 35, schedule: 25, salary: 16, distance: 14, jobType: 10 },
-  bannedWords: ['đặt cọc', 'phí giữ chỗ', 'việc nhẹ lương cao', 'chuyển khoản trước'],
+  bannedWords: ['đặt cọc', 'phí giữ chỗ', 'chuyển khoản trước', 'nộp tiền trước', 'phí hồ sơ', 'cọc trước', 'ck trước'],
+  suspectWords: [
+    'việc nhẹ lương cao', 'phí đào tạo', 'mua đồng phục', 'nộp CCCD gốc', 'giữ CCCD', 'giữ căn cước',
+    'việc online tại nhà', 'cộng tác viên online', 'không cần làm gì', 'thu nhập khủng', 'kiếm tiền nhanh', 'đa cấp',
+  ],
   minWageK: 20,
   defaultRadiusKm: 8,
   registrationOpen: true,
@@ -22,6 +26,7 @@ export class SystemConfigService {
     return {
       weights: row.weights as unknown as SystemConfigDto['weights'],
       bannedWords: row.bannedWords,
+      suspectWords: row.suspectWords,
       minWageK: row.minWageK,
       defaultRadiusKm: row.defaultRadiusKm,
       registrationOpen: row.registrationOpen,

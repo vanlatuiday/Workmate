@@ -6,11 +6,16 @@ import type { CatalogJob } from '../catalog/catalog.types'
 import { geo } from '../common/geo'
 import { SystemConfigService } from '../common/system-config.service'
 import { PrismaService } from '../prisma/prisma.service'
-import { flagsOf } from './flags'
+import { reviewJob } from './flags'
 import { DEFAULT_DURATION_DAYS, type CreateJobDto, type UpdateJobDto } from './jobs.dto'
 import { salaryLabelOf, shiftLabelOf } from './labels'
 
-export type JobWithFlags = CatalogJob & { flags: string[] }
+/**
+ * Kết quả tự lọc trả cho nhà tuyển dụng. Chỉ nêu cụm từ cấm tuyệt đối; dấu hiệu đáng ngờ chỉ admin thấy
+ * (nói ra thì kẻ gian biết đường lách) — tin bị giữ chỉ hiện "đang được kiểm tra".
+ */
+export interface JobReviewResult { decision: 'approved' | 'pending' | 'rejected'; banned: string[] }
+export type JobWithReview = CatalogJob & { review: JobReviewResult }
 
 const DAY_MS = 86_400_000
 /** Hạn nhận ứng viên tính từ lúc này */
@@ -49,9 +54,41 @@ export class JobsService {
     if (min > max) throw new BadRequestException('Lương tối thiểu không được lớn hơn lương tối đa')
   }
 
-  private async withFlags(job: Parameters<CatalogService['toJob']>[0], user: AuthUser): Promise<JobWithFlags> {
-    const dto = this.catalog.toJob(job, await this.catalog.originOf(user), true)
-    return { ...dto, flags: flagsOf(dto, await this.config.get()) }
+  /**
+   * Tự lọc sau khi đăng / sửa tin:
+   * - có cụm cấm tuyệt đối → tự từ chối (kèm lý do nêu cụm từ)
+   * - có dấu hiệu đáng ngờ → giữ chờ admin
+   * - sạch + mã số doanh nghiệp đang hoạt động + công ty không bị khóa → tự duyệt
+   * `manualHold`: admin từng tự tay từ chối / ẩn tin này → sửa xong vẫn phải chờ admin, không tự duyệt
+   */
+  private async autoModerate(job: Parameters<CatalogService['toJob']>[0], user: AuthUser, manualHold = false): Promise<JobWithReview> {
+    const [cfg, company] = await Promise.all([
+      this.config.get(),
+      this.prisma.company.findUnique({ where: { id: job.companyId }, select: { taxLookup: true, locked: true } }),
+    ])
+    const { banned, signals } = reviewJob(job, cfg)
+    const taxActive = (company?.taxLookup as { result?: string } | null)?.result === 'active'
+    const decision: JobReviewResult['decision'] = banned.length
+      ? 'rejected'
+      : !signals.length && taxActive && !company?.locked && !manualHold ? 'approved' : 'pending'
+    const updated = await this.prisma.job.update({
+      where: { id: job.id },
+      data: {
+        moderation: decision,
+        autoModerated: true,
+        moderationReason: decision === 'rejected' ? `Tin có cụm từ không được phép: ${banned.join(', ')}. Hãy sửa nội dung rồi đăng lại.` : null,
+        moderatedAt: decision === 'pending' ? null : new Date(),
+      },
+      include: JOB_INCLUDE,
+    })
+    const dto = this.catalog.toJob(updated, await this.catalog.originOf(user), true)
+    return { ...dto, review: { decision, banned } }
+  }
+
+  /** Kiểm tra nhanh lúc đang soạn tin: chỉ trả cụm từ cấm tuyệt đối (để cảnh báo trước khi đăng) */
+  async check(text: string): Promise<{ banned: string[] }> {
+    const { banned } = reviewJob({ title: text, description: '', skills: ['-'], slots: ['-'], salaryMinK: 0, salaryMaxK: 0 }, await this.config.get())
+    return { banned }
   }
 
   async list(user: AuthUser): Promise<CatalogJob[]> {
@@ -61,7 +98,7 @@ export class JobsService {
     return jobs.map((j) => this.catalog.toJob(j, origin, true))
   }
 
-  async create(user: AuthUser, dto: CreateJobDto): Promise<JobWithFlags> {
+  async create(user: AuthUser, dto: CreateJobDto): Promise<JobWithReview> {
     const companyId = await this.myCompanyId(user)
     this.checkSalary(dto.salaryMinK, dto.salaryMaxK)
     if (!dto.photo.id && !dto.photo.url) throw new BadRequestException('Ảnh minh họa cần có id hoặc url')
@@ -80,10 +117,10 @@ export class JobsService {
     })
     // Tọa độ cần id của tin (để lệch nhẹ theo id) nên gán ngay sau khi tạo
     const withGeo = await this.prisma.job.update({ where: { id: job.id }, data: geo(job.district, job.id), include: JOB_INCLUDE })
-    return this.withFlags(withGeo, user)
+    return this.autoModerate(withGeo, user)
   }
 
-  async update(user: AuthUser, id: string, dto: UpdateJobDto): Promise<JobWithFlags> {
+  async update(user: AuthUser, id: string, dto: UpdateJobDto): Promise<JobWithReview> {
     const cur = await this.ownJob(user, id)
     const min = dto.salaryMinK ?? cur.salaryMinK
     const max = dto.salaryMaxK ?? cur.salaryMaxK
@@ -117,7 +154,7 @@ export class JobsService {
     }
     if (dto.district !== undefined) Object.assign(data, { district: dto.district, ...geo(dto.district, id) })
     const job = await this.prisma.job.update({ where: { id }, data, include: JOB_INCLUDE })
-    return this.withFlags(job, user)
+    return this.autoModerate(job, user, !cur.autoModerated && (cur.moderation === 'rejected' || cur.moderation === 'hidden'))
   }
 
   async setStatus(user: AuthUser, id: string, status: 'open' | 'paused' | 'closed'): Promise<CatalogJob> {

@@ -17,7 +17,7 @@ export class AdminService {
 
   private row(job: Parameters<CatalogService['toJob']>[0], origin: { lat: number; lng: number }, cfg: Awaited<ReturnType<SystemConfigService['get']>>): AdminJobRow {
     const dto = this.catalog.toJob(job, origin, true)
-    return { job: dto, flags: flagsOf(dto, cfg), companyLocked: job.company.locked }
+    return { job: dto, flags: flagsOf(dto, cfg), companyLocked: job.company.locked, autoModerated: job.autoModerated }
   }
 
   /** Mọi tin (kể cả chờ / từ chối / ẩn) kèm cờ tự động */
@@ -36,6 +36,7 @@ export class AdminService {
       where: { id },
       data: {
         moderation: dto.status,
+        autoModerated: false,
         // Lý do chỉ có nghĩa khi từ chối / ẩn
         moderationReason: dto.status === 'rejected' || dto.status === 'hidden' ? dto.reason || null : null,
         // Đưa về "chờ duyệt" = chưa có quyết định nên không có ngày xử lý

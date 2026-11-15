@@ -84,11 +84,16 @@ export interface AdminJobRow {
   job: CatalogJob
   flags: string[]
   companyLocked: boolean
+  /** Quyết định duyệt hiện tại do hệ thống tự đưa ra (không phải admin) */
+  autoModerated: boolean
 }
 
 export interface SystemConfigDto {
   weights: { skills: number; schedule: number; salary: number; distance: number; jobType: number }
+  /** Cấm tuyệt đối: tin chứa cụm này bị tự từ chối */
   bannedWords: string[]
+  /** Đáng ngờ: tin chứa cụm này được giữ chờ admin */
+  suspectWords: string[]
   minWageK: number
   defaultRadiusKm: number
   registrationOpen: boolean
