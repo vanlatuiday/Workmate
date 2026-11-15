@@ -41,7 +41,7 @@ function statusLabel(r: CompanyJobRow) {
 /** Vì sao chưa thao tác được với tin chưa được duyệt */
 const lockedNote = (r: CompanyJobRow) =>
   r.status === 'pending'
-    ? 'Đang chờ quản trị viên duyệt nên chưa thể thao tác.'
+    ? 'Đang được kiểm tra trước khi hiển thị nên chưa thể thao tác.'
     : r.posted
       ? 'Tin không còn hiển thị, chưa thể thao tác. Sửa tin để gửi duyệt lại.'
       : 'Tin không còn hiển thị, chưa thể thao tác. Đăng tin mới để thay thế.'

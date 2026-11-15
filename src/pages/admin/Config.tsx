@@ -15,11 +15,45 @@ import { BTN_ACCENT, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 const KEYS = Object.keys(CRITERION_LABELS) as CriterionKey[]
 type Confirm = 'defaults' | null
 
+/** Một danh sách cụm từ có ô thêm/xóa (dùng cho cả "cấm tuyệt đối" và "đáng ngờ") */
+function WordList({ id, title, noun, words, onChange }: { id: string; title: string; noun: string; words: string[]; onChange: (w: string[]) => void }) {
+  const [word, setWord] = useState('')
+  const add = () => {
+    const w = word.trim()
+    if (w && !words.some((x) => x.toLowerCase() === w.toLowerCase())) onChange([...words, w])
+    setWord('')
+  }
+  return (
+    <div className="mt-5 first-of-type:mt-3">
+      <p className="text-sm font-medium text-page-fg" id={`${id}-t`}>{title}</p>
+      <ul aria-labelledby={`${id}-t`} className="mt-3 flex flex-wrap gap-2">
+        {words.map((w) => (
+          <li key={w} className="inline-flex items-center gap-1 rounded-full border border-page-line py-1 pl-3 pr-1 text-sm text-page-fg">
+            {w}
+            <button type="button" onClick={() => onChange(words.filter((x) => x !== w))} aria-label={`Xóa ${noun} ${w}`} className={`-m-1 rounded-full p-2 text-page-muted hover:text-page-fg ${FOCUS}`}>
+              <X className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          </li>
+        ))}
+        {!words.length && <li className="text-sm text-page-muted">Chưa có cụm nào.</li>}
+      </ul>
+      <div className="mt-3 flex gap-2">
+        <label htmlFor={`${id}-in`} className="sr-only">Thêm {noun}</label>
+        <input
+          id={`${id}-in`} value={word} onChange={(e) => setWord(e.target.value)} placeholder={`Thêm ${noun}, nhấn Enter`}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); add() } }}
+          className={`min-w-0 flex-1 sm:max-w-xs ${FIELD}`}
+        />
+        <button type="button" onClick={add} className={cn(BTN_SECONDARY, BTN_SM)}>Thêm</button>
+      </div>
+    </div>
+  )
+}
+
 /** /admin/cau-hinh — cấu hình hệ thống; chỉnh trong form cục bộ, bấm "Lưu thay đổi" mới áp dụng. */
 export default function Config() {
   const saved = useCatalogStore((s) => s.config)
   const [form, setForm] = useState<SystemConfig>(saved)
-  const [word, setWord] = useState('')
   const [confirm, setConfirm] = useState<Confirm>(null)
   const uid = useId()
 
@@ -27,12 +61,6 @@ export default function Config() {
   const weightsOk = total === 100
   const dirty = JSON.stringify(form) !== JSON.stringify(saved)
   const patch = (p: Partial<SystemConfig>) => setForm((f) => ({ ...f, ...p }))
-
-  const addWord = () => {
-    const w = word.trim()
-    if (w && !form.bannedWords.some((x) => x.toLowerCase() === w.toLowerCase())) patch({ bannedWords: [...form.bannedWords, w] })
-    setWord('')
-  }
 
   const save = async () => {
     if (!weightsOk) return
@@ -92,28 +120,15 @@ export default function Config() {
 
       <FadeIn>
       <Panel title="Kiểm duyệt tin">
-        <p className="text-sm font-medium text-page-fg" id={`${uid}-words`}>Từ cấm</p>
-        <p className="mt-1 text-xs text-page-muted">Tin chứa từ này bị tự gắn cờ khi kiểm duyệt.</p>
-        <ul aria-labelledby={`${uid}-words`} className="mt-3 flex flex-wrap gap-2">
-          {form.bannedWords.map((w) => (
-            <li key={w} className="inline-flex items-center gap-1 rounded-full border border-page-line py-1 pl-3 pr-1 text-sm text-page-fg">
-              {w}
-              <button type="button" onClick={() => patch({ bannedWords: form.bannedWords.filter((x) => x !== w) })} aria-label={`Xóa từ cấm ${w}`} className={`-m-1 rounded-full p-2 text-page-muted hover:text-page-fg ${FOCUS}`}>
-                <X className="h-3.5 w-3.5" aria-hidden="true" />
-              </button>
-            </li>
-          ))}
-          {!form.bannedWords.length && <li className="text-sm text-page-muted">Chưa có từ cấm nào.</li>}
-        </ul>
-        <div className="mt-3 flex gap-2">
-          <label htmlFor={`${uid}-word`} className="sr-only">Thêm từ cấm</label>
-          <input
-            id={`${uid}-word`} value={word} onChange={(e) => setWord(e.target.value)} placeholder="Thêm từ cấm, nhấn Enter"
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addWord() } }}
-            className={`min-w-0 flex-1 sm:max-w-xs ${FIELD}`}
-          />
-          <button type="button" onClick={addWord} className={cn(BTN_SECONDARY, BTN_SM)}>Thêm</button>
-        </div>
+        <p className="text-xs text-page-muted">Hệ thống bỏ dấu và bỏ dấu chấm/khoảng trắng chèn giữa chữ khi dò, nên chỉ cần nhập cụm từ bình thường.</p>
+        <WordList
+          id={`${uid}-banned`} title="Cấm tuyệt đối — tin chứa cụm này bị tự từ chối" noun="từ cấm"
+          words={form.bannedWords} onChange={(w) => patch({ bannedWords: w })}
+        />
+        <WordList
+          id={`${uid}-suspect`} title="Đáng ngờ — tin chứa cụm này được giữ lại chờ duyệt" noun="cụm đáng ngờ"
+          words={form.suspectWords ?? []} onChange={(w) => patch({ suspectWords: w })}
+        />
 
         <div className="mt-6 grid grid-cols-1 gap-6 border-t border-page-line pt-6 sm:grid-cols-2">
           {numField('minWageK', 'Ngưỡng lương gắn cờ', 'nghìn đồng/giờ', 'Lương tối đa thấp hơn mức này bị gắn cờ.')}

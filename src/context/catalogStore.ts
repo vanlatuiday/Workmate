@@ -59,10 +59,12 @@ export interface CatalogCompany extends DiscoverCompany {
   taxValid?: boolean
 }
 
-/** Cấu hình hệ thống. Phần công khai ai cũng có; `bannedWords` chỉ có khi quản trị viên đã nạp /admin/config */
+/** Cấu hình hệ thống. Phần công khai ai cũng có; `bannedWords`/`suspectWords` chỉ có khi quản trị viên đã nạp /admin/config */
 export interface SystemConfig {
   weights: Record<CriterionKey, number>
   bannedWords: string[]
+  /** Cụm từ đáng ngờ: tin chứa cụm này được giữ lại chờ duyệt (không tự từ chối) */
+  suspectWords: string[]
   minWageK: number
   defaultRadiusKm: number
   registrationOpen: boolean
@@ -73,11 +75,17 @@ export interface AdminJobData {
   job: CatalogJob
   flags: string[]
   companyLocked: boolean
+  /** Quyết định kiểm duyệt hiện tại do hệ thống tự đưa ra */
+  autoModerated?: boolean
 }
 
 export const DEFAULT_CONFIG: SystemConfig = {
   weights: { skills: 35, schedule: 25, salary: 16, distance: 14, jobType: 10 },
-  bannedWords: ['đặt cọc', 'phí giữ chỗ', 'việc nhẹ lương cao', 'chuyển khoản trước'],
+  bannedWords: ['đặt cọc', 'phí giữ chỗ', 'chuyển khoản trước', 'nộp tiền trước', 'phí hồ sơ', 'cọc trước', 'ck trước'],
+  suspectWords: [
+    'việc nhẹ lương cao', 'phí đào tạo', 'mua đồng phục', 'nộp CCCD gốc', 'giữ CCCD', 'giữ căn cước',
+    'việc online tại nhà', 'cộng tác viên online', 'không cần làm gì', 'thu nhập khủng', 'kiếm tiền nhanh', 'đa cấp',
+  ],
   minWageK: 20,
   defaultRadiusKm: 8,
   registrationOpen: true,
@@ -115,7 +123,7 @@ export const useCatalogStore = create<CatalogState>()((set) => ({
     try {
       const [cat, cfg] = await Promise.all([
         api.get<{ companies: CatalogCompany[]; jobs: CatalogJob[] }>('/catalog'),
-        api.get<Omit<SystemConfig, 'bannedWords'>>('/config/public'),
+        api.get<Omit<SystemConfig, 'bannedWords' | 'suspectWords'>>('/config/public'),
       ])
       set((s) => ({
         companies: cat.data.companies,

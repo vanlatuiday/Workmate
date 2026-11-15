@@ -52,23 +52,35 @@ export async function loadAdmin(): Promise<void> {
   }
 }
 
-export interface RecruiterJobResult { job: CatalogJob; flags: string[] }
+/** Kết quả tự lọc tin: duyệt ngay / giữ lại chờ duyệt / từ chối kèm các cụm cấm tìm thấy */
+export interface JobReview { decision: 'approved' | 'pending' | 'rejected'; banned: string[] }
+export interface RecruiterJobResult { job: CatalogJob; review: JobReview }
 
-const splitFlags = (r: CatalogJob & { flags?: string[] }): RecruiterJobResult => {
-  const { flags = [], ...job } = r
-  return { job, flags }
+const splitReview = (r: CatalogJob & { review?: JobReview }): RecruiterJobResult => {
+  const { review = { decision: 'pending', banned: [] }, ...job } = r
+  return { job: job as CatalogJob, review }
 }
 
 export async function createJob(body: JobBody): Promise<RecruiterJobResult> {
-  const res = splitFlags((await api.post<CatalogJob & { flags: string[] }>('/recruiter/jobs', body)).data)
+  const res = splitReview((await api.post<CatalogJob & { review: JobReview }>('/recruiter/jobs', body)).data)
   store().upsertJob(res.job)
   return res
 }
 
 export async function updateJob(id: string, body: Partial<JobBody>): Promise<RecruiterJobResult> {
-  const res = splitFlags((await api.patch<CatalogJob & { flags: string[] }>(`/recruiter/jobs/${id}`, body)).data)
+  const res = splitReview((await api.patch<CatalogJob & { review: JobReview }>(`/recruiter/jobs/${id}`, body)).data)
   store().upsertJob(res.job)
   return res
+}
+
+/** Dò trước cụm từ cấm tuyệt đối khi đang soạn. Lỗi mạng/giới hạn → danh sách rỗng, không chặn đăng tin */
+export async function checkJobText(text: string): Promise<{ banned: string[] }> {
+  try {
+    const res = await api.post<{ banned: string[] }>('/recruiter/jobs/check', { text })
+    return { banned: res.data.banned ?? [] }
+  } catch {
+    return { banned: [] }
+  }
 }
 
 export async function setJobStatus(id: string, status: JobOpenStatus): Promise<void> {

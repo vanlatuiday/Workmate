@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Lock, X } from 'lucide-react'
+import { AlertTriangle, Lock, X } from 'lucide-react'
 import { gsap } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useCurtainNavigate } from '@components/motion/PageCurtain'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
-import { createJob, DURATION_DAYS, updateJob, type DurationDays } from '@services/catalogService'
+import { checkJobText, createJob, DURATION_DAYS, updateJob, type JobReview, type DurationDays } from '@services/catalogService'
 import { apiErrorMessage } from '@services/authService'
 import { useCatalogStore } from '@context/catalogStore'
 import { cn } from '@utils/cn'
@@ -57,7 +57,7 @@ function scheduleText(slots: string[]) {
   }).filter(Boolean).join(', ')
 }
 
-/** /dang-tin — NTD soạn tin, xem trước và số ứng viên phù hợp theo thời gian thực (tin gửi đi chờ quản trị viên duyệt). */
+/** /dang-tin — NTD soạn tin, xem trước và số ứng viên phù hợp theo thời gian thực (hệ thống tự lọc tin trước khi hiển thị). */
 export default function PostJobPage() {
   const curtainTo = useCurtainNavigate()
   // Chế độ sửa: /dang-tin?sua=<id>, chỉ nhận tin đã đăng của công ty demo; id lạ hoặc tin có sẵn thì rơi về đăng tin mới
@@ -88,12 +88,28 @@ export default function PostJobPage() {
   const [desc, setDesc] = useState(editing?.description ?? '')
   const [photoIndex, setPhotoIndex] = useState(() => Math.max(0, PHOTOS.findIndex((p) => p.id === editing?.photo.id)))
   const [posted, setPosted] = useState(false)
+  // Cụm từ cấm tuyệt đối phát hiện được (khi soạn hoặc khi tin bị từ chối)
+  const [banned, setBanned] = useState<string[]>([])
+  // Tin đã tạo nhưng bị từ chối: gửi lại thì sửa chính tin này, không tạo bản trùng
+  const [createdId, setCreatedId] = useState<string | null>(null)
+  const checkSeq = useRef(0)
   const card = useRef<HTMLDivElement>(null)
   const timer = useRef<number>()
   const reduced = useReducedMotion()
   const submitBtn = useRef<HTMLButtonElement>(null)
   const wasReady = useRef<boolean | null>(null)
   useEffect(() => () => window.clearTimeout(timer.current), [])
+
+  // Dò cụm từ cấm sau ~700ms khi ngừng gõ; bỏ qua phản hồi cũ (so số thứ tự)
+  useEffect(() => {
+    const text = `${title}\n${desc}`.trim()
+    const seq = ++checkSeq.current
+    if (!text) { setBanned([]); return }
+    const t = window.setTimeout(() => {
+      checkJobText(`${title}\n${desc}`).then((r) => { if (seq === checkSeq.current) setBanned(r.banned) })
+    }, 700)
+    return () => window.clearTimeout(t)
+  }, [title, desc])
 
   const salaryLabel = minK === maxK ? `${minK}.000đ/giờ` : `${minK}.000–${maxK}.000đ/giờ`
   const req = { skills, requiredSkills, requireAllSlots, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: (jobType || 'part-time') as JobType }
@@ -147,32 +163,34 @@ export default function PostJobPage() {
       description: desc.trim(), quantity: headcount, radiusKm: radius,
       ...(duration ? { durationDays: duration } : {}),
     }
-    // Sửa tin: lưu đè, tin quay lại hàng chờ duyệt rồi về danh sách tin (không sang /match)
     // Máy chủ từ chối (thiếu quyền, dữ liệu sai…) → báo lỗi, cho bấm lại
     const fail = (err: unknown) => {
       if (card.current) gsap.to(card.current, { y: 0, scale: 1, duration: reduced ? 0 : 0.3 })
       toast.error(apiErrorMessage(err, 'Chưa gửi được tin, vui lòng thử lại.'))
       setPosted(false)
     }
-    if (editing) {
-      try {
-        await updateJob(editing.id, { ...fields, jobType: fields.jobType as JobType })
-      } catch (err) {
-        fail(err)
-        return
-      }
-      toast.success('Đã lưu, tin chờ quản trị viên duyệt lại')
-      timer.current = window.setTimeout(() => curtainTo('/tuyen-dung/tin-dang', 'Tin tuyển dụng'), 600)
-      return
-    }
-    // Gửi vào hàng chờ duyệt của quản trị viên; tin chỉ hiện công khai sau khi được duyệt
+    // Sửa tin (hoặc gửi lại tin vừa bị từ chối): lưu đè; còn lại tạo mới
+    const targetId = editing?.id ?? createdId
+    let review: JobReview
     try {
-      await createJob({ ...fields, jobType: fields.jobType as JobType })
+      const res = targetId
+        ? await updateJob(targetId, { ...fields, jobType: fields.jobType as JobType })
+        : await createJob({ ...fields, jobType: fields.jobType as JobType })
+      if (!targetId) setCreatedId(res.job.id)
+      review = res.review
     } catch (err) {
       fail(err)
       return
     }
-    toast.success('Tin đã gửi, chờ quản trị viên duyệt')
+    if (review.decision === 'rejected') {
+      // Ở lại trang để người dùng sửa rồi gửi lại
+      setBanned(review.banned)
+      if (card.current) gsap.to(card.current, { y: 0, scale: 1, duration: reduced ? 0 : 0.3 })
+      toast.error(review.banned.length ? `Tin có cụm từ không được phép: ${review.banned.join(', ')}. Hãy sửa nội dung rồi đăng lại.` : 'Tin chưa đạt yêu cầu. Hãy sửa nội dung rồi đăng lại.')
+      setPosted(false)
+      return
+    }
+    toast.success(review.decision === 'approved' ? 'Tin đã được duyệt tự động và đang hiển thị' : 'Tin đã gửi, đang được kiểm tra trước khi hiển thị')
     timer.current = window.setTimeout(() => (onboarding ? curtainTo('/tuyen-dung', 'Tổng quan') : curtainTo('/tuyen-dung/tin-dang', 'Tin tuyển dụng')), 600)
   }
 
@@ -332,6 +350,14 @@ export default function PostJobPage() {
           <Group title="Mô tả ngắn" index={6}>
             <label htmlFor="pj-desc" className="sr-only">Mô tả ngắn</label>
             <textarea id="pj-desc" rows={3} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Tùy chọn: vài dòng về công việc, môi trường làm việc" className={INPUT} />
+            <div aria-live="polite">
+              {banned.length > 0 && (
+                <p role="status" className="flex items-start gap-2 rounded-control bg-danger-soft px-3 py-2 text-sm text-danger">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                  Tin có cụm từ không được phép: {banned.join(', ')}. Tin sẽ bị từ chối tự động — hãy sửa trước khi đăng.
+                </p>
+              )}
+            </div>
           </Group>
 
           <Group title="Ảnh minh họa" index={7}>
@@ -360,9 +386,9 @@ export default function PostJobPage() {
             >
               {editing ? 'Lưu thay đổi' : 'Đăng tin'}
             </button>
-            {editing && <p className="mt-3 text-sm text-page-muted">Sau khi sửa, tin sẽ chờ quản trị viên duyệt lại.</p>}
+            {editing && <p className="mt-3 text-sm text-page-muted">Sau khi sửa, tin được hệ thống kiểm tra lại trước khi hiển thị.</p>}
             <p className="mt-3 text-sm text-page-muted" aria-live="polite">
-              {ready ? (editing ? 'Sẵn sàng lưu.' : 'Sẵn sàng. Tin sẽ được gửi cho quản trị viên duyệt trước khi hiện công khai.') : `Còn thiếu: ${missing.join(', ')}.`}
+              {ready ? (editing ? 'Sẵn sàng lưu.' : 'Sẵn sàng. Hệ thống sẽ tự kiểm tra tin trước khi hiển thị.') : `Còn thiếu: ${missing.join(', ')}.`}
             </p>
           </div>
           </div>

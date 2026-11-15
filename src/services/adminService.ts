@@ -22,7 +22,8 @@ export { DEFAULT_CONFIG } from '@context/catalogStore'
 
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase()
 
-/** Lý do tự gắn cờ cho một tin (rỗng = không có gì đáng ngờ) */
+/** Lý do tự gắn cờ cho một tin (rỗng = không có gì đáng ngờ). Chỉ là bản dự phòng khi chưa nạp dòng quản trị từ máy chủ;
+ *  máy chủ mới là nơi dò đầy đủ (từ đáng ngờ, số điện thoại, liên kết…). */
 export function flagsOf(job: MatchJob & { description?: string }, config: SystemConfig): string[] {
   const flags: string[] = []
   if (job.salaryMaxK > 0 && job.salaryMaxK < config.minWageK) flags.push(`Lương thấp bất thường (dưới ${config.minWageK}.000đ/giờ)`)
@@ -32,6 +33,8 @@ export function flagsOf(job: MatchJob & { description?: string }, config: System
   const text = norm([job.title, job.description ?? ''].join(' '))
   const hits = config.bannedWords.filter((w) => w.trim() && text.includes(norm(w)))
   if (hits.length) flags.push(`Chứa từ cấm: ${hits.join(', ')}`)
+  const sus = (config.suspectWords ?? []).filter((w) => w.trim() && text.includes(norm(w)))
+  if (sus.length) flags.push(`Chứa từ đáng ngờ: ${sus.join(', ')}`)
   return flags
 }
 
@@ -62,6 +65,8 @@ export interface AdminJobRow {
   jobStatus: JobOpenStatus
   flags: string[]
   companyLocked: boolean
+  /** Quyết định hiện tại do hệ thống tự đưa ra (không phải quản trị viên) */
+  autoModerated: boolean
 }
 
 /** Hook: mọi tin (kể cả ẩn/chờ/từ chối) kèm trạng thái + cờ — cho Kiểm duyệt và Tin tuyển dụng.
@@ -72,10 +77,10 @@ export function useAdminJobs(): AdminJobRow[] {
   const companies = useCatalogStore((s) => s.companies)
   const config = useCatalogStore((s) => s.config)
   return useMemo(() => {
-    const rows = adminRows ?? jobs.map((job) => ({ job, flags: flagsOf(job, config), companyLocked: !!companies.find((c) => c.id === job.companyId)?.locked }))
+    const rows = adminRows ?? jobs.map((job) => ({ job, flags: flagsOf(job, config), autoModerated: false, companyLocked: !!companies.find((c) => c.id === job.companyId)?.locked }))
     return rows.map((r) => ({
       job: r.job, posted: !isSampleId(r.job.id), status: r.job.moderation, reason: r.job.moderationReason,
-      jobStatus: r.job.status, flags: r.flags, companyLocked: r.companyLocked,
+      jobStatus: r.job.status, flags: r.flags, companyLocked: r.companyLocked, autoModerated: !!r.autoModerated,
     }))
   }, [adminRows, jobs, companies, config])
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ShieldCheck } from 'lucide-react'
-import { EmptyState, PageHeader } from '@components/dashboard'
+import { EmptyState, PageHeader, StatusBadge } from '@components/dashboard'
 import { FlagList, JobActions, JobStatusBadges } from '@components/admin/parts'
 import { companyOf } from '@pages/public/match/data'
 import { useAdminJobs, type AdminJobRow } from '@services/adminService'
@@ -16,6 +16,10 @@ const TABS: { id: Tab; label: string; empty: string; test: (r: AdminJobRow) => b
   { id: 'flagged', label: 'Bị gắn cờ', empty: 'Không có tin đang hiện nào bị gắn cờ.', test: (r) => r.status === 'approved' && r.flags.length > 0 },
   { id: 'done', label: 'Đã xử lý', empty: 'Chưa có tin nào bị từ chối hoặc ẩn.', test: (r) => r.status === 'rejected' || r.status === 'hidden' },
 ]
+
+/** Nhãn nhỏ cho tin do hệ thống tự quyết định */
+const autoLabel = (r: AdminJobRow) =>
+  !r.autoModerated ? '' : r.status === 'approved' ? 'Hệ thống tự duyệt' : r.status === 'rejected' ? 'Hệ thống tự từ chối' : r.status === 'pending' && r.flags.length ? 'Hệ thống giữ lại' : ''
 
 /** Thẻ một tin cần kiểm duyệt */
 function ModerationCard({ row, hideStatus }: { row: AdminJobRow; hideStatus?: boolean }) {
@@ -33,6 +37,7 @@ function ModerationCard({ row, hideStatus }: { row: AdminJobRow; hideStatus?: bo
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-display text-base font-medium text-page-fg">{job.title}</h2>
             <JobStatusBadges row={row} hideStatus={hideStatus} />
+            {autoLabel(row) && <StatusBadge tone="muted">{autoLabel(row)}</StatusBadge>}
           </div>
           <p className="mt-1 text-sm text-page-muted">{companyOf(job.companyId).name}</p>
           <p className="tnum mt-1 text-sm text-page-fg">{job.district} · {job.salaryLabel} · {job.shiftLabel}</p>
@@ -67,7 +72,10 @@ export default function Moderation() {
   const current = TABS.find((t) => t.id === tab)!
   const list = rows
     .filter(current.test)
-    .sort((a, b) => (b.job.postedAt ?? '').localeCompare(a.job.postedAt ?? '') || b.flags.length - a.flags.length)
+    .sort((a, b) =>
+      // Hàng chờ: tin có cờ lên trước, rồi mới nhất; các nhóm khác: mới nhất trước
+      (tab === 'pending' ? Number(b.flags.length > 0) - Number(a.flags.length > 0) : 0) ||
+      (b.job.postedAt ?? '').localeCompare(a.job.postedAt ?? '') || b.flags.length - a.flags.length)
 
   const flipRef = useFlip<HTMLUListElement>(list.map((r) => r.job.id))
 
