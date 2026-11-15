@@ -162,7 +162,7 @@ function AuthCard() {
   return (
     <div className="theme-night relative isolate flex min-h-screen items-center justify-center overflow-hidden px-4 pb-10 pt-24 md:px-8">
       {/* Nền đen rêu + hạt bụi trôi chậm — cũng là thứ để lớp kính làm mờ */}
-      <DustField className="-z-10" />
+      <DustField motion="gentle" className="-z-10" />
 
       {/* Về trang chủ (logo Workmate ở góc trái do PublicLayout vẽ) */}
       <Link
