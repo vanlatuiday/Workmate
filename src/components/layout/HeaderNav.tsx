@@ -27,7 +27,8 @@ export default function HeaderNav({ links, className }: { links: MenuItem[]; cla
         aria-hidden="true"
         className="hd-pill"
         style={{ borderRadius: 9999 }}
-        transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 36 }}
+        // Đổi trang: viên active trượt mượt sang mục mới, 0,4s (chủ dự án 2026-11-16)
+        transition={reduced ? { duration: 0 } : { duration: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
       />
     ) : null
 

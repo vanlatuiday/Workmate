@@ -1,7 +1,7 @@
 import { useEffect, type RefObject } from 'react'
 
-/** Cuộn quá mốc này (px) thì header co lại + hiện nền kính */
-const SCROLLED_AT = 80
+/** Cuộn quá mốc này (px) thì header co lại + bóng các viên đậm hơn (chủ dự án 2026-11-16: 40px) */
+const SCROLLED_AT = 40
 /** Cuộn ít hơn chừng này (px) giữa hai khung hình thì bỏ qua — tránh giật vì rung tay */
 const DELTA = 6
 

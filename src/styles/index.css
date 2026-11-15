@@ -799,3 +799,88 @@ html[data-page='home'] .hd-inner {
 @media (prefers-reduced-transparency: reduce) {
   .dash-bg main .rounded-card.bg-page-surface { background-color: var(--wm-ivory); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
+
+/* ─── Header trên nền trắng/kem: "kính trắng nổi" (chủ dự án 2026-11-16) ─────────────────────
+   Trước: viên menu #E5E1D6 gần trùng nền kem nên chìm. Màu đặt thành biến --nav-* để sau thêm kiểu cho nền tối.
+   Tương phản: chữ thường #4A4D4A trên kính trắng ≈ 8:1; chữ active #F6F2E8 trên #161816 ≈ 16:1. */
+.site-header[data-tone='light'] {
+  --nav-bg: rgba(255, 255, 255, 0.72);
+  --nav-border: rgba(22, 24, 22, 0.08);
+  --nav-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 8px 24px rgba(40, 30, 10, 0.08), 0 2px 6px rgba(40, 30, 10, 0.05);
+  --nav-shadow-scrolled: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 12px 32px rgba(40, 30, 10, 0.12), 0 2px 6px rgba(40, 30, 10, 0.05);
+  --nav-text: #4a4d4a;
+  --nav-text-hover: #161816;
+  --nav-hover-bg: rgba(22, 24, 22, 0.05);
+  --nav-active-bg: #161816;
+  --nav-active-text: #f6f2e8;
+  --nav-round-bg: rgba(255, 255, 255, 0.8);
+  --nav-round-border: rgba(22, 24, 22, 0.1);
+}
+/* Viên menu + chip tài khoản + nút 2 gạch: kính trắng, viền mảnh, bóng nhiều lớp */
+.site-header[data-tone='light'] .hd-glass,
+.site-header[data-tone='light'] .hd-chip,
+.site-header[data-tone='light'] .hd-burger {
+  background: var(--nav-bg);
+  border: 1px solid var(--nav-border);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: var(--nav-shadow);
+  transition: box-shadow 0.3s, background-color 0.3s;
+}
+.site-header[data-tone='light'] .hd-chip,
+.site-header[data-tone='light'] .hd-burger {
+  background: var(--nav-round-bg);
+  border-color: var(--nav-round-border);
+}
+/* Cuộn quá 40px (data-scrolled): bóng đậm hơn để tách khỏi nội dung chạy phía dưới */
+.site-header[data-tone='light'][data-scrolled] .hd-glass,
+.site-header[data-tone='light'][data-scrolled] .hd-chip,
+.site-header[data-tone='light'][data-scrolled] .hd-burger {
+  box-shadow: var(--nav-shadow-scrolled);
+}
+/* Mục menu */
+.site-header[data-tone='light'] .hd-link {
+  color: var(--nav-text);
+  font-weight: 500;
+  transition: color 0.2s, background-color 0.2s;
+}
+.site-header[data-tone='light'] .hd-link:hover,
+.site-header[data-tone='light'] .hd-link:focus-visible {
+  color: var(--nav-text-hover);
+  background-color: var(--nav-hover-bg);
+}
+.site-header[data-tone='light'] .hd-link[aria-current='page'],
+.site-header[data-tone='light'] .hd-link[data-current] {
+  color: var(--nav-active-text);
+  font-weight: 600;
+  background-color: transparent;
+}
+.site-header[data-tone='light'] .hd-pill {
+  background: var(--nav-active-bg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+/* Nút tròn (chip tài khoản, 2 gạch): rê chuột phóng nhẹ */
+.site-header[data-tone='light'] .hd-chip,
+.site-header[data-tone='light'] .hd-burger {
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s;
+}
+.site-header[data-tone='light'] .hd-chip:hover,
+.site-header[data-tone='light'] .hd-burger:hover {
+  transform: scale(1.06);
+}
+/* Menu con "Khám phá" cùng kiểu kính trắng */
+.site-header[data-tone='light'] [role='menu'] {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: var(--nav-border);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: var(--nav-shadow);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .site-header[data-tone='light'] .hd-glass,
+  .site-header[data-tone='light'] [role='menu'] { background: rgba(255, 255, 255, 0.96); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-header[data-tone='light'] .hd-chip:hover,
+  .site-header[data-tone='light'] .hd-burger:hover { transform: none; }
+}
