@@ -17,6 +17,7 @@ import AdminLayout from '@components/layout/AdminLayout'
 
 // Public pages: trang chủ nạp sẵn (khung hình đầu tiên + intro GSAP không chờ thêm request);
 // các trang còn lại tải theo nhu cầu, Suspense nằm trong PublicLayout (không làm trống header/footer).
+import { IS_PRODUCTION } from '@utils/isProduction'
 import HomePage from '@pages/public/HomePage'
 const loadJobsPage = () => import('@pages/public/JobsPage')
 const JobsPage = lazy(loadJobsPage)
@@ -41,6 +42,7 @@ const HelpPage = lazy(() => import('@pages/public/content/HelpPage'))
 const ContactPage = lazy(() => import('@pages/public/content/ContactPage'))
 const TermsPage = lazy(() => import('@pages/public/content/TermsPage'))
 const PrivacyPage = lazy(() => import('@pages/public/content/PrivacyPage'))
+const PreviewPage = lazy(() => import('@pages/public/preview/PreviewPage'))
 const NotFoundPage = lazy(() => import('@pages/public/NotFoundPage'))
 
 // Trang dashboard: tải theo nhu cầu (Suspense nằm trong DashboardShell),
@@ -51,6 +53,7 @@ const JobseekerDashboard = lazy(() => import('@pages/jobseeker/Dashboard'))
 const RecommendedJobs = lazy(() => import('@pages/jobseeker/RecommendedJobs'))
 const SavedJobs = lazy(() => import('@pages/jobseeker/SavedJobs'))
 const Applications = lazy(() => import('@pages/jobseeker/Applications'))
+const JobseekerStats = lazy(() => import('@pages/jobseeker/Stats'))
 const JobseekerMatch = lazy(() => import('@pages/jobseeker/Match'))
 const CVManager = lazy(() => import('@pages/jobseeker/CVManager'))
 const JobseekerProfile = lazy(() => import('@pages/jobseeker/Profile'))
@@ -153,6 +156,8 @@ export default function App() {
         <Route path="/lien-he" element={<ContactPage />} />
         <Route path="/dieu-khoan" element={<TermsPage />} />
         <Route path="/bao-mat" element={<PrivacyPage />} />
+        {/* Trang xem thử giao diện — chỉ khi chạy trên máy */}
+        {!IS_PRODUCTION && <Route path="/xem-thu" element={<PreviewPage />} />}
         {/* Bản bento cũ — đã thay bằng /ca-nhan */}
         <Route path="/trang-ca-nhan" element={<Navigate to="/ca-nhan" replace />} />
         <Route element={<ProtectedRoute role="recruiter" />}>
@@ -174,6 +179,7 @@ export default function App() {
           <Route path="/tim-viec/phu-hop" element={<RecommendedJobs />} />
           <Route path="/tim-viec/da-luu" element={<SavedJobs />} />
           <Route path="/tim-viec/ung-tuyen" element={<Applications />} />
+          <Route path="/tim-viec/thong-ke" element={<JobseekerStats />} />
           <Route path="/tim-viec/match" element={<JobseekerMatch />} />
           <Route path="/tim-viec/tin-nhan" element={<Navigate to="/tin-nhan" replace />} />
           <Route path="/tim-viec/lich-phong-van" element={<Navigate to="/lich-phong-van" replace />} />

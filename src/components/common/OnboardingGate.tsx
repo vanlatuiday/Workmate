@@ -47,7 +47,7 @@ export default function OnboardingGate() {
 }
 
 /** Trang vẫn mở được khi chưa xong form bắt đầu (đọc điều khoản, xin hỗ trợ) */
-const OPEN_WHILE_ONBOARDING = ['/tuyen-dung/bat-dau', '/dieu-khoan', '/bao-mat', '/ho-tro', '/lien-he']
+const OPEN_WHILE_ONBOARDING = ['/tuyen-dung/bat-dau', '/dieu-khoan', '/bao-mat', '/ho-tro', '/lien-he', '/xem-thu']
 
 /**
  * Nhà tuyển dụng chưa xong form bắt đầu mở BẤT KỲ trang nào (trang chủ sau khi đăng nhập, trang công khai…)

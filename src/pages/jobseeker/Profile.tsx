@@ -133,7 +133,7 @@ export default function Profile() {
       <div className="space-y-6">
         <FadeIn>
         <Panel>
-          <fieldset className="min-w-0">
+          <fieldset id="thong-tin" className="min-w-0 scroll-mt-24">
             <legend className={LEGEND}>Thông tin cơ bản</legend>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Họ và tên" value={fullName} onChange={touch(setFullName)} />
@@ -177,7 +177,7 @@ export default function Profile() {
 
         <FadeIn>
         <Panel>
-          <fieldset className="min-w-0">
+          <fieldset id="lich-ranh" className="min-w-0 scroll-mt-24">
             <legend className={LEGEND}>Lịch rảnh trong tuần</legend>
             <p className="mb-4 break-words text-sm text-page-muted">
               Bấm vào ô để bật hoặc tắt buổi bạn có thể đi làm. Hệ thống dùng lịch này để chọn việc không trùng giờ.
@@ -279,7 +279,7 @@ export default function Profile() {
 
         <FadeIn>
         <Panel>
-          <fieldset className="min-w-0">
+          <fieldset id="kinh-nghiem" className="min-w-0 scroll-mt-24">
             <legend className={LEGEND}>Kinh nghiệm</legend>
             {experience.length === 0 ? (
               <p className="text-sm text-page-muted">Chưa có kinh nghiệm nào. Không sao, bạn vẫn có thể ứng tuyển việc phổ thông.</p>
