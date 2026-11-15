@@ -23,6 +23,18 @@ export class AccountService {
     const row = await this.prisma.user.findUnique({ where: { id: user.id }, select: { passwordHash: true } })
     if (!row) throw new UnauthorizedException('Phiên đăng nhập không hợp lệ')
     if (!(await bcrypt.compare(password, row.passwordHash))) throw new BadRequestException('Mật khẩu chưa đúng')
+    return this.deleteUser(user.id)
+  }
+
+  /**
+   * Xóa hẳn một tài khoản không phải admin cùng dữ liệu và file của họ (không kiểm tra mật khẩu).
+   * Chỉ gọi sau khi đã xác thực, hoặc từ lệnh quản trị trên máy chủ (`npm run user:delete`).
+   */
+  async deleteUser(userId: string) {
+    const target = await this.prisma.user.findUnique({ where: { id: userId }, select: { role: true } })
+    if (!target) throw new BadRequestException('Không tìm thấy tài khoản')
+    if (target.role === 'admin') throw new ForbiddenException('Không xóa tài khoản quản trị viên bằng cách này')
+    const user = { id: userId }
 
     const privateKeys: string[] = []
     const publicUrls: (string | null | undefined)[] = []

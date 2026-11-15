@@ -19,7 +19,8 @@
     "db:deploy": "prisma migrate deploy",
     "admin:create": "node prisma/create-admin.mjs",
     "mail:test": "node scripts/mail-test.mjs",
-    "storage:init": "node storage/init.mjs"
+    "storage:init": "node storage/init.mjs",
+    "user:delete": "node -r ts-node/register/transpile-only scripts/delete-user.ts"
   },
   "keywords": [],
   "author": "",

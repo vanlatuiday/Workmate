@@ -36,12 +36,13 @@ export class RealtimeGateway implements OnGatewayConnection, OnModuleInit {
     }
   }
 
+  // `server` chưa có khi chạy ngoài máy chủ web (vd. lệnh npm run user:delete) → bỏ qua, không có ai để báo
   toUsers(userIds: string[], event: string, payload: unknown) {
-    if (userIds.length) this.server.to(userIds.map((id) => `user:${id}`)).emit(event, payload)
+    if (userIds.length && this.server) this.server.to(userIds.map((id) => `user:${id}`)).emit(event, payload)
   }
 
   disconnectUser(userId: string) {
-    this.server.in(`user:${userId}`).disconnectSockets(true)
+    this.server?.in(`user:${userId}`).disconnectSockets(true)
   }
 
   /** Chỉ chuyển tiếp khi người gửi thuộc đúng một phía của kết nối này */
