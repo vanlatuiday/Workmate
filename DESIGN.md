@@ -11,7 +11,7 @@ colors:
   olive: "#858B70"      # viền khung thẻ (thẻ ảnh dọc ở trang chủ) — chỉ dùng cho viền, không làm nền/chữ
   stone: "#D9D3C8"      # nền khu việc làm
   mist: "#E1DED5"       # bề mặt phụ (chỉ dùng có chủ đích)
-  ivory: "#F6F6F2"      # nền sáng chính (trắng ấm), chữ trên nền tối
+  ivory: "#FAF4EA"      # nền sáng chính (kem ấm — chủ dự án chọn 2026-11-15, hợp ảnh quán/nhà hàng tông ấm), chữ trên nền tối
   lavender: "#A99CCB"   # màu nhấn: chỉ cho lớp hạt WebGL trang chủ (ParticleField)
   ice: "#9FB7D6"        # màu nhấn (xanh băng nhạt): chỉ cho lớp hạt trang chủ
   blush: "#D8A9A0"      # màu nhấn (hồng đào nhạt): chỉ cho lớp hạt trang chủ
@@ -117,7 +117,7 @@ chuyển màu nền theo tiến trình cuộn.
 | `wm-olive` | `#858B70` | Viền khung thẻ (chủ dự án chọn) — chỉ làm viền |
 | `wm-stone` | `#D9D3C8` | Nền khu việc làm |
 | `wm-mist` | `#E1DED5` | Bề mặt phụ, chữ phụ trong menu |
-| `wm-ivory` | `#F6F6F2` | Nền sáng chính (trắng ấm), chữ trên nền tối |
+| `wm-ivory` | `#FAF4EA` | Nền sáng chính (kem ấm), chữ trên nền tối |
 | `wm-lavender` | `#A99CCB` | Màu nhấn, **chỉ** cho lớp hạt trang chủ (một phần hạt ánh tím). Không dùng cho chữ, nền, nút |
 | `wm-ice` | `#9FB7D6` | Màu nhấn xanh băng nhạt, **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
 | `wm-blush` | `#D8A9A0` | Màu nhấn hồng đào nhạt, **chỉ** cho lớp hạt trang chủ. Không dùng cho chữ, nền, nút |
@@ -135,7 +135,7 @@ Màu nhấn đổi theo người đang đăng nhập (`data-role` trên `<html>`
 Dùng màu nhấn cho: nút chính quan trọng, link, trạng thái "đang rảnh"/tích cực, tag đang chọn, chấm chưa đọc.
 **Không** dùng `text-accent` (màu nền làm chữ không đủ tương phản với cam) — chữ luôn là `text-accent-ink`.
 `bg-accent-soft` = 8% accent pha nền trang (14% làm chữ nhấn chỉ còn 4.2–4.4:1). Màu nhấn là biến CSS nên không dùng modifier `/opacity`.
-(Chủ dự án đề xuất #1F8A4C, nhưng chữ ngà trên đó chỉ ~4.0:1 → dùng #1B7D45, 4.8:1 trên #F6F6F2. Trước 2026-11-15 là #257356.)
+(Chủ dự án đề xuất #1F8A4C, nhưng chữ ngà trên đó chỉ ~4.0:1 → dùng #1B7D45, 4.7:1 trên #FAF4EA. Trước 2026-11-15 là #257356.)
 
 Màu trạng thái cố định (không đổi theo vai trò):
 | Tailwind | Màu | Dùng cho |
@@ -151,10 +151,10 @@ Mọi trang là sự đan xen của hai bề mặt; không bao giờ đen/trắn
 
 | | Nền tối | Nền sáng |
 |---|---|---|
-| Màu nền | `wm-night` **#0A0F0D** (đen ánh rêu) — class `.theme-night` | `wm-ivory` **#F6F6F2** (trắng ấm) — `.theme-ivory` |
+| Màu nền | `wm-night` **#0A0F0D** (đen ánh rêu) — class `.theme-night` | `wm-ivory` **#FAF4EA** (kem ấm) — `.theme-ivory` |
 | Thẻ | nền `rgba(255,255,255,.04)` (kính: tới .08), viền mảnh `rgba(255,255,255,.08)` | bề mặt trắng ngà + bóng mềm |
 | Hạt bụi | có (`DustField`, xem dưới) | không |
-| Chữ | ngà #F6F6F2; chữ phụ 82% (≈10,6:1 trên kính tối) | than chì; chữ phụ 82% |
+| Chữ | ngà #FAF4EA; chữ phụ 82% (≈10,6:1 trên kính tối) | than chì; chữ phụ 82% |
 
 **Màu nhấn theo bề mặt** (vẫn theo VAI TRÒ — người tìm việc xanh lá; khách/nhà tuyển dụng/admin cam đất). Bề mặt tối tự hoán đổi
 `--accent*` sang bản `accent-dark*` (`.theme-night`, `.theme-charcoal`, `.surface-dark` trong `index.css`), nên `BTN_ACCENT`, `text-accent-ink`
@@ -176,7 +176,7 @@ chữ sáng trên khối tối, chữ tối trên khối sáng. Không có khố
 **Lộ trình**: giai đoạn 1 (đã làm) = token, header tự đổi màu, đăng nhập/đăng ký/quên mật khẩu và form bắt đầu nền tối kính tối.
 Giai đoạn 2 = trang con công khai: dải đầu trang tối có hạt bụi + nội dung trắng ấm + footer tối; popup = thẻ trắng trên màn phủ tối
 (bands phải trải dưới cả header — header hiện là thanh sticky trong luồng nên lúc đó cần chồng lên dải). Giai đoạn 3 = danh sách công ty `/cong-ty` toàn tối.
-`/ca-nhan` (Câu chuyện của tôi) giữ nền trắng ấm.
+`/ca-nhan` (Câu chuyện của tôi) cùng nền kem như mọi trang — chỉ khác kiểu chữ và bố cục, không khác màu; riêng footer của trang này tối có hạt bụi như trang chủ (PublicLayout, `nightFooter`).
 
 ### Chữ (2026-11-12)
 Cỡ nhỏ nhất 13px (`text-xs` đã đổi), chữ phụ ≥ 14px (`text-sm`), nội dung 16px; nội dung line-height 1.6, tiêu đề 1.2
@@ -348,7 +348,7 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
   Giới hạn: không mang các hiệu ứng này sang trang công khai khác khi chưa hỏi; bản giảm chuyển động
   (`StaticGallery`) không có vệt sáng. Ô tìm kiếm ở các trang khác vẫn theo mục **Thanh tìm kiếm** ở trên.
   **Ngoại lệ thứ năm (2026-11-15, đổi cùng ngày, chủ dự án yêu cầu):** form bắt đầu của nhà tuyển dụng `/tuyen-dung/bat-dau` (`pages/recruiter/onboarding/*`) theo trang Đăng ký: nền `wm-night` + hạt bụi, một thẻ kính tối `.glass-dark`; chữ, ô nhập, nút, cảnh báo dùng biến `page-*`/`accent`/`danger` nên tự đúng màu trên nền tối (`TaxCodeField` dùng chung với khung Xác minh sáng không cần thêm prop). Không glow; có phương án đặc; chuyển bước chỉ opacity/transform, có nhánh giảm chuyển động.
-- Dùng `#000` / `#fff` tuyệt đối (nền tối là `#0A0F0D`, nền sáng `#F6F6F2`).
+- Dùng `#000` / `#fff` tuyệt đối (nền tối là `#0A0F0D`, nền sáng `#FAF4EA`).
 - Viết hex trực tiếp trong component — thêm vào `tokens.json` nếu thật sự cần màu mới.
 - Đánh số 01/02/03 cho nội dung không phải trình tự thật.
 - Đưa hiệu ứng cuộn/con trỏ tùy biến vào dashboard.
@@ -358,4 +358,4 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
 - **[giả định]** Thang `title/body/body-sm` ghi theo cách code đang dùng class Tailwind mặc định; chưa có token riêng.
 - **[giả định]** Trạng thái lỗi/thành công của form chưa được thiết kế cho bảng màu này (không có đỏ/xanh). Khi cần, ưu tiên biểu tượng + chữ thay vì chỉ màu, và hỏi chủ dự án trước khi thêm màu ngữ nghĩa.
 - Màu trong shader nền intro (`HeroCanvas.tsx`) ghi trực tiếp dưới dạng số thực theo charcoal/graphite/ivory — đổi bảng màu thì sửa cả ở đó.
-- Skill `frontend-design` liệt kê “nền kem gần #F4F1EA” và “nhãn in hoa phía trên mọi tiêu đề” là dấu hiệu giao diện do AI tạo. Ivory `#F6F6F2` và `.eyebrow` là lựa chọn có chủ đích của chủ dự án — giữ nguyên, nhưng dùng eyebrow tiết chế ở trang mới.
+- Skill `frontend-design` liệt kê “nền kem gần #F4F1EA” và “nhãn in hoa phía trên mọi tiêu đề” là dấu hiệu giao diện do AI tạo. Ivory `#FAF4EA` và `.eyebrow` là lựa chọn có chủ đích của chủ dự án — giữ nguyên, nhưng dùng eyebrow tiết chế ở trang mới.

@@ -21,6 +21,7 @@ import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useHeaderSurface } from '@hooks/useHeaderSurface'
 import { isAuthPath } from '@pages/public/auth/authShared'
 import DetailSkeleton from '@components/discover/detail/DetailSkeleton'
+import DustField from '@components/motion/DustField'
 import { scrollToHomeBanner } from '@components/home/IntroHero'
 
 /** Mục điều hướng theo người đang xem. Khách thấy lời mời trung lập cho cả hai phía;
@@ -118,6 +119,8 @@ export default function PublicLayout() {
   }, [dark])
   // Đăng nhập / Đăng ký / Quên mật khẩu: toàn màn hình — ẩn header và footer, chỉ giữ logo nhỏ để về trang chủ
   const bare = isAuthPath(location.pathname)
+  // Câu chuyện của tôi (/ca-nhan): nền kem như mọi trang, nhưng cuối trang là footer tối có hạt bụi như trang chủ
+  const nightFooter = location.pathname === '/ca-nhan'
   // Trang chủ có header riêng (useHomeHeader). Trang khác: header tự sáng/tối theo khối đang nằm dưới nó
   // (khối đánh dấu data-surface="dark|light" — hook useHeaderSurface); không có khối đánh dấu thì ngà như cũ.
   const headerSurface = useHeaderSurface(!dark && !bare)
@@ -435,7 +438,11 @@ export default function PublicLayout() {
 
       {/* Footer (ẩn ở các trang đăng nhập toàn màn hình) */}
       {!bare && (
-      <footer className={cn('border-t bg-page-bg border-page-line', !dark && 'theme-ivory')}>
+      <footer
+        data-surface={nightFooter ? 'dark' : undefined}
+        className={cn('border-t bg-page-bg border-page-line', nightFooter ? 'theme-night relative overflow-hidden' : !dark && 'theme-ivory')}
+      >
+        {nightFooter && <DustField density="low" />}
         {/* relative z-10: chữ footer nằm trên lớp hạt của trang chủ (canvas z-[5]); nền footer
             không positioned nên vẫn nằm dưới hạt */}
         <div className="shell py-section-sm relative z-10">
