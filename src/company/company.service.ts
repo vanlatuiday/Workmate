@@ -74,8 +74,8 @@ export class CompanyService {
   private async taxCodeChange(company: Company, raw: string): Promise<Prisma.CompanyUpdateInput> {
     const code = raw.trim() ? parseTaxCode(raw) : null
     if (code === company.taxCode) return {}
-    // Mã số là thứ quản trị viên đã đối chiếu khi xác minh
-    if (company.verified) throw new ForbiddenException('Doanh nghiệp đã được xác minh, liên hệ quản trị viên nếu cần đổi mã số')
+    // Mã số là thứ quản trị viên đã đối chiếu khi xác minh. Công ty xác minh từ trước khi có mã số được nhập lần đầu
+    if (company.verified && company.taxCode) throw new ForbiddenException('Doanh nghiệp đã được xác minh, liên hệ quản trị viên nếu cần đổi mã số')
     if (!code) return { taxCode: null, taxLookup: Prisma.DbNull }
     return { taxCode: code, taxLookup: { ...(await this.tax.lookup(code)) } }
   }

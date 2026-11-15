@@ -33,6 +33,6 @@ Mã thật công khai để thử chế độ tra thật: `0100109106` (Viettel)
 ## API
 
 - `GET /api/recruiter/company/tax-lookup?code=…` — tra thử trước khi lưu → `{ taxCode, lookup, nameMatches, usedByOther }`. 400 nếu sai số kiểm tra. Giới hạn 15/phút, 100/giờ mỗi IP.
-- `PATCH /api/recruiter/company` với `taxCode` (chuỗi rỗng = xóa). Đã xác minh thì không đổi được mã (403).
+- `PATCH /api/recruiter/company` với `taxCode` (chuỗi rỗng = xóa). Đã xác minh và đã có mã thì không đổi được (403); công ty xác minh từ trước khi có mã được nhập lần đầu.
 - `GET /api/recruiter/company` trả thêm `taxCode`, `taxLookup`, `taxNameMatches`.
 - `GET /api/admin/verifications` mỗi dòng có `tax: { lookup, nameMatches, sameCodeCompanies }`.
