@@ -34,7 +34,7 @@ export function useHeaderScroll(ref: RefObject<HTMLElement | null>, hide: boolea
       if (y <= SCROLLED_AT) {
         delete html.dataset.headerHidden
       } else if (y - lastY > DELTA) {
-        const busy = header.contains(document.activeElement) || header.querySelector('[aria-expanded="true"]')
+        const busy = header.contains(document.activeElement) || header.querySelector('[aria-expanded="true"]') || 'headerHover' in html.dataset
         if (!busy) html.dataset.headerHidden = ''
       } else if (lastY - y > DELTA) {
         delete html.dataset.headerHidden

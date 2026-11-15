@@ -9,6 +9,7 @@ import { useUnreadCount, useUnreadMessages } from '@services/connectionService'
 import { useCurtainNavigate } from '@components/motion/PageCurtain'
 import { PERSONAL_HREF } from '@pages/public/personal/links'
 import { useHeaderScroll } from '@hooks/useHeaderScroll'
+import { useHeaderPeek } from '@hooks/useHeaderPeek'
 import AccountMenu from '@components/layout/AccountMenu'
 import HeaderNav from '@components/layout/HeaderNav'
 import Wordmark from '@components/layout/Wordmark'
@@ -36,6 +37,8 @@ export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu
   const headerRef = useRef<HTMLElement>(null)
   // Trang chủ: useHomeHeader lo ẩn/hiện; ở đây chỉ co lại + nền khi cuộn
   useHeaderScroll(headerRef, !home)
+  // Header đang ẩn: đưa chuột lên sát mép trên thì hiện lại (mọi trang, kể cả trang chủ)
+  useHeaderPeek(headerRef)
 
   // Tin nhắn / thông báo chưa đọc (gọi hook luôn; admin không có hội thoại → 0)
   const unreadAsSeeker = useUnreadMessages()

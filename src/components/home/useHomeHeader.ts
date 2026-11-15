@@ -56,7 +56,8 @@ export function useHomeHeader() {
         // Đã qua màn mở đầu: cuộn xuống trượt khuất, cuộn lên hiện lại
         if (down) {
           // Đang dùng bàn phím trong header thì không giấu nó đi
-          if (!header?.contains(document.activeElement)) html.dataset.headerHidden = ''
+          // Chuột đang ở trên header (useHeaderPeek đặt data-header-hover) cũng không giấu
+          if (!header?.contains(document.activeElement) && !('headerHover' in html.dataset)) html.dataset.headerHidden = ''
         } else if (up) delete html.dataset.headerHidden
         else return
       }
