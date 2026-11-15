@@ -218,7 +218,10 @@ html[data-intro] [data-hero-item] {
 /* Màn mở đầu trang chủ chỉ có chữ Workmate (và dòng "Cuộn để bắt đầu"): mọi nút/icon nổi
    (nút tin nhắn, và bất cứ thứ gì thêm sau này) gắn `data-floating` để tự ẩn ở đây và hiện lại
    khi lướt xuống tới banner. Phần tử nên có sẵn transition-opacity để hiện ra mượt. */
-html[data-intro] [data-floating] {
+/* Form bắt đầu của nhà tuyển dụng (/tuyen-dung/bat-dau) đặt html[data-onboarding]: chưa có gì để
+   xem ở chuông / tin nhắn, và trên điện thoại hai nút đó đè lên thẻ form */
+html[data-intro] [data-floating],
+html[data-onboarding] [data-floating] {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -316,6 +319,13 @@ html[data-page='home'] :focus-visible {
   /* Vệt sáng trắng nhẹ theo chuột (AuthPage dời bằng transform) */
   .auth-sheen {
     background: radial-gradient(closest-side, color-mix(in srgb, var(--wm-ivory) 90%, transparent), transparent);
+  }
+  /* Đổi bước ở form bắt đầu của nhà tuyển dụng: chỉ opacity + trượt nhẹ */
+  .onboard-step { animation: onboard-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @keyframes onboard-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .onboard-step { animation-name: onboard-fade; }
+    @keyframes onboard-fade { from { opacity: 0; } to { opacity: 1; } }
   }
   @supports not (backdrop-filter: blur(1px)) {
     .glass-light { background-color: color-mix(in srgb, var(--wm-ivory) 96%, transparent); }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import { useMotionValue } from 'motion/react'
 import { Briefcase, AlertCircle } from 'lucide-react'
 import { GateError, GateSkeleton, useEnsureCompany } from '@components/common/OnboardingGate'
 import { useAuthStore } from '@context/authStore'
@@ -9,6 +10,7 @@ import { apiErrorMessage } from '@services/authService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { BTN_ACCENT, BTN_GHOST, BTN_SECONDARY, BTN_SM } from '@utils/ui'
+import { BackdropSlabs } from '@pages/public/auth/AuthPage'
 import { EMAIL_RE } from '../CompanyProfile'
 import { StepContact, StepCulture, StepIntro, StepName, StepTax, type Draft, type SetDraft } from './steps'
 
@@ -34,12 +36,18 @@ const STEP_KEYS: Record<number, (keyof Draft)[]> = {
 
 export default function OnboardingPage() {
   const { loaded, loadFailed } = useEnsureCompany()
+  // Ẩn chuông + tin nhắn nổi trong lúc làm form (CSS: html[data-onboarding] [data-floating])
+  useEffect(() => {
+    document.documentElement.setAttribute('data-onboarding', '')
+    return () => document.documentElement.removeAttribute('data-onboarding')
+  }, [])
   if (!loaded) return loadFailed ? <GateError /> : <GateSkeleton />
   return <Wizard />
 }
 
 function Wizard() {
   const navigate = useNavigate()
+  const still = useMotionValue(0)
   const [params, setParams] = useSearchParams()
   const logout = useAuthStore((s) => s.logout)
   const profile = useCompanyStore((s) => s.profile)
@@ -126,42 +134,53 @@ function Wizard() {
   const optional = step >= 3
 
   return (
-    <div className="theme-ivory min-h-screen bg-page-bg text-page-fg">
-      <header className="flex h-16 items-center justify-between border-b border-page-line px-4 sm:px-6">
+    <div className="theme-ivory relative isolate min-h-screen overflow-x-hidden bg-page-bg text-page-fg">
+      {/* Nền: cùng phiến hình học nhạt như trang Đăng ký, đứng yên (không parallax) */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <BackdropSlabs px={still} py={still} />
+      </div>
+
+      <header className="flex h-16 items-center justify-between px-4 sm:px-6">
         <Link to="/" className={cn('flex items-center gap-2 rounded-control font-display text-lg font-semibold', FOCUS)}>
           <Briefcase className="h-5 w-5" aria-hidden="true" />Workmate
         </Link>
         <button type="button" onClick={() => { logout(); navigate('/dang-nhap') }} className={cn(BTN_GHOST, BTN_SM)}>Đăng xuất</button>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 md:py-12">
-        <p className="text-sm font-medium text-page-muted" aria-live="polite">Bước {step}/{TOTAL}</p>
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-page-line" role="progressbar" aria-label="Tiến độ" aria-valuemin={1} aria-valuemax={TOTAL} aria-valuenow={step}>
-          <div className="h-full w-full origin-left rounded-full bg-page-fg transition-transform duration-base ease-editorial motion-reduce:transition-none" style={{ transform: `scaleX(${step / TOTAL})` }} />
-        </div>
-        <h1 className="mt-6 font-display text-2xl font-medium md:text-3xl">{TITLES[step]}</h1>
+      <main className="mx-auto w-full max-w-[720px] px-4 pb-10 pt-4 md:pb-14 md:pt-8">
+        {/* Thẻ kính sáng duy nhất (DESIGN.md: ngoại lệ thứ năm) */}
+        <div className="glass-light rounded-card p-5 sm:p-8 md:p-10">
+          <p className="text-sm font-medium text-page-muted" aria-live="polite">Bước {step}/{TOTAL}</p>
+          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-page-line" role="progressbar" aria-label="Tiến độ" aria-valuemin={1} aria-valuemax={TOTAL} aria-valuenow={step}>
+            <div className="h-full w-full origin-left rounded-full bg-page-fg transition-transform duration-base ease-editorial motion-reduce:transition-none" style={{ transform: `scaleX(${step / TOTAL})` }} />
+          </div>
 
-        <section className="mt-4 rounded-card border border-page-line bg-page-surface p-5 md:p-6">
-          {step === 1 && <StepTax />}
-          {step === 2 && <StepName draft={draft} set={set} />}
-          {step === 3 && <StepIntro draft={draft} set={set} />}
-          {step === 4 && <StepCulture draft={draft} set={set} />}
-          {step === 5 && <StepContact draft={draft} set={set} emailError={emailError} />}
-        </section>
+          {/* key theo bước: mỗi lần đổi bước nội dung vào lại bằng opacity + trượt nhẹ (onboard-step, bỏ trượt khi giảm chuyển động) */}
+          <div key={step} className="onboard-step">
+            <h1 className="mt-6 font-display text-2xl font-medium md:text-3xl">{TITLES[step]}</h1>
+            <section className="mt-2">
+              {step === 1 && <StepTax />}
+              {step === 2 && <StepName draft={draft} set={set} />}
+              {step === 3 && <StepIntro draft={draft} set={set} />}
+              {step === 4 && <StepCulture draft={draft} set={set} />}
+              {step === 5 && <StepContact draft={draft} set={set} emailError={emailError} />}
+            </section>
+          </div>
 
-        {error && (
-          <p role="alert" className="mt-4 flex items-start gap-1.5 text-sm font-medium text-danger">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" /><span className="min-w-0 break-words">{error}</span>
-          </p>
-        )}
-        {blockReason && <p className="mt-4 text-sm text-page-muted">{blockReason}</p>}
+          {error && (
+            <p role="alert" className="mt-4 flex items-start gap-1.5 text-sm font-medium text-danger">
+              <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" /><span className="min-w-0 break-words">{error}</span>
+            </p>
+          )}
+          {blockReason && <p className="mt-4 text-sm text-page-muted">{blockReason}</p>}
 
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          {step > 1 && <button type="button" disabled={busy} onClick={() => go(step - 1)} className={BTN_SECONDARY}>Quay lại</button>}
-          <button type="button" disabled={!!blockReason || busy} onClick={() => { void next() }} className={BTN_ACCENT}>
-            {busy ? 'Đang lưu…' : 'Tiếp theo'}
-          </button>
-          {optional && <button type="button" disabled={busy} onClick={skip} className={BTN_GHOST}>Bỏ qua</button>}
+          <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-page-line pt-5">
+            {step > 1 && <button type="button" disabled={busy} onClick={() => go(step - 1)} className={BTN_SECONDARY}>Quay lại</button>}
+            <button type="button" disabled={!!blockReason || busy} onClick={() => { void next() }} className={BTN_ACCENT}>
+              {busy ? 'Đang lưu…' : 'Tiếp theo'}
+            </button>
+            {optional && <button type="button" disabled={busy} onClick={skip} className={BTN_GHOST}>Bỏ qua</button>}
+          </div>
         </div>
       </main>
     </div>

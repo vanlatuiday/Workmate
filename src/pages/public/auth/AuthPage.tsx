@@ -102,6 +102,19 @@ function Slab({
   )
 }
 
+/** Bộ phiến nền của trang Đăng nhập/Đăng ký; form bắt đầu của nhà tuyển dụng dùng lại (truyền giá trị 0 = đứng yên) */
+export function BackdropSlabs({ px, py }: { px: MotionValue<number>; py: MotionValue<number> }) {
+  return (
+    <>
+      <Slab px={px} py={py} depth={0.5} position="left-[-8%] top-[6%] h-[34%] w-[52%]" face="bg-wm-stone" tilt="-rotate-[14deg] -skew-x-[14deg]" />
+      <Slab px={px} py={py} depth={1} position="right-[-10%] bottom-[4%] h-[40%] w-[56%]" face="bg-wm-mist" tilt="-rotate-[10deg] skew-x-[16deg]" />
+      <Slab px={px} py={py} depth={0.8} position="left-[6%] bottom-[-6%] h-[30%] w-[30%]" face="bg-wm-sage/45" tilt="rotate-[12deg] -skew-x-[18deg]" />
+      <Slab px={px} py={py} depth={0.35} position="right-[8%] top-[4%] h-[20%] w-[26%]" face="bg-wm-olive/20" tilt="rotate-[8deg] skew-x-[14deg]" />
+      <Slab px={px} py={py} depth={0.65} position="left-[34%] top-[44%] h-[7%] w-[44%]" face="bg-wm-stone/70" tilt="-rotate-[22deg] -skew-x-[10deg]" />
+    </>
+  )
+}
+
 /* ─── Trang ──────────────────────────────────────────────────────────────────── */
 
 /** Đã đăng nhập mà vào /dang-nhap, /dang-ky → về đích như sau khi đăng nhập (state.from nếu được phép, không thì trang chủ) */
@@ -215,11 +228,7 @@ function AuthCard() {
     <div className="relative isolate flex min-h-screen items-center justify-center px-4 pb-10 pt-24 md:px-8">
       {/* Nền: phiến hình học màu nhạt (đá, sương, xô thơm, chút ô liu) — chỉ để lớp kính có thứ để làm mờ */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <Slab px={px} py={py} depth={0.5} position="left-[-8%] top-[6%] h-[34%] w-[52%]" face="bg-wm-stone" tilt="-rotate-[14deg] -skew-x-[14deg]" />
-        <Slab px={px} py={py} depth={1} position="right-[-10%] bottom-[4%] h-[40%] w-[56%]" face="bg-wm-mist" tilt="-rotate-[10deg] skew-x-[16deg]" />
-        <Slab px={px} py={py} depth={0.8} position="left-[6%] bottom-[-6%] h-[30%] w-[30%]" face="bg-wm-sage/45" tilt="rotate-[12deg] -skew-x-[18deg]" />
-        <Slab px={px} py={py} depth={0.35} position="right-[8%] top-[4%] h-[20%] w-[26%]" face="bg-wm-olive/20" tilt="rotate-[8deg] skew-x-[14deg]" />
-        <Slab px={px} py={py} depth={0.65} position="left-[34%] top-[44%] h-[7%] w-[44%]" face="bg-wm-stone/70" tilt="-rotate-[22deg] -skew-x-[10deg]" />
+        <BackdropSlabs px={px} py={py} />
       </div>
 
       {/* Về trang chủ (logo Workmate ở góc trái do PublicLayout vẽ) */}

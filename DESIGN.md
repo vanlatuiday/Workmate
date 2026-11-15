@@ -309,6 +309,7 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
   giữ thẻ kính mờ, nền loang và ảnh minh họa, dù các dashboard khác đã về nền ngà phẳng. Không “sửa” khi rà soát.
   Giới hạn: không mang các hiệu ứng này sang trang công khai khác khi chưa hỏi; bản giảm chuyển động
   (`StaticGallery`) không có vệt sáng. Ô tìm kiếm ở các trang khác vẫn theo mục **Thanh tìm kiếm** ở trên.
+  **Ngoại lệ thứ năm (2026-11-15, chủ dự án yêu cầu):** form bắt đầu của nhà tuyển dụng `/tuyen-dung/bat-dau` (`pages/recruiter/onboarding/*`) dùng thẻ kính sáng `.glass-light` trên nền ngà có khối hình học nhạt như trang Đăng ký, để liền mạch sau khi đăng ký; kính nhẹ, không glow, có phương án đặc (no backdrop-filter / prefers-reduced-transparency), chuyển bước chỉ opacity/transform và có nhánh giảm chuyển động.
 - Dùng `#000` / `#fff` tuyệt đối.
 - Viết hex trực tiếp trong component — thêm vào `tokens.json` nếu thật sự cần màu mới.
 - Đánh số 01/02/03 cho nội dung không phải trình tự thật.
