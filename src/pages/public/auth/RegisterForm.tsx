@@ -104,7 +104,8 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
     // Thẻ mờ đi xong mới đổi trang
     await leave()
     setUser(res.user, res.token)
-    navigate('/')
+    // Nhà tuyển dụng mới: vào thẳng form bắt đầu (mã số, tên, logo…) thay vì trang chủ
+    navigate(res.user.role === 'recruiter' ? '/tuyen-dung/bat-dau' : '/')
   }
 
   const resend = async () => {
