@@ -764,3 +764,38 @@ html[data-page='home'] .hd-inner {
 @media (prefers-reduced-transparency: reduce) {
   .sb-glass, .sb-tip { background-color: var(--wm-ivory); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
+
+/* ─── Khu quản lý (dashboard) — chủ dự án 2026-11-16 ─────────────────────────
+   Nền nâu xám ấm (wm-dune #CFC4B2) để sidebar kính và các thẻ nổi rõ. Thẻ nội dung cùng phong cách sidebar:
+   kính kem sáng, nhòe nền, viền mảnh, ánh sáng mép trên, bóng mềm, bo 24px. Biến --page-* vẫn là theme kem
+   (ô nhập, chữ phụ… tính theo kem), chỉ nền khung đổi màu. */
+.dash-bg {
+  background-color: var(--wm-dune);
+}
+.dash-card {
+  border-radius: 24px;
+  background-color: color-mix(in srgb, var(--wm-ivory) 62%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--wm-charcoal) 10%, transparent);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 12px 40px color-mix(in srgb, var(--wm-charcoal) 12%, transparent);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .dash-card { background-color: color-mix(in srgb, var(--wm-ivory) 94%, transparent); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .dash-card { background-color: var(--wm-ivory); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+/* Thẻ tự dựng trong các trang quản lý (rounded-card + bg-page-surface) cũng theo kiểu kính như .dash-card,
+   trừ thẻ nằm lồng trong một thẻ kính khác (tránh bóng chồng bóng). */
+.dash-bg main .rounded-card.bg-page-surface:not(.dash-card .rounded-card, .rounded-card.bg-page-surface .rounded-card) {
+  border-radius: 24px;
+  background-color: color-mix(in srgb, var(--wm-ivory) 62%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border-color: color-mix(in srgb, var(--wm-charcoal) 10%, transparent);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 12px 40px color-mix(in srgb, var(--wm-charcoal) 12%, transparent);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .dash-bg main .rounded-card.bg-page-surface { background-color: var(--wm-ivory); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}

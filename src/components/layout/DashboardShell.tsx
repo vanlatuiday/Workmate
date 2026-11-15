@@ -84,7 +84,7 @@ export default function DashboardShell({ sidebarRole, roleLabel, searchHref, sea
   const closeDrawer = useCallback(() => setDrawerOpen(false), [])
 
   return (
-    <div className="theme-ivory relative isolate flex h-screen overflow-hidden">
+    <div className="theme-ivory dash-bg relative isolate flex h-screen overflow-hidden">
       <a
         href="#dashboard-main"
         className={cn(

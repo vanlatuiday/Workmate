@@ -21,8 +21,8 @@ type Props = {
 export default function StatCard({ label, value, icon: Icon, href, hint, emptyAction }: Props) {
   const showEmpty = !!emptyAction && (value === 0 || value === '0')
   const className = cn(
-    'block rounded-card border border-page-line bg-page-surface p-5 md:p-6',
-    href && !showEmpty && cn('transition-colors duration-fast hover:border-page-fg hover:bg-page-line', FOCUS),
+    'dash-card block p-5 md:p-6',
+    href && !showEmpty && cn('transition-colors duration-fast hover:bg-wm-ivory/80', FOCUS),
   )
   const body = (
     <>

@@ -194,6 +194,13 @@ Giai đoạn 2 = trang con công khai: dải đầu trang tối có hạt bụi 
 - **Code**: `components/layout/SiteHeader.tsx`, `hooks/useHeaderScroll.ts` (trang thường), `components/home/useHomeHeader.ts` (trang chủ),
   `hooks/useHeaderPeek.ts` (di chuột lên mép trên). Trạng thái ẩn = `html[data-header-hidden]`. Đổi một chỗ phải giữ đúng cả 5 điều trên ở mọi trang.
 
+### Khu quản lý (dashboard) — chủ dự án 2026-11-16
+- Nền khung: **nâu xám ấm `wm-dune` #CFC4B2** (`.dash-bg` trên DashboardShell) để sidebar kính và thẻ nổi rõ. Biến `--page-*` vẫn theo theme kem.
+- Sidebar: kính kem sáng nổi (`.sb-glass`, components/layout/sidebar). Thẻ nội dung cùng kiểu: **`.dash-card`** (kính kem 62%, nhòe 24px,
+  viền 10% than chì, ánh sáng mép trên, bóng mềm, bo 24px) — Panel, StatCard, EmptyState dùng sẵn; thẻ tự dựng `rounded-card bg-page-surface`
+  cấp ngoài cùng trong `<main>` tự nhận kiểu này (thẻ lồng bên trong thì không). Chữ than chì trên thẻ ≈ 14:1; chữ phụ trên nền dune ≈ 5:1.
+- Không có chế độ tối cho khu quản lý (chủ dự án bỏ công tắc).
+
 ### Chữ (2026-11-12)
 Cỡ nhỏ nhất 13px (`text-xs` đã đổi), chữ phụ ≥ 14px (`text-sm`), nội dung 16px; nội dung line-height 1.6, tiêu đề 1.2
 (display 1.15–1.2). Phân cấp bằng cỡ + độ đậm, không làm mờ màu. Số liệu (lương/giờ, km, giờ ca) `tnum` + đậm hơn chữ quanh.
