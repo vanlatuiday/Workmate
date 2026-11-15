@@ -29,6 +29,8 @@ export interface CatalogCompany {
   about: string
   environment: string[]
   verified: boolean
+  /** Mã số doanh nghiệp tra ra đang hoạt động (tự động, chưa phải "Đã xác minh" do admin duyệt) */
+  taxValid: boolean
   locked: boolean
   /** Logo đã tải lên; null → frontend hiện chữ cái đầu */
   logoUrl: string | null

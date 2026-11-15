@@ -213,6 +213,10 @@ model Company {
   logoUrl     String?
   /// Ảnh bìa: id ảnh Unsplash (như frontend) hoặc URL đã tải lên
   coverPhoto  Json?
+  /// Mã số doanh nghiệp (= mã số thuế), đã chuẩn hóa. Không unique: trùng mã giữa hai công ty được gắn cờ cho admin
+  taxCode     String?
+  /// Kết quả tra mã gần nhất (TaxLookup trong src/tax/tax-lookup.service.ts)
+  taxLookup   Json?
   verified    Boolean     @default(false)
   locked      Boolean     @default(false)
   createdAt   DateTime    @default(now())
@@ -221,6 +225,8 @@ model Company {
   members       CompanyMember[]
   jobs          Job[]
   verifications CompanyVerification[]
+
+  @@index([taxCode])
 }
 
 enum VerificationStatus {

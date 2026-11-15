@@ -19,6 +19,7 @@ export function productionProblems(env: NodeJS.ProcessEnv = process.env): string
   if (origins.some((o) => !isHttps(o))) problems.push('CORS_ORIGIN phải là địa chỉ https của frontend')
   if (env.STORAGE_PUBLIC_URL && !isHttps(env.STORAGE_PUBLIC_URL)) problems.push('STORAGE_PUBLIC_URL phải là địa chỉ https')
   if (env.TRUST_PROXY && !/^\d+$/.test(env.TRUST_PROXY)) problems.push('TRUST_PROXY phải là số lớp proxy phía trước máy chủ (vd. 1)')
+  if (env.TAX_LOOKUP_MODE === 'mock') problems.push('TAX_LOOKUP_MODE=mock chỉ dùng để demo trên máy, production phải tra thật (bỏ trống)')
   return problems
 }
 

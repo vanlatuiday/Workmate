@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Patch, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Transform, Type } from 'class-transformer'
 import { ArrayMaxSize, IsArray, IsEmail, IsIn, IsOptional, IsString, MaxLength, MinLength, ValidateIf, ValidateNested } from 'class-validator'
@@ -30,6 +31,12 @@ export class UpdateCompanyDto {
   @IsOptional() @Transform(trim) @ValidateIf((o) => o.email !== '') @IsEmail({}, { message: 'Email không hợp lệ' }) @MaxLength(254) email?: string
   @IsOptional() @Transform(trim) @IsString() @MaxLength(30) phone?: string
   @IsOptional() @ValidateNested() @Type(() => PhotoDto) cover?: PhotoDto
+  /** Mã số doanh nghiệp; '' = xóa. Kiểm tra số kiểm tra ở service */
+  @IsOptional() @IsString() @MaxLength(20) taxCode?: string
+}
+
+export class TaxPreviewQuery {
+  @IsString() @MaxLength(20) code!: string
 }
 
 /** Hồ sơ công ty của nhà tuyển dụng đang đăng nhập */
@@ -50,6 +57,13 @@ export class CompanyController {
   }
 
   /** Gửi multipart/form-data, trường `file` (JPG/PNG/WEBP ≤ 2MB). Vượt giới hạn → multer trả 413 */
+  /** Tra mã số doanh nghiệp trước khi lưu. Giới hạn để không bị dùng làm công cụ dò hàng loạt */
+  @Get('tax-lookup')
+  @UseGuards(ThrottlerGuard) @Throttle({ phut: { limit: 15, ttl: 60_000 }, gio: { limit: 100, ttl: 3_600_000 } })
+  previewTaxCode(@CurrentUser() user: AuthUser, @Query() q: TaxPreviewQuery) {
+    return this.company.previewTaxCode(user, q.code)
+  }
+
   @Post('logo')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: IMAGE_MAX_BYTES, files: 1 } }))
   setLogo(@CurrentUser() user: AuthUser, @UploadedFile() file: UploadedImage | undefined) {

@@ -35,6 +35,7 @@ export class CatalogService {
       cover: (c.coverPhoto as unknown as CatalogPhoto | null) ?? { alt: c.name },
       tagline: c.tagline, why: '', about: c.about, environment: c.environment,
       verified: c.verified, locked: c.locked, logoUrl: c.logoUrl,
+      taxValid: (c.taxLookup as { result?: string } | null)?.result === 'active',
     }
   }
 

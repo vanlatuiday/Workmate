@@ -115,6 +115,10 @@ async function main() {
     policies: cp.policies, culture: cp.culture, email: cp.email, phone: cp.phone, coverPhoto: cp.cover,
     verified: !!admin.verifiedCompanies[demoCo.id], locked: !!admin.lockedCompanies[demoCo.id],
   })
+  // Demo tra mã số (TAX_LOOKUP_MODE=mock, docs/tax-lookup.md): Quán Gió Sông Hàn giữ mã 0406667771,
+  // nhập cùng mã ở công ty demo sẽ thấy cờ "trùng mã với công ty khác"
+  const sharedCode = companyRows.find((c) => c.id === 'gio-song-han')
+  if (sharedCode) Object.assign(sharedCode, { taxCode: '0406667771', taxLookup: { result: 'active', name: 'CÔNG TY TNHH BÁN LẺ HÀN GIANG', shortName: 'HÀN GIANG MART', address: '120 Hùng Vương, Phường Hải Châu, TP Đà Nẵng', statusText: 'NNT đang hoạt động', checkedAt: '2026-11-15T00:00:00.000Z', source: 'mock' } })
   await prisma.company.createMany({ data: companyRows })
   const companyIds = new Set<string>(companyRows.map((c) => c.id))
   await prisma.companyMember.create({ data: { companyId: demoCo.id, userId: RECRUITER, role: 'owner' } })

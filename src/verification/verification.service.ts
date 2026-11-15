@@ -6,6 +6,8 @@ import { MailService } from '../common/mail.service'
 import { StorageService } from '../common/storage.service'
 import { fileDisplayName, looksLike } from '../common/upload-check'
 import { PrismaService } from '../prisma/prisma.service'
+import { taxLookupOf, taxNameMatches } from '../company/company.service'
+import { TaxLookupService } from '../tax/tax-lookup.service'
 
 export interface UploadedDoc { buffer: Buffer; mimetype: string; size: number; originalname: string }
 
@@ -39,10 +41,10 @@ const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', 
 export class VerificationService {
   private log = new Logger('Verification')
 
-  constructor(private prisma: PrismaService, private storage: StorageService, private mail: MailService) {}
+  constructor(private prisma: PrismaService, private storage: StorageService, private mail: MailService, private tax: TaxLookupService) {}
 
   private async ownCompany(user: AuthUser) {
-    const company = await this.prisma.company.findFirst({ where: { members: { some: { userId: user.id } } }, select: { id: true, verified: true, locked: true } })
+    const company = await this.prisma.company.findFirst({ where: { members: { some: { userId: user.id } } }, select: { id: true, verified: true, locked: true, taxCode: true } })
     if (!company) throw new ForbiddenException('Tài khoản chưa thuộc doanh nghiệp nào')
     return company
   }
@@ -60,6 +62,7 @@ export class VerificationService {
     const company = await this.ownCompany(user)
     if (company.locked) throw new ForbiddenException('Doanh nghiệp đang bị khóa')
     if (company.verified) throw new ConflictException('Doanh nghiệp đã được xác minh')
+    await this.assertTaxCodeUsable(company.id, company.taxCode)
     if (!files?.length) throw new BadRequestException('Chưa chọn giấy tờ nào')
     if (files.length > DOC_MAX_COUNT) throw new BadRequestException(`Tối đa ${DOC_MAX_COUNT} file`)
     for (const f of files) {
@@ -98,6 +101,18 @@ export class VerificationService {
     }
   }
 
+  /**
+   * Phải có mã số doanh nghiệp; tra lại ngay lúc gửi (kết quả cũ có thể đã đổi).
+   * Ngừng hoạt động / không tồn tại → chặn. Không tra được → vẫn cho gửi, quản trị viên kiểm tra tay.
+   */
+  private async assertTaxCodeUsable(companyId: string, taxCode: string | null) {
+    if (!taxCode) throw new BadRequestException('Cần nhập mã số doanh nghiệp trong hồ sơ công ty trước khi gửi xác minh')
+    const lookup = await this.tax.lookup(taxCode)
+    await this.prisma.company.update({ where: { id: companyId }, data: { taxLookup: { ...lookup } } })
+    if (lookup.result === 'not_found') throw new BadRequestException('Mã số doanh nghiệp không tồn tại trên dữ liệu thuế. Kiểm tra lại mã trong hồ sơ công ty.')
+    if (lookup.result === 'inactive') throw new BadRequestException(`Mã số doanh nghiệp không còn hoạt động (${lookup.statusText ?? 'ngừng hoạt động'}). Không thể gửi xác minh.`)
+  }
+
   /** Rút yêu cầu đang chờ (gửi nhầm giấy tờ) — xóa luôn file */
   async withdraw(user: AuthUser) {
     const company = await this.ownCompany(user)
@@ -117,9 +132,25 @@ export class VerificationService {
       where: status ? { status } : {},
       orderBy: { submittedAt: status === 'pending' ? 'asc' : 'desc' },
       take: 200,
-      include: { ...WITH_DOCS, company: { select: { id: true, name: true, industry: true, district: true, verified: true, locked: true } } },
+      include: { ...WITH_DOCS, company: { select: { id: true, name: true, industry: true, district: true, verified: true, locked: true, taxCode: true, taxLookup: true } } },
     })
-    return rows.map((r) => ({ ...view(r), company: r.company }))
+    // Công ty khác dùng cùng mã số → dấu hiệu mạo danh
+    const codes = [...new Set(rows.map((r) => r.company.taxCode).filter((c): c is string => !!c))]
+    const sharing = codes.length
+      ? await this.prisma.company.findMany({ where: { taxCode: { in: codes } }, select: { id: true, name: true, taxCode: true } })
+      : []
+    return rows.map((r) => {
+      const { taxLookup: _raw, ...company } = r.company
+      return {
+        ...view(r),
+        company,
+        tax: {
+          lookup: taxLookupOf(r.company),
+          nameMatches: taxNameMatches(r.company),
+          sameCodeCompanies: sharing.filter((c) => c.taxCode === company.taxCode && c.id !== company.id).map(({ id, name }) => ({ id, name })),
+        },
+      }
+    })
   }
 
   /** Link xem giấy tờ (5 phút) */
