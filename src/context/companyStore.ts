@@ -73,6 +73,8 @@ interface CompanyState {
   onboardedAt: string | null
   needsOnboarding: boolean
   missingRequired: MissingRequired[]
+  /** Cụm từ cấm tuyệt đối trong tên công ty đã lưu; khác rỗng thì phải đặt lại tên */
+  nameBanned: string[]
   profile: CompanyProfile
   setLogoUrl: (url: string | null) => void
   load: () => Promise<void>
@@ -97,6 +99,7 @@ type Server = CompanyProfile & {
   onboardedAt?: string | null
   needsOnboarding?: boolean
   missingRequired?: MissingRequired[]
+  nameBanned?: string[]
 }
 
 const NO_TAX: TaxInfo = { taxCode: null, taxLookup: null, taxNameMatches: null }
@@ -109,6 +112,7 @@ const statusOf = (d: Server) => ({
   onboardedAt: d.onboardedAt ?? null,
   needsOnboarding: d.needsOnboarding ?? false,
   missingRequired: d.missingRequired ?? [],
+  nameBanned: d.nameBanned ?? [],
 })
 
 const pick = ({ name, industry, district, size, tagline, about, environment, values, policies, culture, email, phone, cover }: Server): CompanyProfile => ({
@@ -120,7 +124,7 @@ const INITIAL: CompanyProfile = IS_PRODUCTION
   ? { ...SEED, name: '', industry: '', district: '', tagline: '', about: '', environment: [], values: [], policies: [], culture: '', email: '', phone: '' }
   : SEED
 
-const EMPTY_STATUS = { logoUrl: null, address: '', tax: NO_TAX, onboardedAt: null, needsOnboarding: false, missingRequired: [] as MissingRequired[] }
+const EMPTY_STATUS = { logoUrl: null, address: '', tax: NO_TAX, onboardedAt: null, needsOnboarding: false, missingRequired: [] as MissingRequired[], nameBanned: [] as string[] }
 
 // Một lượt nạp tại một thời điểm (cổng + phiên đăng nhập cùng gọi); đăng xuất thì bỏ kết quả của lượt cũ
 let inflight: Promise<void> | null = null

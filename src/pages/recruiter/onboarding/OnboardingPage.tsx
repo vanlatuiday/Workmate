@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMotionValue } from 'motion/react'
 import { Briefcase, AlertCircle } from 'lucide-react'
+import { useBannedCheck } from '@hooks/useBannedCheck'
 import { GateError, GateSkeleton, useEnsureCompany } from '@components/common/OnboardingGate'
 import { useAuthStore } from '@context/authStore'
 import { useCatalogStore } from '@context/catalogStore'
@@ -55,6 +56,8 @@ function Wizard() {
   const logoUrl = useCompanyStore((s) => s.logoUrl)
   const missing = useCompanyStore((s) => s.missingRequired)
   const needsOnboarding = useCompanyStore((s) => s.needsOnboarding)
+  const onboardedAt = useCompanyStore((s) => s.onboardedAt)
+  const nameBanned = useCompanyStore((s) => s.nameBanned)
   const update = useCompanyStore((s) => s.update)
   const complete = useCompanyStore((s) => s.completeOnboarding)
 
@@ -67,12 +70,18 @@ function Wizard() {
   const finishing = useRef(false)
 
   // Bước cao nhất được vào: còn thiếu mã số → 1, thiếu tên/logo → 2, đủ rồi → 5
+  // Đã hoàn thành form từ trước nhưng tên hiện tại có cụm từ cấm → buộc đặt lại tên
+  const reentry = !!onboardedAt && nameBanned.length > 0
   const hasMissing = missing.length > 0
   const limit = missing.includes('taxCode') ? 1 : hasMissing ? 2 : 5
   // Bước mở đầu khi URL chưa có ?buoc: chốt một lần lúc vào trang (không đổi theo cờ "còn thiếu" về sau)
   const [initial] = useState(limit === 5 ? 1 : limit)
   const raw = Number(params.get('buoc'))
   const step = Number.isInteger(raw) && raw >= 1 ? Math.min(raw, 5, limit) : Math.min(initial, limit)
+  // Dò cụm từ cấm khi gõ: tên ở bước 2, giới thiệu ở bước 3
+  const bannedName = useBannedCheck(draft.name, step === 2)
+  const bannedTagline = useBannedCheck(draft.tagline, step === 3)
+  const bannedAbout = useBannedCheck(draft.about, step === 3)
   // Ghi bước hiện tại lên URL để tải lại trang vẫn ở đúng bước
   useEffect(() => {
     if (!needsOnboarding) return // đã xong form: đang được chuyển đi, không ghi đè URL
@@ -86,7 +95,8 @@ function Wizard() {
   // Lý do chưa cho "Tiếp theo" ở bước bắt buộc
   const blockReason =
     step === 1 ? (missing.includes('taxCode') ? 'Lưu một mã số đang hoạt động để tiếp tục.' : null)
-    : step === 2 ? (draft.name.trim().length < 2 ? 'Nhập tên doanh nghiệp (ít nhất 2 ký tự) để tiếp tục.' : !logoUrl ? 'Tải logo công ty lên để tiếp tục.' : null)
+    : step === 2 ? (bannedName.length > 0 ? 'Tên công ty có cụm từ không được phép' : draft.name.trim().length < 2 ? 'Nhập tên doanh nghiệp (ít nhất 2 ký tự) để tiếp tục.' : !logoUrl ? 'Tải logo công ty lên để tiếp tục.' : null)
+    : step === 3 ? (bannedTagline.length + bannedAbout.length > 0 ? 'Nội dung có cụm từ không được phép' : null)
     : null
 
   const finish = async (save: boolean) => {
@@ -126,6 +136,8 @@ function Wizard() {
         setError(apiErrorMessage(err, 'Chưa lưu được, vui lòng thử lại.')); setBusy(false); return
       }
       setBusy(false)
+      // Công ty đã xong form từ trước, chỉ bị buộc đặt lại tên: lưu tên hợp lệ xong là về trang quản lý, không đi tiếp bước 3–6
+      if (reentry && step === 2) { navigate('/tuyen-dung', { replace: true }); return }
     }
     go(step + 1)
   }
@@ -156,12 +168,19 @@ function Wizard() {
           </div>
 
           {/* key theo bước: mỗi lần đổi bước nội dung vào lại bằng opacity + trượt nhẹ (onboard-step, bỏ trượt khi giảm chuyển động) */}
+          {reentry && step === 2 && (
+            <p role="alert" className="mt-5 flex items-start gap-1.5 rounded-control border border-danger px-3 py-2 text-sm font-medium text-danger">
+              <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
+              <span className="min-w-0 break-words">Tên công ty hiện tại có cụm từ không được phép ({nameBanned.join(', ')}). Hãy đặt tên khác để tiếp tục dùng Workmate.</span>
+            </p>
+          )}
+
           <div key={step} className="onboard-step">
             <h1 className="mt-6 font-display text-2xl font-medium md:text-3xl">{TITLES[step]}</h1>
             <section className="mt-2">
               {step === 1 && <StepTax />}
-              {step === 2 && <StepName draft={draft} set={set} />}
-              {step === 3 && <StepIntro draft={draft} set={set} />}
+              {step === 2 && <StepName draft={draft} set={set} banned={bannedName} />}
+              {step === 3 && <StepIntro draft={draft} set={set} bannedTagline={bannedTagline} bannedAbout={bannedAbout} />}
               {step === 4 && <StepCulture draft={draft} set={set} />}
               {step === 5 && <StepContact draft={draft} set={set} emailError={emailError} />}
             </section>

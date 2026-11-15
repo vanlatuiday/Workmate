@@ -1,5 +1,6 @@
 import FadeIn from '@components/motion/FadeIn'
 import { notifyError, notifySuccess } from '@utils/feedback'
+import { useBannedCheck } from '@hooks/useBannedCheck'
 import { useId, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertCircle, Plus, X } from 'lucide-react'
@@ -32,6 +33,21 @@ export function Field({ label, error, children }: { label: string; error?: strin
       {error && (
         <p id={`${id}-err`} role="alert" className="flex items-center gap-1.5 text-sm font-medium text-page-fg">
           <AlertCircle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />{error}
+        </p>
+      )}
+    </div>
+  )
+}
+
+/** Cảnh báo cụm từ cấm tuyệt đối dưới ô nhập; vùng aria-live luôn có mặt để đọc được khi nội dung xuất hiện */
+export function BannedNotice({ banned, kind = 'content' }: { banned: string[]; kind?: 'name' | 'content' }) {
+  const list = banned.join(', ')
+  return (
+    <div aria-live="polite">
+      {banned.length > 0 && (
+        <p role="status" className="flex items-start gap-1.5 text-sm font-medium text-danger">
+          <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
+          <span className="min-w-0 break-words">{kind === 'name' ? `Tên có cụm từ không được phép: ${list}. Hãy đặt tên khác.` : `Nội dung có cụm từ không được phép: ${list}.`}</span>
         </p>
       )}
     </div>
@@ -138,6 +154,10 @@ export default function CompanyProfile() {
   const [form, setForm] = useState<Profile>(profile)
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({})
   const [saving, setSaving] = useState(false)
+  const bannedName = useBannedCheck(form.name)
+  const bannedTagline = useBannedCheck(form.tagline)
+  const bannedAbout = useBannedCheck(form.about)
+  const hasBanned = bannedName.length + bannedTagline.length + bannedAbout.length > 0
 
   const dirty = JSON.stringify(form) !== JSON.stringify(profile)
   // Hồ sơ nạp xong từ máy chủ sau khi trang đã mở: đưa vào form
@@ -150,6 +170,7 @@ export default function CompanyProfile() {
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
+    if (hasBanned) return
     const next = {
       name: form.name.trim() ? undefined : 'Vui lòng nhập tên công ty.',
       email: EMAIL_RE.test(form.email.trim()) ? undefined : 'Email chưa hợp lệ.',
@@ -186,6 +207,7 @@ export default function CompanyProfile() {
                 <Field label="Tên công ty" error={errors.name}>
                   {(p) => <input {...p} value={form.name} onChange={(e) => set('name', e.target.value)} className={FIELD} />}
                 </Field>
+                <div className="mt-1.5"><BannedNotice banned={bannedName} kind="name" /></div>
               </div>
               <Field label="Ngành">
                 {(p) => <input {...p} value={form.industry} onChange={(e) => set('industry', e.target.value)} className={FIELD} />}
@@ -209,11 +231,13 @@ export default function CompanyProfile() {
                 <Field label="Giới thiệu ngắn (một câu)">
                   {(p) => <input {...p} value={form.tagline} onChange={(e) => set('tagline', e.target.value)} className={FIELD} />}
                 </Field>
+                <div className="mt-1.5"><BannedNotice banned={bannedTagline} /></div>
               </div>
               <div className="sm:col-span-2">
                 <Field label="Giới thiệu đầy đủ">
                   {(p) => <textarea {...p} rows={5} value={form.about} onChange={(e) => set('about', e.target.value)} className={FIELD} />}
                 </Field>
+                <div className="mt-1.5"><BannedNotice banned={bannedAbout} /></div>
               </div>
             </div>
           </Panel>
@@ -270,8 +294,9 @@ export default function CompanyProfile() {
 
           {/* Thanh hành động */}
           <div className="flex flex-wrap items-center gap-3">
-            <button type="submit" disabled={saving} className={BTN_ACCENT}>{saving ? 'Đang lưu…' : 'Lưu thay đổi'}</button>
+            <button type="submit" disabled={saving || hasBanned} className={BTN_ACCENT}>{saving ? 'Đang lưu…' : 'Lưu thay đổi'}</button>
             <button type="button" onClick={cancel} disabled={!dirty} className={BTN_GHOST}>Hủy</button>
+            {hasBanned && <span className="text-sm text-page-muted">Sửa cụm từ không được phép để lưu.</span>}
             {dirty && <span role="status" className="text-sm text-page-muted">Có thay đổi chưa lưu</span>}
           </div>
         </form>

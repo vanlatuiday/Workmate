@@ -8,7 +8,7 @@ import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import type { CompanySize } from '@/types'
-import { DISTRICTS, FIELD, Field, ListEditor, SIZES } from '../CompanyProfile'
+import { BannedNotice, DISTRICTS, FIELD, Field, ListEditor, SIZES } from '../CompanyProfile'
 import { TaxCodeField } from '../TaxCodeField'
 
 // Nội dung từng bước của form bắt đầu. Dữ liệu nháp (`draft`) do OnboardingPage giữ, bước nào cũng chỉ sửa nháp;
@@ -66,7 +66,7 @@ function LogoPicker({ name }: { name: string }) {
   )
 }
 
-export function StepName({ draft, set }: StepProps) {
+export function StepName({ draft, set, banned }: StepProps & { banned: string[] }) {
   const lookup = useCompanyStore((s) => s.tax.taxLookup)
   const officialName = lookup?.result === 'active' ? lookup.name : undefined
   const officialAddress = lookup?.result === 'active' ? lookup.address : undefined
@@ -85,6 +85,7 @@ export function StepName({ draft, set }: StepProps) {
           <Field label="Tên doanh nghiệp *">
             {(p) => <input {...p} value={draft.name} autoComplete="organization" onChange={(e) => set('name', e.target.value)} className={FIELD} />}
           </Field>
+          <div className="mt-1.5"><BannedNotice banned={banned} kind="name" /></div>
           {officialName && officialName.trim() !== draft.name.trim() && (
             <button type="button" onClick={() => set('name', officialName)} className={cn('mt-2 max-w-full rounded-control text-left text-sm text-page-fg underline underline-offset-4', FOCUS)}>
               Dùng tên đăng ký: <span className="break-words font-medium">{officialName}</span>
@@ -121,7 +122,7 @@ export function StepName({ draft, set }: StepProps) {
   )
 }
 
-export function StepIntro({ draft, set }: StepProps) {
+export function StepIntro({ draft, set, bannedTagline, bannedAbout }: StepProps & { bannedTagline: string[]; bannedAbout: string[] }) {
   return (
     <>
       <Intro>Vài dòng giúp người tìm việc hiểu công ty bạn. Có thể bỏ qua và bổ sung sau ở Hồ sơ công ty.</Intro>
@@ -129,9 +130,11 @@ export function StepIntro({ draft, set }: StepProps) {
         <Field label="Giới thiệu ngắn (một câu)">
           {(p) => <input {...p} value={draft.tagline} onChange={(e) => set('tagline', e.target.value)} className={FIELD} />}
         </Field>
+        <div className="-mt-2.5"><BannedNotice banned={bannedTagline} /></div>
         <Field label="Giới thiệu đầy đủ">
           {(p) => <textarea {...p} rows={5} value={draft.about} onChange={(e) => set('about', e.target.value)} className={FIELD} />}
         </Field>
+        <div className="-mt-2.5"><BannedNotice banned={bannedAbout} /></div>
         <div>
           <p className="mb-2 text-sm text-page-muted">Ảnh bìa</p>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
