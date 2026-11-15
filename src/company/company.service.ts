@@ -7,6 +7,8 @@ import { checkImage, type UploadedImage } from '../common/upload-check'
 import { StorageService } from '../common/storage.service'
 import type { PhotoDto } from '../jobs/jobs.dto'
 import { PrismaService } from '../prisma/prisma.service'
+import { SystemConfigService } from '../common/system-config.service'
+import { phraseHits } from '../jobs/flags'
 import { isValidTaxCode, namesMatch, normalizeTaxCode } from '../tax/tax-code'
 import { TaxLookupService, type TaxLookup } from '../tax/tax-lookup.service'
 import type { UpdateCompanyDto } from './company.controller'
@@ -60,7 +62,7 @@ export function parseTaxCode(raw: string): string {
 
 @Injectable()
 export class CompanyService {
-  constructor(private prisma: PrismaService, private storage: StorageService, private tax: TaxLookupService) {}
+  constructor(private prisma: PrismaService, private storage: StorageService, private tax: TaxLookupService, private config: SystemConfigService) {}
 
   private async own(user: AuthUser): Promise<Company> {
     const company = await this.prisma.company.findFirst({ where: { members: { some: { userId: user.id } } } })
@@ -77,6 +79,7 @@ export class CompanyService {
     const company = await this.own(user)
     if (company.locked) throw new ForbiddenException('Doanh nghiệp đang bị khóa')
     if (dto.cover && !dto.cover.id && !dto.cover.url) throw new BadRequestException('Ảnh bìa cần có id hoặc url')
+    await this.assertNoBannedWords(company, dto)
     const { size, cover, district, taxCode, ...rest } = dto
     const data: Prisma.CompanyUpdateInput = {
       ...rest,
@@ -86,6 +89,29 @@ export class CompanyService {
       ...(district !== undefined && { district, ...geo(district, company.id) }),
     }
     return view(await this.prisma.company.update({ where: { id: company.id }, data }))
+  }
+
+  /**
+   * Tên + phần giới thiệu công ty không được chứa cụm từ cấm tuyệt đối (cùng danh sách và cách dò với tin đăng).
+   * Xét giá trị SAU khi sửa của các ô chữ, để công ty đang có tên vi phạm phải sửa tên mới lưu được.
+   */
+  private async assertNoBannedWords(company: Company, dto: UpdateCompanyDto) {
+    const fields: [string, string | string[]][] = [
+      ['Tên công ty', dto.name ?? company.name],
+      ['Câu giới thiệu', dto.tagline ?? company.tagline],
+      ['Giới thiệu', dto.about ?? company.about],
+      ['Văn hóa', dto.culture ?? company.culture],
+      ['Môi trường làm việc', dto.environment ?? company.environment],
+      ['Giá trị', dto.values ?? company.values],
+      ['Chính sách', dto.policies ?? company.policies],
+    ]
+    const { bannedWords } = await this.config.get()
+    const problems = fields
+      .map(([label, v]) => [label, phraseHits(Array.isArray(v) ? v.join('\n') : v, bannedWords).hits] as const)
+      .filter(([, hits]) => hits.length)
+    if (problems.length) {
+      throw new BadRequestException(`Có cụm từ không được phép: ${problems.map(([label, hits]) => `${label} (${hits.join(', ')})`).join('; ')}. Hãy sửa rồi lưu lại.`)
+    }
   }
 
   /** Đổi mã số: kiểm tra số kiểm tra rồi tra ngay, lưu kết quả. Chuỗi rỗng = xóa mã */

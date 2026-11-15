@@ -65,3 +65,9 @@ test('đòi tiền / giấy tờ (từ đáng ngờ) và câu kéo', () => {
   assert.ok(reviewJob(job({ title: 'TUYỂN GẤP NHÂN VIÊN PHỤC VỤ' }), cfg).signals.includes('Viết HOA gần như toàn bộ'))
   assert.ok(reviewJob(job({ description: 'Việc ngon lắm!!!' }), cfg).signals.includes('Nhiều dấu chấm than liên tiếp'))
 })
+
+test('cụm phạm pháp trong tên công ty bị bắt, kể cả viết tách', () => {
+  assert.deepEqual(phraseHits('Công ty Trách Nhiệm buôn người', cfg.bannedWords).hits, ['buôn người'])
+  assert.deepEqual(phraseHits('Dịch vụ m.ạ.i d.â.m', cfg.bannedWords).hits, ['mại dâm'])
+  assert.deepEqual(phraseHits('Nhóm Dịch Vụ Sông Hàn', cfg.bannedWords).hits, [])
+})

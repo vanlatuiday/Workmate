@@ -6,7 +6,7 @@ import type { CatalogJob } from '../catalog/catalog.types'
 import { geo } from '../common/geo'
 import { SystemConfigService } from '../common/system-config.service'
 import { PrismaService } from '../prisma/prisma.service'
-import { reviewJob } from './flags'
+import { phraseHits, reviewJob } from './flags'
 import { DEFAULT_DURATION_DAYS, type CreateJobDto, type UpdateJobDto } from './jobs.dto'
 import { salaryLabelOf, shiftLabelOf } from './labels'
 
@@ -64,9 +64,12 @@ export class JobsService {
   private async autoModerate(job: Parameters<CatalogService['toJob']>[0], user: AuthUser, manualHold = false): Promise<JobWithReview> {
     const [cfg, company] = await Promise.all([
       this.config.get(),
-      this.prisma.company.findUnique({ where: { id: job.companyId }, select: { taxLookup: true, locked: true } }),
+      this.prisma.company.findUnique({ where: { id: job.companyId }, select: { taxLookup: true, locked: true, name: true } }),
     ])
-    const { banned, signals } = reviewJob(job, cfg)
+    const { banned: inJob, signals } = reviewJob(job, cfg)
+    // Tên công ty chứa cụm cấm tuyệt đối → mọi tin của công ty bị từ chối (tên hiện trên từng tin)
+    const inName = phraseHits(company?.name ?? '', cfg.bannedWords).hits.filter((w) => !inJob.includes(w))
+    const banned = [...inJob, ...inName]
     const taxActive = (company?.taxLookup as { result?: string } | null)?.result === 'active'
     const decision: JobReviewResult['decision'] = banned.length
       ? 'rejected'
@@ -76,7 +79,11 @@ export class JobsService {
       data: {
         moderation: decision,
         autoModerated: true,
-        moderationReason: decision === 'rejected' ? `Tin có cụm từ không được phép: ${banned.join(', ')}. Hãy sửa nội dung rồi đăng lại.` : null,
+        moderationReason: decision === 'rejected'
+          ? inName.length && !inJob.length
+            ? `Tên công ty có cụm từ không được phép: ${inName.join(', ')}. Hãy sửa tên công ty trong Hồ sơ công ty rồi đăng lại.`
+            : `Tin có cụm từ không được phép: ${banned.join(', ')}. Hãy sửa nội dung rồi đăng lại.`
+          : null,
         moderatedAt: decision === 'pending' ? null : new Date(),
       },
       include: JOB_INCLUDE,
