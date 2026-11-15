@@ -74,10 +74,9 @@ export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu
       <div className="hd-inner absolute inset-0">
         {/* Nền kính: ẩn ở đầu trang (trong suốt), hiện khi cuộn. Lớp ngoài do trang chủ ẩn khi còn ở banner */}
         <div data-header-bg={item} aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="hd-bg absolute inset-0" />
         </div>
 
-        <div className="hd-bar relative grid h-[72px] grid-cols-[1fr_auto_1fr] items-center gap-x-4 px-5 md:px-8">
+        <div className="hd-bar relative grid h-[72px] grid-cols-[1fr_auto_1fr] items-center gap-x-4 px-6 md:px-10 lg:px-14">
           <Wordmark home={home} className="justify-self-start" />
 
           <div data-header-item={item} className="hidden md:block">

@@ -527,6 +527,7 @@ html[data-page='home'] .hd-inner {
   transform: translateY(-6px);
 }
 .hd-bg {
+  display: none; /* chủ dự án 2026-11-15: header không có nền — chỉ logo + hai viên thuốc */
   background-color: var(--h-bg);
   border-bottom: 1px solid var(--h-bg-line);
   -webkit-backdrop-filter: blur(16px);
@@ -548,8 +549,11 @@ html[data-page='home'] .hd-inner {
 /* Chữ Workmate + chấm xanh đập nhẹ như nhịp tim */
 .hd-wordmark {
   color: var(--h-fg);
-  transition: color 0.3s;
+  opacity: 0.85;
+  transition: color 0.3s, opacity 0.25s;
 }
+.hd-wordmark:hover,
+.hd-wordmark:focus-visible { opacity: 1; }
 .hd-dot {
   position: relative;
   width: 8px;
@@ -583,7 +587,6 @@ html[data-page='home'] .hd-inner {
 /* Viên kính chứa menu giữa */
 .hd-glass {
   background: var(--h-glass);
-  border: 1px solid var(--h-glass-line);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   transition: background-color 0.3s, border-color 0.3s;
@@ -613,6 +616,7 @@ html[data-page='home'] .hd-inner {
   z-index: 1;
 }
 .hd-label::after {
+  display: none; /* chủ dự án: hover chỉ sáng lên, không gạch chân */
   content: '';
   position: absolute;
   left: 0;
@@ -637,7 +641,6 @@ html[data-page='home'] .hd-inner {
 /* Chip tài khoản / liên kết phụ cùng ngôn ngữ kính */
 .hd-chip {
   background: var(--h-glass);
-  border: 1px solid var(--h-glass-line);
   color: var(--h-link);
   transition: color 0.25s, background-color 0.3s, border-color 0.3s;
 }
@@ -662,9 +665,11 @@ html[data-page='home'] .hd-inner {
   font-weight: 500;
   line-height: 20px;
   white-space: nowrap;
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.3s, color 0.3s;
+  transition: opacity 0.25s, background-color 0.3s, color 0.3s;
 }
-.hd-btn:hover { transform: scale(1.04); }
+.hd-btn { opacity: 0.88; }
+.hd-btn:hover,
+.hd-btn:focus-visible { opacity: 1; }
 .hd-btn__chip {
   display: grid;
   place-items: center;
@@ -676,7 +681,7 @@ html[data-page='home'] .hd-inner {
   overflow: hidden;
 }
 .hd-btn__arrow { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.hd-btn:hover .hd-btn__arrow { transform: translateX(3px); }
+
 
 /* Nút hamburger 2 gạch (dưới 768px) */
 .hd-burger {
@@ -689,7 +694,6 @@ html[data-page='home'] .hd-inner {
   height: 40px;
   border-radius: 9999px;
   background: var(--h-glass);
-  border: 1px solid var(--h-glass-line);
   color: var(--h-fg);
   transition: background-color 0.3s, border-color 0.3s;
 }
@@ -700,8 +704,8 @@ html[data-page='home'] .hd-inner {
   background: currentColor;
   transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.hd-burger:hover i:first-child { transform: translateX(-2px); }
-.hd-burger:hover i:last-child { transform: translateX(2px); }
+.hd-burger { opacity: 0.85; }
+.hd-burger:hover { opacity: 1; }
 
 /* Giảm chuyển động: không trượt, không đập, không so le — trạng thái đổi tức thì */
 @media (prefers-reduced-motion: reduce) {
