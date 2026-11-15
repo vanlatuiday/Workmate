@@ -600,6 +600,7 @@ html[data-page='home'] .hd-inner {
   padding: 6px 16px; /* 2 link cạnh nhau cách 32px chữ-chữ */
   border-radius: 9999px;
   font-size: 16px; /* bằng chữ nội dung (chủ dự án 2026-11-15) */
+  font-weight: 600; /* in đậm (chủ dự án 2026-11-16) */
   line-height: 24px;
   white-space: nowrap;
   color: var(--h-link);
@@ -647,6 +648,7 @@ html[data-page='home'] .hd-inner {
 .hd-chip:hover { color: var(--h-link-hover); }
 .hd-quiet {
   font-size: 16px;
+  font-weight: 600;
   color: var(--h-link);
   transition: color 0.25s;
 }
@@ -662,7 +664,7 @@ html[data-page='home'] .hd-inner {
   background: var(--h-btn-bg);
   color: var(--h-btn-fg);
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 20px;
   white-space: nowrap;
   transition: opacity 0.25s, background-color 0.3s, color 0.3s;
