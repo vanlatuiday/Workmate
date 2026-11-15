@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Patch, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, Patch, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Transform, Type } from 'class-transformer'
@@ -62,6 +62,13 @@ export class CompanyController {
   @UseGuards(ThrottlerGuard) @Throttle({ phut: { limit: 15, ttl: 60_000 }, gio: { limit: 100, ttl: 3_600_000 } })
   previewTaxCode(@CurrentUser() user: AuthUser, @Query() q: TaxPreviewQuery) {
     return this.company.previewTaxCode(user, q.code)
+  }
+
+  /** Xong phần bắt buộc của form bắt đầu (mã số + tên + logo) */
+  @Post('onboarding/complete')
+  @HttpCode(200)
+  completeOnboarding(@CurrentUser() user: AuthUser) {
+    return this.company.completeOnboarding(user)
   }
 
   @Post('logo')

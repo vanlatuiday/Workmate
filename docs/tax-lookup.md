@@ -36,3 +36,10 @@ Mã thật công khai để thử chế độ tra thật: `0100109106` (Viettel)
 - `PATCH /api/recruiter/company` với `taxCode` (chuỗi rỗng = xóa). Đã xác minh và đã có mã thì không đổi được (403); công ty xác minh từ trước khi có mã được nhập lần đầu.
 - `GET /api/recruiter/company` trả thêm `taxCode`, `taxLookup`, `taxNameMatches`.
 - `GET /api/admin/verifications` mỗi dòng có `tax: { lookup, nameMatches, sameCodeCompanies }`.
+
+## Form bắt đầu của nhà tuyển dụng (onboarding)
+
+- `Company.onboardedAt` null → `GET /recruiter/company` trả `needsOnboarding: true`; frontend đưa vào form trước khi vào trang tổng quan.
+- `missingRequired`: các mục bắt buộc còn thiếu trong `['taxCode', 'name', 'logo']`. Mã số phải `active` (hoặc `unavailable` lúc lưu).
+- `POST /recruiter/company/onboarding/complete` → đặt `onboardedAt`; còn thiếu thì 400 "Còn thiếu: …".
+- Lưu mã `inactive` / `not_found` luôn bị từ chối (400). Sau khi hoàn thành: không xóa được mã số, không xóa được logo (chỉ thay).

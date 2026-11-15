@@ -217,6 +217,8 @@ model Company {
   taxCode     String?
   /// Kết quả tra mã gần nhất (TaxLookup trong src/tax/tax-lookup.service.ts)
   taxLookup   Json?
+  /// Hoàn thành form bắt đầu (mã số + tên + logo) sau khi đăng ký; null → nhà tuyển dụng bị đưa vào form trước
+  onboardedAt DateTime?
   verified    Boolean     @default(false)
   locked      Boolean     @default(false)
   createdAt   DateTime    @default(now())

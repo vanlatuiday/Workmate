@@ -23,7 +23,25 @@ const view = (c: Company) => ({
   tagline: c.tagline, about: c.about, environment: c.environment, values: c.values, policies: c.policies, culture: c.culture,
   email: c.email, phone: c.phone, logoUrl: c.logoUrl, cover: (c.coverPhoto as unknown as PhotoDto | null) ?? { alt: c.name }, verified: c.verified, locked: c.locked,
   taxCode: c.taxCode, taxLookup: taxLookupOf(c), taxNameMatches: taxNameMatches(c),
+  onboardedAt: c.onboardedAt?.toISOString() ?? null,
+  /** Chưa xong form bắt đầu → frontend đưa vào form trước khi vào trang tổng quan */
+  needsOnboarding: !c.onboardedAt,
+  /** Thông tin bắt buộc còn thiếu (để form biết bước nào chưa xong) */
+  missingRequired: missingRequired(c),
 })
+
+/** Mã số được chấp nhận: đang hoạt động, hoặc lúc lưu không tra được (admin kiểm tra tay) */
+const USABLE_TAX = new Set(['active', 'unavailable'])
+
+/** Ba thông tin bắt buộc của form bắt đầu: mã số dùng được, tên, logo */
+export function missingRequired(c: Pick<Company, 'taxCode' | 'taxLookup' | 'name' | 'logoUrl'>): ('taxCode' | 'name' | 'logo')[] {
+  const missing: ('taxCode' | 'name' | 'logo')[] = []
+  const result = taxLookupOf(c)?.result
+  if (!c.taxCode || !result || !USABLE_TAX.has(result)) missing.push('taxCode')
+  if (c.name.trim().length < 2) missing.push('name')
+  if (!c.logoUrl) missing.push('logo')
+  return missing
+}
 
 export const taxLookupOf = (c: Pick<Company, 'taxLookup'>) => (c.taxLookup as unknown as TaxLookup | null) ?? null
 
@@ -76,8 +94,14 @@ export class CompanyService {
     if (code === company.taxCode) return {}
     // Mã số là thứ quản trị viên đã đối chiếu khi xác minh. Công ty xác minh từ trước khi có mã số được nhập lần đầu
     if (company.verified && company.taxCode) throw new ForbiddenException('Doanh nghiệp đã được xác minh, liên hệ quản trị viên nếu cần đổi mã số')
-    if (!code) return { taxCode: null, taxLookup: Prisma.DbNull }
-    return { taxCode: code, taxLookup: { ...(await this.tax.lookup(code)) } }
+    if (!code) {
+      if (company.onboardedAt) throw new BadRequestException('Mã số doanh nghiệp là thông tin bắt buộc, không xóa được. Hãy nhập mã khác để thay.')
+      return { taxCode: null, taxLookup: Prisma.DbNull }
+    }
+    const lookup = await this.tax.lookup(code)
+    if (lookup.result === 'not_found') throw new BadRequestException('Không tìm thấy mã số này trên dữ liệu thuế')
+    if (lookup.result === 'inactive') throw new BadRequestException(`Mã số này không còn hoạt động (${lookup.statusText ?? 'ngừng hoạt động'})`)
+    return { taxCode: code, taxLookup: { ...lookup } }
   }
 
   /** Tra thử trước khi lưu (ô nhập ở hồ sơ công ty) */
@@ -91,6 +115,18 @@ export class CompanyService {
       nameMatches: lookup.name ? namesMatch(company.name, lookup.name, lookup.shortName) : null,
       usedByOther: (await this.prisma.company.count({ where: { taxCode: code, id: { not: company.id } } })) > 0,
     }
+  }
+
+  /** Kết thúc phần bắt buộc của form bắt đầu. Thiếu mã số / tên / logo → 400 kèm danh sách còn thiếu */
+  async completeOnboarding(user: AuthUser) {
+    const company = await this.own(user)
+    if (company.onboardedAt) return view(company)
+    const missing = missingRequired(company)
+    if (missing.length) {
+      const label = { taxCode: 'mã số doanh nghiệp đang hoạt động', name: 'tên doanh nghiệp', logo: 'logo' }
+      throw new BadRequestException(`Còn thiếu: ${missing.map((m) => label[m]).join(', ')}`)
+    }
+    return view(await this.prisma.company.update({ where: { id: company.id }, data: { onboardedAt: new Date() } }))
   }
 
   async setLogo(user: AuthUser, upload: UploadedImage | undefined) {
@@ -107,6 +143,7 @@ export class CompanyService {
   async removeLogo(user: AuthUser) {
     const company = await this.own(user)
     if (company.locked) throw new ForbiddenException('Doanh nghiệp đang bị khóa')
+    if (company.onboardedAt) throw new BadRequestException('Logo là thông tin bắt buộc. Hãy tải logo khác lên để thay.')
     const updated = await this.prisma.company.update({ where: { id: company.id }, data: { logoUrl: null } })
     await this.dropFile(company.logoUrl)
     return view(updated)
