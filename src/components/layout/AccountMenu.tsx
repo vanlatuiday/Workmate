@@ -109,7 +109,7 @@ export default function AccountMenu({ initial, area, profileHref, unreadMessages
           onClick={() => setOpen((o) => !o)}
           onKeyDown={onButtonKey}
           className={cn(
-            'hd-chip group flex items-center gap-2 rounded-full py-1 pl-1 pr-2 text-sm lg:pr-3',
+            'hd-chip group flex items-center gap-2 rounded-full py-1 pl-1 pr-2 text-base lg:pr-3',
             FOCUS,
           )}
         >

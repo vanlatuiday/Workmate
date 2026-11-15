@@ -461,9 +461,9 @@ html[data-page='home'] :focus-visible {
   --h-fg: var(--page-fg);
   --h-link: color-mix(in srgb, var(--page-fg) 70%, transparent);
   --h-link-hover: var(--page-fg);
-  --h-glass: color-mix(in srgb, var(--page-fg) 5%, transparent);
+  --h-glass: color-mix(in srgb, var(--page-fg) 12%, transparent);
   --h-glass-line: color-mix(in srgb, var(--page-fg) 10%, transparent);
-  --h-active: color-mix(in srgb, var(--page-fg) 10%, transparent);
+  --h-active: color-mix(in srgb, var(--page-fg) 16%, transparent);
   --h-bg: color-mix(in srgb, var(--page-bg) 72%, transparent);
   --h-bg-line: color-mix(in srgb, var(--page-fg) 6%, transparent);
   --h-dot: var(--wm-leaf);
@@ -476,9 +476,9 @@ html[data-page='home'] :focus-visible {
   --h-fg: #f3efe6;
   --h-link: rgba(255, 255, 255, 0.7);
   --h-link-hover: #fff;
-  --h-glass: rgba(255, 255, 255, 0.05);
+  --h-glass: rgba(255, 255, 255, 0.12); /* kính đậm hơn để header rõ hơn */
   --h-glass-line: rgba(255, 255, 255, 0.1);
-  --h-active: rgba(255, 255, 255, 0.1);
+  --h-active: rgba(255, 255, 255, 0.16);
   --h-bg: rgba(10, 15, 13, 0.7);
   --h-bg-line: rgba(255, 255, 255, 0.06);
   --h-dot: var(--wm-leaf); /* #3DDC84 */
@@ -491,9 +491,9 @@ html[data-page='home'] :focus-visible {
   --h-fg: var(--wm-charcoal);
   --h-link: rgba(36, 37, 34, 0.7);
   --h-link-hover: var(--wm-charcoal);
-  --h-glass: rgba(36, 37, 34, 0.04);
+  --h-glass: rgba(36, 37, 34, 0.09); /* kính đậm hơn để header rõ hơn trên nền kem */
   --h-glass-line: rgba(36, 37, 34, 0.12);
-  --h-active: rgba(36, 37, 34, 0.08);
+  --h-active: rgba(36, 37, 34, 0.12);
   --h-bg: rgba(250, 244, 234, 0.75);
   --h-bg-line: rgba(36, 37, 34, 0.08);
   --h-dot: var(--wm-fern); /* #1B7D45: xanh sáng trên nền kem thiếu tương phản */
@@ -587,8 +587,8 @@ html[data-page='home'] .hd-inner {
 /* Viên kính chứa menu giữa */
 .hd-glass {
   background: var(--h-glass);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
   transition: background-color 0.3s, border-color 0.3s;
 }
 /* Link menu: 14px, sáng dần khi hover, gạch chân vẽ từ trái sang phải */
@@ -599,8 +599,8 @@ html[data-page='home'] .hd-inner {
   gap: 4px;
   padding: 6px 16px; /* 2 link cạnh nhau cách 32px chữ-chữ */
   border-radius: 9999px;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 16px; /* bằng chữ nội dung (chủ dự án 2026-11-15) */
+  line-height: 24px;
   white-space: nowrap;
   color: var(--h-link);
   transition: color 0.25s;
@@ -646,7 +646,7 @@ html[data-page='home'] .hd-inner {
 }
 .hd-chip:hover { color: var(--h-link-hover); }
 .hd-quiet {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--h-link);
   transition: color 0.25s;
 }
@@ -661,7 +661,7 @@ html[data-page='home'] .hd-inner {
   border-radius: 9999px;
   background: var(--h-btn-bg);
   color: var(--h-btn-fg);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   line-height: 20px;
   white-space: nowrap;

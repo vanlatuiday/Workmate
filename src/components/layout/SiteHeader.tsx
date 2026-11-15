@@ -79,12 +79,12 @@ export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu
         <div className="hd-bar relative grid h-[72px] grid-cols-[1fr_auto_1fr] items-center gap-x-4 px-6 md:px-10 lg:px-14">
           <Wordmark home={home} className="justify-self-start" />
 
-          <div data-header-item={item} className="hidden md:block">
+          <div data-header-item={item} className="hidden lg:block">
             <HeaderNav links={navLinks} className="flex" />
           </div>
 
           <div className="col-start-3 flex items-center justify-end gap-3">
-            <div data-header-item={item} className="hidden items-center gap-3 whitespace-nowrap md:flex">
+            <div data-header-item={item} className="hidden items-center gap-3 whitespace-nowrap lg:flex">
               {user && area ? (
                 <AccountMenu
                   initial={user.email?.[0]?.toUpperCase() ?? 'U'}
@@ -111,8 +111,8 @@ export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu
               )}
             </div>
 
-            {/* Dưới md: hamburger 2 gạch. Trang chủ: ở banner nút này hiện cả trên màn rộng (index.css → data-header-menu) */}
-            <div data-header-item={item} data-header-menu={item} className="md:hidden">
+            {/* Dưới lg (1024px): hamburger 2 gạch — chữ menu 16px không đủ chỗ ở máy tính bảng dọc. Trang chủ: ở banner nút này hiện cả trên màn rộng (index.css → data-header-menu) */}
+            <div data-header-item={item} data-header-menu={item} className="lg:hidden">
               <button
                 type="button"
                 onClick={onOpenMenu}
