@@ -293,21 +293,27 @@ function compile(gl: WebGLRenderingContext, type: number, source: string) {
   return shader
 }
 
+/** Briefcase của lucide-react 0.400: 1 path + 1 rect (x2 y6 w20 h14 rx2), viewBox 24. */
+const BRIEFCASE = [
+  new Path2D('M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'),
+  new Path2D('M4 6h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z'),
+]
+
 /** Mật độ lấy mẫu: 1 CSS px = SAMPLE px trên canvas ẩn (mịn hơn để viền chữ gọn). */
 const SAMPLE = 2
 
 /**
  * Vẽ logo (icon + chữ, đúng bố cục `flex items-center gap-2` của header) lên canvas ẩn,
  * phóng cho bề rộng bằng logo intro, căn giữa viewport; trả về các điểm (CSS px) nằm trong nét.
- * Các số khớp logo header (components/layout/Wordmark.tsx): chấm 8px, khoảng cách 10px, chữ serif 20px cao dòng 28.
+ * Các số 20 / 8 / 28 khớp logo header: icon `w-5 h-5` = 20, `gap-2` = 8, `text-xl` cao dòng 28.
  * Hộp lấy mẫu tính từ số đo thật của chữ + icon, có đệm rộng nên không nét nào chạm mép.
  */
 function sampleLogo(vw: number, vh: number): Float32Array {
   const logoEl = document.querySelector<HTMLElement>('[data-brand-logo]')
   const cs = logoEl ? getComputedStyle(logoEl) : null
-  const fontSize = 20 // chữ Workmate 20px
+  const fontSize = 20 // text-xl
   const family = cs?.fontFamily || 'sans-serif'
-  const letterSpacing = cs && cs.letterSpacing !== 'normal' ? cs.letterSpacing : '0px'
+  const letterSpacing = cs && cs.letterSpacing !== 'normal' ? cs.letterSpacing : `${-0.025 * fontSize}px`
 
   const measure = document.createElement('canvas').getContext('2d')!
   const font = `600 ${fontSize}px ${family}`
@@ -321,15 +327,14 @@ function sampleLogo(vw: number, vh: number): Float32Array {
   const fontAsc = m.fontBoundingBoxAscent ?? fontSize * 0.8
   const fontDesc = m.fontBoundingBoxDescent ?? fontSize * 0.2
   const baseline = natH / 2 + (fontAsc - fontDesc) / 2
-  const DOT = 8 // đường kính chấm xanh
-  const textL = DOT + 10 // chấm + khoảng cách 10px
+  const textL = 28
   const textR = textL + Math.max(m.width, m.actualBoundingBoxRight)
   const textT = baseline - m.actualBoundingBoxAscent
   const textB = baseline + m.actualBoundingBoxDescent
-  // Chấm 8×8 ở giữa dòng
-  const iconPad = 0
-  const iconT = (natH - DOT) / 2
-  const iconB = iconT + DOT
+  // Icon 20×20 ở giữa dòng; nét 2/24 tràn ra ngoài 1 đơn vị lưới
+  const iconPad = 1
+  const iconT = (natH - 20) / 2 - iconPad
+  const iconB = iconT + 20 + 2 * iconPad
 
   const boxL = -iconPad
   const boxR = textR
@@ -355,10 +360,15 @@ function sampleLogo(vw: number, vh: number): Float32Array {
   ctx.fillStyle = 'black'
   ctx.strokeStyle = 'black'
 
-  // Chấm tròn đặc, đặt giữa dòng
-  ctx.beginPath()
-  ctx.arc(DOT / 2, natH / 2, DOT / 2, 0, Math.PI * 2)
-  ctx.fill()
+  // Icon: lưới 24 thu về 20, đặt giữa dòng
+  ctx.save()
+  ctx.translate(0, (natH - 20) / 2)
+  ctx.scale(20 / 24, 20 / 24)
+  ctx.lineWidth = 2
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  for (const p of BRIEFCASE) ctx.stroke(p)
+  ctx.restore()
 
   // Chữ
   ctx.font = font
