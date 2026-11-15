@@ -18,6 +18,8 @@ type LogoResponse = { logoUrl: string | null }
 
 async function apply(res: LogoResponse) {
   useCompanyStore.getState().setLogoUrl(res.logoUrl ?? null)
+  // Logo là mục bắt buộc của form bắt đầu: nạp lại cờ "còn thiếu" (không đụng form hồ sơ đang sửa)
+  await useCompanyStore.getState().refreshStatus().catch(() => undefined)
   // Trang công khai đọc logo từ danh mục
   await useCatalogStore.getState().load().catch(() => undefined)
 }

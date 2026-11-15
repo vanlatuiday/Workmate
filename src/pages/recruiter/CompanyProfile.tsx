@@ -16,14 +16,14 @@ import { FOCUS } from '@utils/focus'
 import { BTN_ACCENT, BTN_DANGER, BTN_GHOST, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import type { CompanySize } from '@/types'
 
-const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
+export const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 
-const DISTRICTS = ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ', 'Hòa Vang']
-const SIZES: CompanySize[] = ['1-10', '11-50', '51-200', '201-500', '500+']
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+export const DISTRICTS = ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ', 'Hòa Vang']
+export const SIZES: CompanySize[] = ['1-10', '11-50', '51-200', '201-500', '500+']
+export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /** Ô nhập/chọn có nhãn; error hiện dưới ô và gắn aria-describedby */
-function Field({ label, error, children }: { label: string; error?: string; children: (p: { id: string; 'aria-invalid'?: boolean; 'aria-describedby'?: string }) => React.ReactNode }) {
+export function Field({ label, error, children }: { label: string; error?: string; children: (p: { id: string; 'aria-invalid'?: boolean; 'aria-describedby'?: string }) => React.ReactNode }) {
   const id = useId()
   return (
     <div className="flex flex-col gap-1.5">
@@ -39,7 +39,7 @@ function Field({ label, error, children }: { label: string; error?: string; chil
 }
 
 /** Danh sách chuỗi: mỗi mục có nút xóa, ô nhập ở dưới để thêm */
-function ListEditor({ label, items, onChange, placeholder }: { label: string; items: string[]; onChange: (v: string[]) => void; placeholder: string }) {
+export function ListEditor({ label, items, onChange, placeholder }: { label: string; items: string[]; onChange: (v: string[]) => void; placeholder: string }) {
   const [draft, setDraft] = useState('')
   const id = useId()
   const add = () => {

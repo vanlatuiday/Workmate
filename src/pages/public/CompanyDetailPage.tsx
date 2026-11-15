@@ -16,6 +16,7 @@ import { CompanyReviews } from '@components/hire'
 import Reveal from '@components/motion/Reveal'
 import { findCompany } from './jobs/data'
 import { jobsOfCompany } from './jobs/catalog'
+import TaxValidBadge from '@components/common/TaxValidBadge'
 
 /** /cong-ty/:id — chi tiết công ty kiểu "case study". Khách thấy thêm lời mời đăng ký. */
 export default function CompanyDetailPage() {
@@ -27,6 +28,7 @@ export default function CompanyDetailPage() {
   const myPageHidden = useSettingsStore((s) => isOwner && s.bySide.recruiter.visibility === 'hidden')
   const hiddenPage = !!useCatalogStore((s) => s.companies.find((c) => c.id === id)?.hidden) && !isOwner && role !== 'admin'
 
+  const taxValid = useCatalogStore((s) => s.companies.find((c) => c.id === id)?.taxValid)
   const catalogSettled = useCatalogStore((s) => s.settled)
 
   // Danh mục chưa về từ máy chủ: khung chờ, không báo "không tìm thấy" sớm
@@ -55,6 +57,7 @@ export default function CompanyDetailPage() {
   const aside = (
     <>
       <CompanyLogo name={company.name} logoUrl={company.logoUrl} className="mb-4 h-16 w-16 text-lg" />
+      <TaxValidBadge valid={taxValid} className="mb-3 inline-block" />
       <p className="max-w-sm text-base md:text-lg leading-relaxed">{company.tagline}</p>
       <Facts
         rows={[

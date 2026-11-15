@@ -10,6 +10,7 @@ import FadeIn from '@components/motion/FadeIn'
 import { CARD_HOVER } from '@utils/ui'
 import { cn } from '@utils/cn'
 import { jobsOfCompany } from './jobs/catalog'
+import TaxValidBadge from '@components/common/TaxValidBadge'
 
 export default function CompaniesPage() {
   // Danh mục công ty từ máy chủ (công ty demo vẫn không nằm trong lưới này như trước)
@@ -38,6 +39,7 @@ export default function CompaniesPage() {
                 <h2 className="min-w-0 font-display text-lg font-semibold text-page-fg">{c.name}</h2>
               </div>
               <p className="text-sm text-page-muted">{c.industry} · {c.district}</p>
+              <TaxValidBadge valid={c.taxValid} className="mt-2 inline-block" />
               <p className="mt-2 text-sm leading-relaxed text-page-muted">{c.tagline}</p>
               <p className="mt-2 text-xs font-medium text-page-fg">{jobsOfCompany(c.id).length} vị trí đang tuyển</p>
             </Link>

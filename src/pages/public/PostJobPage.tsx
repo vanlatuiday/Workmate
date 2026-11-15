@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Lock, X } from 'lucide-react'
 import { gsap } from '@utils/gsap'
@@ -19,7 +19,7 @@ import { scoreMatch } from './match/score'
 import ShiftGrid from './post/ShiftGrid'
 import CompletionRing from '@components/common/CompletionRing'
 import PostPreview from './post/PostPreview'
-import { BTN_ACCENT, BTN_LG, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
+import { BTN_ACCENT, BTN_LG, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
 const DISTRICTS = ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ']
 const SUGGESTED = [...new Set(CANDIDATES.flatMap((c) => c.criteria.skills))].sort((a, b) => a.localeCompare(b, 'vi'))
@@ -61,7 +61,10 @@ function scheduleText(slots: string[]) {
 export default function PostJobPage() {
   const curtainTo = useCurtainNavigate()
   // Chế độ sửa: /dang-tin?sua=<id>, chỉ nhận tin đã đăng của công ty demo; id lạ hoặc tin có sẵn thì rơi về đăng tin mới
-  const editId = useSearchParams()[0].get('sua')
+  const query = useSearchParams()[0]
+  const editId = query.get('sua')
+  // Bước 6/6 của form bắt đầu (/dang-tin?bat-dau=1): có dải hướng dẫn, đăng xong về trang tổng quan
+  const onboarding = query.get('bat-dau') === '1'
   const [editing] = useState(() =>
     editId ? useCatalogStore.getState().jobs.find((j) => j.id === editId && j.companyId === useCompanyStore.getState().id) : undefined,
   )
@@ -170,11 +173,17 @@ export default function PostJobPage() {
       return
     }
     toast.success('Tin đã gửi, chờ quản trị viên duyệt')
-    timer.current = window.setTimeout(() => curtainTo('/tuyen-dung/tin-dang', 'Tin tuyển dụng'), 600)
+    timer.current = window.setTimeout(() => (onboarding ? curtainTo('/tuyen-dung', 'Tổng quan') : curtainTo('/tuyen-dung/tin-dang', 'Tin tuyển dụng')), 600)
   }
 
   return (
     <div className="shell py-section-sm">
+      {onboarding && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-card border border-page-line px-4 py-3">
+          <p className="text-sm font-medium text-page-fg">Bước 6/6 · Đăng tin đầu tiên</p>
+          <Link to="/tuyen-dung" className={`${BTN_SECONDARY} ${BTN_SM}`}>Bỏ qua, vào trang tổng quan</Link>
+        </div>
+      )}
       <h1 className="mb-8 font-display text-display-sm font-semibold text-page-fg">
         {editing ? 'Sửa tin tuyển dụng' : 'Đăng tin tuyển dụng'}
       </h1>

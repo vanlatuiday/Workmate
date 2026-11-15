@@ -53,33 +53,63 @@ const SEED: CompanyProfile = {
   cover: COVER_CHOICES[0],
 }
 
+/** Mục bắt buộc của form bắt đầu mà máy chủ báo còn thiếu */
+export type MissingRequired = 'taxCode' | 'name' | 'logo'
+
 interface CompanyState {
   /** Id công ty của tôi; rỗng khi chưa nạp hoặc không phải nhà tuyển dụng */
   id: string
+  /** Đã nạp xong hồ sơ từ máy chủ (cổng chuyển sang form bắt đầu chờ cờ này để không nháy trang) */
+  loaded: boolean
+  /** Lần nạp gần nhất bị lỗi (mạng/máy chủ) */
+  loadFailed: boolean
   /** Logo nằm ngoài `profile` để tải logo không làm form đang sửa bị nạp lại */
   logoUrl: string | null
+  /** Địa chỉ nằm ngoài `profile` (chỉ form bắt đầu dùng) để không đổi form hồ sơ */
+  address: string
   /** Mã số doanh nghiệp + kết quả tra; nằm ngoài `profile` để lưu mã không làm form hồ sơ nạp lại */
   tax: TaxInfo
+  /** Trạng thái form bắt đầu; cũng nằm ngoài `profile` */
+  onboardedAt: string | null
+  needsOnboarding: boolean
+  missingRequired: MissingRequired[]
   profile: CompanyProfile
   setLogoUrl: (url: string | null) => void
   load: () => Promise<void>
+  /** Nạp lại logo / mã số / cờ onboarding mà KHÔNG đổi `profile` (sau khi tải logo lên) */
+  refreshStatus: () => Promise<void>
   /** Ném lỗi nếu máy chủ từ chối — nơi gọi hiện thông báo */
-  update: (patch: Partial<CompanyProfile>) => Promise<void>
-  /** Lưu mã số doanh nghiệp ('' = xóa). Ném lỗi nếu máy chủ từ chối (400 sai mã, 403 đã xác minh) */
+  update: (patch: Partial<CompanyProfile> & { address?: string }) => Promise<void>
+  /** Lưu mã số doanh nghiệp ('' = xóa). Ném lỗi nếu máy chủ từ chối (400 sai mã / mã ngừng hoạt động, 403 đã xác minh) */
   saveTaxCode: (taxCode: string) => Promise<void>
+  /** Hoàn thành form bắt đầu. Ném lỗi nếu còn thiếu mục bắt buộc (400) */
+  completeOnboarding: () => Promise<void>
   clear: () => void
 }
 
 type Server = CompanyProfile & {
   id: string
   logoUrl: string | null
+  address?: string | null
   taxCode?: string | null
   taxLookup?: TaxInfo['taxLookup']
   taxNameMatches?: boolean | null
+  onboardedAt?: string | null
+  needsOnboarding?: boolean
+  missingRequired?: MissingRequired[]
 }
 
 const NO_TAX: TaxInfo = { taxCode: null, taxLookup: null, taxNameMatches: null }
 const taxOf = (d: Server): TaxInfo => ({ taxCode: d.taxCode ?? null, taxLookup: d.taxLookup ?? null, taxNameMatches: d.taxNameMatches ?? null })
+/** Phần trạng thái ngoài `profile`, lấy từ mọi phản hồi của máy chủ */
+const statusOf = (d: Server) => ({
+  logoUrl: d.logoUrl ?? null,
+  address: d.address ?? '',
+  tax: taxOf(d),
+  onboardedAt: d.onboardedAt ?? null,
+  needsOnboarding: d.needsOnboarding ?? false,
+  missingRequired: d.missingRequired ?? [],
+})
 
 const pick = ({ name, industry, district, size, tagline, about, environment, values, policies, culture, email, phone, cover }: Server): CompanyProfile => ({
   name, industry, district, size, tagline, about, environment, values, policies, culture, email, phone, cover,
@@ -90,23 +120,44 @@ const INITIAL: CompanyProfile = IS_PRODUCTION
   ? { ...SEED, name: '', industry: '', district: '', tagline: '', about: '', environment: [], values: [], policies: [], culture: '', email: '', phone: '' }
   : SEED
 
-export const useCompanyStore = create<CompanyState>()((set) => ({
+const EMPTY_STATUS = { logoUrl: null, address: '', tax: NO_TAX, onboardedAt: null, needsOnboarding: false, missingRequired: [] as MissingRequired[] }
+
+// Một lượt nạp tại một thời điểm (cổng + phiên đăng nhập cùng gọi); đăng xuất thì bỏ kết quả của lượt cũ
+let inflight: Promise<void> | null = null
+let epoch = 0
+
+export const useCompanyStore = create<CompanyState>()((set, get) => ({
   id: '',
-  logoUrl: null,
-  tax: NO_TAX,
+  loaded: false,
+  loadFailed: false,
+  ...EMPTY_STATUS,
   profile: INITIAL,
   setLogoUrl: (logoUrl) => set({ logoUrl }),
-  load: async () => {
+  load: () => {
+    if (inflight) return inflight
+    const mine = epoch
+    const p = api.get<Server>('/recruiter/company').then(
+      ({ data }) => { if (mine === epoch) set({ id: data.id, loaded: true, loadFailed: false, ...statusOf(data), profile: pick(data) }) },
+      (err) => { if (mine === epoch) set({ loadFailed: true }); throw err },
+    ).finally(() => { if (mine === epoch) inflight = null })
+    inflight = p
+    return p
+  },
+  refreshStatus: async () => {
     const { data } = await api.get<Server>('/recruiter/company')
-    set({ id: data.id, logoUrl: data.logoUrl ?? null, tax: taxOf(data), profile: pick(data) })
+    set(statusOf(data))
   },
   update: async (patch) => {
     const { data } = await api.patch<Server>('/recruiter/company', patch)
-    set({ logoUrl: data.logoUrl ?? null, tax: taxOf(data), profile: pick(data) })
+    set({ ...statusOf(data), profile: pick(data) })
   },
   saveTaxCode: async (taxCode) => {
     const { data } = await api.patch<Server>('/recruiter/company', { taxCode })
-    set({ tax: taxOf(data) })
+    set(statusOf(data))
   },
-  clear: () => set({ id: '', logoUrl: null, tax: NO_TAX, profile: INITIAL }),
+  completeOnboarding: async () => {
+    const { data } = await api.post<Server>('/recruiter/company/onboarding/complete')
+    set({ id: data.id || get().id, ...statusOf(data), profile: pick(data) })
+  },
+  clear: () => { epoch += 1; inflight = null; set({ id: '', loaded: false, loadFailed: false, ...EMPTY_STATUS, profile: INITIAL }) },
 }))

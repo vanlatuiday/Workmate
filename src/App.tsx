@@ -1,4 +1,4 @@
-import { lazy, useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Messenger from '@components/messenger/Messenger'
 import NotificationCenter from '@components/notifications/NotificationCenter'
@@ -79,6 +79,8 @@ const AdminConfig = lazy(() => import('@pages/admin/Config'))
 
 // Guards
 import ProtectedRoute from '@components/common/ProtectedRoute'
+import OnboardingGate, { GateSkeleton } from '@components/common/OnboardingGate'
+const OnboardingPage = lazy(() => import('@pages/recruiter/onboarding/OnboardingPage'))
 const CandidateProfile = lazy(() => import('@pages/recruiter/CandidateProfile'))
 
 export default function App() {
@@ -152,9 +154,11 @@ export default function App() {
         {/* Bản bento cũ — đã thay bằng /ca-nhan */}
         <Route path="/trang-ca-nhan" element={<Navigate to="/ca-nhan" replace />} />
         <Route element={<ProtectedRoute role="recruiter" />}>
-          <Route path="/vi-tri/:id" element={<PositionDetailPage />} />
-          <Route path="/dang-tin" element={<PostJobPage />} />
-          <Route path="/ung-vien/:id" element={<CandidateProfile />} />
+          <Route element={<OnboardingGate />}>
+            <Route path="/vi-tri/:id" element={<PositionDetailPage />} />
+            <Route path="/dang-tin" element={<PostJobPage />} />
+            <Route path="/ung-vien/:id" element={<CandidateProfile />} />
+          </Route>
         </Route>
         <Route element={<ProtectedRoute role="jobseeker" />}>
           <Route path="/ho-so" element={<ProfilePage />} />
@@ -179,6 +183,9 @@ export default function App() {
 
       {/* Recruiter routes */}
       <Route element={<ProtectedRoute role="recruiter" />}>
+        {/* Form bắt đầu: toàn trang, ngoài khung dashboard; nhà tuyển dụng chưa xong form bị đưa về đây */}
+        <Route path="/tuyen-dung/bat-dau" element={<Suspense fallback={<GateSkeleton />}><OnboardingPage /></Suspense>} />
+        <Route element={<OnboardingGate />}>
         <Route element={<RecruiterLayout />}>
           <Route path="/tuyen-dung" element={<RecruiterDashboard />} />
           <Route path="/tuyen-dung/dang-tin" element={<Navigate to="/dang-tin" replace />} />
@@ -191,6 +198,7 @@ export default function App() {
           <Route path="/tuyen-dung/lich-phong-van" element={<Navigate to="/lich-phong-van" replace />} />
           <Route path="/tuyen-dung/ho-so-cong-ty" element={<CompanyProfile />} />
           <Route path="/tuyen-dung/cai-dat" element={<RecruiterSettings />} />
+        </Route>
         </Route>
       </Route>
 
