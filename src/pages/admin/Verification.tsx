@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { BadgeCheck, Check, ExternalLink, FileText, X } from 'lucide-react'
+import { AlertTriangle, BadgeCheck, Check, ExternalLink, FileText, X } from 'lucide-react'
 import { PageHeader, StatusBadge, EmptyState, SkeletonList } from '@components/dashboard'
 import { useCatalogStore, type CatalogCompany } from '@context/catalogStore'
+import { TAX_RESULT_LABEL } from '@services/companyService'
 import { fetchVerifications, getVerificationDocUrl, reviewVerification, setCompanyVerified, type AdminVerification } from '@services/adminService'
 import { useFlip } from '@hooks/useFlip'
 import { notifySuccess } from '@utils/feedback'
@@ -24,6 +25,33 @@ const REASONS = ['Giấy tờ không rõ nét', 'Tên doanh nghiệp không kh�
 const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 const dateLabel = (iso: string) => new Date(iso).toLocaleDateString('vi-VN')
 const sizeLabel = (b: number) => (b >= 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`)
+
+/** Khối "Mã số doanh nghiệp" của một yêu cầu: mã, kết quả tra, cảnh báo tên lệch / trùng mã */
+function TaxBlock({ v }: { v: AdminVerification }) {
+  const code = v.company.taxCode
+  const lookup = v.tax?.lookup ?? null
+  const same = v.tax?.sameCodeCompanies ?? []
+  const tone = !lookup ? 'neutral' : lookup.result === 'active' ? 'soft' : lookup.result === 'unavailable' ? 'neutral' : 'danger'
+  return (
+    <div className="mt-4 rounded-control border border-page-line p-3 text-sm text-page-fg">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="font-medium">Mã số doanh nghiệp</span>
+        <span className="tnum">{code || <span className="text-page-muted">Chưa nhập</span>}</span>
+        {code && <StatusBadge tone={tone}>{lookup ? TAX_RESULT_LABEL[lookup.result] : 'Chưa tra'}</StatusBadge>}
+      </div>
+      {lookup?.name && <p className="mt-2 break-words">{lookup.name}</p>}
+      {lookup?.address && <p className="mt-1 break-words text-page-muted">{lookup.address}</p>}
+      {lookup?.statusText && lookup.result !== 'active' && <p className="mt-1 break-words text-page-muted">{lookup.statusText}</p>}
+      {v.tax?.nameMatches === false && (
+        <p className="mt-2 flex items-start gap-1.5 font-medium text-warning-ink"><AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />Tên trên dữ liệu thuế khác tên công ty</p>
+      )}
+      {same.length > 0 && (
+        <p className="mt-2 flex items-start gap-1.5 font-medium text-warning-ink"><AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" /><span className="min-w-0 break-words">Trùng mã với: {same.map((c) => c.name).join(', ')}</span></p>
+      )}
+      {lookup?.source === 'mock' && <p className="mt-2 text-xs text-page-muted">Dữ liệu giả lập (chế độ demo)</p>}
+    </div>
+  )
+}
 
 /** Một yêu cầu xác minh: thông tin công ty, giấy tờ (xem qua link ký tạm), nút duyệt / từ chối */
 function RequestCard({ v, onReviewed, onNotice }: { v: AdminVerification; onReviewed: () => Promise<void>; onNotice: (m: string) => void }) {
@@ -82,6 +110,8 @@ function RequestCard({ v, onReviewed, onNotice }: { v: AdminVerification; onRevi
 
       {v.note && <p className="mt-3 whitespace-pre-line break-words text-sm text-page-fg">Ghi chú: {v.note}</p>}
       {v.status === 'rejected' && v.rejectReason && <p className="mt-3 whitespace-pre-line break-words text-sm text-page-fg">Lý do từ chối: {v.rejectReason}</p>}
+
+      <TaxBlock v={v} />
 
       <ul className="mt-4 flex flex-col gap-2" aria-label="Giấy tờ">
         {v.documents.map((d) => (

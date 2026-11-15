@@ -117,3 +117,36 @@ export async function withdrawVerification(): Promise<string | null> {
     return apiErrorMessage(err, 'Không rút được yêu cầu.')
   }
 }
+
+// ---- Mã số doanh nghiệp (/api/recruiter/company/tax-lookup) ----
+export type TaxResult = 'active' | 'inactive' | 'not_found' | 'unavailable'
+export interface TaxLookup {
+  result: TaxResult
+  name?: string
+  shortName?: string | null
+  address?: string
+  statusText?: string
+  checkedAt: string
+  source: 'vietqr' | 'mock'
+}
+/** Mã đã lưu của công ty + kết quả tra lúc lưu */
+export interface TaxInfo { taxCode: string | null; taxLookup: TaxLookup | null; taxNameMatches: boolean | null }
+export interface TaxPreview { taxCode: string; lookup: TaxLookup; nameMatches: boolean | null; usedByOther: boolean }
+
+export const TAX_RESULT_LABEL: Record<TaxResult, string> = {
+  active: 'Đang hoạt động',
+  inactive: 'Ngừng hoạt động',
+  not_found: 'Không tồn tại',
+  unavailable: 'Chưa tra được',
+}
+
+/** Tra thử mã trước khi lưu. Máy chủ giới hạn 15 lần/phút: chỉ gọi khi bấm nút, không gọi theo từng phím */
+export async function previewTaxCode(code: string): Promise<{ data: TaxPreview | null; error: string | null }> {
+  try {
+    const res = await api.get<TaxPreview>('/recruiter/company/tax-lookup', { params: { code: code.trim() } })
+    return { data: res.data, error: null }
+  } catch (err) {
+    if (statusOf(err) === 429) return { data: null, error: 'Bạn tra quá nhanh, vui lòng đợi một chút rồi thử lại.' }
+    return { data: null, error: apiErrorMessage(err, 'Không tra được mã số lúc này.') }
+  }
+}

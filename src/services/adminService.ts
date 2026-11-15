@@ -14,7 +14,7 @@ import toast from 'react-hot-toast'
 import * as catalogApi from './catalogService'
 import { apiErrorMessage } from './authService'
 import api from './api'
-import type { Verification, VerificationStatus } from './companyService'
+import type { TaxLookup, Verification, VerificationStatus } from './companyService'
 
 export type { JobOpenStatus, ModerationStatus, SystemConfig } from '@context/catalogStore'
 export type { Report, ReportStatus, ReportTarget } from '@context/adminStore'
@@ -212,7 +212,9 @@ export const useAdmin = useAdminStore
 
 // ---- Hàng đợi xác minh doanh nghiệp (/api/admin/verifications) ----
 export interface AdminVerification extends Verification {
-  company: { id: string; name: string; industry: string; district: string; verified: boolean; locked: boolean }
+  company: { id: string; name: string; industry: string; district: string; verified: boolean; locked: boolean; taxCode?: string | null }
+  /** Kết quả tra mã số doanh nghiệp; có thể thiếu ở dữ liệu cũ */
+  tax?: { lookup: TaxLookup | null; nameMatches: boolean | null; sameCodeCompanies: { id: string; name: string }[] } | null
 }
 
 export async function fetchVerifications(status?: VerificationStatus): Promise<{ data: AdminVerification[]; error: string | null }> {

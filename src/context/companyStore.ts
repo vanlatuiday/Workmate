@@ -4,6 +4,7 @@ import { IS_PRODUCTION } from '@utils/isProduction'
 import type { Photo } from '@components/discover/types'
 import type { CompanySize } from '@/types'
 import { COMPANY } from '@pages/public/personal/companyData'
+import type { TaxInfo } from '@services/companyService'
 
 // Hồ sơ công ty của nhà tuyển dụng đang đăng nhập (GET/PATCH /recruiter/company), sửa ở /tuyen-dung/ho-so-cong-ty.
 // Trang công khai đọc từ danh mục (`catalogStore`), lưu xong thì nạp lại danh mục.
@@ -57,15 +58,28 @@ interface CompanyState {
   id: string
   /** Logo nằm ngoài `profile` để tải logo không làm form đang sửa bị nạp lại */
   logoUrl: string | null
+  /** Mã số doanh nghiệp + kết quả tra; nằm ngoài `profile` để lưu mã không làm form hồ sơ nạp lại */
+  tax: TaxInfo
   profile: CompanyProfile
   setLogoUrl: (url: string | null) => void
   load: () => Promise<void>
   /** Ném lỗi nếu máy chủ từ chối — nơi gọi hiện thông báo */
   update: (patch: Partial<CompanyProfile>) => Promise<void>
+  /** Lưu mã số doanh nghiệp ('' = xóa). Ném lỗi nếu máy chủ từ chối (400 sai mã, 403 đã xác minh) */
+  saveTaxCode: (taxCode: string) => Promise<void>
   clear: () => void
 }
 
-type Server = CompanyProfile & { id: string; logoUrl: string | null }
+type Server = CompanyProfile & {
+  id: string
+  logoUrl: string | null
+  taxCode?: string | null
+  taxLookup?: TaxInfo['taxLookup']
+  taxNameMatches?: boolean | null
+}
+
+const NO_TAX: TaxInfo = { taxCode: null, taxLookup: null, taxNameMatches: null }
+const taxOf = (d: Server): TaxInfo => ({ taxCode: d.taxCode ?? null, taxLookup: d.taxLookup ?? null, taxNameMatches: d.taxNameMatches ?? null })
 
 const pick = ({ name, industry, district, size, tagline, about, environment, values, policies, culture, email, phone, cover }: Server): CompanyProfile => ({
   name, industry, district, size, tagline, about, environment, values, policies, culture, email, phone, cover,
@@ -79,15 +93,20 @@ const INITIAL: CompanyProfile = IS_PRODUCTION
 export const useCompanyStore = create<CompanyState>()((set) => ({
   id: '',
   logoUrl: null,
+  tax: NO_TAX,
   profile: INITIAL,
   setLogoUrl: (logoUrl) => set({ logoUrl }),
   load: async () => {
     const { data } = await api.get<Server>('/recruiter/company')
-    set({ id: data.id, logoUrl: data.logoUrl ?? null, profile: pick(data) })
+    set({ id: data.id, logoUrl: data.logoUrl ?? null, tax: taxOf(data), profile: pick(data) })
   },
   update: async (patch) => {
     const { data } = await api.patch<Server>('/recruiter/company', patch)
-    set({ logoUrl: data.logoUrl ?? null, profile: pick(data) })
+    set({ logoUrl: data.logoUrl ?? null, tax: taxOf(data), profile: pick(data) })
   },
-  clear: () => set({ id: '', logoUrl: null, profile: INITIAL }),
+  saveTaxCode: async (taxCode) => {
+    const { data } = await api.patch<Server>('/recruiter/company', { taxCode })
+    set({ tax: taxOf(data) })
+  },
+  clear: () => set({ id: '', logoUrl: null, tax: NO_TAX, profile: INITIAL }),
 }))

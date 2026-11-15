@@ -55,6 +55,8 @@ export interface CatalogCompany extends DiscoverCompany {
   locked: boolean
   /** Doanh nghiệp đã tắt "Công khai trang công ty" */
   hidden?: boolean
+  /** Mã số doanh nghiệp đang hoạt động (khác `verified`: admin đã duyệt giấy tờ) */
+  taxValid?: boolean
 }
 
 /** Cấu hình hệ thống. Phần công khai ai cũng có; `bannedWords` chỉ có khi quản trị viên đã nạp /admin/config */
