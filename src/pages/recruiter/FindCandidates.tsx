@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import { notifySuccess } from '@utils/feedback'
 import { Bookmark, BookmarkCheck, MapPin, Search, UserSearch } from 'lucide-react'
-import { EmptyState, PageHeader, Panel, SkeletonCards, StatusBadge } from '@components/dashboard'
+import { EmptyState, FilterToggle, PageHeader, Panel, SkeletonCards, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
 import { availabilityLabel, useCandidates, usePositions, type MatchCandidate, type MatchPosition } from '@pages/public/match/data'
 import { useCandidateMatches } from '@services/matchingService'
@@ -155,6 +155,10 @@ export default function FindCandidates() {
   const [skills, setSkills] = useState<string[]>([])
   const [sessions, setSessions] = useState<number[]>([])
   const [salaryCap, setSalaryCap] = useState(0)
+  // Màn hẹp: khối lọc (ô chọn + chip) thu gọn sau nút "Bộ lọc"; từ md luôn hiện
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const selectsId = useId()
+  const chipsId = useId()
   // Máy chủ đã lọc người bị khóa và hồ sơ không cho phép tiếp cận
   const ALL_CANDIDATES = useCandidates()
   const positions = usePositions()
@@ -189,6 +193,8 @@ export default function FindCandidates() {
     setSessions([])
     setSalaryCap(0)
   }
+  const filterCount = (area ? 1 : 0) + (salaryCap ? 1 : 0) + skills.length + sessions.length
+  const collapsed = filtersOpen ? '' : 'max-md:hidden'
   const chip = (on: boolean) => cn(CHIP, on ? CHIP_ON : CHIP_OFF)
 
   return (
@@ -208,6 +214,8 @@ export default function FindCandidates() {
               className={cn(FIELD, 'w-full pl-9')}
             />
           </label>
+          <FilterToggle open={filtersOpen} onToggle={() => setFiltersOpen((v) => !v)} count={filterCount} controls={`${selectsId} ${chipsId}`} />
+          <div id={selectsId} className={cn('grid gap-3 md:contents', collapsed)}>
           <label>
             <span className="sr-only">Khu vực</span>
             <select value={area} onChange={(e) => setArea(e.target.value)} className={cn(FIELD, 'w-full')}>
@@ -222,8 +230,10 @@ export default function FindCandidates() {
               {SALARY_CAPS.map((v) => <option key={v} value={v}>Mong muốn tới {v}.000đ/giờ</option>)}
             </select>
           </label>
+          </div>
         </div>
 
+        <div id={chipsId} className={collapsed}>
         <div className="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="Rảnh buổi">
           <span className="mr-1 text-xs text-page-muted">Rảnh buổi</span>
           {SESSIONS.map((s) => (
@@ -239,6 +249,7 @@ export default function FindCandidates() {
               {s}
             </button>
           ))}
+        </div>
         </div>
         <div className="mt-4 flex items-center justify-between gap-3 text-sm text-page-muted" aria-live="polite">
           <span>{list.length} ứng viên</span>

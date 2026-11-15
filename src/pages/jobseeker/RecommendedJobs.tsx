@@ -3,7 +3,7 @@ import { useId, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Bookmark, BookmarkCheck, ChevronDown, MapPin, SearchX } from 'lucide-react'
 import { JOB_TYPES } from '@constants/index'
-import { EmptyState, MatchScore, PageHeader, SkeletonCards } from '@components/dashboard'
+import { EmptyState, FilterToggle, MatchScore, PageHeader, SkeletonCards } from '@components/dashboard'
 import { cn } from '@utils/cn'
 import type { JobType } from '@/types'
 import { useCatalogStore } from '@context/catalogStore'
@@ -126,6 +126,10 @@ export default function RecommendedJobs() {
   const savedJobs = useMatchStore((s) => s.savedJobs)
   const toggleSave = useMatchStore((s) => s.toggleSavedJob)
   const catalogLoaded = useCatalogStore((s) => s.loaded)
+  // Màn hẹp: bộ lọc thu gọn sau nút "Bộ lọc"; từ md luôn hiện
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const filtersId = useId()
+  const filterCount = (type !== 'all' ? 1 : 0) + (minScore !== 0 ? 1 : 0) + (sort !== 'match' ? 1 : 0)
   const typeId = useId()
   const scoreId = useId()
   const sortId = useId()
@@ -165,7 +169,8 @@ export default function RecommendedJobs() {
         description="Gợi ý dựa trên kỹ năng, lịch rảnh, khoảng cách, mức lương và nguyện vọng trong hồ sơ."
       />
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      <FilterToggle open={filtersOpen} onToggle={() => setFiltersOpen((v) => !v)} count={filterCount} controls={filtersId} className="mb-4" />
+      <div id={filtersId} className={cn('mb-6 grid gap-4 md:grid-cols-3', !filtersOpen && 'max-md:hidden')}>
         <div className="flex flex-col gap-1.5">
           <label htmlFor={typeId} className="text-sm text-page-muted">Loại việc</label>
           <select id={typeId} value={type} onChange={(e) => setType(e.target.value as 'all' | JobType)} className={FIELD}>

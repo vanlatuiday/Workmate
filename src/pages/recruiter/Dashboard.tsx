@@ -90,7 +90,7 @@ export default function RecruiterDashboard() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Tin đang mở" value={openRows.length} icon={Briefcase} href="/tuyen-dung/tin-dang" hint={`Trên tổng ${rows.length} tin`} emptyAction={{ text: 'Chưa có tin đang mở', label: 'Đăng tin tuyển dụng', href: '/dang-tin' }} />
         <StatCard label="Ứng viên phù hợp" value={fitTotal} icon={UserCheck} href="/match" hint="Điểm từ 60%, trên các tin đang mở" emptyAction={{ text: 'Chưa có ứng viên phù hợp', label: 'Tìm ứng viên', href: '/tuyen-dung/tim-ung-vien' }} />
         <StatCard label="Kết nối" value={connectedTotal} icon={Handshake} href="/tuyen-dung/match" hint={working > 0 ? `${working} người đã đi làm` : 'Hai bên cùng quan tâm'} />

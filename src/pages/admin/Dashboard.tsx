@@ -44,7 +44,7 @@ export default function AdminDashboard() {
     <div>
       <PageHeader title="Tổng quan" description="Tình hình hệ thống Workmate và những việc cần xử lý hôm nay." />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard label="Người dùng" value={users.length.toLocaleString('vi-VN')} icon={Users} hint={`${seekerCount} người tìm việc, ${recruiterCount} nhà tuyển dụng`} />
         <StatCard label="NTD chưa xác minh" value={unverified} icon={Building2} href="/admin/xac-minh" hint="Công ty chưa có nhãn xác minh" />
         <StatCard label="Tin chờ kiểm duyệt" value={pendingJobs.length} icon={FileText} href="/admin/kiem-duyet" hint={`${flaggedLive} tin đang hiện bị gắn cờ`} />
