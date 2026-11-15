@@ -3,7 +3,7 @@
 import { useCallback, useEffect } from 'react'
 import api from './api'
 import { useAuthStore } from '@context/authStore'
-import { useCatalogStore } from '@context/catalogStore'
+import { useCatalogStore, type CatalogJob } from '@context/catalogStore'
 import { useMatchingStore, type ServerOutcome, type Weights } from '@context/matchingStore'
 import { UNMET_SCORE_CAP, type MatchOutcome } from '@pages/public/match/score'
 
@@ -122,13 +122,17 @@ export function resetMatching(): void {
   if (role() === 'jobseeker') void loadSeekerMatches()
 }
 
-// Danh mục tin đổi (tin mới, tin đóng…) thì điểm có thể đổi. Chỉ nạp lại khi tập tin thật sự khác:
-// lần nạp danh mục đầu tiên (thay dữ liệu mẫu) hoặc nạp lại y hệt thì không cần, vì điểm đã được nạp ngay khi đăng nhập.
-const idsOf = (jobs: { id: string }[]) => jobs.map((j) => j.id).sort().join('|')
+// Danh mục tin đổi (tin mới, tin đóng, sửa nội dung tin…) thì điểm có thể đổi. Chỉ nạp lại khi phần dùng để tính điểm
+// thật sự khác: lần nạp danh mục đầu tiên (thay dữ liệu mẫu) hoặc nạp lại y hệt thì không cần, vì điểm đã được nạp ngay khi đăng nhập.
+const scoreInputsOf = (j: CatalogJob) => JSON.stringify([
+  j.id, j.visible, j.district, j.skills, j.requiredSkills, j.requireAllSlots, j.slots,
+  j.salaryMinK, j.salaryMaxK, j.jobType, j.radiusKm,
+])
+const signatureOf = (jobs: CatalogJob[]) => jobs.map(scoreInputsOf).sort().join('\n')
 useCatalogStore.subscribe((s, prev) => {
   // prev chưa `loaded` = đang là dữ liệu mẫu ban đầu (catalogSeed), không phải thay đổi thật
   if (s.jobs === prev.jobs || !prev.loaded || !role()) return
-  if (idsOf(s.jobs) !== idsOf(prev.jobs)) scheduleMatchingRefresh()
+  if (signatureOf(s.jobs) !== signatureOf(prev.jobs)) scheduleMatchingRefresh()
 })
 
 /** Hook cho người tìm việc: `ready` = đã có kết quả (hoặc lỗi); `outcomeOf` trả undefined nếu tin chưa có điểm */
