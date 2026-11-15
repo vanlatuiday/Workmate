@@ -79,7 +79,7 @@ const AdminConfig = lazy(() => import('@pages/admin/Config'))
 
 // Guards
 import ProtectedRoute from '@components/common/ProtectedRoute'
-import OnboardingGate, { GateSkeleton } from '@components/common/OnboardingGate'
+import OnboardingGate, { GateSkeleton, useOnboardingRedirect } from '@components/common/OnboardingGate'
 const OnboardingPage = lazy(() => import('@pages/recruiter/onboarding/OnboardingPage'))
 const CandidateProfile = lazy(() => import('@pages/recruiter/CandidateProfile'))
 
@@ -96,6 +96,8 @@ export default function App() {
   // Danh mục tin / công ty / cấu hình theo người đang xem: nạp khi mở web và nạp lại mỗi khi đăng nhập/đăng xuất/đổi tài khoản
   const userId = useAuthStore((s) => s.user?.id)
   const role = useAuthStore((s) => s.user?.role)
+  // Nhà tuyển dụng chưa xong form bắt đầu: trang nào cũng đưa về form (kể cả trang chủ sau khi đăng nhập)
+  useOnboardingRedirect()
   // Màu nhấn theo vai trò (tokens.json → roles): người tìm việc xanh lá, còn lại cam
   useEffect(() => {
     document.documentElement.dataset.role = role === 'jobseeker' ? 'seeker' : 'default'

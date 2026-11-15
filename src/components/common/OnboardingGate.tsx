@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useAuthStore } from '@context/authStore'
 import { useCompanyStore } from '@context/companyStore'
 import Skeleton from '@components/dashboard/Skeleton'
 import { BTN_PRIMARY } from '@utils/ui'
@@ -43,4 +44,28 @@ export default function OnboardingGate() {
   if (!loaded) return loadFailed ? <GateError /> : <GateSkeleton />
   if (needsOnboarding) return <Navigate to="/tuyen-dung/bat-dau" replace />
   return <Outlet />
+}
+
+/** Trang vẫn mở được khi chưa xong form bắt đầu (đọc điều khoản, xin hỗ trợ) */
+const OPEN_WHILE_ONBOARDING = ['/tuyen-dung/bat-dau', '/dieu-khoan', '/bao-mat', '/ho-tro', '/lien-he']
+
+/**
+ * Nhà tuyển dụng chưa xong form bắt đầu mở BẤT KỲ trang nào (trang chủ sau khi đăng nhập, trang công khai…)
+ * → đưa về form. Gọi một lần ở App. Các trang riêng của nhà tuyển dụng còn có thêm OnboardingGate.
+ */
+export function useOnboardingRedirect() {
+  const role = useAuthStore((s) => s.user?.role)
+  const loaded = useCompanyStore((s) => s.loaded)
+  const needsOnboarding = useCompanyStore((s) => s.needsOnboarding)
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const recruiter = role === 'recruiter'
+  useEffect(() => {
+    if (recruiter && !loaded) void useCompanyStore.getState().load().catch(() => undefined)
+  }, [recruiter, loaded])
+  useEffect(() => {
+    if (!recruiter || !loaded || !needsOnboarding) return
+    if (OPEN_WHILE_ONBOARDING.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return
+    navigate('/tuyen-dung/bat-dau', { replace: true })
+  }, [recruiter, loaded, needsOnboarding, pathname, navigate])
 }
