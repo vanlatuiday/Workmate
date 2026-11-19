@@ -7,6 +7,7 @@ import { companyOf, type MatchJob } from '@pages/public/match/data'
 import { JOB_TYPES } from '@constants/index'
 import Tilt from '@components/motion/Tilt'
 import { cn } from '@utils/cn'
+import { LIGHT_CARD_VARS } from './homeBackground'
 
 /**
  * Thẻ việc làm trên trang chủ: ảnh + công ty + tên việc + lương + quận + vài nhãn.
@@ -21,6 +22,7 @@ export default function JobCard({
   score,
   status,
   note,
+  glass,
 }: {
   job: MatchJob
   className?: string
@@ -32,6 +34,8 @@ export default function JobCard({
   status?: string
   /** Dòng phụ cuối thẻ, vd. "3 người quan tâm" */
   note?: string
+  /** Kính trắng mờ (trang chủ, nền ảnh xanh) — mặc định dùng màu theme của trang */
+  glass?: boolean
 }) {
   const company = companyOf(job.companyId)
   const typeLabel = JOB_TYPES.find((t) => t.value === job.jobType)?.label
@@ -43,7 +47,10 @@ export default function JobCard({
         to={href ?? `/viec-lam/${job.id}`}
         data-cursor="Xem"
         className={cn(
-          'group flex h-full flex-col overflow-hidden rounded-card border border-page-line bg-page-surface',
+          'group flex h-full flex-col overflow-hidden rounded-card border',
+          glass
+            ? cn(LIGHT_CARD_VARS, 'border-wm-ivory/70 bg-wm-ivory/75 shadow-[0_14px_32px_-20px_var(--wm-night)] backdrop-blur-xl backdrop-saturate-150')
+            : 'border-page-line bg-page-surface',
           'transition-[transform,border-color,box-shadow] duration-500 ease-editorial',
           'hover:-translate-y-1 hover:border-page-fg hover:shadow-[0_14px_28px_-18px_var(--wm-night)]',
           'focus-visible:-translate-y-1 focus-visible:border-page-fg focus-visible:shadow-[0_14px_28px_-18px_var(--wm-night)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-page-fg',

@@ -1,4 +1,4 @@
-import { forwardRef, lazy, Suspense, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { Fragment, forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
 import { Search, MapPin, ArrowDown, ArrowUpRight } from 'lucide-react'
 
@@ -6,17 +6,16 @@ import { gsap, ScrollTrigger, useGSAP } from '@utils/gsap'
 import { setInitialScroll } from '@components/common/RouteScroll'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { getSmoothScroll, scrollToY } from '@hooks/useSmoothScroll'
-import MaskedWords from '@components/motion/MaskedWords'
+import HeroRoleCards from './HeroRoleCards'
 import RollText from '@components/motion/RollText'
 import Magnetic from '@components/motion/Magnetic'
 import { useParticlesFailed } from '@components/motion/particleStatus'
 import { useAuthStore } from '@context/authStore'
-import { photoSrcSet, photoUrl } from '@components/discover/types'
 import { heroCopy, heroTags } from './content'
-import { homeMedia } from './homeMedia'
+import { HOME_BG_FALLBACK, HOME_GLASS_DARK, heroBgStyle } from './homeBackground'
+import { HomeBgLayers } from './HomeBackdrop'
 
 // Tách riêng để shader không nằm trong bundle chính
-const HeroCanvas = lazy(() => import('@components/motion/HeroCanvas'))
 
 export type IntroHeroHandle = {
   /** Cuộn tới chỗ thanh tìm kiếm đã hiện đủ rồi đặt con trỏ vào ô từ khóa. */
@@ -156,7 +155,6 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
       if (!logo) return
 
       const html = document.documentElement
-      const canvasWrap = wrapRef.current?.querySelector<HTMLElement>('[data-hero-canvas]')
 
       // Vị trí/kích thước logo khi nằm yên trong header (bỏ qua transform đang có)
       const naturalRect = () => {
@@ -177,6 +175,10 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
       gsap.set('[data-hero-item]', { opacity: 0, y: 32 })
       gsap.set('[data-hero-title] [data-word]', { yPercent: 120, opacity: 0 })
       if (particles) gsap.set(logo, { opacity: 0 })
+      gsap.set('[data-intro-night]', { opacity: 1 })
+      gsap.set('[data-intro-dome]', { scale: 1, transformOrigin: '50% 100%' })
+      gsap.set('[data-hero-orange]', { opacity: 0, scale: 0.7, yPercent: 14, transformOrigin: '50% 100%' })
+      gsap.set('[data-hero-card]', { opacity: 0, y: 56 })
 
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
@@ -194,9 +196,6 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
             // Còn ở intro → các phần chưa hiện không nhận click (xem index.css)
             if (self.progress < 0.45) html.setAttribute('data-intro', '')
             else html.removeAttribute('data-intro')
-            // Lớp WebGL đã mờ hẳn thì tắt luôn, để canvas thôi vẽ (IntersectionObserver
-            // trong HeroCanvas thấy display:none là dừng vòng lặp)
-            if (canvasWrap) canvasWrap.style.display = self.progress > 0.42 ? 'none' : ''
           },
         },
       })
@@ -221,8 +220,10 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
       }
       tl
         .to('[data-scroll-hint]', { autoAlpha: 0, duration: 0.08 }, 0)
-        // Kết cấu WebGL chỉ thuộc về intro than chì — mờ đi khi cuộn khỏi intro (nền trang giữ than chì suốt banner, Việc gấp và con phố)
-        .to('[data-hero-canvas]', { opacity: 0, duration: 0.32 }, 0.08)
+        // Nền: vòm sáng nở ra, lớp phủ xanh mờ dần lộ hero (cam trong ảnh hiện muộn nhờ ease), rồi cụm cam dâng lên
+        .to('[data-intro-dome]', { scale: 1.35, duration: 0.42, ease: 'power1.inOut' }, 0.04)
+        .to('[data-intro-night]', { opacity: 0, duration: 0.4, ease: 'power2.in' }, 0.06)
+        .to('[data-hero-orange]', { opacity: 1, scale: 1, yPercent: 0, duration: 0.34, ease: 'power2.out' }, 0.3)
         // 0.38 → 0.9: nội dung hero
         .to(
           '[data-hero-title] [data-word]',
@@ -230,19 +231,10 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
           0.38,
         )
         .to('[data-hero-item]', { opacity: 1, y: 0, duration: 0.3, stagger: 0.06, ease: 'power2.out' }, 0.42)
+        // 3 thẻ vai trò nổi lên lần lượt, sau cùng
+        .to('[data-hero-card]', { opacity: 1, y: 0, duration: 0.24, stagger: 0.08, ease: 'power2.out' }, 0.62)
         // Giữ một nhịp cho người dùng đọc trước khi lớp sticky nhả ra
         .to({}, { duration: 0.1 })
-
-      // Qua khỏi banner: phần 2 (tấm bo góc, HomePage) trượt lên che, banner phía sau
-      // "lùi vào trong" — trôi chậm hơn trang, thu nhỏ nhẹ và tối dần. Lướt lên thì ngược lại.
-      // Bắt đầu đúng lúc lớp sticky nhả ra nên không đụng tới intro.
-      gsap
-        .timeline({
-          defaults: { ease: 'none' },
-          scrollTrigger: { trigger: wrapRef.current, start: 'bottom bottom', end: 'bottom top', scrub: true },
-        })
-        .to('[data-hero-stage]', { y: () => window.innerHeight * 0.45, scale: 0.94, transformOrigin: '50% 0%' }, 0)
-        .to('[data-hero-dim]', { opacity: 0.6 }, 0)
 
       // onUpdate chỉ chạy khi cuộn — lúc vừa mở trang phải tự đặt trạng thái intro
       if ((tl.scrollTrigger?.progress ?? 0) < 0.45) html.setAttribute('data-intro', '')
@@ -262,6 +254,8 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
         ScrollTrigger.refresh()
         st.getTween()?.progress(1)
         tl.progress(1)
+        // Mở thẳng ở banner: timeline đã ở cuối nên thẻ không có lượt hiện → cho nổi lên lần lượt một lần
+        gsap.fromTo('[data-hero-card]', { opacity: 0, y: 56 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.14, ease: 'power3.out', delay: 0.35 })
       }
 
       // Bàn phím / trình đọc màn hình đi vào phần chưa hiện → cuộn qua intro để nó hiện ra
@@ -282,6 +276,40 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
     // Đổi vai trò ngay trên trang chủ (đăng nhập/đăng xuất) → chữ hero được render lại thành
     // phần tử mới chưa bị giấu; dựng lại timeline để chúng cũng ẩn trong intro như lúc tải trang
     { scope: wrapRef, dependencies: [reduced, audience, particlesFailed], revertOnUpdate: true },
+  )
+
+  // Các lớp trôi nhẹ theo chuột (chỉ chuột/trackpad, không giảm chuyển động). Chỉ dùng transform
+  // trên phần tử có data-depth — không đụng tới phần tử mà timeline intro đang điều khiển.
+  useGSAP(
+    (_, contextSafe) => {
+      const hero = wrapRef.current
+      if (!hero || !contextSafe) return
+      const mm = gsap.matchMedia()
+      mm.add('(pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
+        const layers = gsap.utils.toArray<HTMLElement>('[data-depth]').map((el) => ({
+          depth: Number(el.dataset.depth) || 0,
+          x: gsap.quickTo(el, 'x', { duration: 0.8, ease: 'power3.out' }),
+          y: gsap.quickTo(el, 'y', { duration: 0.8, ease: 'power3.out' }),
+        }))
+        const move = contextSafe((e: PointerEvent) => {
+          const nx = (e.clientX / window.innerWidth - 0.5) * 2
+          const ny = (e.clientY / window.innerHeight - 0.5) * 2
+          layers.forEach((l) => {
+            l.x(nx * l.depth)
+            l.y(ny * l.depth)
+          })
+        })
+        const reset = contextSafe(() => layers.forEach((l) => { l.x(0); l.y(0) }))
+        hero.addEventListener('pointermove', move)
+        hero.addEventListener('pointerleave', reset)
+        return () => {
+          hero.removeEventListener('pointermove', move)
+          hero.removeEventListener('pointerleave', reset)
+        }
+      })
+      return () => mm.revert()
+    },
+    { scope: wrapRef, dependencies: [audience], revertOnUpdate: true },
   )
 
   // Intro là MỘT khối: lướt nhẹ xuống là trôi một mạch tới hero, lướt lên từ hero là
@@ -413,72 +441,89 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
       className={reduced ? 'relative' : 'relative h-[200svh]'}
     >
       <div className="sticky top-0 min-h-[100svh] flex flex-col justify-center overflow-clip">
-        {!reduced && (
-          <div data-hero-canvas aria-hidden className="absolute inset-0 -z-10 pointer-events-none">
-            <Suspense fallback={null}>
-              <HeroCanvas />
-            </Suspense>
+        {/* Nền xanh (references/backgr.png): đứng yên sau cả màn mở đầu lẫn banner — intro hiện logo
+            trên nền này, lướt xuống thì logo tan và nội dung hero hiện dần (xem homeBackground.ts). */}
+        <div data-home-bg="hero" aria-hidden className="pointer-events-none absolute inset-0 -z-20">
+          <HomeBgLayers style={heroBgStyle} />
+          {/* Màn mở đầu: phủ kín ảnh hero bằng nền xanh tối có vòm sáng xanh nhẹ ôm phần dưới màn hình (không cam).
+              Lướt xuống: vòm nở ra, lớp phủ mờ dần để lộ hero, cuối cùng cụm cam mới dâng lên (timeline intro).
+              Mặc định ẩn (giảm chuyển động / mở thẳng ở banner). */}
+          {/* Quầng cam đáy hero, rộng hơn cam sẵn trong ảnh; hiện sau cùng khi vào hero */}
+          <div data-hero-orange className="home-hero-orange absolute inset-0" />
+          <div data-intro-night className="home-intro-night absolute inset-0 opacity-0">
+            <div data-intro-dome className="home-intro-dome absolute inset-x-0 bottom-0 h-[75%]" />
           </div>
-        )}
+        </div>
 
-        {/* Hero: ảnh tràn toàn màn hình (sát mép, nằm dưới header), chữ ngà căn giữa.
-            Màu trong khối này cố định (wm-*) vì nền là ảnh tối, không theo theme trang. */}
-        {/* data-hero-stage: khối lùi vào trong khi phần 2 che lên (không dùng data-hero-item
+        {/* data-hero-stage: khung chứa banner (không dùng data-hero-item
             vì transform của các phần đó thuộc timeline intro) */}
         <div data-hero-stage className="relative w-full">
           <div
             data-hero-item
-            className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-wm-night"
+            className="relative flex min-h-[100svh] flex-col items-center overflow-hidden"
           >
-            <img
-              src={photoUrl(homeMedia.hero.id, 1400)}
-              srcSet={photoSrcSet(homeMedia.hero.id)}
-              sizes="100vw"
-              alt={homeMedia.hero.alt}
-              width={1400}
-              height={900}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            {/* Lớp tối phủ ảnh: chỉ đậm ở nơi có chữ để phần ảnh còn lại giữ độ sáng.
-                Chỉ dùng wm-night (không gradient màu). Độ đậm ước lượng trên điểm sáng nhất của ảnh (trắng):
-                - vầng tròn sau tiêu đề + ô tìm kiếm: 72% (chữ ngà ≥ 4.5:1 kể cả trên nền trắng tuyệt đối)
-                - từ dưới lên: 80% ở mép dưới (gợi ý cuộn, thẻ ngành) tan hết ở ~70% chiều cao
-                - mép trên: 50% → 0 trong 22% đầu (logo + menu của header) */}
+            {/* Quầng xanh đậm rất nhẹ sau chữ: vệt sáng xanh ngọc ở giữa nền làm chữ trắng nhạt đi */}
             <div
               aria-hidden
-              className="absolute inset-0"
+              className="pointer-events-none absolute inset-0"
               style={{
-                backgroundImage: [
-                  'linear-gradient(to bottom, color-mix(in srgb, var(--wm-night) 50%, transparent) 0%, transparent 22%)',
-                  'radial-gradient(ellipse 68% 56% at 50% 50%, color-mix(in srgb, var(--wm-night) 72%, transparent) 0%, color-mix(in srgb, var(--wm-night) 72%, transparent) 50%, transparent 100%)',
-                  'linear-gradient(to top, color-mix(in srgb, var(--wm-night) 80%, transparent) 0%, color-mix(in srgb, var(--wm-night) 40%, transparent) 35%, transparent 70%)',
-                ].join(', '),
+                background: `radial-gradient(ellipse 52% 46% at 50% 54%, color-mix(in srgb, ${HOME_BG_FALLBACK} 42%, transparent) 0%, transparent 100%)`,
               }}
             />
-            {/* Điện thoại: chữ chiếm gần hết bề ngang nên vầng tròn không đủ phủ → thêm một lớp đều nhẹ */}
-            <div aria-hidden className="absolute inset-0 bg-wm-night/30 sm:hidden" />
 
-            <div className="relative shell flex w-full flex-col items-center pt-24 pb-16 text-center text-wm-ivory">
+            {/* Quầng sáng cyan/ngà sau tiêu đề — lớp sâu nhất, trôi theo chuột nhiều nhất */}
+            <div data-depth="18" aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <div
+                className="h-[46%] w-[min(88%,980px)] rounded-full opacity-60 blur-3xl"
+                style={{
+                  background:
+                    'radial-gradient(ellipse at center, color-mix(in srgb, var(--wm-cyan) 55%, transparent) 0%, color-mix(in srgb, var(--wm-ivory) 22%, transparent) 45%, transparent 75%)',
+                  transform: 'translateY(-24%)',
+                }}
+              />
+            </div>
+
+            {/* Khối chữ chiếm phần còn lại phía trên hàng thẻ, căn giữa */}
+            <div className="relative shell flex w-full flex-1 flex-col items-center justify-center pt-24 lg:pt-20 pb-16 lg:pb-4 text-center text-wm-ivory">
               <p data-hero-item className="eyebrow text-wm-mist">
                 Nền tảng việc làm linh hoạt
               </p>
 
-              <div data-hero-title>
-                <MaskedWords
-                  as="h1"
-                  text={copy.title}
-                  className="font-display text-display-md font-semibold mt-4 md:mt-8 mx-auto max-w-[18ch] text-wm-ivory"
-                />
+              <div data-hero-title data-depth="10">
+                {/* Một h1 duy nhất: câu đầy đủ cho trình đọc màn hình, hai dòng chữ lớn (từng từ có data-word cho intro) ẩn khỏi nó */}
+                <h1
+                  className="font-display font-semibold mt-4 md:mt-6 mx-auto text-wm-ivory leading-[1.04] tracking-[-0.035em] text-[clamp(2.5rem,min(7.2vw,9.2svh),6.5rem)]"
+                  // Không dùng text-shadow: mặt nạ overflow-hidden quanh từng từ cắt bóng thành ô chữ nhật — quầng sáng nằm ở lớp riêng phía sau
+                >
+                  <span className="sr-only">{copy.title}</span>
+                  {copy.titleLines.map((line) => (
+                    <span key={line} aria-hidden className="block">
+                      {line.split(' ').map((word, i, arr) => (
+                        <Fragment key={`${word}-${i}`}>
+                          {/* pb/-mb: nới đáy mặt nạ để dấu tiếng Việt không bị cắt */}
+                          <span className="inline-block overflow-hidden align-bottom pb-[0.12em] -mb-[0.12em]">
+                            <span data-word className="inline-block">
+                              {word}
+                            </span>
+                          </span>
+                          {i < arr.length - 1 && ' '}
+                        </Fragment>
+                      ))}
+                    </span>
+                  ))}
+                </h1>
               </div>
 
               {/* Điện thoại: bỏ đoạn dẫn để cả khối vừa một màn hình */}
-              <p data-hero-item className="hidden sm:block mx-auto mt-6 md:mt-8 max-w-xl text-base md:text-lg text-wm-mist leading-relaxed">
+              <p data-hero-item className="hidden sm:block [@media(max-height:880px)]:!hidden mx-auto mt-5 md:mt-6 max-w-xl text-base md:text-lg text-wm-mist leading-relaxed">
                 {copy.lead}
               </p>
 
+              {/* Lớp trôi theo chuột (data-depth) bọc ngoài các phần tử intro, không đặt transform lên chúng */}
+              <div data-depth="5" className="flex w-full flex-col items-center">
               {copy.search && (
               <>
-              <div data-hero-item className="mx-auto mt-6 md:mt-10 w-full max-w-3xl text-left">
+              <div data-hero-item className="mx-auto mt-6 md:mt-8 w-full max-w-3xl text-left">
                 {/* Viên thuốc kính trên ảnh tối; focus hiện bằng vòng sáng quanh cả form */}
                 <form
                   onSubmit={handleSearch}
@@ -533,9 +578,9 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                   <li key={tag}>
                     <Link
                       to={`/viec-lam?keyword=${encodeURIComponent(tag)}`}
-                      className="flex min-h-9 items-center text-xs text-wm-ivory border border-wm-mist rounded-full px-3 py-1.5
+                      className={`flex min-h-9 items-center text-xs text-wm-ivory border border-wm-ivory/40 ${HOME_GLASS_DARK} rounded-full px-3 py-1.5
                                  hover:bg-wm-ivory hover:text-wm-charcoal focus-visible:bg-wm-ivory focus-visible:text-wm-charcoal
-                                 active:scale-[0.97] motion-reduce:active:scale-100 transition-[color,background-color,transform] duration-300"
+                                 active:scale-[0.97] motion-reduce:active:scale-100 transition-[color,background-color,transform] duration-300`}
                     >
                       {tag}
                     </Link>
@@ -554,7 +599,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                     className={
                       i === 0 && !copy.search
                         ? 'group inline-flex min-h-11 items-center gap-2 bg-accent text-accent-fg font-semibold text-sm px-8 py-4 rounded-full transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100'
-                        : 'group inline-flex min-h-11 items-center gap-2 border border-wm-mist text-wm-ivory font-medium text-sm px-6 py-3 rounded-full hover:bg-wm-ivory hover:text-wm-charcoal focus-visible:bg-wm-ivory focus-visible:text-wm-charcoal active:scale-[0.97] motion-reduce:active:scale-100 transition-[color,background-color,transform] duration-300'
+                        : `group inline-flex min-h-11 items-center gap-2 border border-wm-ivory/40 ${HOME_GLASS_DARK} text-wm-ivory font-medium text-sm px-6 py-3 rounded-full hover:bg-wm-ivory hover:text-wm-charcoal focus-visible:bg-wm-ivory focus-visible:text-wm-charcoal active:scale-[0.97] motion-reduce:active:scale-100 transition-[color,background-color,transform] duration-300`
                     }
                   >
                     <RollText>{a.label}</RollText>
@@ -563,10 +608,14 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                   </Magnetic>
                 ))}
               </div>
+              </div>
+            </div>
+
+            {/* Hàng thẻ xem trước: nằm trọn trong hero, cách mép dưới một khoảng. Chỉ từ lg */}
+            <div data-depth="-12" className="hidden lg:[@media(min-height:820px)]:block w-full pb-10">
+              <HeroRoleCards />
             </div>
           </div>
-          {/* Lớp tối dần khi banner lùi ra sau phần 2 (opacity do GSAP điều khiển) */}
-          <div data-hero-dim aria-hidden className="pointer-events-none absolute inset-0 bg-wm-night opacity-0" />
         </div>
 
         {/* Gợi ý cuộn — chỉ có ở trạng thái intro, mờ đi ngay khi bắt đầu cuộn */}

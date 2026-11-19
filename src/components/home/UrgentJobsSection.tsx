@@ -11,6 +11,7 @@ import CandidateCard from './CandidateCard'
 import { homeSections, homeSectionsByRole } from './content'
 import { useHomeCandidates, useHomeRole } from './homeData'
 import { useCardsEnter } from './useCardsEnter'
+import { HOME_GLASS_DARK } from './homeBackground'
 
 const COUNT = 8
 
@@ -70,7 +71,7 @@ export default function UrgentJobsSection() {
   }
 
   const arrow =
-    'hidden sm:inline-flex h-11 w-11 items-center justify-center rounded-full border border-page-line text-page-fg ' +
+    `hidden sm:inline-flex h-11 w-11 items-center justify-center rounded-full border border-wm-ivory/30 ${HOME_GLASS_DARK} text-page-fg ` +
     'transition-[border-color,transform] duration-300 hover:border-page-fg active:scale-[0.97] motion-reduce:active:scale-100 disabled:opacity-40 disabled:pointer-events-none'
 
   return (
@@ -82,7 +83,7 @@ export default function UrgentJobsSection() {
             text={copy.title}
             className="font-display text-display-sm font-semibold text-page-fg"
           />
-          <p className="mt-3 inline-block rounded-full border border-page-line px-3 py-1.5 text-xs text-page-muted">
+          <p className={`mt-3 inline-block rounded-full border border-wm-ivory/30 ${HOME_GLASS_DARK} px-3 py-1.5 text-xs text-wm-ivory`}>
             {homeSections.sampleNote}
           </p>
         </div>
@@ -117,8 +118,8 @@ export default function UrgentJobsSection() {
         {role === 'recruiter'
           ? shownCandidates.map((c) => <CandidateCard key={c.id} candidate={c} className={CARD} />)
           : role === 'jobseeker'
-            ? scored.map(({ job, score }) => <JobCard key={job.id} job={job} score={score} className={CARD} />)
-            : jobs.map((job) => <JobCard key={job.id} job={job} className={CARD} />)}
+            ? scored.map(({ job, score }) => <JobCard key={job.id} job={job} score={score} glass className={CARD} />)
+            : jobs.map((job) => <JobCard key={job.id} job={job} glass className={CARD} />)}
       </ul>
     </section>
   )

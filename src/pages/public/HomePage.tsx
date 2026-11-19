@@ -5,6 +5,8 @@ import { ScrollTrigger } from '@utils/gsap'
 import { ParticleBoundary, useParticlesFailed } from '@components/motion/particleStatus'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import CustomCursor from '@components/motion/CustomCursor'
+import { afterHeroBgStyle, HOME_BG_JOIN, waveBgStyle } from '@components/home/homeBackground'
+import { HomeBgLayers, useHomeBgParallax } from '@components/home/HomeBackdrop'
 import IntroHero, { supportsWebGL, type IntroHeroHandle } from '@components/home/IntroHero'
 import UrgentJobsSection from '@components/home/UrgentJobsSection'
 import StreetSceneSection from '@components/home/StreetSceneSection'
@@ -47,6 +49,7 @@ export default function HomePage() {
   const heroRef = useRef<IntroHeroHandle>(null)
   useSectionThemes(rootRef)
   useHomeHeader()
+  useHomeBgParallax(rootRef)
 
   // Font display tải xong làm đổi chiều cao chữ → đo lại vị trí các trigger
   useEffect(() => {
@@ -78,18 +81,49 @@ export default function HomePage() {
         </ParticleBoundary>
       )}
       <IntroHero ref={heroRef} />
-      {/* Phần 2 là tấm bo góc đè lên mép dưới banner (-mt = bán kính bo góc), trượt lên che
-          banner khi cuộn — banner lùi vào trong (IntroHero). Không đặt z-index: cần nền của nó
-          nằm dưới hạt; vẫn che được banner vì đứng sau hero trong cây DOM. Nội dung bên trong là z-10. */}
-      <div className="relative -mt-4 rounded-t-card bg-page-bg">
+      {/* Nền xanh nối tiếp hero cho cả phần còn lại của trang (homeBackground.ts) */}
+      {/* Lớp nền không đặt z-index: nằm dưới hạt (z-[5]) và dưới các phần (mỗi phần là relative z-10) */}
+      {/* overflow-clip: cắt phần nền kéo dài lên trên khi nền trôi chậm (không tạo khung cuộn, sticky vẫn chạy) */}
+      <div className="relative overflow-clip">
+        {/* Nền phần dưới hero: đoạn nối (ảnh hero soi gương) → cột tia sáng đồng nhất tới hết trang.
+            Cam chỉ ở hero và sau phần ⑥ (RecruiterSection tự mang quầng cam). */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-x-0 top-0" style={{ height: HOME_BG_JOIN }}>
+            <HomeBgLayers style={afterHeroBgStyle} />
+          </div>
+          {/* Tia sáng lượn sóng phủ dần lên đoạn nối (mask nhiều nấc cho mềm), đủ hẳn sau HOME_BG_JOIN.
+              Lớp trong kéo dài trên/dưới để trôi chậm (useHomeBgParallax) mà không lộ mép. */}
+          <div
+            className="absolute inset-0 overflow-hidden"
+            style={{
+              WebkitMaskImage: `linear-gradient(to bottom, transparent 0, rgb(0 0 0 / 0.15) calc(${HOME_BG_JOIN} * 0.35), rgb(0 0 0 / 0.6) calc(${HOME_BG_JOIN} * 0.7), #000 ${HOME_BG_JOIN})`,
+              maskImage: `linear-gradient(to bottom, transparent 0, rgb(0 0 0 / 0.15) calc(${HOME_BG_JOIN} * 0.35), rgb(0 0 0 / 0.6) calc(${HOME_BG_JOIN} * 0.7), #000 ${HOME_BG_JOIN})`,
+            }}
+          >
+            <div data-home-wave className="absolute inset-x-0 -top-[10%] -bottom-[10%]">
+              <HomeBgLayers style={waveBgStyle} />
+            </div>
+          </div>
+          {/* Quầng cam đáy hero tỏa tiếp xuống dưới rồi tan (cùng tâm với HeroOrange ở mép trên) → không bị cắt */}
+          <div className="home-orange-join absolute inset-x-0 top-0 h-[70svh]" />
+          <div data-home-stars className="home-stars absolute inset-x-0 -top-[15%] -bottom-[15%]" />
+        </div>
+        {/* Dưới hero không còn hồng ở hai mép: nhuộm xanh hai bên (chỉ đổi sắc, giữ sáng tối của ảnh).
+            Nằm ngoài lớp nền trôi để luôn bắt đầu ngay dưới hero; hiện dần trong 50vh đầu cho liền với
+            các góc hồng ở đáy hero. */}
+        <div aria-hidden className="home-bg-depink pointer-events-none absolute inset-0">
+          <div className="absolute inset-0 bg-wm-azure" />
+        </div>
+        {/* Mép dưới tối dần sang màu chân trang (night) để không có vết cắt ngang */}
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-b from-transparent to-wm-night" />
         <UrgentJobsSection />
+        <StreetSceneSection />
+        <FeatureBlocksSection />
+        <NewJobsSection />
+        <ExploreSection />
+        <RecruiterSection />
+        <FinalCtaSection onFindJob={() => heroRef.current?.focusSearch()} />
       </div>
-      <StreetSceneSection />
-      <FeatureBlocksSection />
-      <NewJobsSection />
-      <ExploreSection />
-      <RecruiterSection />
-      <FinalCtaSection onFindJob={() => heroRef.current?.focusSearch()} />
     </div>
   )
 }

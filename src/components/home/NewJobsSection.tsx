@@ -14,6 +14,7 @@ import { useMediaQuery } from '@hooks/useMediaQuery'
 import { cn } from '@utils/cn'
 import { homeSections, homeSectionsByRole } from './content'
 import { useHomeRole } from './homeData'
+import { HOME_GLASS_DARK } from './homeBackground'
 
 const mine = homeSectionsByRole.recruiter.mine
 
@@ -39,7 +40,7 @@ function MarqueeUnit({ phrase, muted }: { phrase: string; muted?: boolean }) {
   return (
     <span className={cn('flex shrink-0 items-center gap-[0.35em] pr-[0.35em]', muted ? 'text-page-muted opacity-50' : 'text-page-fg')}>
       <span>{phrase}</span>
-      <span aria-hidden className="text-wm-olive">
+      <span aria-hidden className="text-wm-ivory/60">
         ✱
       </span>
     </span>
@@ -105,8 +106,8 @@ function Details({ row }: { row: Row }) {
 /** Nút "Xem chi tiết →" / "Quản lý tin →" của một việc */
 function RowLink({ row, label }: { row: Row; label: string }) {
   return (
-    <Link to={row.href} data-cursor="Xem" className="group inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent-ink">
-      <span className="border-b border-transparent transition-colors duration-300 group-hover:border-accent-ink group-focus-visible:border-accent-ink">{label}</span>
+    <Link to={row.href} data-cursor="Xem" className="group inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-wm-ivory">
+      <span className="border-b border-transparent transition-colors duration-300 group-hover:border-wm-ivory group-focus-visible:border-wm-ivory">{label}</span>
       <ArrowRight
         className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
         aria-hidden
@@ -364,7 +365,7 @@ export default function NewJobsSection() {
   return (
     <section
       ref={ref}
-      data-theme="ivory"
+      data-theme="night"
       className="relative z-10 overflow-hidden pt-section-sm pb-section-sm"
       aria-labelledby="home-new-title"
     >
@@ -389,7 +390,7 @@ export default function NewJobsSection() {
 
       {/* Hàng phụ: nhãn dữ liệu minh họa + liên kết xem tất cả */}
       <div className="shell mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-        <p className="inline-block rounded-full border border-page-line px-3 py-1.5 text-xs text-page-muted">{homeSections.sampleNote}</p>
+        <p className={`inline-block rounded-full border border-wm-ivory/30 ${HOME_GLASS_DARK} px-3 py-1.5 text-xs text-wm-ivory`}>{homeSections.sampleNote}</p>
         <Link to={copy.all.href} className="group inline-flex min-h-11 items-center gap-2 text-sm font-medium text-page-fg underline-offset-4 hover:underline focus-visible:underline">
           {copy.all.label}
           <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-editorial group-hover:translate-x-1" aria-hidden />
@@ -478,7 +479,7 @@ export default function NewJobsSection() {
                 type="button"
                 aria-label="Việc trước"
                 onClick={() => stepRef.current?.(-1)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-page-line text-page-fg transition-[border-color,transform] hover:border-page-fg active:scale-[0.97] motion-reduce:active:scale-100"
+                className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-wm-ivory/30 ${HOME_GLASS_DARK} text-page-fg transition-[border-color,transform] hover:border-page-fg active:scale-[0.97] motion-reduce:active:scale-100`}
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden />
               </button>
@@ -489,7 +490,7 @@ export default function NewJobsSection() {
                 type="button"
                 aria-label="Việc sau"
                 onClick={() => stepRef.current?.(1)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-page-line text-page-fg transition-[border-color,transform] hover:border-page-fg active:scale-[0.97] motion-reduce:active:scale-100"
+                className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-wm-ivory/30 ${HOME_GLASS_DARK} text-page-fg transition-[border-color,transform] hover:border-page-fg active:scale-[0.97] motion-reduce:active:scale-100`}
               >
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </button>
@@ -499,9 +500,9 @@ export default function NewJobsSection() {
       ) : (
         /* Điện thoại / giảm chuyển động: danh sách dọc, vạch phân cách mảnh */
         <div className="shell">
-          <ul role="list" className="mt-8 border-t border-page-line">
+          <ul role="list" className="mt-8 space-y-4">
             {items.map((row, i) => (
-              <li key={row.job.id} className="flex flex-col items-center border-b border-page-line py-10 text-center">
+              <li key={row.job.id} className={`flex flex-col items-center rounded-card border border-wm-ivory/20 ${HOME_GLASS_DARK} px-5 py-8 text-center`}>
                 <Tag index={i} label={tagOf(row)} />
                 <JobPhoto job={row.job} alt={row.job.photo.alt} className="mt-4 w-44" />
                 <h3 className="mt-6 font-display text-2xl font-semibold leading-snug text-page-fg">{row.job.title}</h3>

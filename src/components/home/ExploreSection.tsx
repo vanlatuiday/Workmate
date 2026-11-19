@@ -10,10 +10,12 @@ import { homeMedia } from './homeMedia'
 import { homeSections, homeSectionsByRole } from './content'
 import { norm, useHomeCandidates, useHomeRole } from './homeData'
 
+import { HOME_GLASS_DARK } from './homeBackground'
+
 const toJobs = (f: Parameters<typeof filtersToParams>[0]) => `/viec-lam?${filtersToParams(f)}`
 
 const chip =
-  'inline-flex min-h-11 items-center rounded-full border border-page-line px-4 text-sm text-page-muted ' +
+  `inline-flex min-h-11 items-center rounded-full border border-wm-ivory/30 ${HOME_GLASS_DARK} px-4 text-sm text-wm-ivory ` +
   'transition-[color,border-color,transform] duration-300 hover:border-page-fg hover:text-page-fg focus-visible:border-page-fg focus-visible:text-page-fg ' +
   'active:scale-[0.97] motion-reduce:active:scale-100'
 
@@ -83,7 +85,7 @@ export default function ExploreSection() {
   }, [recruiter, jobs, candidates, jobCopy, rcopy])
 
   return (
-    <section data-theme="ivory" className="relative z-10 shell pb-section" aria-labelledby="home-explore-title">
+    <section data-theme="night" className="relative z-10 shell pb-section" aria-labelledby="home-explore-title">
       <TextReveal
         id="home-explore-title"
         text={title}

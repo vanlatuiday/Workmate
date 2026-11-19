@@ -5,6 +5,7 @@ import { photoSrcSet, photoUrl } from '@components/discover/types'
 import { availabilityLabel, type MatchCandidate } from '@pages/public/match/data'
 import Tilt from '@components/motion/Tilt'
 import { cn } from '@utils/cn'
+import { LIGHT_CARD_VARS } from './homeBackground'
 
 /**
  * Thẻ ứng viên trên trang chủ (cho nhà tuyển dụng) — cùng dáng với JobCard: ảnh không lộ mặt,
@@ -21,7 +22,8 @@ export default function CandidateCard({ candidate: c, className }: { candidate: 
         to="/tuyen-dung/tim-ung-vien"
         data-cursor="Xem"
         className={cn(
-          'group flex h-full flex-col overflow-hidden rounded-card border border-page-line bg-page-surface',
+          LIGHT_CARD_VARS,
+          'group flex h-full flex-col overflow-hidden rounded-card border border-wm-ivory/70 bg-wm-ivory/75 shadow-[0_14px_32px_-20px_var(--wm-night)] backdrop-blur-xl backdrop-saturate-150',
           'transition-[transform,border-color,box-shadow] duration-500 ease-editorial',
           'hover:-translate-y-1 hover:border-page-fg hover:shadow-[0_14px_28px_-18px_var(--wm-night)]',
           'focus-visible:-translate-y-1 focus-visible:border-page-fg focus-visible:shadow-[0_14px_28px_-18px_var(--wm-night)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-page-fg',

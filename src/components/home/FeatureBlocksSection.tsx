@@ -19,6 +19,7 @@ import {
 import { homeMedia } from "./homeMedia";
 import { homeSections, homeSectionsByRole } from "./content";
 import { useHomeRole, type HomeRole } from "./homeData";
+import { LIGHT_CARD_VARS } from "./homeBackground";
 import FeatureJobChip, { type ChipJob } from "./FeatureJobChip";
 
 /** Đích của nút trong từng khối */
@@ -337,8 +338,9 @@ function BlockRow({
       className={cn(
         // Thẻ kính lỏng (glass-liquid, references/p13): trong, nhòe mạnh, viền sáng ở mép;
         // thẻ sau trượt lên thì thẻ trước nhòe qua lớp kính. overflow-hidden giữ trang lật nằm trong khuôn thẻ bo góc.
-        // Kính dày hơn mặc định: thẻ chồng lên nhau, nhòe 28px + nền ngà 45% để chữ/nút của thẻ phía sau không lộ qua
-        "glass-liquid group mb-4 overflow-hidden rounded-card bg-wm-ivory/[0.45] [--glass-blur:28px] md:mb-0 md:h-[min(62vh,520px)]",
+        // Kính dày hơn mặc định: thẻ chồng lên nhau, nhòe 28px + nền ngà 84% (đục để chữ than chì đọc rõ trên nền xanh/cam) để chữ/nút của thẻ phía sau không lộ qua
+        LIGHT_CARD_VARS,
+        "glass-liquid group mb-4 overflow-hidden rounded-card [--glass-alpha:84%] [--glass-blur:28px] md:mb-0 md:h-[min(62vh,520px)]",
         sticky && "md:sticky md:top-[var(--stick)]",
       )}
     >
@@ -626,7 +628,7 @@ export default function FeatureBlocksSection() {
   return (
     <section
       ref={ref}
-      data-theme="ivory"
+      data-theme="night"
       // Than chì → ngà: đoạn chuyển dài (85% → 20%), xong trước khi hàng đầu bắt đầu dính (đỉnh danh sách còn cách đỉnh section phần tiêu đề, tới ~96px)
       data-theme-start="top 85%"
       data-theme-end="top 20%"

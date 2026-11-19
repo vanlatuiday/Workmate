@@ -13,7 +13,7 @@ import { homeSections, homeSectionsByRole } from './content'
 import { useHomeRole } from './homeData'
 
 /**
- * Section ⑥ — tấm than chì lớn dành cho nhà tuyển dụng. Nền section vẫn là ngà (tấm
+ * Section ⑥ — dải gradient tím → hồng dành cho nhà tuyển dụng. Chữ ngà trên nền ảnh xanh (tấm
  * này tự mang màu cố định). Khi cuộn tới, tấm phóng từ 0,9 → 1 theo tiến trình cuộn.
  */
 export default function RecruiterSection() {
@@ -46,15 +46,20 @@ export default function RecruiterSection() {
   )
 
   return (
-    <section ref={ref} data-theme="ivory" className="relative z-10 shell pb-section" aria-labelledby="home-recruiter-title">
-      <div ref={panelRef} className="grid overflow-hidden rounded-card bg-wm-night text-wm-ivory md:grid-cols-2">
+    <section ref={ref} data-theme="night" className="relative z-10 shell pb-section" aria-labelledby="home-recruiter-title">
+      {/* Quầng cam mềm sau khối (cam chỉ ở hero và ở đây — chủ dự án 2026-11-19). Khung ngoài định vị theo
+          khối (trừ pb-section); lớp trong để GSAP trôi nhẹ (useHomeBgParallax). -z-10: dưới nội dung section. */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 bottom-section -z-10 flex items-center justify-center">
+        <div data-home-orange className="home-orange h-[190%] w-screen shrink-0" />
+      </div>
+      <div ref={panelRef} className="grid overflow-hidden rounded-card bg-gradient-to-r from-wm-iris to-wm-magenta text-wm-ivory md:grid-cols-2">
         <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-16">
           <TextReveal
             id="home-recruiter-title"
             text={copy.title}
             className="font-display text-display-sm font-semibold"
           />
-          <p className="mt-5 max-w-md text-base leading-relaxed text-wm-mist md:text-lg">{copy.body}</p>
+          <p className="mt-5 max-w-md text-base leading-relaxed text-wm-ivory/90 md:text-lg">{copy.body}</p>
           <Magnetic className="mt-8 self-start">
           <Link
             to={copy.cta.href}

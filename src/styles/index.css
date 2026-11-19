@@ -884,3 +884,126 @@ html[data-page='home'] .hd-inner {
   .site-header[data-tone='light'] .hd-chip:hover,
   .site-header[data-tone='light'] .hd-burger:hover { transform: none; }
 }
+
+/* Trang chủ nền xanh (homeBackground.ts) — chủ dự án 2026-11-19:
+   - Header: trong suốt ở đầu trang; cuộn quá 80px (data-scrolled) thì có nền kính xanh đậm để chữ menu
+     không chồng lên nội dung. Chỉ đổi nền, không đổi chuyển động của header.
+   - Màu nhấn cam sáng hơn cho hợp nền xanh (chỉ vai trò mặc định; người tìm việc giữ xanh lá). */
+html[data-page='home'] .site-header[data-scrolled] [data-header-bg] {
+  background: color-mix(in srgb, var(--wm-ocean) 58%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  border-bottom: 1px solid color-mix(in srgb, var(--wm-ivory) 14%, transparent);
+}
+html[data-page='home']:not([data-role='seeker']),
+html[data-page='home']:not([data-role='seeker']) .theme-night,
+html[data-page='home']:not([data-role='seeker']) .theme-charcoal,
+html[data-page='home']:not([data-role='seeker']) .surface-dark {
+  --accent: var(--wm-tangerine);
+  --accent-dark: var(--wm-tangerine);
+}
+
+/* Nền trang chủ "thở" (HomeBackdrop.tsx): bản sao sáng hơn của ảnh nền, chỉ lộ ở cột giữa nơi có
+   tia sáng; opacity lên xuống chậm. Tắt chuyển động → lớp này ẩn hẳn, nền đứng yên. */
+.home-bg-glow {
+  opacity: 0;
+  filter: brightness(1.3) saturate(1.15);
+  -webkit-mask-image: linear-gradient(to right, transparent 22%, #000 42%, #000 58%, transparent 78%);
+  mask-image: linear-gradient(to right, transparent 22%, #000 42%, #000 58%, transparent 78%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .home-bg-glow {
+    will-change: opacity;
+    animation: home-bg-breathe 6s ease-in-out infinite;
+  }
+}
+@keyframes home-bg-breathe {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.45; }
+}
+
+/* Nền dưới hero (HomePage): hai mép hồng của ảnh → xanh. mix-blend color: lấy sắc/độ đậm màu của
+   lớp xanh, giữ độ sáng của ảnh. Mask ngang: chỉ hai bên (quầng cam giữa giữ nguyên); mask dọc ở lớp
+   ngoài: từ mép trên khối (ngay dưới hero) hiện dần trong 50vh. */
+.home-bg-depink {
+  mix-blend-mode: color;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 50vh);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 50vh);
+}
+.home-bg-depink > div {
+  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 16%, transparent 36%, transparent 64%, #000 84%, #000 100%);
+  mask-image: linear-gradient(to right, #000 0%, #000 16%, transparent 36%, transparent 64%, #000 84%, #000 100%);
+}
+
+/* Màn mở đầu (IntroHero): nền xanh tối phủ kín ảnh hero + vòm sáng xanh nhẹ hình cầu ôm phần dưới màn hình */
+.home-intro-night {
+  background: linear-gradient(to bottom, var(--wm-abyss) 0%, color-mix(in srgb, var(--wm-ocean) 85%, var(--wm-abyss)) 100%);
+}
+.home-intro-dome {
+  background:
+    radial-gradient(ellipse 62% 70% at 50% 115%, color-mix(in srgb, var(--wm-cyan) 55%, transparent) 0%, color-mix(in srgb, var(--wm-azure) 35%, transparent) 45%, transparent 72%),
+    radial-gradient(ellipse 95% 60% at 50% 120%, color-mix(in srgb, var(--wm-azure) 40%, transparent) 0%, transparent 70%);
+}
+/* Quầng cam đáy hero (IntroHero, phủ cả 100svh của hero) — cùng màu cam/đào đã có, không thêm màu:
+   1. nón cam hẹp, cao: cam "nhô" lên giữa tia sáng tới khoảng 1/4 trên của màn hình
+   2. quầng cam chính ôm đáy
+   3. dải cam–đào dẹt dọc mép dưới, lan ra hai bên nối với các góc hồng của ảnh
+   .home-orange-join (HomePage, ngay dưới hero) dùng CÙNG bán kính ngang, tâm ở mép trên → hàng sát chỗ nối
+   giống hệt đáy hero (liền mạch), nhưng bán kính dọc nhỏ nên cam tắt nhanh, không lan xuống phần ②. */
+.home-hero-orange {
+  background:
+    radial-gradient(ellipse 24% 96% at 50% 100%, color-mix(in srgb, var(--wm-apricot) 92%, transparent) 0%, color-mix(in srgb, var(--wm-peach) 58%, transparent) 50%, transparent 100%),
+    radial-gradient(ellipse 58% 58% at 50% 100%, color-mix(in srgb, var(--wm-apricot) 88%, transparent) 0%, color-mix(in srgb, var(--wm-peach) 58%, transparent) 45%, transparent 100%),
+    radial-gradient(ellipse 92% 18% at 50% 100%, color-mix(in srgb, var(--wm-apricot) 76%, transparent) 0%, color-mix(in srgb, var(--wm-peach) 55%, transparent) 55%, transparent 100%);
+}
+.home-orange-join {
+  background:
+    radial-gradient(ellipse 24% 30% at 50% 0%, color-mix(in srgb, var(--wm-apricot) 92%, transparent) 0%, color-mix(in srgb, var(--wm-peach) 58%, transparent) 50%, transparent 100%),
+    radial-gradient(ellipse 58% 40% at 50% 0%, color-mix(in srgb, var(--wm-apricot) 88%, transparent) 0%, color-mix(in srgb, var(--wm-peach) 58%, transparent) 45%, transparent 100%),
+    radial-gradient(ellipse 92% 30% at 50% 0%, color-mix(in srgb, var(--wm-apricot) 76%, transparent) 0%, color-mix(in srgb, var(--wm-peach) 55%, transparent) 55%, transparent 100%);
+}
+/* Sao nhỏ trên nền phần dưới hero: hai lớp chấm lặp lệch cỡ để không thấy ô lặp */
+.home-stars {
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1px 1px at 23px 41px, var(--wm-ivory), transparent),
+    radial-gradient(1px 1px at 131px 97px, var(--wm-ivory), transparent),
+    radial-gradient(1.5px 1.5px at 197px 13px, var(--wm-ivory), transparent),
+    radial-gradient(1px 1px at 61px 173px, var(--wm-ivory), transparent),
+    radial-gradient(1px 1px at 89px 59px, color-mix(in srgb, var(--wm-ivory) 70%, transparent), transparent),
+    radial-gradient(1.5px 1.5px at 251px 233px, color-mix(in srgb, var(--wm-ivory) 80%, transparent), transparent),
+    radial-gradient(1px 1px at 317px 151px, var(--wm-ivory), transparent);
+  background-size: 229px 211px, 263px 241px, 241px 277px, 283px 199px, 337px 313px, 359px 347px, 389px 331px;
+}
+/* Quầng cam mềm sau phần ⑥: cam → đào → xanh ngọc nhạt → trong suốt (giống chuyển màu của ảnh hero) */
+.home-orange {
+  /* Lõi cam nằm sau khối (bị che), phần lộ ra là vầng cam → đào quanh mép khối rồi tan vào xanh */
+  background:
+    radial-gradient(ellipse 50% 46% at 50% 50%, var(--wm-apricot) 0%, var(--wm-apricot) 32%, color-mix(in srgb, var(--wm-peach) 80%, transparent) 55%, transparent 82%),
+    radial-gradient(ellipse 72% 62% at 50% 50%, color-mix(in srgb, var(--wm-peach) 45%, transparent) 0%, color-mix(in srgb, var(--wm-cyan) 20%, transparent) 60%, transparent 100%);
+  filter: blur(10px);
+}
+
+/* 3 thẻ vai trò ở hero (HeroRoleCards): chĩa ba hướng trong không gian 3D (ul có perspective).
+   Lớp nghiêng nằm TRONG <li data-hero-card> vì transform của li do timeline intro điều khiển. */
+.hero-card-tilt {
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hero-card-tilt--left  { transform-origin: 50% 100%; transform: rotateY(16deg) rotateZ(-5deg) translateY(-22px); }
+.hero-card-tilt--mid   { transform-origin: 50% 100%;  transform: translateY(-4px); }
+.hero-card-tilt--right { transform-origin: 50% 100%; transform: rotateY(-16deg) rotateZ(5deg) translateY(-22px); }
+.hero-card-tilt:hover  { transform: translateY(-12px) scale(1.03); }
+@media (prefers-reduced-motion: no-preference) {
+  /* Lơ lửng nhẹ, lệch nhịp giữa ba thẻ */
+  .hero-card-tilt > div { animation: hero-card-float 6s ease-in-out infinite; }
+  .hero-card-tilt--mid > div { animation-delay: -2s; }
+  .hero-card-tilt--right > div { animation-delay: -4s; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-card-tilt { transition: none; }
+}
+@keyframes hero-card-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}

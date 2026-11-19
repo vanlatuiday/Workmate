@@ -47,6 +47,8 @@ export const brandStatement =
     `search` = hiện ô tìm việc; `actions` = các nút thay cho ô tìm việc. */
 export type HeroCopy = {
   title: string
+  /** Tiêu đề tách hai dòng lớn (ghép lại phải ra đúng `title`). */
+  titleLines: [string, string]
   lead: string
   search: boolean
   actions: { label: string; href: string }[]
@@ -55,18 +57,21 @@ export type HeroCopy = {
 export const heroCopy: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin', HeroCopy> = {
   guest: {
     title: 'Bạn đang cần gì hôm nay?',
+    titleLines: ['Bạn đang cần gì', 'hôm nay?'],
     lead: 'Một công việc vừa với lịch sống, hay một người làm đúng ca bạn thiếu — Workmate chỉ kết nối khi cả hai bên cùng phù hợp.',
     search: true,
     actions: [{ label: 'Tôi cần tuyển người', href: '/dang-ky?role=recruiter' }],
   },
   jobseeker: {
     title: 'Hôm nay bạn muốn làm việc gì?',
+    titleLines: ['Hôm nay bạn muốn', 'làm việc gì?'],
     lead: 'Gợi ý dựa trên lịch rảnh, vị trí và kỹ năng trong hồ sơ của bạn.',
     search: true,
     actions: [{ label: 'Xem việc phù hợp với tôi', href: '/tim-viec/phu-hop' }],
   },
   recruiter: {
     title: 'Bạn đang thiếu vị trí nào?',
+    titleLines: ['Bạn đang thiếu', 'vị trí nào?'],
     lead: 'Đăng tin với lịch làm và tiêu chí rõ ràng — Workmate gợi ý người rảnh đúng ca, sống gần và đủ kỹ năng.',
     search: false,
     actions: [
@@ -76,6 +81,7 @@ export const heroCopy: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin', Her
   },
   admin: {
     title: 'Hôm nay cần xử lý gì?',
+    titleLines: ['Hôm nay cần', 'xử lý gì?'],
     lead: 'Hồ sơ doanh nghiệp chờ xác minh, tin cần kiểm duyệt và người dùng mới.',
     search: false,
     actions: [
@@ -361,5 +367,44 @@ export const homeSectionsByRole = {
       cta: { label: 'Hoàn thiện trang công ty', href: '/tuyen-dung/ho-so-cong-ty' },
     },
     final: { title: 'Cần thêm người?', cta: { label: 'Đăng tin tuyển dụng', href: '/dang-tin' } },
+  },
+}
+
+/* ── Thẻ xem trước theo vai trò ở đáy hero — dữ liệu minh họa, không phải tin thật ── */
+export const heroPreview = {
+  note: 'Dữ liệu minh họa',
+  jobseeker: {
+    label: 'Ứng viên',
+    title: 'Việc hợp với bạn',
+    rows: [
+      { initial: 'G', title: 'Pha chế ca tối', company: 'Quán Gió Sông Hàn', district: 'Sơn Trà', fit: 92 },
+      { initial: 'N', title: 'Thu ngân cuối tuần', company: 'Nhóm Dịch Vụ Sông Hàn', district: 'Hải Châu', fit: 87 },
+      { initial: 'B', title: 'Bán hàng cuối tuần', company: 'Cửa hàng Biển Xanh', district: 'Hải Châu', fit: 81 },
+    ],
+  },
+  recruiter: {
+    label: 'Nhà tuyển dụng',
+    title: 'Ứng viên phù hợp',
+    initials: 'ƯV',
+    name: 'Ứng viên mẫu',
+    role: 'Pha chế · 1 năm kinh nghiệm',
+    skills: ['Pha chế', 'Giao tiếp', 'Ca tối'],
+    week: [
+      { day: 'T2', free: false },
+      { day: 'T3', free: true },
+      { day: 'T4', free: false },
+      { day: 'T5', free: true },
+      { day: 'T6', free: true },
+      { day: 'T7', free: true },
+      { day: 'CN', free: true },
+    ],
+    fit: 88,
+  },
+  admin: {
+    label: 'Quản trị',
+    title: 'Tin đã kiểm duyệt',
+    rows: ['Quán Gió Sông Hàn', 'Cửa hàng Biển Xanh', 'Nhóm Dịch Vụ Sông Hàn'],
+    footer: 'Tin đã duyệt tuần này',
+    count: 128,
   },
 }
