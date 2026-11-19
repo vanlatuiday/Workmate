@@ -222,6 +222,10 @@ trôi nhẹ theo chuột với độ sâu khác nhau (chỉ chuột thật).
 **Khoảnh khắc** (theo taste skill, viết lại bằng GSAP; tối đa 2 mỗi trang): ảnh thẻ ca dưới hero "hiện dần" từ xám sang màu
 một lần khi cuộn tới (`ShiftBoardSection`) và câu lớn sáng dần từng chữ (`StatementSection`). Vòng tròn mở khối tuyển dụng đã bỏ (2026-11-20). Không thêm khoảnh khắc thứ ba; chỉ một hiệu ứng theo chuột mỗi trang (đã dùng ở hero).
 
+**Rà soát cuối (2026-11-20):** phần dưới hero phủ thêm `abyss` 34% (`.home-page-dim`) và tia sáng "thở" nhẹ hơn (tối đa 22%) — hero là điểm sáng nhất trang. Header khi cuộn: kính `abyss` 82%, bão hòa thấp (không ngả tím trên vùng cam). Hai họ thẻ: **kính tối** (`abyss` 55–65% + blur 16px + viền ngà 20–25% + vạch sáng mép trên) cho thông tin — kể cả 3 thẻ vai trò ở hero — và **ảnh có đáy tối** cho việc làm; dải cam–đào là điểm nhấn ấm duy nhất. Chữ nằm trên cột tia sáng phải đặt trong kính tối. Chữ tối thiểu 12px. Các phần dưới hero cùng lề `max(16px, 2.5vw)` và cùng khoảng `py-section-sm`.
+
+**Việc mới đăng (2026-11-20):** vòng ảnh "rọi đèn" ô giữa (`.nj-slot`: phóng 1.12, viền ngà sáng, vầng xanh ngọc + bóng sàn; ô bên tối/nhạt/mờ nhẹ theo góc), tấm thông tin dạng vé gối lên ảnh giữa (kính `abyss` 60%, lương + ca thành viên nổi, nút ngà đặc), dải chữ nhỏ ~30% với bản lặp chỉ viền chữ, nút dừng dải chữ dạng icon. Section đặt `z-20` để quầng cam của khối tuyển dụng không phủ lên.
+
 **Chữ (2026-11-20):** nút = động từ + việc ("Xem việc mới đăng", "Đăng tin tuyển người"), không "Xem tất cả"/"Xem chi tiết";
 không câu "X, không phải Y"; không dấu gạch dài "—" trong chữ hiển thị; không nhãn in hoa trên tiêu đề section;
 tiêu đề section không là câu hỏi (riêng tiêu đề hero giữ câu hỏi — chủ dự án chọn).
@@ -423,6 +427,7 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
   Giới hạn: không mang các hiệu ứng này sang trang công khai khác khi chưa hỏi; bản giảm chuyển động
   (`StaticGallery`) không có vệt sáng. Ô tìm kiếm ở các trang khác vẫn theo mục **Thanh tìm kiếm** ở trên.
   **Ngoại lệ thứ năm (2026-11-15, đổi cùng ngày, chủ dự án yêu cầu):** form bắt đầu của nhà tuyển dụng `/tuyen-dung/bat-dau` (`pages/recruiter/onboarding/*`) theo trang Đăng ký: nền `wm-night` + hạt bụi, một thẻ kính tối `.glass-dark`; chữ, ô nhập, nút, cảnh báo dùng biến `page-*`/`accent`/`danger` nên tự đúng màu trên nền tối (`TaxCodeField` dùng chung với khung Xác minh sáng không cần thêm prop). Không glow; có phương án đặc; chuyển bước chỉ opacity/transform, có nhánh giảm chuyển động.
+  **Đăng nhập / Đăng ký / Quên mật khẩu (2026-11-20):** nền đổi sang nền hero trang chủ (ảnh tia sáng xanh + cam đáy, tia sáng "thở"), nền phủ thêm `abyss` 55% + cam 60% cho trầm hơn trang chủ, thẻ kính tối thêm lớp `abyss` 65%; nửa chào mừng là tấm sáng hơn `.auth-welcome-panel` (xanh biển + tia xanh ngọc + ánh cam đáy), trượt sang nửa kia khi đổi chế độ — thay nền `wm-night` + hạt bụi của ngoại lệ thứ hai.
   **Ngoại lệ thứ sáu (2026-11-19, chủ dự án duyệt):** toàn bộ **trang chủ** dùng nền xanh có ảnh, glow, kính mờ (trắng và tối),
   dải màu chuyển cam–đào và bóng mềm cho thẻ — xem mục **Trang chủ nền xanh**. Không mang sang trang khác khi chưa hỏi.
 - Dùng `#000` / `#fff` tuyệt đối (nền tối là `#0A0F0D`, nền sáng `#FAF4EA`).

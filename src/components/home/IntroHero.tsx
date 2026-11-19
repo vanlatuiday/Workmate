@@ -523,7 +523,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                   <li key={tag}>
                     <Link
                       to={`/viec-lam?keyword=${encodeURIComponent(tag)}`}
-                      className={`flex min-h-9 items-center text-xs text-wm-ivory border border-wm-ivory/40 ${HOME_GLASS_DARK} rounded-full px-3 py-1.5
+                      className={`flex min-h-11 items-center text-xs text-wm-ivory border border-wm-ivory/40 ${HOME_GLASS_DARK} rounded-full px-3 py-1.5
                                  hover:bg-wm-ivory hover:text-wm-charcoal focus-visible:bg-wm-ivory focus-visible:text-wm-charcoal
                                  active:scale-[0.97] motion-reduce:active:scale-100 transition-[color,background-color,transform] duration-300`}
                     >

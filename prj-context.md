@@ -142,12 +142,11 @@ Thứ tự (`src/pages/public/HomePage.tsx`) — **từ 2026-11-19/20 cả trang
 |---|---|---|
 | ① | `IntroHero` | Màn mở đầu: logo hạt trên nền xanh tối + vòm sáng → lướt xuống lộ hero (cam dâng lên ở đáy). Hero: tiêu đề hai dòng + quầng sáng, ô tìm kiếm (`HomeSearchForm`) + thẻ ngành, 3 thẻ vai trò chĩa ba hướng (`HeroRoleCards`, chỉ ≥lg và cao ≥820px) |
 | ①b | `ShiftBoardSection` | "Ca đang cần người tuần này" (7 ngày tới, không tab): băng chuyền ngang các NGHỀ (12 nhóm theo tên việc ở `categories.ts` + "Việc khác"; chỉ nhóm có ca), 5 thẻ/màn ở ≥lg (3 ở md), trải gần sát hai mép; kéo chuột / trackpad / mũi tên, snap từng thẻ. Bấm thẻ: nở rộng ≈ 2 thẻ + 12% bằng GSAP Flip, ảnh trượt ra theo phía của thẻ so với giữa màn, danh sách doanh nghiệp (2 cột khi đủ rộng; ảnh bìa công ty thay logo, việc, lương, quận, ca, nút theo vai trò). Điện thoại: accordion dọc, 6 nghề + "Xem thêm nghề". Ảnh "hiện dần" khi cuộn tới (khoảnh khắc 2). Theo vai trò như cũ |
-| ② | `StatementSection` | Trái: câu lớn sáng dần từng chữ theo cuộn (khoảnh khắc 1). Phải: 3 tiêu chí (Lịch rảnh · Quãng đường · Kỹ năng; NTD: Ca làm · Khu vực · Kỹ năng), mỗi mục sáng đúng lúc từ của nó trong câu sáng tới; nút theo vai trò (khách → đăng ký, ứng viên → mục trong hồ sơ, NTD → đăng tin) |
-| ③ | `FeatureBlocksSection` | 3 thẻ kính trắng xếp chồng (lịch rảnh, gần nhà, kết nối), lật xem chi tiết |
+| ② | `StatementSection` | Trái: câu lớn sáng dần từng chữ theo cuộn (khoảnh khắc 1). Phải: 3 tiêu chí (Lịch rảnh · Quãng đường · Kết nối; NTD: Ca làm · Khu vực · Kết nối), mỗi mục sáng đúng lúc từ của nó trong câu sáng tới; nút theo vai trò (khách → đăng ký, ứng viên → mục trong hồ sơ, NTD → đăng tin) |
+| ③ | `FeatureBlocksSection` | Tấm kính tối: trái danh sách 3 mục (lịch rảnh, gần nhà, kết nối; NTD 2 mục), rê/bấm mở mục (giới thiệu + 3 bước + nút viền); phải một khung ảnh đổi mờ chéo + ô việc thật. Không chạy theo cuộn (thay thẻ chồng dính, 2026-11-20, theo taste skill) |
 | ④ | `NewJobsSection` | Dải chữ chạy + vòng ảnh 3D việc mới đăng (điện thoại: danh sách thẻ kính tối) |
-| ⑤ | `ExploreSection` | "Việc theo khu vực và hình thức": chỉ còn chip khu vực + hình thức (ô ảnh ngành chuyển lên ①b, 2026-11-20) |
-| ⑥ | `RecruiterSection` | Dải cam–đào "Tuyển người theo ca làm", phóng 0,9 → 1 khi cuộn tới + quầng cam phía sau |
-| ⑦ | `FinalCtaSection` | "Tìm việc theo lịch rảnh của bạn" + ô tìm kiếm (khách/ứng viên); NTD/admin giữ nút riêng |
+| ⑥ | `RecruiterSection` | Dải cam–đào "Tuyển người theo ca làm" (đứng yên khi cuộn) + quầng cam phía sau |
+| ⑦ | `FinalCtaSection` | "Tìm việc theo lịch rảnh của bạn" + ô tìm kiếm (khách/ứng viên; NTD/admin giữ nút riêng) + chip khu vực/hình thức (`ExploreChips`, gộp từ phần ⑤ cũ) + ghi chú dữ liệu minh họa DUY NHẤT của trang |
 
 Ảnh demo của trang chủ gom ở `src/components/home/homeMedia.ts` (chủ dự án sẽ thay ảnh).
 `UrgentJobsSection`, `StreetSceneSection` (2026-11-20, gộp vào ④ / bỏ) và các section cũ (`FitSection`,

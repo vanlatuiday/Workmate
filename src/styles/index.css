@@ -890,9 +890,10 @@ html[data-page='home'] .hd-inner {
      không chồng lên nội dung. Chỉ đổi nền, không đổi chuyển động của header.
    - Màu nhấn cam sáng hơn cho hợp nền xanh (chỉ vai trò mặc định; người tìm việc giữ xanh lá). */
 html[data-page='home'] .site-header[data-scrolled] [data-header-bg] {
-  background: color-mix(in srgb, var(--wm-ocean) 58%, transparent);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
-  backdrop-filter: blur(18px) saturate(1.4);
+  /* abyss đậm + bão hòa thấp: trên vùng cam không còn ngả tím (taste skill: không tím) */
+  background: color-mix(in srgb, var(--wm-abyss) 82%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.05);
+  backdrop-filter: blur(18px) saturate(1.05);
   border-bottom: 1px solid color-mix(in srgb, var(--wm-ivory) 14%, transparent);
 }
 html[data-page='home']:not([data-role='seeker']),
@@ -996,7 +997,8 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
 .hero-card-tilt:hover  { transform: translateY(-12px) scale(1.03); }
 @media (prefers-reduced-motion: no-preference) {
   /* Lơ lửng nhẹ, lệch nhịp giữa ba thẻ */
-  .hero-card-tilt > div { animation: hero-card-float 6s ease-in-out infinite; }
+  /* 2 lượt rồi đứng yên (taste skill: chuyển động quá 5 s phải dừng được — ở đây tự dừng) */
+  .hero-card-tilt > div { animation: hero-card-float 6s ease-in-out 2; }
   .hero-card-tilt--mid > div { animation-delay: -2s; }
   .hero-card-tilt--right > div { animation-delay: -4s; }
 }
@@ -1006,4 +1008,54 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
 @keyframes hero-card-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-7px); }
+}
+
+/* Nửa chào mừng ở thẻ Đăng nhập / Đăng ký: tấm sáng hơn nửa form — xanh biển + tia sáng xanh ngọc ở giữa +
+   ánh cam ở đáy (như hero trang chủ). Chữ ngà trên nền ocean/azure-pha-ocean vẫn ≥ 4.5:1 ở vùng chữ. */
+.auth-welcome-panel {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 108%, color-mix(in srgb, var(--wm-apricot) 45%, transparent) 0%, transparent 70%),
+    radial-gradient(ellipse 28% 90% at 50% 100%, color-mix(in srgb, var(--wm-cyan) 22%, transparent) 0%, transparent 80%),
+    linear-gradient(160deg, color-mix(in srgb, var(--wm-azure) 45%, var(--wm-ocean)) 0%, var(--wm-ocean) 55%, color-mix(in srgb, var(--wm-ocean) 70%, var(--wm-abyss)) 100%);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--wm-ivory) 18%, transparent);
+}
+
+/* Nền dưới hero trầm lại ~30% (HomePage); hiện dần trong 60svh đầu để chỗ nối hero không bị cắt */
+.home-page-dim {
+  background: color-mix(in srgb, var(--wm-abyss) 34%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 60svh);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 60svh);
+}
+/* Tia sáng "thở" dưới hero nhẹ hơn ở hero */
+@media (prefers-reduced-motion: no-preference) {
+  [data-home-wave] .home-bg-glow { animation-name: home-bg-breathe-soft; }
+}
+@keyframes home-bg-breathe-soft {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.22; }
+}
+
+/* Vòng ảnh "Việc mới đăng" (NewJobsSection): rọi đèn ô ở giữa. --f (1 = mặt trước) và --s (1 = ở bên)
+   do vòng lặp render đặt cho từng ô; chỉ transform/filter/opacity. Ô bên: tối + mờ nhẹ như xóa phông. */
+.nj-slot { --f: 0; --s: 1; }
+.nj-slot .nj-photo {
+  transform: scale(calc(1 + 0.12 * var(--f)));
+  transform-origin: 50% 40%;
+  filter: brightness(calc(1 - 0.4 * var(--s))) saturate(calc(1 - 0.35 * var(--s))) blur(calc(var(--s) * 1.4px));
+  border-color: color-mix(in srgb, var(--wm-ivory) calc(25% + 55% * var(--f)), transparent);
+}
+.nj-slot .nj-halo {
+  opacity: var(--f);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--wm-cyan) 38%, transparent), transparent 75%);
+  filter: blur(18px);
+}
+.nj-slot .nj-floor {
+  opacity: calc(var(--f) * 0.85);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--wm-cyan) 45%, transparent), transparent);
+  filter: blur(8px);
+}
+/* Dải chữ "VIỆC MỚI ĐĂNG": bản lặp chỉ còn viền chữ (trang trí, lùi lại sau ảnh) */
+.nj-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--wm-ivory) 45%, transparent);
 }

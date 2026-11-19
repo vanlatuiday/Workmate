@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 
 import { JOB_TYPES } from '@constants/index'
 import { DISTRICTS, EMPTY_FILTERS, filtersToParams, useAllJobs } from '@pages/public/jobs/catalog'
-import TextReveal from '@components/motion/TextReveal'
 import { homeSections, homeSectionsByRole } from './content'
 import { useHomeCandidates, useHomeRole } from './homeData'
 
@@ -26,7 +25,8 @@ type Chip = { key: string; label: string; href: string }
  * Nhà tuyển dụng: khu vực + kỹ năng → ứng viên (trang Tìm ứng viên chưa đọc
  * tham số URL nên mọi liên kết dẫn về trang đó, chưa lọc sẵn).
  */
-export default function ExploreSection() {
+/** Dữ liệu 2 nhóm chip theo vai trò (dùng ở phần cuối trang) */
+function useExploreGroups() {
   const role = useHomeRole()
   const recruiter = role === 'recruiter'
   const jobs = useAllJobs()
@@ -64,19 +64,19 @@ export default function ExploreSection() {
     }
   }, [recruiter, jobs, candidates, jobCopy, rcopy])
 
-  return (
-    <section data-theme="night" className="relative z-10 shell pb-section" aria-labelledby="home-explore-title">
-      <TextReveal
-        id="home-explore-title"
-        text={title}
-        className="font-display text-display-sm font-semibold text-page-fg"
-      />
+  return { title, labels, lists }
+}
 
-      <div className="mt-8 grid gap-10 md:grid-cols-2">
+/** Hai nhóm chip khu vực + hình thức (NTD: khu vực + kỹ năng). Từ 2026-11-20 nằm trong phần cuối trang (FinalCtaSection). */
+export function ExploreChips({ className }: { className?: string }) {
+  const { title, labels, lists } = useExploreGroups()
+  return (
+    <nav aria-label={title} className={className}>
+      <div className="grid gap-8 md:grid-cols-2">
         {lists.map((chips, i) => (
           <div key={labels[i]}>
             <h3 className="text-sm font-medium text-page-muted">{labels[i]}</h3>
-            <ul className="mt-4 flex flex-wrap gap-2">
+            <ul className="mt-3 flex flex-wrap gap-2">
               {chips.map((c) => (
                 <li key={c.key}>
                   <Link to={c.href} className={chip}>
@@ -88,6 +88,6 @@ export default function ExploreSection() {
           </div>
         ))}
       </div>
-    </section>
+    </nav>
   )
 }

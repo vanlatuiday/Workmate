@@ -1,13 +1,14 @@
 import { Check } from 'lucide-react'
 
 import { heroPreview } from './content'
-import { LIGHT_CARD_VARS } from './homeBackground'
 
+/** Kính tối như các thẻ khác của trang chủ (2026-11-20); chữ ngà qua biến page-* của theme night */
 const CARD =
-  `${LIGHT_CARD_VARS} h-full overflow-hidden rounded-card border border-wm-ivory/70 bg-wm-ivory/75 p-4 text-left text-page-fg ` +
-  'shadow-[0_14px_32px_-20px_var(--wm-night)] backdrop-blur-xl backdrop-saturate-150'
+  'h-full overflow-hidden rounded-card border border-wm-ivory/25 bg-wm-abyss/65 p-4 text-left text-wm-ivory ' +
+  'shadow-[0_24px_60px_-30px_var(--wm-night)] backdrop-blur-[16px] backdrop-saturate-150 ' +
+  'before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-wm-ivory/50 before:to-transparent relative'
 
-const PILL = 'rounded-full bg-wm-azure/15 text-wm-ocean font-semibold'
+const PILL = 'rounded-full bg-wm-cyan/20 text-wm-ivory ring-1 ring-wm-cyan/40 font-semibold'
 
 /** Nhãn nhỏ phía trên mỗi thẻ: chấm + tên vai trò. */
 function Label({ children }: { children: string }) {
@@ -27,11 +28,10 @@ function Label({ children }: { children: string }) {
  * Phần tử ngoài cùng mang data-hero-item để timeline intro cho hiện cùng nội dung.
  */
 export default function HeroRoleCards() {
-  const { jobseeker, recruiter, admin, note } = heroPreview
+  const { jobseeker, recruiter, admin } = heroPreview
 
   return (
     <div data-hero-item className="relative shell w-full">
-      <p className="absolute -top-5 right-0 text-[11px] text-wm-ivory/80">{note}</p>
       <ul aria-label="Xem trước theo vai trò" className="grid grid-cols-3 gap-4 [perspective:1400px] lg:gap-6">
         <li data-hero-card>
           <div className="hero-card-tilt hero-card-tilt--left">
@@ -41,12 +41,12 @@ export default function HeroRoleCards() {
             <ul className="mt-3 space-y-3">
               {jobseeker.rows.map((r) => (
                 <li key={r.title} className="flex items-center gap-3">
-                  <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-page-surface text-sm font-semibold">
+                  <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-wm-ivory/10 text-sm font-semibold">
                     {r.initial}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium">{r.title}</span>
-                    <span className="block truncate text-xs text-page-muted">
+                    <span className="block truncate text-xs text-wm-ivory/75">
                       {r.company} · {r.district}
                     </span>
                   </span>
@@ -65,17 +65,17 @@ export default function HeroRoleCards() {
           <div className={CARD}>
             <h3 className="text-sm font-semibold">{recruiter.title}</h3>
             <div className="mt-3 flex items-center gap-3">
-              <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-page-surface text-sm font-semibold">
+              <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-wm-ivory/10 text-sm font-semibold">
                 {recruiter.initials}
               </span>
               <span className="min-w-0">
                 <span className="block truncate text-sm font-medium">{recruiter.name}</span>
-                <span className="block truncate text-xs text-page-muted">{recruiter.role}</span>
+                <span className="block truncate text-xs text-wm-ivory/75">{recruiter.role}</span>
               </span>
             </div>
             <ul aria-label="Kỹ năng" className="mt-3 flex flex-wrap gap-1.5">
               {recruiter.skills.map((s) => (
-                <li key={s} className="rounded-full border border-page-line px-2.5 py-0.5 text-xs">
+                <li key={s} className="rounded-full border border-wm-ivory/15 px-2.5 py-0.5 text-xs">
                   {s}
                 </li>
               ))}
@@ -84,8 +84,8 @@ export default function HeroRoleCards() {
               {recruiter.week.map((d) => (
                 <li
                   key={d.day}
-                  className={`rounded-control py-1 text-center text-[11px] font-medium ${
-                    d.free ? 'bg-wm-azure/15 text-wm-ocean' : 'bg-page-surface text-page-muted'
+                  className={`rounded-control py-1 text-center text-xs font-medium ${
+                    d.free ? 'bg-wm-cyan/25 text-wm-ivory ring-1 ring-wm-cyan/50' : 'bg-wm-ivory/5 text-wm-ivory/60'
                   }`}
                 >
                   {d.day}
@@ -95,8 +95,8 @@ export default function HeroRoleCards() {
             </ul>
             <div className="mt-3">
               <p className="mb-1 text-xs font-medium">Phù hợp {recruiter.fit}%</p>
-              <div className="h-1.5 overflow-hidden rounded-full bg-page-surface">
-                <div className="h-full rounded-full bg-wm-ocean" style={{ width: `${recruiter.fit}%` }} />
+              <div className="h-1.5 overflow-hidden rounded-full bg-wm-ivory/10">
+                <div className="h-full rounded-full bg-wm-cyan" style={{ width: `${recruiter.fit}%` }} />
               </div>
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function HeroRoleCards() {
             <ul className="mt-3 space-y-3">
               {admin.rows.map((name) => (
                 <li key={name} className="flex items-center gap-3">
-                  <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-page-surface text-sm font-semibold">
+                  <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-wm-ivory/10 text-sm font-semibold">
                     {name.charAt(0)}
                   </span>
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">{name}</span>
@@ -122,8 +122,8 @@ export default function HeroRoleCards() {
                 </li>
               ))}
             </ul>
-            <p className="mt-3 border-t border-page-line pt-2 text-xs text-page-muted">
-              {admin.footer} · {admin.count}
+            <p className="mt-3 border-t border-wm-ivory/15 pt-2 text-xs text-wm-ivory/75">
+              {admin.footer}
             </p>
           </div>
           </div>

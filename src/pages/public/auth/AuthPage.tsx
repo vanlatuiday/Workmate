@@ -10,7 +10,8 @@ import { cn } from '@utils/cn'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { FINE_POINTER, useMediaQuery } from '@hooks/useMediaQuery'
 import { usePageEnterDelay } from '@components/motion/PageTransition'
-import DustField from '@components/motion/DustField'
+import { HomeBgLayers } from '@components/home/HomeBackdrop'
+import { heroBgStyle } from '@components/home/homeBackground'
 import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
 import ForgotForm from './ForgotForm'
@@ -161,8 +162,14 @@ function AuthCard() {
 
   return (
     <div className="theme-night relative isolate flex min-h-screen items-center justify-center overflow-hidden px-4 pb-10 pt-24 md:px-8">
-      {/* Nền đen rêu + hạt bụi trôi chậm — cũng là thứ để lớp kính làm mờ */}
-      <DustField motion="gentle" className="-z-10" />
+      {/* Nền giống hero trang chủ (2026-11-20, chủ dự án yêu cầu "trùng màu trang chủ"): ảnh tia sáng xanh,
+          cam ở đáy, tia sáng "thở" (HomeBgLayers) — cũng là thứ để lớp kính làm mờ */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <HomeBgLayers style={heroBgStyle} />
+        <div className="home-hero-orange absolute inset-0 opacity-60" />
+        {/* Trầm hơn trang chủ (chủ dự án 2026-11-20): phủ xanh rất đậm để nền lùi lại, thẻ form nổi lên */}
+        <div className="absolute inset-0 bg-wm-abyss/55" />
+      </div>
 
       {/* Về trang chủ (logo Workmate ở góc trái do PublicLayout vẽ) */}
       <Link
@@ -181,7 +188,7 @@ function AuthCard() {
         animate={controls}
         onPointerMove={finePointer && isDesktop ? onCardMove : undefined}
         onPointerLeave={finePointer && isDesktop ? () => sheenOpacity.set(0) : undefined}
-        className="glass-dark relative w-full max-w-[1040px] overflow-hidden rounded-card md:min-h-[620px]"
+        className="glass-dark relative w-full max-w-[1040px] overflow-hidden rounded-card bg-wm-abyss/65 shadow-[0_30px_80px_-40px_var(--wm-night)] md:min-h-[620px]"
       >
         {/* Vệt sáng trắng nhẹ theo chuột — dời bằng transform, nằm dưới nội dung */}
         {finePointer && isDesktop && (
@@ -203,11 +210,22 @@ function AuthCard() {
               style={{ rotate: 7 }}
               className="pointer-events-none absolute -top-[10%] left-1/2 z-0 h-[120%] w-[3px] border-l border-r border-l-page-line border-r-transparent"
             />
+            {/* Hai nửa khác vai trò nên khác bề mặt (frontend-design: tương phản có chủ đích): nửa form giữ kính tối
+                trầm để nhập liệu; nửa chào mừng là một tấm sáng hơn — xanh biển có tia sáng xanh ngọc và ánh cam ở đáy
+                như hero trang chủ. Tấm này trượt sang nửa kia cùng nhịp với đường chia khi hai nửa đổi chỗ. */}
+            <motion.div
+              aria-hidden
+              initial={false}
+              animate={{ x: formLeft ? '100%' : '0%' }}
+              transition={reduced ? { duration: 0 } : { duration: 0.65, ease: EASE }}
+              className="auth-welcome-panel pointer-events-none absolute inset-y-0 left-0 z-0 w-1/2"
+            />
             {half('left', formLeft ? 'form' : 'welcome')}
             {half('right', formLeft ? 'welcome' : 'form')}
           </div>
         ) : (
           <div className="relative z-10 px-6 py-6">
+            <div aria-hidden className="auth-welcome-panel pointer-events-none absolute inset-x-0 top-0 -z-10 h-24" />
             <MobileWelcome mode={mode} />
             <AnimatePresence mode="wait" initial={false} custom={dir}>
               <motion.div
@@ -266,7 +284,7 @@ function LiveJobs() {
       <p className="tnum text-sm font-medium text-page-fg">
         {open.length} việc làm đang tuyển{companies.length > 0 && <span className="text-page-muted"> · {companies.length} doanh nghiệp</span>}
       </p>
-      <div className="mt-3 rounded-card border border-page-line bg-page-surface p-4">
+      <div className="mt-3 rounded-card border border-wm-ivory/20 bg-wm-night/30 p-4 backdrop-blur-md">
         <p className="eyebrow text-page-muted">Việc đang tuyển</p>
         <p className="mt-2 font-display text-base font-semibold text-page-fg">{sample.title}</p>
         {company && <p className="mt-0.5 text-sm text-page-muted">{company.name}</p>}

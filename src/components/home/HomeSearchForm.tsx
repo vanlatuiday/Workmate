@@ -54,7 +54,10 @@ export default function HomeSearchForm({ inputRef, size = 'md', className }: Pro
         <span className="sr-only">Từ khóa tìm việc</span>
         <input
           ref={inputRef}
-          type="text"
+          type="search"
+          name="keyword"
+          autoComplete="off"
+          enterKeyHint="search"
           placeholder="Vị trí, kỹ năng, ngành nghề…"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
@@ -73,6 +76,9 @@ export default function HomeSearchForm({ inputRef, size = 'md', className }: Pro
         <span className="sr-only">Địa điểm</span>
         <input
           type="text"
+          name="city"
+          autoComplete="address-level2"
+          enterKeyHint="search"
           placeholder="Địa điểm…"
           value={location}
           onChange={(e) => setLocation(e.target.value)}

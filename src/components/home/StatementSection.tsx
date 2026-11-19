@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { CalendarDays, MapPin, Sparkles, ArrowRight } from 'lucide-react'
+import { CalendarDays, MapPin, MessagesSquare, ArrowRight } from 'lucide-react'
 
 import { gsap, useGSAP } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
@@ -8,11 +8,11 @@ import { cn } from '@utils/cn'
 import { homeSections } from './content'
 import { useHomeRole } from './homeData'
 
-const ICONS = { lich: CalendarDays, duong: MapPin, kynang: Sparkles } as const
+const ICONS = { lich: CalendarDays, duong: MapPin, ketnoi: MessagesSquare } as const
 
 /**
  * Câu nhấn giữa trang (word-highlight): bên trái là câu, từng từ sáng dần từ mờ → ngà theo tiến trình cuộn
- * (cuộn ngược thì tối lại). Bên phải 3 tiêu chí của câu (lịch rảnh · quãng đường · kỹ năng): mỗi mục sáng lên
+ * (cuộn ngược thì tối lại). Bên phải 3 tiêu chí của câu (lịch rảnh · quãng đường · kết nối — khớp 3 mục của phần bên dưới): mỗi mục sáng lên
  * đúng lúc từ của nó trong câu sáng tới — cùng một timeline, không phải khoảnh khắc thứ ba. Nút của mục dẫn
  * theo vai trò (khách → đăng ký, ứng viên → đúng mục trong hồ sơ, NTD → đăng tin).
  * Chỉ đổi opacity. Chữ là văn bản thật. Giảm chuyển động: mọi thứ sáng sẵn, không có ScrollTrigger.
@@ -145,7 +145,7 @@ function CriterionPreview({ kind }: { kind: keyof typeof ICONS }) {
           <span
             key={d}
             className={cn(
-              'flex h-7 w-7 items-center justify-center rounded-control text-[10px] font-semibold',
+              'flex h-8 w-8 items-center justify-center rounded-control text-xs font-semibold',
               free.has(i) ? 'bg-wm-cyan/25 text-wm-ivory ring-1 ring-wm-cyan/50' : 'bg-wm-ivory/5 text-wm-ivory/50',
             )}
           >
@@ -167,13 +167,11 @@ function CriterionPreview({ kind }: { kind: keyof typeof ICONS }) {
       </span>
     )
   }
+  // Kết nối: hai bong bóng chat nhỏ
   return (
-    <span className="flex flex-wrap gap-1.5">
-      {['Pha chế', 'Giao tiếp', 'Thu ngân'].map((k) => (
-        <span key={k} className="rounded-full border border-wm-ivory/30 bg-wm-ivory/10 px-3 py-1 text-xs font-medium text-wm-ivory">
-          {k}
-        </span>
-      ))}
+    <span className="flex w-48 flex-col gap-1.5 text-xs font-medium">
+      <span className="self-start rounded-card rounded-bl-none bg-wm-ivory/10 px-3 py-1.5 text-wm-ivory ring-1 ring-wm-ivory/25">Chào bạn, ca tối T6 còn trống</span>
+      <span className="self-end rounded-card rounded-br-none bg-wm-cyan/25 px-3 py-1.5 text-wm-ivory ring-1 ring-wm-cyan/50">Mình nhận ca này</span>
     </span>
   )
 }

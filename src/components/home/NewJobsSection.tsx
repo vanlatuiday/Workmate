@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Pause, Play } from 'lucide-react'
 
 import { photoSrcSet, photoUrl } from '@components/discover/types'
 import { JOB_TYPES } from '@constants/index'
@@ -38,7 +38,7 @@ type Row = { job: MatchJob; href: string; status?: string; note?: string }
 /** Dải chữ lớn chạy ngang: một "đơn vị" = cụm chữ + dấu ✱ (olive) */
 function MarqueeUnit({ phrase, muted }: { phrase: string; muted?: boolean }) {
   return (
-    <span className={cn('flex shrink-0 items-center gap-[0.35em] pr-[0.35em]', muted ? 'text-page-muted opacity-50' : 'text-page-fg')}>
+    <span className={cn('flex shrink-0 items-center gap-[0.35em] pr-[0.35em]', muted ? 'nj-outline' : 'text-page-fg/90')}>
       <span>{phrase}</span>
       <span aria-hidden className="text-wm-ivory/60">
         ✱
@@ -50,17 +50,18 @@ function MarqueeUnit({ phrase, muted }: { phrase: string; muted?: boolean }) {
 /** Nhãn nhỏ phía trên ảnh: "01 · BÁN THỜI GIAN" */
 function Tag({ index, label }: { index: number; label: string }) {
   return (
-    <p className="inline-block whitespace-nowrap rounded-full bg-page-fg px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-page-bg">
-      {String(index + 1).padStart(2, '0')} · {label}
+    // Chữ thường, không đánh số (taste skill: không in hoa nhãn, không đánh số mục ngang hàng). `index` giữ chữ ký cũ.
+    <p data-index={index} className={`inline-block whitespace-nowrap rounded-full border border-wm-ivory/25 ${HOME_GLASS_DARK} px-3 py-1 text-xs font-medium text-wm-ivory`}>
+      {label}
     </p>
   )
 }
 
-/** Ảnh dọc 4/5, góc vuông, viền olive 1px, viền giấy ngà bên trong */
+/** Ảnh dọc 4/5 trong khung kính mảnh (đồng bộ với các thẻ kính tối của trang chủ, 2026-11-20) */
 function JobPhoto({ job, alt, className }: { job: MatchJob; alt: string; className?: string }) {
   return (
-    <div className={cn('border border-wm-olive bg-wm-ivory p-1.5', className)}>
-      <div className="relative aspect-[4/5] overflow-hidden bg-wm-mist">
+    <div className={cn('rounded-card border border-wm-ivory/25 bg-wm-abyss/40 p-1 shadow-[0_20px_50px_-30px_var(--wm-night)]', className)}>
+      <div className="relative aspect-[4/5] overflow-hidden rounded-control bg-wm-abyss">
         <img
           src={photoUrl(job.photo.id, 480)}
           srcSet={photoSrcSet(job.photo.id)}
@@ -166,7 +167,10 @@ export default function NewJobsSection() {
   // Dựng bánh xe ghim hay danh sách tĩnh
   const wheel = wide && !reduced && !empty && count >= 2
 
-  // Dải chữ chạy ngang + nhích tốc độ theo vận tốc cuộn
+  // Dải chữ chạy ngang + nhích tốc độ theo vận tốc cuộn. Có nút tạm dừng + dừng khi rê chuột (taste skill:
+  // thứ gì chạy quá 5 s phải dừng được)
+  const loopRef = useRef<gsap.core.Tween | null>(null)
+  const [marqueePaused, setMarqueePaused] = useState(false)
   useGSAP(
     () => {
       const root = ref.current
@@ -174,6 +178,8 @@ export default function NewJobsSection() {
       if (!root || !track || reduced) return
 
       const loop = gsap.to(track, { xPercent: -50, duration: 40, ease: 'none', repeat: -1 })
+      loopRef.current = loop
+      if (marqueePaused) loop.pause()
       let kick: gsap.core.Tween | undefined
       const st = ScrollTrigger.create({
         trigger: root,
@@ -181,6 +187,7 @@ export default function NewJobsSection() {
         end: 'bottom top',
         onUpdate: (self) => {
           kick?.kill()
+          if (loop.paused()) return
           loop.timeScale(1 + Math.min(Math.abs(self.getVelocity()) / 300, 5))
           kick = gsap.to(loop, { timeScale: 1, duration: 0.8, ease: 'power2.out' })
         },
@@ -188,6 +195,7 @@ export default function NewJobsSection() {
       return () => {
         kick?.kill()
         st.kill()
+        loopRef.current = null
       }
     },
     { scope: ref, dependencies: [reduced, role] },
@@ -222,6 +230,9 @@ export default function NewJobsSection() {
           const ad = Math.abs(d)
           visible[k] = ad < WHEEL_HIT_DEG
           el.style.opacity = ad >= 90 ? '0' : String(1 - 0.75 * (ad / 90))
+          // Rọi đèn ô ở giữa (nj-slot, index.css): --f 1 ở mặt trước → 0 sau một ô; --s 0 ở giữa → 1 từ ô thứ hai
+          el.style.setProperty('--f', Math.max(0, 1 - ad / step).toFixed(3))
+          el.style.setProperty('--s', Math.min(1, ad / (step * 1.6)).toFixed(3))
           el.style.pointerEvents = ad < step / 2 ? 'auto' : 'none'
         })
         const f = mod(Math.round(cur / step), N)
@@ -366,7 +377,7 @@ export default function NewJobsSection() {
     <section
       ref={ref}
       data-theme="night"
-      className="relative z-10 overflow-hidden pt-section-sm pb-section-sm"
+      className="relative z-20 overflow-hidden pt-section-sm pb-section-sm"
       aria-labelledby="home-new-title"
     >
       <h2 id="home-new-title" className="sr-only">
@@ -374,10 +385,15 @@ export default function NewJobsSection() {
       </h2>
 
       {/* Dải chữ lớn — trang trí, tiêu đề thật là h2 ẩn ở trên */}
-      <div aria-hidden className={'select-none overflow-hidden'}>
+      <div
+        aria-hidden
+        className={'select-none overflow-hidden'}
+        onPointerEnter={() => loopRef.current?.pause()}
+        onPointerLeave={() => !marqueePaused && loopRef.current?.resume()}
+      >
         <div
           data-marquee
-          className="flex w-max whitespace-nowrap font-display text-[clamp(2.5rem,6vw,5.5rem)] font-semibold uppercase leading-[1.05] tracking-[-0.04em]"
+          className="flex w-max whitespace-nowrap font-display text-[clamp(1.75rem,4.2vw,3.85rem)] font-semibold uppercase leading-[1.05] tracking-[-0.04em]"
         >
           {[0, 1].map((g) => (
             <div key={g} className="flex shrink-0">
@@ -388,9 +404,25 @@ export default function NewJobsSection() {
         </div>
       </div>
 
-      {/* Hàng phụ: nhãn dữ liệu minh họa + liên kết xem tất cả */}
+      {/* Hàng phụ: nút tạm dừng dải chữ + liên kết xem tất cả */}
       <div className="shell mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-        <p className={`inline-block rounded-full border border-wm-ivory/30 ${HOME_GLASS_DARK} px-3 py-1.5 text-xs text-wm-ivory`}>{homeSections.sampleNote}</p>
+        {!reduced ? (
+          <button
+            type="button"
+            aria-pressed={marqueePaused}
+            aria-label={marqueePaused ? 'Chạy dải chữ' : 'Dừng dải chữ'}
+            title={marqueePaused ? 'Chạy dải chữ' : 'Dừng dải chữ'}
+            onClick={() => {
+              const next = !marqueePaused
+              setMarqueePaused(next)
+              if (next) loopRef.current?.pause()
+              else loopRef.current?.resume()
+            }}
+            className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-wm-ivory/30 ${HOME_GLASS_DARK} text-wm-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wm-ivory`}
+          >
+            {marqueePaused ? <Play className="h-4 w-4" aria-hidden /> : <Pause className="h-4 w-4" aria-hidden />}
+          </button>
+        ) : <span />}
         <Link to={copy.all.href} className="group inline-flex min-h-11 items-center gap-2 text-sm font-medium text-page-fg underline-offset-4 hover:underline focus-visible:underline">
           {copy.all.label}
           <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-editorial group-hover:translate-x-1" aria-hidden />
@@ -445,17 +477,24 @@ export default function NewJobsSection() {
                     transform: `translate(-50%, -50%) rotateY(${(k * 360) / slotCount}deg) translateZ(var(--R, 600px))`,
                     backfaceVisibility: 'hidden',
                   }}
-                  className="absolute left-1/2 top-1/2 flex flex-col items-center gap-2"
+                  className="nj-slot absolute left-1/2 top-1/2 flex flex-col items-center gap-2"
                 >
                   <Tag index={k % count} label={tagOf(row)} />
-                  <JobPhoto job={row.job} alt="" className="w-full" />
+                  <div className="relative w-full">
+                    {/* Vầng sáng sau ảnh + bóng "mặt sàn" bên dưới — chỉ hiện ở ô giữa (opacity theo --f) */}
+                    <span aria-hidden className="nj-halo pointer-events-none absolute -inset-10 -z-10" />
+                    <JobPhoto job={row.job} alt="" className="nj-photo w-full" />
+                    <span aria-hidden className="nj-floor pointer-events-none absolute -bottom-8 left-[8%] right-[8%] h-10" />
+                  </div>
                 </Link>
               ))}
             </div>
           </div>
 
           {/* Chữ của việc ở trước vòng: mờ chéo khi đổi; nút xoay một ô */}
-          <div className="shell mt-6 text-center">
+          {/* Chữ đặt trong tấm kính tối: nằm ngay trên cột tia sáng sáng nhất nên cần nền để luôn đọc được */}
+          <div className="shell relative z-10 -mt-14 text-center">
+            <div className="mx-auto max-w-xl rounded-card border border-wm-ivory/25 bg-wm-abyss/60 px-6 pb-5 pt-6 shadow-[0_30px_70px_-30px_var(--wm-night)] backdrop-blur-[18px] backdrop-saturate-150 before:pointer-events-none before:absolute before:inset-x-8 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-wm-ivory/60 before:to-transparent">
             <div aria-live="polite" className="relative mx-auto grid max-w-lg">
               {items.map((row, i) => (
                 <div
@@ -466,11 +505,25 @@ export default function NewJobsSection() {
                     i === active ? 'visible opacity-100' : 'invisible opacity-0',
                   )}
                 >
-                  <h3 className="font-display text-2xl font-semibold leading-snug text-page-fg lg:text-3xl">{row.job.title}</h3>
-                  <p className="mt-2 max-w-md text-sm leading-relaxed text-page-muted"><Details row={row} /></p>
-                  <div className="mt-1">
-                    <RowLink row={row} label={linkLabel} />
+                  <h3 className="font-display text-2xl font-semibold leading-snug text-wm-ivory lg:text-3xl">{row.job.title}</h3>
+                  <p className="mt-1 text-sm text-wm-ivory/80">
+                    {companyOf(row.job.companyId).name} · {row.job.district}, Đà Nẵng
+                  </p>
+                  {/* Lương + ca làm: số liệu chính, dạng viên nổi */}
+                  <div className="mt-3 flex flex-wrap justify-center gap-2">
+                    <span className="tnum rounded-full bg-wm-cyan/20 px-3 py-1 text-sm font-semibold text-wm-ivory ring-1 ring-wm-cyan/45">{row.job.salaryLabel}</span>
+                    <span className="rounded-full bg-wm-ivory/10 px-3 py-1 text-sm font-medium text-wm-ivory ring-1 ring-wm-ivory/25">{row.job.shiftLabel}</span>
+                    {row.note && <span className="rounded-full bg-wm-ivory/10 px-3 py-1 text-sm font-medium text-wm-ivory ring-1 ring-wm-ivory/25">{row.note}</span>}
                   </div>
+                  <Link
+                    to={row.href}
+                    data-cursor="Xem"
+                    tabIndex={i === active ? undefined : -1}
+                    className="group mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-wm-ivory px-6 text-sm font-semibold text-wm-charcoal transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wm-ivory motion-reduce:transform-none"
+                  >
+                    {linkLabel}
+                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
+                  </Link>
                 </div>
               ))}
             </div>
@@ -483,7 +536,7 @@ export default function NewJobsSection() {
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden />
               </button>
-              <span className="tnum text-xs text-page-muted">
+              <span className="tnum text-xs text-wm-ivory/85">
                 {String(active + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}
               </span>
               <button
@@ -494,6 +547,7 @@ export default function NewJobsSection() {
               >
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </button>
+            </div>
             </div>
           </div>
         </>

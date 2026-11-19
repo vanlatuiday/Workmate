@@ -1,6 +1,6 @@
 /** Nội dung trang chủ — sửa tại đây, không cần đụng vào các component. */
 
-export const heroTags = ['Barista', 'Bán hàng', 'Marketing', 'Giao hàng', 'Phục vụ']
+export const heroTags = ['Pha chế', 'Bán hàng', 'Marketing', 'Giao hàng', 'Phục vụ']
 
 export const benefits = [
   {
@@ -209,24 +209,26 @@ export const homeCopy: Record<Audience, HomeCopy> = {
 export const homeSections = {
   /** Chú thích gắn ở các hàng thẻ việc làm */
   sampleNote: 'Dữ liệu minh họa',
+  /** Ghi chú dữ liệu mẫu DUY NHẤT của trang chủ (taste skill: không lặp ghi chú mẫu) — đặt ở phần cuối */
+  demoNotice: 'Việc làm, doanh nghiệp và hồ sơ trên trang là dữ liệu minh họa, chưa phải tin tuyển dụng thật.',
   /** Câu nhấn ở giữa trang (StatementSection): từng từ sáng dần theo cuộn */
-  statement: 'Workmate ghép việc theo lịch rảnh, quãng đường và kỹ năng của từng người.',
+  statement: 'Workmate ghép việc theo lịch rảnh, quãng đường và chỉ kết nối khi cả hai bên cùng muốn.',
   /** 3 tiêu chí bên phải câu nhấn (StatementSection). `word`: từ trong câu mà khi sáng tới thì mục này sáng theo */
   statementCriteria: {
     guest: [
       { key: 'lich', word: 'rảnh,', title: 'Lịch rảnh', body: 'Chọn các buổi bạn đi làm được trong tuần.', cta: { label: 'Khai lịch rảnh', href: '/dang-ky?role=jobseeker' } },
       { key: 'duong', word: 'đường', title: 'Quãng đường', body: 'Đặt khoảng cách tối đa từ nhà tới chỗ làm.', cta: { label: 'Đặt quãng đường', href: '/dang-ky?role=jobseeker' } },
-      { key: 'kynang', word: 'năng', title: 'Kỹ năng', body: 'Ghi những việc bạn đã làm hoặc làm được.', cta: { label: 'Thêm kỹ năng', href: '/dang-ky?role=jobseeker' } },
+      { key: 'ketnoi', word: 'kết', title: 'Kết nối', body: 'Hai bên cùng quan tâm thì kênh chat riêng mới mở.', cta: { label: 'Xem cách kết nối', href: '/match' } },
     ],
     jobseeker: [
       { key: 'lich', word: 'rảnh,', title: 'Lịch rảnh', body: 'Cập nhật buổi rảnh để gợi ý luôn khớp lịch.', cta: { label: 'Sửa lịch rảnh', href: '/tim-viec/ho-so#lich-ranh' } },
       { key: 'duong', word: 'đường', title: 'Quãng đường', body: 'Đổi khu vực và khoảng cách bạn muốn đi làm.', cta: { label: 'Sửa quãng đường', href: '/tim-viec/ho-so#thong-tin' } },
-      { key: 'kynang', word: 'năng', title: 'Kỹ năng', body: 'Thêm kỹ năng để có thêm việc phù hợp.', cta: { label: 'Thêm kỹ năng', href: '/tim-viec/ho-so#kinh-nghiem' } },
+      { key: 'ketnoi', word: 'kết', title: 'Kết nối', body: 'Doanh nghiệp đồng ý thì kênh chat với bạn mở ra.', cta: { label: 'Xem việc đã ứng tuyển', href: '/match' } },
     ],
     recruiter: [
       { key: 'lich', word: 'rảnh,', title: 'Ca làm', body: 'Khai đúng ca cần người, Workmate tìm người rảnh ca đó.', cta: { label: 'Khai ca làm', href: '/dang-tin' } },
       { key: 'duong', word: 'đường', title: 'Khu vực', body: 'Ứng viên được gợi ý theo quãng đường tới cửa hàng.', cta: { label: 'Chọn khu vực tuyển', href: '/dang-tin' } },
-      { key: 'kynang', word: 'năng', title: 'Kỹ năng', body: 'Ghi kỹ năng bắt buộc để lọc đúng người.', cta: { label: 'Ghi kỹ năng cần', href: '/dang-tin' } },
+      { key: 'ketnoi', word: 'kết', title: 'Kết nối', body: 'Quan tâm ứng viên, hai bên đồng ý thì chat mở.', cta: { label: 'Xem ứng viên phù hợp', href: '/match' } },
     ],
   },
   urgent: { title: 'Việc đang tuyển gấp', all: { label: 'Xem việc tuyển gấp', href: '/viec-lam' } },
@@ -402,8 +404,7 @@ export const heroPreview = {
     label: 'Quản trị',
     title: 'Tin đã kiểm duyệt',
     rows: ['Quán Gió Sông Hàn', 'Cửa hàng Biển Xanh', 'Nhóm Dịch Vụ Sông Hàn'],
-    footer: 'Tin đã duyệt tuần này',
-    count: 128,
+    footer: 'Chỉ hiện tin của doanh nghiệp đã xác minh',
   },
 }
 

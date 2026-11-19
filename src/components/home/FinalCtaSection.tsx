@@ -8,6 +8,7 @@ import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
 import { homeSections, homeSectionsByRole } from './content'
 import HomeSearchForm from './HomeSearchForm'
+import { ExploreChips } from './ExploreSection'
 
 /**
  * Section ⑦ — lời kết trên nền đen ấm (night). Footer nằm ngay sau.
@@ -34,11 +35,11 @@ export default function FinalCtaSection() {
       // Ngà → đen ấm (night): đoạn chuyển dài (95% → 35%) để nền tối dần êm; end tới được trước hết trang vì còn footer bên dưới
       data-theme-start="top 95%"
       data-theme-end="top 35%"
-      className="relative z-10 shell py-section" aria-labelledby="home-final-title">
+      className="relative z-10 px-4 py-section-sm md:px-[max(16px,2.5vw)]" aria-labelledby="home-final-title">
       <TextReveal
         id="home-final-title"
         text={copy.title}
-        className="max-w-[18ch] font-display text-display-lg font-semibold text-page-fg"
+        className="max-w-[18ch] text-balance font-display text-display-lg font-semibold text-page-fg"
       />
       <Reveal delay={0.2} className="mt-12">
         {roleLink ? (
@@ -52,6 +53,10 @@ export default function FinalCtaSection() {
           <HomeSearchForm size="sm" className="w-full max-w-2xl" />
         )}
       </Reveal>
+      {/* Tìm nhanh theo khu vực / hình thức (gộp từ phần "Việc theo khu vực và hình thức", 2026-11-20) */}
+      <ExploreChips className="mt-12 max-w-5xl" />
+      {/* Ghi chú dữ liệu mẫu duy nhất của trang chủ */}
+      <p className="mt-12 text-xs text-page-muted">{homeSections.demoNotice}</p>
     </section>
   )
 }

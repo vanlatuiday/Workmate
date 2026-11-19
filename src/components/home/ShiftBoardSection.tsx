@@ -416,14 +416,13 @@ export default function ShiftBoardSection() {
   const arrow = cn(HOME_GLASS_DARK, 'inline-flex h-11 w-11 items-center justify-center rounded-full text-wm-ivory hover:bg-wm-ivory/15 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent', PRESS, FOCUS)
 
   return (
-    <section ref={rootRef} onKeyDown={(e) => e.key === 'Escape' && openKey && toggle(null, 'face')} data-theme="night" aria-labelledby="shift-board-title" className="relative z-10 flex min-h-[calc(100svh-4rem)] flex-col justify-center py-section">
+    <section ref={rootRef} onKeyDown={(e) => e.key === 'Escape' && openKey && toggle(null, 'face')} data-theme="night" aria-labelledby="shift-board-title" className="relative z-10 flex min-h-[calc(100svh-4rem)] flex-col justify-center py-section-sm">
       {/* Tiêu đề thẳng mép với băng chuyền (cùng lề ngang, không theo `shell`) */}
       <div className="flex w-full flex-col gap-4 px-4 md:flex-row md:items-end md:justify-between md:px-[max(16px,2.5vw)]">
         <div className="min-w-0">
           <h2 id="shift-board-title" className="font-display text-display-sm font-semibold text-page-fg">
             {text.title}
           </h2>
-          <p className={cn(HOME_GLASS_DARK, 'mt-3 inline-block rounded-full px-3 py-1 text-xs text-wm-ivory')}>{copy.note}</p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
           {groups.length > 0 && (
@@ -539,7 +538,7 @@ export default function ShiftBoardSection() {
                               {copy.close}
                             </button>
                           </div>
-                          <ul role="list" className={cn('min-h-0 flex-1 gap-3 overflow-y-auto pr-1', twoCols ? 'grid grid-cols-2 content-start' : 'flex flex-col')}>
+                          <ul role="list" className={cn('min-h-0 flex-1 gap-3 overflow-y-auto overscroll-contain pr-1', twoCols ? 'grid grid-cols-2 content-start' : 'flex flex-col')}>
                             {g.jobs.slice(0, 6).map((row) => (
                               <CompanyRow
                                 key={row.job.id}

@@ -12,7 +12,6 @@ import ShiftBoardSection from '@components/home/ShiftBoardSection'
 import StatementSection from '@components/home/StatementSection'
 import FeatureBlocksSection from '@components/home/FeatureBlocksSection'
 import NewJobsSection from '@components/home/NewJobsSection'
-import ExploreSection from '@components/home/ExploreSection'
 import RecruiterSection from '@components/home/RecruiterSection'
 import FinalCtaSection from '@components/home/FinalCtaSection'
 import { useSectionThemes } from '@components/home/useSectionThemes'
@@ -29,7 +28,7 @@ const ParticleField = lazy(() => import('@components/motion/ParticleField'))
  *   ②  StatementSection     than chì        câu nhấn, từng từ sáng dần theo cuộn
  *   ③  FeatureBlocksSection ngà (than chì → ngà, chuyển dài ở đầu section)             "cuốn sách" lật trang khi cuộn (máy tính); điện thoại xếp dọc
  *   ④  NewJobsSection       ngà             vòng 3D các việc mới đăng — danh sách việc duy nhất (NTD: "Tin của bạn")
- *   ⑤  ExploreSection       ngà             ô nhóm ngành có ảnh + liên kết khu vực/hình thức
+ *   (ExploreSection: chip khu vực/hình thức nay nằm trong FinalCtaSection)
  *   ⑥  RecruiterSection     ngà             tấm than chì cho nhà tuyển dụng, nở ra khi cuộn tới
  *   ⑦  FinalCtaSection      than chì        lời kết + ô tìm việc (khách/người tìm việc) hoặc nút hành động
  *
@@ -105,6 +104,8 @@ export default function HomePage() {
           </div>
           {/* Quầng cam đáy hero tỏa tiếp xuống dưới rồi tan (cùng tâm với HeroOrange ở mép trên) → không bị cắt */}
           <div className="home-orange-join absolute inset-x-0 top-0 h-[70svh]" />
+          {/* Phần dưới hero trầm hơn hero (2026-11-20): hero là điểm sáng nhất trang; phủ abyss tăng dần qua 60svh đầu */}
+          <div className="home-page-dim absolute inset-0" />
           <div data-home-stars className="home-stars absolute inset-x-0 -top-[15%] -bottom-[15%]" />
         </div>
         {/* Dưới hero không còn hồng ở hai mép: nhuộm xanh hai bên (chỉ đổi sắc, giữ sáng tối của ảnh).
@@ -119,7 +120,6 @@ export default function HomePage() {
         <StatementSection />
         <FeatureBlocksSection />
         <NewJobsSection />
-        <ExploreSection />
         <RecruiterSection />
         <FinalCtaSection />
       </div>

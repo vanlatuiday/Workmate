@@ -1,10 +1,8 @@
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-import { gsap, ScrollTrigger, useGSAP } from "@utils/gsap";
 import { useReducedMotion } from "@hooks/useReducedMotion";
-import { useMediaQuery } from "@hooks/useMediaQuery";
 import { useCompanyStore } from "@context/companyStore";
 import { cn } from "@utils/cn";
 import { photoSrcSet, photoUrl } from "@components/discover/types";
@@ -33,42 +31,7 @@ const HREF: Record<string, string> = {
  *  nội dung vẫn ở content.ts, thêm id vào đây là hiện lại. */
 const SHOWN = ["schedule", "near", "match"];
 
-/** Gạch đầu dòng ngắn cho cột "Workmate lo phần này", theo id khối (tóm từ block.body) */
-const POINTS: Record<string, string[]> = {
-  schedule: [
-    "Khai lịch rảnh một lần",
-    "Chỉ gợi ý ca nằm gọn trong lịch",
-    "Đổi lịch là gợi ý đổi theo",
-  ],
-  near: [
-    "Đặt bán kính đi làm",
-    "Hiện khoảng cách từng việc",
-    "Lọc việc gần nhà",
-  ],
-  match: [
-    "Hai bên cùng quan tâm mới mở chat",
-    "Chat chỉ mở sau khi hai bên kết nối",
-    "Hẹn phỏng vấn ngay trong chat",
-  ],
-  guide: [
-    "Viết hồ sơ ngắn gọn",
-    "Chuẩn bị cho ca đầu tiên",
-    "Hiểu quyền lợi người làm linh hoạt",
-  ],
-  // Nhà tuyển dụng
-  slots: [
-    "Đăng tin kèm ca làm",
-    "Chỉ gợi ý người rảnh đúng ca",
-    "Chỉ xem hồ sơ khớp ca",
-  ],
-  nearby: [
-    "Xem ứng viên quanh cửa hàng",
-    "Người ở gần đi làm đúng giờ",
-    "Gắn bó lâu hơn",
-  ],
-};
-
-/** Nội dung hai trang sau khi lật, theo id khối: đoạn giới thiệu + 3 bước bắt đầu */
+/** Nội dung mở rộng của từng mục: đoạn giới thiệu + 3 bước bắt đầu */
 const DETAIL: Record<string, { detail: string; steps: string[] }> = {
   schedule: {
     detail:
@@ -127,380 +90,15 @@ const DETAIL: Record<string, { detail: string; steps: string[] }> = {
   },
 };
 
-/** Vị trí dính của hàng đầu (dưới header) và bước chồng giữa các hàng — dải thu gọn cao đúng bằng STEP */
-const STICK_TOP = 96;
-const STEP = 44;
-
 type Block = {
   id: string;
   label: string;
   title: string;
   body: string;
   cta: string;
-  /** Nhãn nút lật thẻ ở mặt trước */
-  detailLabel: string;
+  detailLabel?: string;
   href: string;
 };
-
-/** Gắn/gỡ thuộc tính `inert` (React 18 chưa có prop này): phần tử ẩn không nhận Tab/chuột/đọc màn hình */
-function useInert(ref: React.RefObject<HTMLElement>, inert: boolean) {
-  useEffect(() => {
-    ref.current?.toggleAttribute("inert", inert);
-  }); // chạy mỗi lần render: phần tử có thể mới được gắn (vd. trang phải khi đổi cỡ màn hình)
-}
-
-/** Thời gian lật trang (giây) */
-const FLIP_S = 0.85;
-/** Độ sâu phối cảnh của trang lật (px) — lớn để mép trang không phình quá khung thẻ lúc lật */
-const FLIP_PERSPECTIVE = 3200;
-
-const pill =
-  "inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-fg transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-page-fg";
-
-/**
- * Một hàng của danh sách: thẻ chia đôi, ảnh trái – chữ phải (mobile: ảnh trên, chữ dưới).
- * Nửa chữ là "trang giấy" có bản lề ở cạnh trái (giữa thẻ). Bấm nút ở mặt trước thì trang xoay
- * rotateY 0 → 180° (lật từ phải sang trái, như sang trang sách) và nằm đè lên nửa ảnh: mặt sau
- * là trang trái, còn trang phải mới (các bước bắt đầu) lộ ra bên dưới. Mobile: phần chữ xoay tại
- * chỗ, mặt sau chứa cả hai phần xếp dọc. Giảm chuyển động: không xoay, chỉ mờ chéo ~0,2s.
- * `<li data-row>` không có transform/perspective — mọi lớp 3D nằm ở phần tử con để giữ `sticky`.
- *
- * Kính: các mặt trước/trang phải trong suốt để lộ lớp glass-liquid của <li>. Mặt sau (đè lên ảnh)
- * dùng `.glass-page` (nền ngà mờ + viền sáng), KHÔNG bật backdrop-filter kể cả khi đã nghỉ —
- * bật/tắt nó trên phần tử vừa xoay 3D dễ làm nhảy hình, nên chọn nền mờ đủ đặc (86%).
- */
-function BlockRow({
-  block,
-  index,
-  sticky,
-  chip,
-}: {
-  block: Block;
-  index: number;
-  sticky: boolean;
-  chip: ChipJob | null;
-}) {
-  const photo = homeMedia.blocks[block.id as keyof typeof homeMedia.blocks];
-  const points = POINTS[block.id] ?? [];
-  const detail = DETAIL[block.id];
-  const num = `${String(index + 1).padStart(2, "0")}.`;
-  const reduced = useReducedMotion();
-  const wide = useMediaQuery("(min-width: 768px)");
-  const backId = useId();
-
-  const [flipped, setFlipped] = useState(false);
-  // Mobile: hai mặt chồng chung một ô lưới nên ô cao bằng mặt sau (dài hơn) → mặt trước thừa khoảng trống.
-  // Khi đã nghỉ ở mặt trước (không đang xoay) thì mặt sau không chiếm chiều cao.
-  const [settled, setSettled] = useState(true);
-  const flippedRef = useRef(false);
-  const busyRef = useRef(false);
-  const timerRef = useRef<number>();
-  const pageRef = useRef<HTMLDivElement>(null);
-  const nextRef = useRef<HTMLDivElement>(null);
-  const shadowRef = useRef<HTMLDivElement>(null);
-  const openRef = useRef<HTMLButtonElement>(null);
-  const backTitleRef = useRef<HTMLHeadingElement>(null);
-  const frontRef = useRef<HTMLDivElement>(null);
-  const backRef = useRef<HTMLDivElement>(null);
-  const chipRef = useRef<HTMLDivElement>(null);
-
-  // Mặt đang ẩn không cho Tab lọt vào; trang phải mới chưa lộ cũng vậy;
-  // ô việc bị trang trái (đè lên ảnh) che khi đã lật (md+) cũng vậy
-  useInert(frontRef, flipped);
-  useInert(backRef, !flipped);
-  useInert(nextRef, !flipped);
-  useInert(chipRef, flipped && wide);
-
-  // Đổi cỡ màn hình / chế độ giảm chuyển động: đặt lại góc xoay và độ hiện cho đúng bố cục mới
-  useEffect(() => {
-    const page = pageRef.current;
-    if (!page) return;
-    const next = nextRef.current;
-    if (reduced) {
-      gsap.set(page, { clearProps: "transform,transformOrigin" });
-      if (next) gsap.set(next, { clearProps: "opacity" });
-      return;
-    }
-    gsap.set(page, {
-      transformPerspective: FLIP_PERSPECTIVE,
-      transformOrigin: wide ? "0% 50%" : "50% 50%",
-      rotateY: flippedRef.current ? 180 : 0,
-    });
-    if (next) gsap.set(next, { opacity: flippedRef.current ? 1 : 0 });
-  }, [wide, reduced]);
-
-  useEffect(
-    () => () => {
-      window.clearTimeout(timerRef.current);
-      [pageRef, nextRef, shadowRef].forEach((r) => {
-        if (r.current) gsap.killTweensOf(r.current);
-      });
-    },
-    [],
-  );
-
-  const flip = (to: boolean) => {
-    const page = pageRef.current;
-    if (busyRef.current || !page) return;
-    busyRef.current = true;
-    flippedRef.current = to;
-    setFlipped(to);
-    setSettled(false);
-    const done = () => {
-      busyRef.current = false;
-      setSettled(true);
-      if (!wide) requestAnimationFrame(() => ScrollTrigger.refresh()); // chiều cao thẻ mobile vừa đổi
-      (to ? backTitleRef : openRef).current?.focus({ preventScroll: true });
-    };
-    if (reduced) {
-      timerRef.current = window.setTimeout(done, 200);
-      return;
-    }
-    gsap.to(page, {
-      rotateY: to ? 180 : 0,
-      duration: FLIP_S,
-      ease: "power3.inOut",
-      onComplete: done,
-    });
-    if (wide) {
-      // Trang phải mới chỉ hiện khi trang lật đã dựng quá 90° (power3.inOut: giữa thời gian = 90°),
-      // để chữ mặt trước không chồng lên nó: lật mở 45% → 85%; lật về thì ẩn xong trước khi mặt trước quay lại (15% → 45%)
-      if (nextRef.current)
-        gsap.to(nextRef.current, {
-          opacity: to ? 1 : 0,
-          duration: FLIP_S * 0.3 + (to ? FLIP_S * 0.1 : 0),
-          delay: FLIP_S * (to ? 0.45 : 0.15),
-          ease: "none",
-          overwrite: true,
-        });
-      // Bóng mờ trên trang phải chạy theo trang: đậm dần tới giữa lúc lật rồi tan
-      if (shadowRef.current)
-        gsap.fromTo(
-          shadowRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: FLIP_S / 2, ease: "power1.inOut", yoyo: true, repeat: 1 },
-        );
-    }
-  };
-
-  const onEsc = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape" && flipped) {
-      e.stopPropagation();
-      flip(false);
-    }
-  };
-
-  // Chế độ giảm chuyển động: mờ chéo; còn lại: hai mặt úp lưng nhau, mặt sau xoay sẵn 180°
-  const fade = "transition-opacity duration-200 motion-reduce:duration-200";
-  const stripCls = "flex h-11 shrink-0 items-center gap-4 px-5 md:px-8";
-  const padCls = "px-5 md:px-8";
-
-  // Trang phải mới: tiêu đề, 3 bước, hàng nút. Dùng ở trang phải (md+) hoặc cuối mặt sau (mobile)
-  const nextContent = (
-    <>
-      <div className={stripCls}>
-        <span className="truncate text-sm text-page-muted">Bắt đầu</span>
-      </div>
-      <div className={cn("flex flex-1 flex-col pb-5 md:min-h-0 md:pb-6", padCls)}>
-        <h4 className="font-display text-xl font-semibold leading-snug text-page-fg md:text-2xl">
-          Bắt đầu trong 3 bước
-        </h4>
-        <ol className="mt-3 divide-y divide-page-line border-y border-page-line">
-          {(detail?.steps ?? []).map((s, i) => (
-            <li key={s} className="flex gap-4 py-2.5 text-sm leading-snug text-page-fg">
-              <span className="tnum w-6 shrink-0 text-page-muted">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span>{s}</span>
-            </li>
-          ))}
-        </ol>
-        <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-2 pt-4">
-          <Link to={block.href} data-cursor="Xem" className={pill}>
-            {block.cta}
-            <ArrowRight className="h-4 w-4" aria-hidden />
-          </Link>
-          <button
-            type="button"
-            onClick={() => flip(false)}
-            className="inline-flex min-h-11 items-center rounded-full border border-page-line px-5 py-3 text-sm font-medium text-page-fg outline-none transition-[border-color,transform] duration-300 hover:border-page-fg active:scale-[0.97] motion-reduce:active:scale-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-page-fg"
-          >
-            Quay lại
-          </button>
-        </div>
-      </div>
-    </>
-  );
-
-  return (
-    <li
-      data-row
-      style={{ "--stick": `${STICK_TOP + index * STEP}px` } as React.CSSProperties}
-      className={cn(
-        // Thẻ kính lỏng (glass-liquid, references/p13): trong, nhòe mạnh, viền sáng ở mép;
-        // thẻ sau trượt lên thì thẻ trước nhòe qua lớp kính. overflow-hidden giữ trang lật nằm trong khuôn thẻ bo góc.
-        // Kính dày hơn mặc định: thẻ chồng lên nhau, nhòe 28px + nền ngà 84% (đục để chữ than chì đọc rõ trên nền xanh/cam) để chữ/nút của thẻ phía sau không lộ qua
-        LIGHT_CARD_VARS,
-        "glass-liquid group mb-4 overflow-hidden rounded-card [--glass-alpha:84%] [--glass-blur:28px] md:mb-0 md:h-[min(62vh,520px)]",
-        sticky && "md:sticky md:top-[var(--stick)]",
-      )}
-    >
-      <div className="relative flex flex-col md:h-full">
-        {/* Ảnh: mobile 16/10 ở trên; desktop nửa trái, cao hết thẻ */}
-        <div className="relative aspect-[16/10] overflow-hidden bg-wm-mist md:absolute md:inset-y-0 md:left-0 md:aspect-auto md:w-1/2">
-          <img
-            src={photoUrl(photo.id, 960)}
-            srcSet={photoSrcSet(photo.id)}
-            sizes="(min-width: 768px) 50vw, 100vw"
-            alt={photo.alt}
-            width={960}
-            height={600}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover transition-transform duration-700 ease-editorial md:group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-          />
-          {/* Bản sao nhòe sẵn (không animate filter): GSAP chỉ scrub opacity 0 → 1 khi thẻ sau phủ lên (md+).
-              Mobile / giảm chuyển động: luôn opacity 0. Nằm dưới ô kính và dưới trang lật. */}
-          <div
-            data-blur
-            aria-hidden
-            className="pointer-events-none absolute inset-0 overflow-hidden opacity-0"
-          >
-            <img
-              src={photoUrl(photo.id, 960)}
-              alt=""
-              width={960}
-              height={600}
-              loading="lazy"
-              decoding="async"
-              className="h-full w-full scale-110 object-cover blur-[14px]"
-            />
-            <div className="absolute inset-0 bg-wm-charcoal/10" />
-          </div>
-          {chip && (
-            <div ref={chipRef} data-chip className="contents">
-              <FeatureJobChip item={chip} />
-            </div>
-          )}
-        </div>
-
-        {/* Trang phải mới (md+): nằm dưới trang lật, trong suốt để lộ kính của thẻ; ẩn hẳn khi chưa lật */}
-        {wide && (
-          <>
-            <div
-              ref={nextRef}
-              onKeyDown={onEsc}
-              className={cn(
-                "absolute inset-y-0 right-0 z-0 flex w-1/2 flex-col border-l border-page-line opacity-0",
-                reduced && fade,
-                reduced && flipped && "opacity-100",
-              )}
-            >
-              {nextContent}
-            </div>
-            {/* Bóng đổ của trang đang lật lên trang phải */}
-            {!reduced && (
-              <div
-                ref={shadowRef}
-                aria-hidden
-                className="pointer-events-none absolute inset-y-0 right-0 z-[5] w-1/2 bg-gradient-to-r from-wm-charcoal/25 to-transparent opacity-0"
-              />
-            )}
-          </>
-        )}
-
-        {/* Trang lật: nửa phải, bản lề ở cạnh trái (md+); mobile là khối chữ phía dưới ảnh */}
-        <div
-          ref={pageRef}
-          className="relative grid md:absolute md:inset-y-0 md:right-0 md:z-10 md:w-1/2 [transform-style:preserve-3d]"
-        >
-          {/* Mặt trước: trong suốt */}
-          <div
-            ref={frontRef}
-            className={cn(
-              "flex flex-col [grid-area:1/1] md:absolute md:inset-0",
-              !reduced && "[backface-visibility:hidden]",
-              reduced && fade,
-              reduced && flipped && "opacity-0",
-            )}
-          >
-            {/* Dải 44px đầu: vẫn đọc được khi hàng sau phủ lên */}
-            <div className={stripCls}>
-              <span className="tnum text-sm text-page-muted">{num}</span>
-              <span className="truncate text-sm text-page-fg">{block.label}</span>
-            </div>
-            <div className="flex flex-1 flex-col justify-center px-5 pb-6 pt-2 md:px-8 md:pb-8 md:pt-0">
-              <h3 className="text-balance font-display text-3xl font-semibold leading-[1.1] text-page-fg md:text-4xl">
-                {block.title}
-              </h3>
-              <div data-bullets className="mt-4">
-                <p className="max-w-md text-sm leading-relaxed text-page-muted">
-                  {block.body}
-                </p>
-                <button
-                  ref={openRef}
-                  type="button"
-                  data-cursor="Xem"
-                  aria-expanded={flipped}
-                  aria-controls={backId}
-                  onClick={() => flip(true)}
-                  className={cn(pill, "mt-6")}
-                >
-                  {block.detailLabel}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Mặt sau = trang trái (md+, đè lên ảnh). Mobile: thêm trang phải xếp dọc bên dưới.
-              Giảm chuyển động + md+: không xoay, đặt sẵn ở nửa trái rồi mờ chéo. */}
-          <div
-            ref={backRef}
-            id={backId}
-            onKeyDown={onEsc}
-            className={cn(
-              "glass-page flex flex-col [grid-area:1/1] md:absolute",
-              !wide && !flipped && settled && "max-h-0 overflow-hidden",
-              reduced ? "md:inset-y-0 md:right-full md:w-full" : "md:inset-0",
-              !reduced && "[backface-visibility:hidden] [transform:rotateY(180deg)]",
-              reduced && fade,
-              reduced && !flipped && "opacity-0",
-            )}
-          >
-            <div className={stripCls}>
-              <span className="tnum text-sm text-page-muted">{num}</span>
-              <span className="truncate text-sm text-page-fg">{block.label}</span>
-            </div>
-            <div className={cn("flex flex-col pb-5 md:min-h-0 md:flex-1 md:pb-6", padCls)}>
-              <p className="text-xs text-page-muted">Workmate lo phần này</p>
-              <h3
-                ref={backTitleRef}
-                tabIndex={-1}
-                className="mt-1 text-balance font-display text-xl font-semibold leading-snug text-page-fg outline-none md:text-2xl"
-              >
-                {block.title}
-              </h3>
-              <p className="mt-2 text-sm leading-snug text-page-muted">
-                {detail?.detail ?? block.body}
-              </p>
-              <ul className="mt-2.5 space-y-1 text-sm leading-snug text-page-fg">
-                {points.map((p) => (
-                  <li key={p} className="flex gap-2">
-                    <span aria-hidden>•</span>
-                    <span>{p}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {!wide && (
-              <div className="flex flex-col border-t border-page-line">{nextContent}</div>
-            )}
-          </div>
-        </div>
-      </div>
-    </li>
-  );
-}
 
 /** ISO đăng tin của một việc (CatalogJob có, kiểu MatchJob không khai) → số để so sánh */
 const postedMs = (j: MatchJob) =>
@@ -554,25 +152,18 @@ function useChipJobs(blocks: Block[], role: HomeRole): (ChipJob | null)[] {
 }
 
 /**
- * Section ③ — "Workmate giúp bạn thế nào" dạng danh sách chồng dính (sticky stacking,
- * references/p8.mp4 nửa đầu), 2–3 hàng (nhà tuyển dụng 2, còn lại 3).
- *
- * Toán dính (md+, không giảm chuyển động): hàng i dính ở top = 96 + 44·i, cao H, nền kính gần đặc. Hàng i+1
- * trượt lên phủ hàng i, nên hàng i chỉ còn 44px đầu (dải ảnh + số + tên). Mỗi hàng (trừ hàng cuối)
- * có một ScrollTrigger scrub: từ lúc đỉnh hàng i+1 chạm đáy hàng i (top_i + H) đến lúc nó dính ở
- * top_{i+1} thì cột bên phải của hàng i mờ đi. Phần đệm cuối để hàng cuối đọc trọn trước khi nhả.
- *
- * Mỗi hàng là một thẻ kính sáng (ảnh + nội dung chung một khối bo góc).
- * Điện thoại hoặc "giảm chuyển động": không dính — các thẻ xếp dọc, cách nhau một khoảng.
+ * Section ③ — "Workmate giúp bạn thế nào": một tấm kính tối, trái là danh sách 2–3 mục, phải là MỘT khung ảnh lớn
+ * (chủ dự án 2026-11-20, theo taste skill "ví dụ 1": thay danh sách chồng dính — không có gì chạy theo cuộn).
+ * Rê chuột / focus / bấm một mục → mục đó mở ra (đoạn giới thiệu + 3 bước + nút), ảnh bên phải đổi mờ chéo
+ * 0,3 s (chỉ opacity). Rê ảnh: phóng 1.02 trong khung. Ô kính việc thật nằm gọn trong góc ảnh.
+ * Kính tối theo ui-ux-pro-max: nền abyss trong suốt + blur ~16px + viền ngà 1px; chữ ngà ≥ 4.5:1.
+ * Điện thoại: danh sách, mục đang mở có ảnh ngay dưới chữ (không có khung ảnh bên phải).
+ * Giảm chuyển động: đổi tức thì.
  */
 export default function FeatureBlocksSection() {
-  const ref = useRef<HTMLElement>(null);
-  const listRef = useRef<HTMLOListElement>(null);
   const reduced = useReducedMotion();
   const role = useHomeRole();
   const recruiter = role === "recruiter";
-
-  // Nhà tuyển dụng có hai khối riêng (kèm đích nút); còn lại là các khối chung theo SHOWN
   const blocks: Block[] = useMemo(
     () =>
       recruiter
@@ -582,73 +173,127 @@ export default function FeatureBlocksSection() {
             .map((b) => ({ ...b, href: HREF[b.id] })),
     [recruiter],
   );
-  const count = blocks.length;
   const chips = useChipJobs(blocks, role);
+  const [active, setActive] = useState(0);
+  const fade = reduced ? "" : "transition-opacity duration-300 ease-out";
 
-  useGSAP(
-    () => {
-      const list = listRef.current;
-      if (reduced || !list || count < 2) return;
-      const mm = gsap.matchMedia();
-      mm.add("(min-width: 768px)", () => {
-        const els = gsap.utils.toArray<HTMLElement>("[data-row]", list);
-        const at = (a: number) => `top${a < 0 ? "-=" : "+="}${Math.abs(a)} top`;
-        els.slice(0, -1).forEach((row, i) => {
-          const bullets = row.querySelector("[data-bullets]");
-          if (!bullets) return;
-          // Cùng một timeline scrub: chữ phụ mờ đi, ảnh nhòe dần (opacity bản sao), ô kính việc mờ theo ảnh
-          const tween = gsap.timeline({ defaults: { ease: "none" } });
-          tween.to(bullets, { opacity: 0, y: -8 }, 0);
-          const blur = row.querySelector("[data-blur]");
-          if (blur) tween.to(blur, { opacity: 1 }, 0);
-          const chipEl = row.querySelector("[data-chip]")?.firstElementChild;
-          if (chipEl) tween.to(chipEl, { opacity: 0 }, 0);
-          ScrollTrigger.create({
-            trigger: list,
-            animation: tween,
-            scrub: true,
-            invalidateOnRefresh: true,
-            // đỉnh hàng i+1 chạm đáy hàng i → đỉnh hàng i+1 dính tại top_{i+1}
-            start: () => at(i * row.offsetHeight - (STICK_TOP + i * STEP)),
-            end: () =>
-              at((i + 1) * row.offsetHeight - (STICK_TOP + (i + 1) * STEP)),
-          });
-        });
-      });
-      return () => mm.revert();
-    },
-    // count/role đổi (đổi vai trò) → dựng lại cho bộ hàng mới
-    { scope: ref, dependencies: [reduced, count, role], revertOnUpdate: true },
-  );
+  const photoOf = (b: Block) => homeMedia.blocks[b.id as keyof typeof homeMedia.blocks];
 
   return (
     <section
-      ref={ref}
       data-theme="night"
-      // Than chì → ngà: đoạn chuyển dài (85% → 20%), xong trước khi hàng đầu bắt đầu dính (đỉnh danh sách còn cách đỉnh section phần tiêu đề, tới ~96px)
-      data-theme-start="top 85%"
-      data-theme-end="top 20%"
-      className="relative z-10 shell pt-section-sm pb-section-sm"
-      aria-label={
-        recruiter
-          ? homeSectionsByRole.recruiter.blocksLabel
-          : "Workmate giúp bạn thế nào"
-      }
+      className="relative z-10 px-4 pb-section-sm pt-section-sm md:px-[max(16px,2.5vw)]"
+      aria-label={recruiter ? homeSectionsByRole.recruiter.blocksLabel : "Workmate giúp bạn thế nào"}
     >
-      {/* Không còn tiêu đề dẫn: câu nhấn ngay phía trên đã nói cùng ý */}
-      <ol ref={listRef}>
-        {blocks.map((block, i) => (
-          <BlockRow
-            key={block.id}
-            block={block}
-            index={i}
-            sticky={!reduced}
-            chip={chips[i] ?? null}
-          />
-        ))}
-        {/* Đệm cuối: chồng giữ nguyên thêm một đoạn cho hàng cuối đọc trọn rồi mới nhả */}
-        {!reduced && <li aria-hidden className="hidden h-[28vh] md:block" />}
-      </ol>
+      <div className="grid overflow-hidden rounded-card border border-wm-ivory/20 bg-wm-abyss/55 shadow-[0_30px_80px_-40px_var(--wm-night)] backdrop-blur-[16px] backdrop-saturate-150 lg:min-h-[min(80svh,720px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+        {/* Trái: danh sách */}
+        <ul className="flex flex-col justify-center gap-2 p-4 sm:p-6 lg:p-10">
+          {blocks.map((b, i) => {
+            const open = i === active;
+            const d = DETAIL[b.id];
+            const photo = photoOf(b);
+            return (
+              <li key={b.id}>
+                <div
+                  onPointerEnter={(e) => e.pointerType === "mouse" && setActive(i)}
+                  className={cn(
+                    "relative rounded-card border p-5 transition-colors duration-300",
+                    open ? "border-wm-ivory/30 bg-wm-ivory/[0.07]" : "border-transparent hover:bg-wm-ivory/[0.04]",
+                  )}
+                >
+                  {/* Vạch sáng mép trái cho mục đang mở */}
+                  <span aria-hidden className={cn("absolute inset-y-5 left-0 w-[3px] rounded-full bg-wm-cyan", fade, open ? "opacity-100" : "opacity-0")} />
+                  <button
+                    type="button"
+                    aria-expanded={open}
+                    aria-controls={`feature-${b.id}`}
+                    onClick={() => setActive(i)}
+                    onFocus={() => setActive(i)}
+                    className="flex w-full items-baseline justify-between gap-4 text-left outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-wm-ivory"
+                  >
+                    <span className="min-w-0">
+                      <span className="block text-xs font-medium text-wm-ivory/70">{b.label}</span>
+                      <span className={cn("mt-1 block font-display text-2xl font-semibold leading-tight lg:text-3xl", open ? "text-wm-ivory" : "text-wm-ivory/60")}>
+                        {b.title}
+                      </span>
+                    </span>
+                    <ArrowRight aria-hidden className={cn("h-5 w-5 shrink-0 text-wm-ivory transition-transform duration-300", open ? "rotate-90" : "opacity-50")} />
+                  </button>
+                  {/* Nội dung mở rộng: grid-rows 0fr → 1fr để mở mượt mà không đo chiều cao */}
+                  <div
+                    id={`feature-${b.id}`}
+                    className={cn("grid", reduced ? "" : "transition-[grid-template-rows] duration-300 ease-out", open ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}
+                  >
+                    {/* inert (React 18 chưa có prop): nội dung đang đóng không nhận Tab/đọc màn hình */}
+                    <div className="min-h-0 overflow-hidden" {...((!open ? { inert: "" } : {}) as Record<string, string>)}>
+                      <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-wm-ivory/85 md:text-base">{b.body}</p>
+                      {d && (
+                        <ol className="mt-4 space-y-2">
+                          {d.steps.map((st, k) => (
+                            <li key={st} className="flex gap-3 text-sm text-wm-ivory/85">
+                              <span className="tnum flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-wm-ivory/30 text-xs font-semibold text-wm-ivory">{k + 1}</span>
+                              <span className="pt-0.5">{st}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      )}
+                      <Link
+                        to={b.href}
+                        className="group mt-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-wm-ivory/60 px-5 text-sm font-semibold text-wm-ivory transition-colors duration-300 hover:bg-wm-ivory hover:text-wm-charcoal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wm-ivory"
+                      >
+                        {b.cta}
+                        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
+                      </Link>
+                      {/* Điện thoại / máy tính bảng: ảnh của mục ngay dưới chữ */}
+                      {photo && (
+                        <div className="relative mt-5 aspect-[16/10] overflow-hidden rounded-card lg:hidden">
+                          <img src={photoUrl(photo.id, 900)} srcSet={photoSrcSet(photo.id)} sizes="100vw" alt={photo.alt} width={900} height={563} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* Phải: một khung ảnh, các ảnh chồng lên nhau và đổi mờ chéo theo mục đang mở */}
+        <div className="group/photo relative hidden overflow-hidden lg:block">
+          {blocks.map((b, i) => {
+            const photo = photoOf(b);
+            if (!photo) return null;
+            return (
+              <img
+                key={b.id}
+                src={photoUrl(photo.id, 1400)}
+                srcSet={photoSrcSet(photo.id)}
+                sizes="55vw"
+                width={1400}
+                height={1050}
+                alt={i === active ? photo.alt : ""}
+                aria-hidden={i !== active}
+                loading="lazy"
+                decoding="async"
+                className={cn(
+                  "absolute inset-0 h-full w-full object-cover",
+                  fade,
+                  !reduced && "transition-[opacity,transform] duration-500 group-hover/photo:scale-[1.02]",
+                  i === active ? "opacity-100" : "opacity-0",
+                )}
+              />
+            );
+          })}
+          {/* Mép trái ảnh hòa vào tấm kính */}
+          <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-wm-abyss/60 to-transparent" />
+          {/* Ô việc thật của mục đang mở, gọn trong góc ảnh (chữ than chì trên kính sáng) */}
+          {chips[active] && (
+            <div className={cn(LIGHT_CARD_VARS)}>
+              <FeatureJobChip item={chips[active]!} />
+            </div>
+          )}
+        </div>
+      </div>
     </section>
   );
 }
