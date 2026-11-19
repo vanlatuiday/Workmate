@@ -324,7 +324,7 @@ export default function MatchDetail({ photo, title, eyebrow, score, origin, onCl
         <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden md:col-span-7 md:max-h-[calc(100svh-7rem)] md:rounded-r-card">
           <div data-body className="flex min-h-0 flex-1 flex-col">
             <header className="flex shrink-0 items-center justify-between gap-4 px-6 pt-5 md:px-8">
-              <p className="min-w-0 truncate text-xs font-medium uppercase tracking-[0.18em] text-page-muted">{eyebrow}</p>
+              <p className="min-w-0 truncate text-sm font-medium text-page-muted">{eyebrow}</p>
               <button
                 ref={closeRef}
                 type="button"

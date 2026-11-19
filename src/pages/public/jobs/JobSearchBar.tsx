@@ -7,6 +7,8 @@ import { BTN_PRIMARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { formatHourlyFromK } from '@utils/format'
 import { DISTRICTS, EMPTY_FILTERS, hasFilters, type JobFilters } from './catalog'
 
+/** Kính tối trên nền xanh (cùng công thức thẻ trang chủ) */
+const DARK_GLASS = 'bg-wm-abyss/60 backdrop-blur-[16px] border border-wm-ivory/20'
 const SALARY_STEPS = [25, 30, 35, 40]
 /** Header trang thường cao 4rem + viền 1px */
 const HEADER_PX = 65
@@ -23,6 +25,8 @@ type Props = {
   showDistrict?: boolean
   showSalary?: boolean
   placeholder?: string
+  /** Đặt trong bìa trang (PageCover md): căn trái, không lề shell */
+  inCover?: boolean
 }
 
 /**
@@ -39,6 +43,7 @@ export default function JobSearchBar({
   showDistrict = true,
   showSalary = true,
   placeholder = 'Vị trí, công ty, kỹ năng…',
+  inCover = false,
 }: Props) {
   const id = useId()
   const [text, setText] = useState(filters.q)
@@ -176,8 +181,10 @@ export default function JobSearchBar({
         role="search"
         onSubmit={submit}
         className={cn(
-          'glass-liquid mx-auto flex max-w-2xl flex-col rounded-card p-1',
-          floating ? 'backdrop-blur-xl [--glass-alpha:70%]' : '[--glass-alpha:45%]',
+          DARK_GLASS,
+          'flex max-w-2xl flex-col rounded-card p-1',
+          !inCover && 'mx-auto',
+          floating && 'bg-wm-abyss/80',
           'sm:flex-row sm:items-center sm:rounded-full',
           'focus-within:ring-2 focus-within:ring-page-fg focus-within:ring-offset-2 focus-within:ring-offset-page-bg',
         )}
@@ -230,20 +237,23 @@ export default function JobSearchBar({
       <div
         role="group"
         aria-label="Lọc nhanh"
-        className="-mx-6 mt-3 flex gap-1.5 overflow-x-auto px-6 pb-1 sm:mx-auto sm:max-w-4xl sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className={cn(
+          'mt-3 flex gap-1.5 overflow-x-auto pb-1 sm:max-w-4xl sm:flex-wrap sm:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          inCover ? 'sm:justify-start' : '-mx-6 px-6 sm:mx-auto sm:justify-center sm:px-0',
+        )}
       >
         {JOB_TYPES.map((t) => (
-          <Chip key={t.value} glass={floating} pressed={filters.type === t.value} onClick={() => set({ type: filters.type === t.value ? '' : t.value })}>
+          <Chip key={t.value} glass pressed={filters.type === t.value} onClick={() => set({ type: filters.type === t.value ? '' : t.value })}>
             {t.label}
           </Chip>
         ))}
         {showSalary && SALARY_STEPS.map((k) => (
-          <Chip key={k} glass={floating} pressed={filters.minSalaryK === k} onClick={() => set({ minSalaryK: filters.minSalaryK === k ? 0 : k })}>
+          <Chip key={k} glass pressed={filters.minSalaryK === k} onClick={() => set({ minSalaryK: filters.minSalaryK === k ? 0 : k })}>
             {formatHourlyFromK(k).replace(/^t/, 'T')}
           </Chip>
         ))}
         {showNearMe && (
-          <Chip glass={floating} pressed={filters.nearMe} onClick={() => set({ nearMe: !filters.nearMe })}>
+          <Chip glass pressed={filters.nearMe} onClick={() => set({ nearMe: !filters.nearMe })}>
             <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
             Gần tôi
           </Chip>
@@ -254,7 +264,7 @@ export default function JobSearchBar({
             onClick={clear}
             className={cn(
               'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-xs text-page-fg underline underline-offset-4',
-              floating && 'glass-liquid backdrop-blur-xl [--glass-alpha:70%]',
+              DARK_GLASS,
               FOCUS,
             )}
           >
@@ -268,7 +278,7 @@ export default function JobSearchBar({
 
   return (
     <>
-      <div ref={wrapRef} className="shell pb-2 pt-8 md:pt-10">
+      <div ref={wrapRef} className={inCover ? undefined : 'shell pb-2 pt-8 md:pt-10'}>
         {panel(false)}
       </div>
 
@@ -288,7 +298,7 @@ export default function JobSearchBar({
             'col-start-1 row-start-1 self-end lg:self-start',
             // Điện thoại: dịch trái, chừa chỗ nút chat nổi (24 + 56 + 12px) ở góc phải
             'max-w-[calc(100%-4.5rem)] justify-self-start sm:max-w-full sm:justify-self-center',
-            'glass-liquid flex items-center gap-3 rounded-full py-2 pl-4 pr-2 text-sm text-page-fg [--glass-alpha:55%]',
+            DARK_GLASS, 'flex items-center gap-3 rounded-full py-2 pl-4 pr-2 text-sm text-page-fg bg-wm-abyss/80',
             'transition-[opacity,transform] duration-fast ease-editorial motion-reduce:transition-none',
             showPill ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0 lg:-translate-y-2',
             FOCUS,
@@ -332,7 +342,7 @@ function Chip({ pressed, onClick, glass = false, children }: { pressed: boolean;
         'shrink-0 px-3 py-1 text-xs',
         pressed ? CHIP_ON : CHIP_OFF,
         // Bản nổi trên ảnh: chip chưa chọn có nền kính để chữ đọc được
-        glass && !pressed && 'glass-liquid backdrop-blur-xl [--glass-alpha:70%]',
+        glass && !pressed && 'bg-wm-abyss/60 backdrop-blur-[16px]',
       )}
     >
       {children}

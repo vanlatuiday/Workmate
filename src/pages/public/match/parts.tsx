@@ -7,40 +7,35 @@ import { Initials } from '@components/discover/detail/DetailBlocks'
 import CompanyLogo from '@components/common/CompanyLogo'
 import type { MatchView } from '@context/matchStore'
 import { cn } from '@utils/cn'
-import { CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
-import TextReveal from '@components/motion/TextReveal'
-import Reveal from '@components/motion/Reveal'
-import { usePageEnterDelay } from '@components/motion/PageTransition'
+import { CHIP } from '@utils/ui'
+import PageCover, { COVER_GLASS, DarkPageBody } from '@components/common/PageCover'
 import { CRITERION_LABELS, type CriterionResult, type MatchOutcome } from './score'
 import { companyOf, type MatchJob } from './data'
 
 /** Nút dùng chung — re-export từ bộ nút của site để các màn hình ngoài /match vẫn import được */
 export { BTN_PRIMARY, BTN_SECONDARY } from '@utils/ui'
 
-/** Khung chung: eyebrow + tiêu đề + mô tả, rồi nội dung */
-export function MatchFrame({ title, intro, children }: { title: string; intro: string; children: ReactNode }) {
-  // Tiêu đề trồi lên theo từng chữ khi trang lộ ra (sau các dải chuyển trang nếu có)
-  const enter = usePageEnterDelay()
+/** Chip/tab đang chọn trên nền xanh: nền ngà, chữ than chì (tab không phải hành động chính nên không dùng màu nhấn) */
+export const DARK_CHIP_ON = 'border-wm-ivory bg-wm-ivory font-medium text-wm-charcoal'
+/** Chip/tab chưa chọn: kính tối, chữ ngà */
+export const DARK_CHIP_OFF = `${COVER_GLASS} text-page-fg hover:border-wm-ivory`
+
+/**
+ * Khung chung của /match: bìa xanh cấp md (tiêu đề + câu dẫn + `search` = thanh tìm / chọn vị trí / dòng tiêu chí)
+ * rồi phần nội dung tối (DarkPageBody) chứa tab, chế độ xem và danh sách.
+ */
+export function MatchFrame({ title, intro, search, children }: { title: string; intro: string; search?: ReactNode; children: ReactNode }) {
   return (
-    <section className="shell py-section-sm" aria-labelledby="match-title">
-      <p className="eyebrow !flex justify-center text-page-muted">
-        <span className="h-px w-8 bg-page-line" aria-hidden="true" />
-        Kết nối
-        <span className="h-px w-8 bg-page-line" aria-hidden="true" />
-      </p>
-      <TextReveal
-        as="h1"
-        id="match-title"
-        immediate
-        delay={enter}
-        text={title}
-        className="mx-auto mt-6 max-w-[22ch] text-center font-display text-display-sm font-semibold text-page-fg"
-      />
-      <Reveal immediate delay={enter + 0.25} y={16}>
-        <p className="mx-auto mt-4 max-w-xl text-center leading-relaxed text-page-muted">{intro}</p>
-      </Reveal>
-      <div className="mt-10">{children}</div>
-    </section>
+    <>
+      <PageCover level="md" title={title} lead={intro}>
+        {search}
+      </PageCover>
+      <DarkPageBody>
+        <section className="shell py-section-sm" aria-label="Kết quả kết nối">
+          {children}
+        </section>
+      </DarkPageBody>
+    </>
   )
 }
 
@@ -130,7 +125,7 @@ export function Tabs({
               aria-controls={`${idPrefix}-panel`}
               tabIndex={on ? 0 : -1}
               onClick={() => onChange(t.id)}
-              className={cn(CHIP, on ? CHIP_ON : CHIP_OFF)}
+              className={cn(CHIP, 'min-h-11', on ? DARK_CHIP_ON : DARK_CHIP_OFF)}
             >
               {t.label} (<span className="tnum">{t.count}</span>)
             </button>
@@ -187,7 +182,7 @@ export function CheckList({
 export function JobCard({ job, outcome, actions }: { job: MatchJob; outcome: MatchOutcome; actions?: ReactNode }) {
   const company = companyOf(job.companyId)
   return (
-    <article className="rounded-card border border-page-line bg-page-surface p-5 md:p-6">
+    <article className={cn('h-full rounded-card p-5 md:p-6', COVER_GLASS)}>
       <div className="grid grid-cols-[auto_1fr] items-start gap-x-4 gap-y-3 sm:grid-cols-[auto_1fr_auto]">
         <CompanyLogo name={company.name} logoUrl={company.logoUrl} decorative />
         <div className="min-w-0">
@@ -236,7 +231,7 @@ export function ViewToggle({ value, onChange }: { value: MatchView; onChange: (v
             type="button"
             aria-pressed={on}
             onClick={() => onChange(id)}
-            className={cn(CHIP, on ? CHIP_ON : CHIP_OFF)}
+            className={cn(CHIP, 'min-h-11', on ? DARK_CHIP_ON : DARK_CHIP_OFF)}
           >
             <Icon className="h-4 w-4" aria-hidden="true" />
             {label}

@@ -2,7 +2,9 @@ import { Link } from 'react-router-dom'
 import { MockNotice } from '@components/dashboard'
 import { FOCUS } from '@utils/focus'
 import { MATCH_JOBS, SEEKER_DEFAULT } from './data'
-import { BTN_PRIMARY, BTN_SECONDARY } from '@utils/ui'
+import { BTN_ACCENT, BTN_SECONDARY } from '@utils/ui'
+import { COVER_GLASS } from '@components/common/PageCover'
+import { cn } from '@utils/cn'
 import { JobCard, MatchFrame } from './parts'
 import { scoreMatch } from './score'
 
@@ -31,7 +33,7 @@ export default function GuestMatch() {
         </div>
 
         <div className="absolute inset-0 flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-card border border-page-line bg-page-bg p-6 text-center md:p-8">
+          <div className={cn('w-full max-w-lg rounded-card bg-wm-abyss/80 p-6 text-center md:p-8', COVER_GLASS)}>
             <h2 className="font-display text-2xl font-medium text-page-fg md:text-3xl">
               Tìm công việc hoặc ứng viên phù hợp với bạn chỉ trong vài giây
             </h2>
@@ -39,7 +41,7 @@ export default function GuestMatch() {
               Đăng ký miễn phí, khai tiêu chí một lần và xem ngay điểm phù hợp cùng lý do cho từng kết quả.
             </p>
             <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link to="/dang-ky?role=jobseeker" className={BTN_PRIMARY}>
+              <Link to="/dang-ky?role=jobseeker" className={BTN_ACCENT}>
                 Tôi tìm việc
               </Link>
               <Link to="/dang-ky?role=recruiter" className={BTN_SECONDARY}>

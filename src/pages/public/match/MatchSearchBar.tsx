@@ -2,8 +2,9 @@ import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, ty
 import { Check, ChevronDown, Search, SlidersHorizontal } from 'lucide-react'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
-import { CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
-import { LEVELS, type LevelKey } from './parts'
+import { CHIP } from '@utils/ui'
+import { COVER_GLASS } from '@components/common/PageCover'
+import { DARK_CHIP_OFF, DARK_CHIP_ON, LEVELS, type LevelKey } from './parts'
 
 /** Header trang thường cao 4rem + viền 1px */
 const HEADER_PX = 65
@@ -130,10 +131,11 @@ export default function MatchSearchBar({ query, onQueryChange, placeholder, sear
         role="search"
         onSubmit={submit}
         className={cn(
-          'glass-liquid mx-auto flex max-w-2xl flex-col rounded-card p-1',
-          floating ? 'backdrop-blur-xl [--glass-alpha:70%]' : '[--glass-alpha:45%]',
+          COVER_GLASS,
+          'flex max-w-2xl flex-col rounded-card p-1',
+          floating && 'bg-wm-abyss/80',
           'sm:flex-row sm:items-center sm:rounded-full',
-          'focus-within:ring-2 focus-within:ring-page-fg focus-within:ring-offset-2 focus-within:ring-offset-page-bg',
+          'focus-within:ring-2 focus-within:ring-page-fg focus-within:ring-offset-2 focus-within:ring-offset-wm-abyss',
         )}
       >
         <label className="flex min-w-0 flex-1 items-center gap-3 px-4 py-2.5 sm:py-1.5">
@@ -165,7 +167,7 @@ export default function MatchSearchBar({ query, onQueryChange, placeholder, sear
         <div
           role="group"
           aria-label="Lọc nhanh"
-          className="mx-auto mt-3 flex max-w-4xl flex-wrap justify-center gap-1.5 overflow-visible"
+          className="mt-3 flex max-w-4xl flex-wrap gap-1.5 overflow-visible"
         >
           {chips(floating)}
         </div>
@@ -175,7 +177,7 @@ export default function MatchSearchBar({ query, onQueryChange, placeholder, sear
 
   return (
     <>
-      <div ref={wrapRef} className="pb-4 pt-2">
+      <div ref={wrapRef}>
         {panel(false)}
       </div>
 
@@ -185,7 +187,7 @@ export default function MatchSearchBar({ query, onQueryChange, placeholder, sear
       <div
         aria-hidden="true"
         className={cn(
-          'fixed inset-0 z-30 bg-wm-charcoal/30 backdrop-blur-sm transition-opacity duration-base motion-reduce:transition-none',
+          'fixed inset-0 z-30 bg-wm-abyss/50 backdrop-blur-sm transition-opacity duration-base motion-reduce:transition-none',
           expanded ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       />
@@ -201,7 +203,7 @@ export default function MatchSearchBar({ query, onQueryChange, placeholder, sear
           aria-label="Mở thanh tìm kiếm và bộ lọc"
           className={cn(
             'col-start-1 row-start-1 self-end lg:self-start',
-            'glass-liquid flex max-w-full items-center gap-3 rounded-full py-2 pl-4 pr-2 text-sm text-page-fg [--glass-alpha:55%]',
+            COVER_GLASS, 'flex max-w-full items-center gap-3 rounded-full bg-wm-abyss/80 py-2 pl-4 pr-2 text-sm text-page-fg',
             'transition-[opacity,transform] duration-fast ease-editorial motion-reduce:transition-none',
             showPill ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0 lg:-translate-y-2',
             FOCUS,
@@ -241,9 +243,9 @@ export function Chip({ pressed, onClick, glass = false, children }: { pressed: b
       className={cn(
         CHIP,
         'shrink-0 px-3 py-1 text-xs',
-        pressed ? CHIP_ON : CHIP_OFF,
-        // Bản nổi trên ảnh: chip chưa chọn có nền kính để chữ đọc được
-        glass && !pressed && 'glass-liquid backdrop-blur-xl [--glass-alpha:70%]',
+        pressed ? DARK_CHIP_ON : DARK_CHIP_OFF,
+        // Bản nổi trên nội dung: chip chưa chọn đặc hơn để chữ đọc được
+        glass && !pressed && 'bg-wm-abyss/80',
       )}
     >
       {children}
@@ -259,7 +261,8 @@ export function ChipReset({ onClick, glass = false, children }: { onClick: () =>
       onClick={onClick}
       className={cn(
         'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-xs text-page-fg underline underline-offset-4',
-        glass && 'glass-liquid backdrop-blur-xl [--glass-alpha:70%]',
+        COVER_GLASS,
+        glass && 'bg-wm-abyss/80',
         FOCUS,
       )}
     >
@@ -383,8 +386,8 @@ export function FilterMenu({
         className={cn(
           CHIP,
           'px-3 py-1 text-xs',
-          active ? CHIP_ON : CHIP_OFF,
-          glass && !active && 'glass-liquid backdrop-blur-xl [--glass-alpha:70%]',
+          active ? DARK_CHIP_ON : DARK_CHIP_OFF,
+          glass && !active && 'bg-wm-abyss/80',
         )}
       >
         {label}
@@ -396,7 +399,7 @@ export function FilterMenu({
         ref={popRef}
         id={id}
         className={cn(
-          'glass-liquid absolute z-40 min-w-[11rem] rounded-card p-1.5 text-left backdrop-blur-xl [--glass-alpha:85%]',
+          COVER_GLASS, 'absolute z-40 min-w-[11rem] rounded-card bg-wm-abyss/90 p-1.5 text-left',
           glass ? 'bottom-full mb-2 origin-bottom lg:bottom-auto lg:top-full lg:mb-0 lg:mt-2 lg:origin-top' : 'top-full mt-2 origin-top',
           alignRight ? 'right-0' : 'left-0',
           'transition-[opacity,transform,visibility] duration-fast motion-reduce:transition-none',

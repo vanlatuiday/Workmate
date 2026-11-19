@@ -65,7 +65,7 @@ uniform sampler2D u_tex;
 uniform vec4 u_cover;     // scale.xy, offset.xy — giống object-fit: cover
 uniform vec2 u_size;      // kích thước thẻ (px) để bo góc
 uniform float u_round;    // bán kính bo góc (px)
-uniform float u_sat;      // 0 = giảm màu ấm, 1 = màu gốc
+uniform float u_sat;      // 0 = xám trung tính, 1 = màu gốc
 uniform float u_zoom;     // phóng nhẹ khi rê chuột
 uniform float u_vel;
 varying vec2 v_uv;
@@ -90,10 +90,10 @@ void main() {
     texture2D(u_tex, uv - vec2(0.0, ab)).b
   );
 
-  // Giảm màu ngả ấm cho hợp bảng màu trung tính của web
+  // Giảm màu lúc nghỉ về xám trung tính (không ngả ấm: trên nền xanh đậm, ngả vàng trông đục)
   float lum = dot(col, vec3(0.299, 0.587, 0.114));
-  vec3 warm = vec3(lum) * vec3(1.05, 1.0, 0.92);
-  col = mix(mix(warm, col, 0.35), col, u_sat);
+  vec3 grey = vec3(lum);
+  col = mix(mix(grey, col, 0.35), col, u_sat);
 
   // Tối dần khi cuộn ra sau trống, mờ hẳn khi gần hết một phần tư vòng
   col *= 1.0 - v_bend * 0.3;

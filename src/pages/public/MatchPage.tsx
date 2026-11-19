@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '@context/authStore'
 import { FOCUS } from '@utils/focus'
+import PageCover, { DarkPageBody } from '@components/common/PageCover'
 import GuestMatch from './match/GuestMatch'
 import JobseekerMatch from './match/JobseekerMatch'
 import RecruiterMatch from './match/RecruiterMatch'
@@ -20,14 +21,16 @@ export default function MatchPage() {
   if (role === 'recruiter') return <RecruiterMatch />
   if (role === 'admin') {
     return (
-      <section className="shell py-section-sm">
-        <p className="max-w-xl font-display text-xl font-medium text-page-fg">
-          Trang Kết nối dành cho người tìm việc và nhà tuyển dụng.
-        </p>
-        <Link to="/admin" className={`mt-4 inline-block rounded-control text-sm underline underline-offset-4 ${FOCUS}`}>
-          Về khu quản trị
-        </Link>
-      </section>
+      <>
+        <PageCover level="md" title="Trang Kết nối dành cho người tìm việc và nhà tuyển dụng." />
+        <DarkPageBody>
+          <section className="shell py-section-sm">
+            <Link to="/admin" className={`inline-block rounded-control text-sm underline underline-offset-4 ${FOCUS}`}>
+              Về khu quản trị
+            </Link>
+          </section>
+        </DarkPageBody>
+      </>
     )
   }
   return <GuestMatch />

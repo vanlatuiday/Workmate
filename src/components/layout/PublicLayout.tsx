@@ -65,7 +65,10 @@ export default function PublicLayout() {
   // Đăng nhập / Đăng ký / Quên mật khẩu: toàn màn hình — ẩn header và footer, chỉ giữ logo nhỏ để về trang chủ
   const bare = isAuthPath(location.pathname)
   // Câu chuyện của tôi (/ca-nhan): nền kem như mọi trang, nhưng cuối trang là footer tối có hạt bụi như trang chủ
-  const nightFooter = location.pathname === '/ca-nhan'
+  // Trang có bìa xanh + nội dung tối (PageCover/DarkPageBody, 2026-11-20): footer tối để không có mép tối–sáng ở cuối trang
+  const DARK_BODY_PATHS = ['/nha-tuyen-dung', '/viec-lam', '/match']
+  const darkBody = DARK_BODY_PATHS.includes(location.pathname)
+  const nightFooter = location.pathname === '/ca-nhan' || darkBody
   // Trang chủ có header riêng (useHomeHeader). Trang khác: header tự sáng/tối theo khối đang nằm dưới nó
   // (khối đánh dấu data-surface="dark|light" — hook useHeaderSurface); không có khối đánh dấu thì ngà như cũ.
   const headerSurface = useHeaderSurface(!dark && !bare)
@@ -81,9 +84,10 @@ export default function PublicLayout() {
   const profileTo = user ? PERSONAL_HREF : '/dang-nhap'
 
   return (
-    // Nền khung theo màu trang đang mở: header kính trong suốt một phần nên lộ nền phía sau nó.
-    // Không gắn class theme lên khung (theme đổi biến --page-* cho cả trang cũ đang mờ dần), chỉ đổi màu nền.
-    <div className={cn('min-h-screen flex flex-col', dark ? 'bg-page-bg' : bare ? 'bg-wm-night' : 'bg-wm-ivory')}>
+    // Nền khung: xanh rất đậm (abyss) cho mọi trang công khai (2026-11-20, chủ dự án: chuyển trang là một khối màu
+    // liền mạch, không chớp trắng). Lúc trang cũ mờ đi / trang mới hiện dần, thứ lộ ra phía sau là khối xanh này —
+    // cùng tông với bìa xanh và nền trang chủ. Không gắn class theme lên khung, chỉ đổi màu nền.
+    <div className={cn('min-h-screen flex flex-col', bare ? 'bg-wm-night' : 'bg-wm-abyss')}>
       {bare ? (
         // Trang đăng nhập toàn màn hình: chỉ giữ logo (cùng kiểu header mới) để về trang chủ
         <div className="theme-night site-header absolute left-0 top-0 z-40 px-5 py-5 md:px-8" data-tone="dark">
@@ -120,11 +124,16 @@ export default function PublicLayout() {
           {/* Trang đang mờ đi giữ nguyên className cũ (AnimatePresence giữ element cũ),
               nên theme ngà/tối của nó không bị đổi giữa chừng */}
           {/* 3 route đăng nhập chung một key 'auth' → chuyển qua lại không chạy hiệu ứng chuyển trang */}
-          <PageTransition key={bare ? 'auth' : location.pathname} className={dark ? undefined : bare ? 'theme-night flex-1' : 'theme-ivory flex-1'}>
+          {/* Trang có bìa xanh + nội dung tối: khung trong suốt (lộ nền abyss của layout) thay vì nền ngà */}
+          <PageTransition
+            key={bare ? 'auth' : location.pathname}
+            className={dark ? undefined : bare ? 'theme-night flex-1' : darkBody ? 'theme-night flex-1 !bg-transparent' : 'theme-ivory flex-1'}
+          >
             {/* Trang tải theo nhu cầu (lazy): Suspense nằm TRONG khung chuyển trang nên header/footer và
                 trang cũ đang mờ đi không bị ảnh hưởng. RouteScroll cũng nằm trong Suspense → chỉ mount
                 (và cuộn lên đầu / khôi phục vị trí) khi trang thật đã dựng xong, không cuộn lúc đang hiện khung chờ. */}
-            <Suspense fallback={bare ? <div className="min-h-screen" /> : <DetailSkeleton />}>
+            {/* Khung chờ khi tải trang: trang tối / đăng nhập → khối trống (nền abyss liền mạch), trang ngà → khung xương */}
+            <Suspense fallback={bare || darkBody ? <div className="min-h-screen" /> : <DetailSkeleton />}>
               {bare ? <AuthOutlet /> : <FrozenOutlet />}
               {/* Đứng sau FrozenOutlet: chạy khi trang mới đã dựng xong (kể cả pin của trang chủ) */}
               <RouteScroll />

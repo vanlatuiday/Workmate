@@ -14,6 +14,8 @@ import { SkeletonCards } from '@components/dashboard/Skeleton'
 import { JOB_STATUS_LABELS } from '@pages/recruiter/mockData'
 import { fitCandidatesOf, useCompanyJobs } from '@services/adminService'
 import { useCandidateMatches } from '@services/matchingService'
+import { LIGHT_CARD_VARS } from '@components/home/homeBackground'
+import { DarkPageBody } from '@components/common/PageCover'
 import JobsHero from './JobsHero'
 import JobSearchBar from './JobSearchBar'
 import { EMPTY_FILTERS, type JobFilters } from './catalog'
@@ -60,25 +62,23 @@ export default function RecruiterJobs() {
   // fitCandidatesOf đọc thẳng kho ứng viên: tính lại khi danh sách nạp xong
   const { outcomeOf } = useCandidateMatches(all.map((x) => x.id)) // điểm máy chủ; outcomeOf đổi khi điểm đổi
   const fitCount = useMemo(() => new Map(all.map((x) => [x.id, fitCandidatesOf(x.position).length])), [all, candidates, outcomeOf])
+  const fact = `${all.length} tin tuyển dụng`
   return (
     <>
-      <JobsHero
-        eyebrow="Tin của bạn"
-        title="Những vị trí bạn đang cần người"
-        text="Mỗi ảnh là một tin của công ty bạn. Bấm vào ảnh để xem chi tiết tin và ứng viên phù hợp."
-        stats={[[items.length, 'vị trí']]}
-      />
-      <JobSearchBar filters={filters} onChange={setFilters} showDistrict={false} showSalary={false} placeholder="Tên vị trí, lịch làm…" />
+      <JobsHero title="Tin tuyển dụng của bạn" fact={fact} stats={[[items.length, 'vị trí']]}>
+        <JobSearchBar filters={filters} onChange={setFilters} showDistrict={false} showSalary={false} placeholder="Tên vị trí, lịch làm…" inCover />
+      </JobsHero>
+      <DarkPageBody>
       {all.length === 0 && !settled ? (
         <div className="shell py-section-sm">
           <SkeletonCards count={3} label="Đang tải tin tuyển dụng…" />
         </div>
       ) : all.length === 0 ? (
-        <div className="shell py-section-sm">
+        <div className={`shell py-section-sm ${LIGHT_CARD_VARS}`}>
           <EmptyState icon={SearchX} title="Chưa có tin nào" description="Đăng tin đầu tiên để Workmate gợi ý ứng viên khớp lịch gần nơi làm." />
         </div>
       ) : items.length === 0 ? (
-        <div className="shell py-section-sm">
+        <div className={`shell py-section-sm ${LIGHT_CARD_VARS}`}>
           <EmptyState
             icon={SearchX}
             title="Không có tin nào khớp"
@@ -126,6 +126,7 @@ export default function RecruiterJobs() {
         <PrimaryLink to="/dang-tin">Đăng tin mới</PrimaryLink>
       </ClosingBand>
       <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
+      </DarkPageBody>
     </>
   )
 }

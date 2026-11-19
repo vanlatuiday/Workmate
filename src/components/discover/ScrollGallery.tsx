@@ -260,14 +260,20 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                       tabIndex={-1}
                       onClick={() => jumpTo(i)}
                       className={cn(
-                        'flex w-full items-baseline gap-3 text-left leading-snug transition-colors duration-fast',
+                        'relative flex w-full items-baseline gap-3 text-left leading-snug transition-[color,opacity,transform] duration-base ease-out motion-reduce:transition-none',
                         i === active
-                          ? 'font-display text-lg font-semibold text-page-fg'
-                          : i < active
-                            ? 'text-sm text-page-fg' // đã đi qua: đậm lên
-                            : 'text-sm text-page-muted hover:text-page-fg',
+                          ? 'translate-x-1 font-display text-lg font-semibold text-wm-ivory' // đang xem: to + sáng hơn
+                          : 'text-sm text-wm-ivory/60 hover:text-wm-ivory',
                       )}
                     >
+                      {/* Vạch cyan 3px ở mép trái mục đang xem (lấn vào lề trái pl-4 của <ol>) */}
+                      <span
+                        aria-hidden
+                        className={cn(
+                          'absolute -left-4 inset-y-0 w-[3px] rounded-full bg-wm-cyan transition-opacity duration-base ease-out motion-reduce:transition-none',
+                          i === active ? 'opacity-100' : 'opacity-0',
+                        )}
+                      />
                       <span className="tnum w-5 shrink-0 text-xs text-page-muted">{pad(i + 1)}</span>
                       <span className="line-clamp-2">{item.title}</span>
                     </button>
@@ -349,6 +355,8 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
             {/* Cột phải: chồng thẻ kính, mỗi ảnh một thẻ, trôi thẳng đứng cùng nhịp với ảnh (JS).
                 Chỉ thẻ ở giữa hiện chữ; chữ rõ dần khi thẻ tiến vào giữa, mờ đi khi rời đi. */}
             <div className="relative z-[110] grid min-h-0 place-items-center">
+              {/* Quầng cyan mờ cố định phía sau thẻ ở giữa (thẻ đang xem luôn nằm đúng chỗ này) */}
+              <div aria-hidden className="jobs-card-halo pointer-events-none absolute inset-x-0 inset-y-[10%] -z-10 opacity-35" />
               {items.map((item, i) => (
                 <div
                   key={item.id}
@@ -356,7 +364,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                     cards.current[i] = el
                   }}
                   data-lenis-prevent
-                  className="glass-liquid col-start-1 row-start-1 w-full overflow-y-auto overscroll-contain rounded-card p-5 text-page-fg will-change-transform [--glass-alpha:72%] [scrollbar-width:thin]"
+                  className="col-start-1 row-start-1 w-full overflow-y-auto overscroll-contain rounded-card border border-wm-ivory/20 bg-wm-abyss/65 p-5 text-page-fg ring-1 ring-wm-cyan/35 backdrop-blur-[16px] will-change-transform [scrollbar-width:thin]"
                 >
                   <div
                     ref={(el) => {

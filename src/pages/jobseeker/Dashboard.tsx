@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Bookmark, CalendarCheck, ClipboardList, MapPin, Zap } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { JOB_TYPES } from '@constants/index'
-import { EmptyState, MatchScore, PageHeader, Panel, SkeletonList, StatCard, StatusBadge } from '@components/dashboard'
+import { EmptyState, MatchScore, Panel, SkeletonList, StatCard, StatusBadge } from '@components/dashboard'
 import { useCatalogStore } from '@context/catalogStore'
 import { useMatchStore } from '@context/matchStore'
 import { useInterviews, useMyPairs } from '@services/connectionService'
@@ -13,7 +13,9 @@ import { useAllJobs, useSeekerOutcomes } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { FOCUS } from '@utils/focus'
 import FadeIn from '@components/motion/FadeIn'
-import { BTN_ACCENT } from '@utils/ui'
+import { BTN_ACCENT, BTN_PRIMARY, BTN_SM } from '@utils/ui'
+import { cn } from '@utils/cn'
+import PageCover from '@components/common/PageCover'
 import { useProfileStore } from '@context/profileStore'
 import { completeness } from '@pages/public/profile/useProfileDraft'
 
@@ -41,16 +43,20 @@ export default function JobseekerDashboard() {
 
   return (
     <div>
-      <PageHeader
-        title={`Xin chào, ${name}`}
-        description="3 việc hợp nhất với hồ sơ và lịch rảnh của bạn đang chờ ở dưới."
+      <PageCover
+        level="strip"
+        role="jobseeker"
+        breadcrumb={[{ label: 'Khu tìm việc', to: '/tim-viec' }, { label: 'Tổng quan' }]}
+        title="Tổng quan"
+        lead={`Xin chào, ${name}. 3 việc hợp nhất với hồ sơ và lịch rảnh của bạn đang chờ ở dưới.`}
+        actions={<Link to="/tim-viec/phu-hop" className={cn(BTN_PRIMARY, BTN_SM)}>Xem việc phù hợp</Link>}
       />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Đã ứng tuyển" value={appliedCount} icon={ClipboardList} href="/tim-viec/ung-tuyen" emptyAction={{ text: 'Chưa ứng tuyển', label: 'Xem việc phù hợp', href: '/tim-viec/phu-hop' }} />
-        <StatCard label="Việc đã lưu" value={savedCount} icon={Bookmark} href="/tim-viec/da-luu" emptyAction={{ text: 'Chưa lưu việc nào', label: 'Khám phá việc làm', href: '/viec-lam' }} />
-        <StatCard label="Kết nối" value={connectedCount} icon={Zap} href="/tim-viec/match" emptyAction={{ text: 'Chưa có kết nối', label: 'Xem việc phù hợp', href: '/tim-viec/phu-hop' }} />
-        <StatCard label="Phỏng vấn sắp tới" value={upcoming} icon={CalendarCheck} href="/lich-phong-van" emptyAction={{ text: 'Chưa có lịch', label: 'Xem đơn ứng tuyển', href: '/tim-viec/ung-tuyen' }} />
+        <StatCard lively label="Đã ứng tuyển" value={appliedCount} icon={ClipboardList} href="/tim-viec/ung-tuyen" emptyAction={{ text: 'Chưa ứng tuyển', label: 'Xem việc phù hợp', href: '/tim-viec/phu-hop' }} />
+        <StatCard lively label="Việc đã lưu" value={savedCount} icon={Bookmark} href="/tim-viec/da-luu" emptyAction={{ text: 'Chưa lưu việc nào', label: 'Khám phá việc làm', href: '/viec-lam' }} />
+        <StatCard lively label="Kết nối" value={connectedCount} icon={Zap} href="/tim-viec/match" emptyAction={{ text: 'Chưa có kết nối', label: 'Xem việc phù hợp', href: '/tim-viec/phu-hop' }} />
+        <StatCard lively label="Phỏng vấn sắp tới" value={upcoming} icon={CalendarCheck} href="/lich-phong-van" emptyAction={{ text: 'Chưa có lịch', label: 'Xem đơn ứng tuyển', href: '/tim-viec/ung-tuyen' }} />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
@@ -62,7 +68,7 @@ export default function JobseekerDashboard() {
           {(!catalogLoaded || !scoresReady) && jobs.length === 0 ? <SkeletonList rows={3} label="Đang tải việc phù hợp…" /> : (
           <ul className="divide-y divide-page-line">
             {jobs.map(({ job, outcome }) => (
-              <li key={job.id} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
+              <li key={job.id} className="group/row -mx-3 flex flex-col gap-3 rounded-control px-3 py-4 transition-colors duration-base ease-out hover:bg-page-fg/5 focus-within:bg-page-fg/5 motion-reduce:transition-none sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <Link to={`/viec-lam/${job.id}`} className={`font-medium text-page-fg hover:underline underline-offset-4 rounded-control ${FOCUS}`}>
                     {job.title}
@@ -80,7 +86,7 @@ export default function JobseekerDashboard() {
                     <span>{JOB_TYPES.find((t) => t.value === job.jobType)?.label}</span>
                   </p>
                 </div>
-                <MatchScore score={outcome.score} size="sm" />
+                <MatchScore score={outcome.score} size="sm" reactive />
               </li>
             ))}
           </ul>

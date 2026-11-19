@@ -230,6 +230,19 @@ một lần khi cuộn tới (`ShiftBoardSection`) và câu lớn sáng dần t�
 không câu "X, không phải Y"; không dấu gạch dài "—" trong chữ hiển thị; không nhãn in hoa trên tiêu đề section;
 tiêu đề section không là câu hỏi (riêng tiêu đề hero giữ câu hỏi — chủ dự án chọn).
 
+### Trang bìa các trang khác (2026-11-20, chủ dự án chọn phương án c — đang làm thử 3 trang)
+
+`components/common/PageCover.tsx`, dùng lại ảnh nền trang chủ:
+- **lg** (trang giới thiệu, thử ở `/nha-tuyen-dung`): ~60svh, ảnh hero + tia "thở" + ánh cam rất nhẹ, phủ abyss; chữ trái, h1 2 dòng, một câu, một nút accent.
+- **md** (khám phá, thử ở `/viec-lam`): ~34svh, cột tia sáng, không cam; h1 + số liệu thật + ô tìm kiếm kính tối trong bìa.
+- **strip** (khu quản lý, thử ở `/tim-viec`): 140–168px, tĩnh hoàn toàn; breadcrumb + h1 + nút; vạch 2px màu vai trò ở đáy.
+- Mọi cấp: chữ hiện một lần khi tải (`.pc-rise`), không chạy theo cuộn. Mép dưới bìa tan về cùng màu đầu `DarkPageBody` (`.pc-cover-fade` / `.pc-body-fade`).
+- **Dưới bìa:** trang công khai → `DarkPageBody` (nền sóng tia sáng tĩnh + abyss 34%, chữ ngà, thẻ kính tối) và footer tối (`PublicLayout` `DARK_BODY_PATHS`); khu quản lý → nội dung giữ nền ngà, chỉ dải trên cùng xanh.
+- `/viec-lam`: ô tìm kiếm và thẻ chi tiết đổi từ `glass-liquid` ngà sang kính tối (thay mô tả ở "Ngoại lệ thứ ba").
+- `/match` (Kết nối, 2026-11-20): bìa md + nền tối; tab và nút chế độ xem dạng kính tối, mục chọn màu ngà; WebGL bỏ ánh vàng ấm (xám trung tính khi nghỉ). MatchDetail và ngăn Tiêu chí vẫn là tấm ngà.
+- **Sáng hơn (2026-11-20):** phủ abyss bìa lg 25%, md 30%, nội dung 20% (`.pc-body-dim`) + tia sáng thở rất nhẹ (tối đa 0,2); dải mỏng ảnh 60%.
+- **Hiệu ứng:** thẻ không có liên kết chỉ sáng viền/icon/góc khi rê (không nhấc); thẻ có liên kết nhấc 2px. `/nha-tuyen-dung` có 1 khoảnh khắc: đường nối "Quy trình" sáng dần, vòng số sáng khi đường chạm tới (dọc trên điện thoại). `/viec-lam`: thẻ chi tiết viền + quầng xanh ngọc, công ty đang xem có vạch sáng. Khu quản lý: chỉ hiệu ứng khi rê (ô số liệu, dòng việc phù hợp).
+
 ### Header (QUY TẮC CỐ ĐỊNH — chủ dự án chốt 2026-11-16)
 Áp cho MỌI trang có thanh trên cùng (PublicLayout → `SiteHeader`), kể cả trang chủ. Không đổi khi chưa hỏi chủ dự án.
 - **Hình thức**: cố định trên cùng, cao 72px, lề ngang 24 / 40 / 56px (điện thoại / md / lg). **Không nền, không viền** ở mọi vị trí cuộn:

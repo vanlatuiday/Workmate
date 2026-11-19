@@ -12,6 +12,8 @@ import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { candidateHref } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
+import { COVER_GLASS } from '@components/common/PageCover'
+import { LIGHT_CARD_VARS } from '@components/home/homeBackground'
 import { FOCUS } from '@utils/focus'
 import { availabilityLabel, useCandidates, usePositions, type MatchCandidate, type MatchPosition } from './data'
 import CurvedGallery from './gallery/CurvedGallery'
@@ -46,21 +48,23 @@ export default function RecruiterMatch() {
   const catalogSettled = useCatalogStore((s) => s.settled)
   if (!positions.length && !catalogSettled) {
     return (
-      <div className="shell py-section-sm">
+      <MatchFrame title="Ứng viên hợp với từng vị trí" intro="Chọn một vị trí, danh sách ứng viên xếp theo mức phù hợp với yêu cầu của tin.">
         <SkeletonCards count={3} label="Đang tải vị trí tuyển dụng…" />
-      </div>
+      </MatchFrame>
     )
   }
   if (!positions.length) {
     return (
-      <div className="shell py-section-sm">
+      <MatchFrame title="Ứng viên hợp với từng vị trí" intro="Chọn một vị trí, danh sách ứng viên xếp theo mức phù hợp với yêu cầu của tin.">
+        <div className={LIGHT_CARD_VARS}>
         <EmptyState
           icon={Briefcase}
           title="Chưa có tin đang hiển thị"
           description="Ứng viên phù hợp hiện ở đây khi có tin đang mở đã được duyệt."
           action={<Link to="/dang-tin" className={BTN_PRIMARY}>Đăng tin</Link>}
         />
-      </div>
+        </div>
+      </MatchFrame>
     )
   }
   return <RecruiterMatchBoard positions={positions} />
@@ -223,8 +227,10 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
 
   return (
     <>
-    <div className="relative z-10">
-    <MatchFrame title="Ứng viên hợp với từng vị trí" intro="Chọn một vị trí, danh sách ứng viên xếp theo mức phù hợp với yêu cầu của tin.">
+    <MatchFrame
+      title="Ứng viên hợp với từng vị trí"
+      intro="Chọn một vị trí, danh sách ứng viên xếp theo mức phù hợp với yêu cầu của tin."
+      search={<>
       <MatchSearchBar
         query={query}
         onQueryChange={setQuery}
@@ -262,15 +268,15 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
           </>
         )}
       />
-      <p className="mx-auto mt-3 max-w-3xl text-center text-sm leading-relaxed text-page-muted">
+      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-page-muted">
         Yêu cầu: kỹ năng {req.skills.join(', ')} · {job.schedule} · lương {job.salary} · loại việc {jobTypeLabel} · bán kính {position.radiusKm} km
       </p>
-
-      <div className="mx-auto mt-8 max-w-6xl">
+      </>}
+    >
+      <div className="mx-auto max-w-6xl">
         <Tabs
-          center
           toolbar={
-            <div className="mt-4 flex justify-center">
+            <div className="mt-4 flex">
               <ViewToggle value={view} onChange={setView} />
             </div>
           }
@@ -291,6 +297,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
           {!scoresReady ? (
             <SkeletonCards count={3} label="Đang tính độ phù hợp…" />
           ) : shown.length === 0 ? (
+            <div className={LIGHT_CARD_VARS}>
             <EmptyState
               icon={UserX}
               title={
@@ -314,6 +321,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
                       : 'Khi ứng viên cũng quan tâm lại, họ sẽ nằm ở đây.'
               }
             />
+            </div>
           ) : gallery ? (
             <CurvedGallery
               items={shown.map((x) => ({ id: x.key, photo: x.c.photo, ...x }))}
@@ -335,7 +343,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
               {shown.map(({ c, key, outcome }) => {
                 return (
                   <li key={key} data-flip-key={key} className="min-w-0">
-                    <article className="flex h-full flex-col rounded-card border border-page-line bg-page-surface p-5 md:p-6">
+                    <article className={cn('flex h-full flex-col rounded-card p-5 md:p-6', COVER_GLASS)}>
                       <div className="grid grid-cols-[auto_1fr] items-start gap-x-4 gap-y-3 sm:grid-cols-[auto_1fr_auto]">
                         <Avatar text={personInitials(c.name)} />
                         <div className="min-w-0">
@@ -373,7 +381,6 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
       </div>
 
     </MatchFrame>
-    </div>
 
     {detail && open && (() => {
       const { c, key, outcome } = detail

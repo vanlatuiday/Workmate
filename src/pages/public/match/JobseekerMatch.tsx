@@ -11,6 +11,7 @@ import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
 import { cn } from '@utils/cn'
+import { LIGHT_CARD_VARS } from '@components/home/homeBackground'
 import { FOCUS } from '@utils/focus'
 import { formatHourlyFromK } from '@utils/format'
 import type { JobType } from '@/types'
@@ -262,18 +263,17 @@ export default function JobseekerMatch() {
 
   // Hàng điều khiển nằm giữa tablist và tabpanel
   const toolbar = (
-    <div className="mt-6 flex justify-center text-sm">
+    <div className="mt-4 flex text-sm">
       <ViewToggle value={view} onChange={setView} />
     </div>
   )
 
   return (
     <>
-    <div className="relative z-10">
     <MatchFrame
       title="Việc hợp với bạn, xếp theo điều bạn coi trọng"
       intro="Tiêu chí lấy sẵn từ hồ sơ. Đổi lương, khoảng cách hoặc thứ tự ưu tiên, danh sách tính lại ngay."
-    >
+      search={
           <MatchSearchBar
             query={query}
             onQueryChange={setQuery}
@@ -345,9 +345,9 @@ export default function JobseekerMatch() {
               </>
             )}
           />
-
+      }
+    >
           <Tabs
-            center
             toolbar={toolbar}
             idPrefix="jobs"
             label="Danh sách việc"
@@ -366,6 +366,7 @@ export default function JobseekerMatch() {
             {waiting ? (
               <SkeletonCards count={3} className="mx-auto max-w-3xl space-y-4" label="Đang tải việc phù hợp…" />
             ) : shown.length === 0 ? (
+              <div className={LIGHT_CARD_VARS}>
               <EmptyState
                 icon={SearchX}
                 title={
@@ -389,6 +390,7 @@ export default function JobseekerMatch() {
                         : 'Khi doanh nghiệp cũng quan tâm bạn, vị trí sẽ nằm ở đây.'
                 }
               />
+              </div>
             ) : gallery ? (
               <div className="mx-auto max-w-6xl">
               <CurvedGallery
@@ -408,9 +410,9 @@ export default function JobseekerMatch() {
               />
               </div>
             ) : (
-              <ul ref={flipRef} className="mx-auto max-w-3xl space-y-4">
+              <ul ref={flipRef} className="grid gap-4 md:grid-cols-2">
                 {shown.map(({ job, outcome }) => (
-                  <li key={job.id} data-flip-key={job.id}>
+                  <li key={job.id} data-flip-key={job.id} className="min-w-0">
                     <JobCard job={job} outcome={outcome} actions={jobActions(job)} />
                   </li>
                 ))}
@@ -418,7 +420,6 @@ export default function JobseekerMatch() {
             )}
           </Tabs>
     </MatchFrame>
-    </div>
 
 
     <CriteriaDrawer id="match-criteria" open={panelOpen} onClose={closePanel} triggerRef={criteriaBtn}>

@@ -1,9 +1,14 @@
 // /nha-tuyen-dung
+import { useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { gsap, useGSAP } from '@utils/gsap'
 import { CalendarCheck, Gauge, MessagesSquare, Zap } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
-import { BTN_ACCENT, BTN_SECONDARY } from '@utils/ui'
-import ContentPage, { CtaRow, Section, Steps } from './ContentPage'
+import { BTN_ACCENT, BTN_PRIMARY, BTN_SECONDARY } from '@utils/ui'
+import { Section, CtaRow } from './ContentPage'
+import PageCover, { COVER_EDGE, COVER_GLASS, DarkPageBody } from '@components/common/PageCover'
+import { FOCUS } from '@utils/focus'
+import { cn } from '@utils/cn'
 
 const BENEFITS = [
   { icon: CalendarCheck, title: 'Ứng viên đúng lịch', text: 'Chỉ thấy người có giờ rảnh khớp ca làm của bạn.' },
@@ -18,44 +23,150 @@ const STEPS = [
   { title: 'Chọn ứng viên', text: 'Xem gợi ý, kết nối rồi hẹn phỏng vấn.' },
 ]
 
+/**
+ * "Quy trình" — một khoảnh khắc cuộn: khi hàng bước hiện vào khung nhìn, đường nối tô dần màu (cyan → ngà)
+ * từ bước 1 → 2 → 3 và vòng số của từng bước "sáng" lên khi vạch tới nơi (ScrollTrigger scrub, 'top 80%' → 'top 40%').
+ * Trạng thái mặc định của CSS đã là trạng thái hoàn chỉnh (vạch đầy, vòng sáng) nên giảm chuyển động / chưa có JS = đã xong.
+ * Màn hẹp (< md) các bước xếp dọc: vạch nối dọc, tô từ trên xuống bằng scaleY; từ md vạch ngang tô bằng scaleX.
+ * Chỉ ghi transform + opacity.
+ */
+function ProcessSteps({ items }: { items: { title: string; text: string }[] }) {
+  const root = useRef<HTMLOListElement>(null)
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia()
+      mm.add({ motion: '(prefers-reduced-motion: no-preference)', wide: '(min-width: 768px)' }, (ctx) => {
+        const { motion, wide } = ctx.conditions as { motion: boolean; wide: boolean }
+        if (!motion) return
+        const fills = gsap.utils.toArray<HTMLElement>('[data-fill]', root.current)
+        const lits = gsap.utils.toArray<HTMLElement>('[data-lit]', root.current)
+        const axis = wide ? 'scaleX' : 'scaleY'
+        gsap.set(fills, { transformOrigin: wide ? 'left center' : 'center top', [axis]: 0 })
+        gsap.set(lits, { opacity: 0 })
+        const tl = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: { trigger: root.current, start: 'top 80%', end: 'top 40%', scrub: 0.6 },
+        })
+        // Vị trí trên timeline: bước i sáng tại i, vạch i→i+1 chạy từ i đến i+1
+        lits.forEach((el, i) => {
+          tl.to(el, { opacity: 1, duration: 0.25 }, i)
+          if (fills[i]) tl.to(fills[i], { [axis]: 1, duration: 1 }, i)
+        })
+        tl.to({}, { duration: 0.1 }) // nghỉ nhẹ ở cuối: bước 3 sáng xong mới hết đoạn cuộn
+      })
+      return () => mm.revert()
+    },
+    { scope: root },
+  )
+  return (
+    <ol ref={root} className="grid gap-8 md:grid-cols-3 md:gap-6">
+      {items.map((s, i) => (
+        <li key={s.title} className="relative flex gap-4 md:block">
+          {/* Đường nối tới bước kế: nền mờ + lớp tô (cyan → ngà) chồng lên */}
+          {i < items.length - 1 && (
+            <span
+              aria-hidden="true"
+              className="absolute left-5 top-12 -bottom-8 w-px bg-wm-ivory/20 md:-bottom-auto md:left-14 md:right-[-1.5rem] md:top-5 md:h-px md:w-auto"
+            >
+              <span
+                data-fill
+                className="absolute inset-0 bg-gradient-to-b from-wm-cyan to-wm-ivory md:bg-gradient-to-r"
+              />
+            </span>
+          )}
+          <span className="tnum relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-wm-ivory/40 bg-wm-abyss font-display text-base font-semibold text-wm-ivory">
+            {i + 1}
+            {/* Lớp "sáng": nền ngà, chữ than, quầng cyan */}
+            <span
+              data-lit
+              aria-hidden="true"
+              className="absolute inset-0 flex items-center justify-center rounded-full bg-wm-ivory text-wm-charcoal ring-2 ring-wm-cyan/50"
+            >
+              <span className="absolute -inset-1 -z-10 rounded-full bg-wm-cyan/30 blur-md" />
+              {i + 1}
+            </span>
+          </span>
+          <div className="md:mt-5">
+            <h3 className="font-display text-lg font-semibold text-page-fg">{s.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-page-muted">{s.text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
 export default function ForRecruitersPage() {
   const user = useAuthStore((s) => s.user)
+  const isRecruiter = user?.role === 'recruiter'
   return (
-    <ContentPage
-      eyebrow="Nhà tuyển dụng"
-      title="Tìm đúng người cho ca làm của bạn."
-    >
-      <Section title="Lợi ích">
-        <ul className="grid gap-4 sm:grid-cols-2">
-          {BENEFITS.map((b) => (
-            <li key={b.title} className="rounded-card border border-page-line p-6 transition-colors duration-fast hover:border-page-fg">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full border border-page-line text-page-fg">
-                <b.icon className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <h3 className="mt-4 font-display text-lg font-semibold text-page-fg">{b.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-page-muted">{b.text}</p>
-            </li>
-          ))}
-        </ul>
-      </Section>
-      <Section title="Quy trình">
-        <Steps items={STEPS} />
-      </Section>
-      <CtaRow>
-        {!user ? (
-          <>
-            <Link to="/dang-ky?role=recruiter" className={BTN_ACCENT}>Đăng ký nhà tuyển dụng</Link>
-            <Link to="/dang-nhap" className={BTN_SECONDARY}>Đã có tài khoản? Đăng nhập</Link>
-          </>
-        ) : user.role === 'recruiter' ? (
-          <>
-            <Link to="/dang-tin" className={BTN_ACCENT}>Đăng tin</Link>
-            <Link to="/tuyen-dung" className={BTN_SECONDARY}>Vào khu tuyển dụng</Link>
-          </>
-        ) : (
-          <Link to="/" className={BTN_SECONDARY}>Về trang chủ</Link>
-        )}
-      </CtaRow>
-    </ContentPage>
+    <>
+      <PageCover
+        level="lg"
+        label="Dành cho nhà tuyển dụng"
+        title="Tuyển người theo ca làm ở Đà Nẵng"
+        lead="Đăng tin trong vài phút, Workmate gợi ý ứng viên có giờ rảnh khớp ca của bạn."
+        actions={
+          !user ? (
+            <>
+              <Link to="/dang-ky?role=recruiter" className={BTN_ACCENT}>Đăng tin tuyển người</Link>
+              <Link to="/dang-nhap" className={cn('link-underline rounded-control text-sm text-page-fg', FOCUS)}>Đăng nhập tài khoản</Link>
+            </>
+          ) : isRecruiter ? (
+            <>
+              <Link to="/dang-tin" className={BTN_ACCENT}>Đăng tin tuyển người</Link>
+              <Link to="/tuyen-dung" className={cn('link-underline rounded-control text-sm text-page-fg', FOCUS)}>Vào khu tuyển dụng</Link>
+            </>
+          ) : (
+            <Link to="/" className={cn('link-underline rounded-control text-sm text-page-fg', FOCUS)}>Về trang chủ</Link>
+          )
+        }
+      />
+      <DarkPageBody join>
+        <div className={cn(COVER_EDGE, 'space-y-14 py-section-sm')}>
+          <Section title="Lợi ích">
+            <ul className="grid gap-4 sm:grid-cols-2">
+              {BENEFITS.map((b) => (
+                <li
+                  key={b.title}
+                  className={cn(
+                    COVER_GLASS,
+                    // Thẻ không phải link → không nhấc lên; chỉ viền sáng + vòng cyan + quầng góc + icon sáng
+                    'pc-benefit group/b relative overflow-hidden rounded-card p-6 transition-[border-color,box-shadow] duration-[400ms] ease-out',
+                    'hover:border-wm-ivory/45 hover:ring-1 hover:ring-wm-cyan/40 focus-within:border-wm-ivory/45 focus-within:ring-1 focus-within:ring-wm-cyan/40 motion-reduce:transition-none',
+                  )}
+                >
+                  <span aria-hidden="true" className="pc-benefit-glow pointer-events-none absolute inset-0" />
+                  <span className="relative flex h-10 w-10 items-center justify-center rounded-full border border-wm-ivory/25 text-page-fg ring-1 ring-transparent transition-[background-color,box-shadow,border-color] duration-[400ms] ease-out group-hover/b:border-transparent group-hover/b:bg-wm-cyan/20 group-hover/b:ring-wm-cyan/50 group-focus-within/b:border-transparent group-focus-within/b:bg-wm-cyan/20 group-focus-within/b:ring-wm-cyan/50 motion-reduce:transition-none">
+                    <b.icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <h3 className="relative mt-4 font-display text-lg font-semibold text-page-fg">{b.title}</h3>
+                  <p className="relative mt-2 text-sm leading-relaxed text-page-muted">{b.text}</p>
+                </li>
+              ))}
+            </ul>
+          </Section>
+          <Section title="Quy trình">
+            <ProcessSteps items={STEPS} />
+          </Section>
+          {/* Cuối trang: nút nhấn đã ở bìa nên ở đây dùng nút ngà/viền */}
+          <CtaRow>
+            {!user ? (
+              <>
+                <Link to="/dang-ky?role=recruiter" className={BTN_PRIMARY}>Đăng ký nhà tuyển dụng</Link>
+                <Link to="/dang-nhap" className={BTN_SECONDARY}>Đăng nhập tài khoản</Link>
+              </>
+            ) : isRecruiter ? (
+              <>
+                <Link to="/dang-tin" className={BTN_PRIMARY}>Đăng tin tuyển người</Link>
+                <Link to="/tuyen-dung" className={BTN_SECONDARY}>Vào khu tuyển dụng</Link>
+              </>
+            ) : (
+              <Link to="/" className={BTN_SECONDARY}>Về trang chủ</Link>
+            )}
+          </CtaRow>
+        </div>
+      </DarkPageBody>
+    </>
   )
 }

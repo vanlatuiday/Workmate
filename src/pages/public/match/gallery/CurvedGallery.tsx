@@ -266,8 +266,8 @@ export default function CurvedGallery<T extends CurvedItem>({ items, label, rend
                   alt={item.photo.alt}
                   loading="lazy"
                   className={cn(
-                    'h-full w-full object-cover saturate-[.55] sepia-[.12]',
-                    'transition-[filter,transform] duration-slow ease-editorial group-hover:scale-[1.04] group-hover:saturate-100 group-hover:sepia-0',
+                    'h-full w-full object-cover saturate-[.55]',
+                    'transition-[filter,transform] duration-slow ease-editorial group-hover:scale-[1.04] group-hover:saturate-100',
                     'motion-reduce:transition-none motion-reduce:group-hover:scale-100',
                     hiddenId === item.id && 'invisible',
                   )}

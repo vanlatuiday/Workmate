@@ -1059,3 +1059,59 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
   color: transparent;
   -webkit-text-stroke: 1px color-mix(in srgb, var(--wm-ivory) 45%, transparent);
 }
+
+/* Bìa trang (PageCover): chữ trồi lên một lần khi vào trang; giảm chuyển động → đứng yên. Chỉ opacity + transform. */
+@media (prefers-reduced-motion: no-preference) {
+  .pc-rise {
+    /* `backwards` (không phải both): xong là gỡ hẳn transform — nếu giữ lại, phần tử fixed bên trong
+       (viên tìm kiếm thu gọn của /viec-lam, /match) bị bám theo khối này thay vì màn hình */
+    animation: pc-rise 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--pc-delay, 0ms) backwards;
+  }
+}
+@keyframes pc-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* Vệt tia sáng mờ ở giữa dải chức năng (PageCover level="strip"), tĩnh */
+.pc-strip-beam {
+  background: radial-gradient(ellipse 24% 160% at 50% 100%, color-mix(in srgb, var(--wm-cyan) 38%, transparent) 0%, transparent 70%);
+}
+
+/* Chỗ nối PageCover → DarkPageBody: cùng một màu "giữa" (ocean pha abyss) ở cả hai phía nên liền mạch */
+.pc-cover-fade { background: linear-gradient(to bottom, transparent 0%, color-mix(in srgb, color-mix(in srgb, var(--wm-ocean) 55%, var(--wm-abyss)) 70%, transparent) 55%, color-mix(in srgb, var(--wm-ocean) 55%, var(--wm-abyss)) 100%); }
+.pc-body-fade { background: linear-gradient(to bottom, color-mix(in srgb, var(--wm-ocean) 55%, var(--wm-abyss)) 0%, transparent 100%); }
+
+/* ── Hiệu ứng đợt 2 (bìa + trang công khai + dashboard người tìm việc) ─────────────────────────── */
+
+/* Nền DarkPageBody sáng hơn trang chủ một chút: abyss 20% (home-page-dim là 34%, dùng chung nên không đổi) */
+.pc-body-dim {
+  background: color-mix(in srgb, var(--wm-abyss) 20%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 60svh);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 60svh);
+}
+/* Tia sáng "thở" trong DarkPageBody: dùng lại .home-bg-glow nhưng nhẹ hơn (tối đa 0,2). Giảm chuyển động → .home-bg-glow đã ẩn (opacity 0, không animation). */
+@media (prefers-reduced-motion: no-preference) {
+  .home-bg-glow.pc-body-glow { animation-name: pc-body-breathe; animation-duration: 8s; }
+}
+@keyframes pc-body-breathe {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.2; }
+}
+
+/* Thẻ lợi ích /nha-tuyen-dung: hover/focus-within → quầng cyan góc trên-trái hiện dần, vòng cyan mảnh, vòng tròn icon sáng lên.
+   Thẻ không phải link nên KHÔNG nhấc lên. Chỉ opacity/màu; tắt chuyển động → đổi tức thì. */
+.pc-benefit .pc-benefit-glow { opacity: 0; transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1); }
+.pc-benefit:hover .pc-benefit-glow,
+.pc-benefit:focus-within .pc-benefit-glow { opacity: 1; }
+.pc-benefit-glow {
+  background: radial-gradient(ellipse 60% 60% at 0% 0%, color-mix(in srgb, var(--wm-cyan) 22%, transparent), transparent 70%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pc-benefit .pc-benefit-glow { transition: none; }
+}
+
+/* Thẻ chi tiết ở /viec-lam: quầng cyan mờ phía sau thẻ để thẻ đang xem nổi khỏi nền (tĩnh) */
+.jobs-card-halo {
+  background: radial-gradient(closest-side, var(--wm-cyan), transparent 80%);
+  filter: blur(28px);
+}

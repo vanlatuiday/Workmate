@@ -10,8 +10,10 @@ import MatchScore from '@components/dashboard/MatchScore'
 import { BTN_SECONDARY } from '@utils/ui'
 import type { DiscoverCompany } from './data'
 import { useSeekerCriteria } from '@context/profileStore'
-import { bestJobOf, useSeekerOutcomes, companiesMatching, EMPTY_FILTERS, hasFilters, type MatchJob } from './catalog'
+import { bestJobOf, useAllJobs, useSeekerOutcomes, companiesMatching, EMPTY_FILTERS, hasFilters, type MatchJob } from './catalog'
 import JobSearchBar from './JobSearchBar'
+import { LIGHT_CARD_VARS } from '@components/home/homeBackground'
+import { DarkPageBody } from '@components/common/PageCover'
 import JobsHero from './JobsHero'
 import PositionChips from './PositionChips'
 import { useJobFilters } from './useJobFilters'
@@ -43,22 +45,22 @@ export default function JobseekerJobs() {
     [filters, moderation, locked, criteria],
   )
   const jobCount = items.reduce((n, x) => n + x.jobs.length, 0)
+  const allJobs = useAllJobs()
+  const companyCount = useCatalogStore((s) => s.companies.length)
+  const fact = `${allJobs.length} việc đang tuyển · ${companyCount} doanh nghiệp`
 
   return (
     <>
-      <JobsHero
-        eyebrow="Công ty đang tuyển"
-        title="Chọn nơi làm trước, rồi chọn việc"
-        text="Mỗi ảnh là một công ty. Bấm vào ảnh để xem công ty và các việc đang tuyển."
-        stats={[[items.length, 'công ty'], [jobCount, 'việc']]}
-      />
-      <JobSearchBar filters={filters} onChange={setFilters} showNearMe />
+      <JobsHero title="Việc làm theo ca ở Đà Nẵng" fact={fact} stats={[[items.length, 'công ty'], [jobCount, 'việc']]}>
+        <JobSearchBar filters={filters} onChange={setFilters} showNearMe inCover />
+      </JobsHero>
+      <DarkPageBody>
       {items.length === 0 && !settled ? (
         <div className="shell py-section-sm">
           <SkeletonCards count={6} image label="Đang tải danh sách công ty…" />
         </div>
       ) : items.length === 0 ? (
-        <div className="shell py-section-sm">
+        <div className={`shell py-section-sm ${LIGHT_CARD_VARS}`}>
           <EmptyState
             icon={SearchX}
             title="Không có việc nào khớp"
@@ -86,6 +88,7 @@ export default function JobseekerJobs() {
         <PrimaryLink to="/tim-viec/phu-hop">Xem việc phù hợp</PrimaryLink>
       </ClosingBand>
       <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
+      </DarkPageBody>
     </>
   )
 }

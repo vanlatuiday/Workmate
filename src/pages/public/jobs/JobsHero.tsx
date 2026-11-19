@@ -1,25 +1,29 @@
+import type { ReactNode } from 'react'
+import PageCover from '@components/common/PageCover'
+
 type Props = {
-  eyebrow: string
   title: string
-  text: string
-  /** Số liệu: [số, nhãn] — vd. [8, 'công ty'] */
+  /** Dòng số liệu thật hiện dưới tiêu đề */
+  fact: ReactNode
+  /** Số liệu theo bộ lọc hiện tại: [số, nhãn] — chỉ đọc cho trình đọc màn hình */
   stats: [number, string][]
+  /** Ô tìm kiếm (JobSearchBar inCover) */
+  children: ReactNode
 }
 
 /**
- * Đầu trang /viec-lam — đã bỏ khối chữ hiển thị theo yêu cầu (trang mở thẳng vào ô tìm kiếm).
- * Vẫn giữ h1 + vùng số liệu `role="status"` dạng ẩn để trình đọc màn hình biết tên trang
- * và nghe được số kết quả khi bộ lọc đổi.
+ * Đầu trang /viec-lam: bìa cấp md (PageCover) chứa tiêu đề, số liệu và ô tìm kiếm kính tối.
+ * Vùng `role="status"` ẩn đọc số kết quả khi bộ lọc đổi.
  */
-export default function JobsHero({ eyebrow, title, text, stats }: Props) {
+export default function JobsHero({ title, fact, stats, children }: Props) {
   return (
-    <header className="sr-only">
-      <p>{eyebrow}</p>
-      <h1>{title}</h1>
-      <p>{text}</p>
-      <p role="status" aria-live="polite">
+    <>
+      <PageCover level="md" title={title} fact={fact}>
+        {children}
+      </PageCover>
+      <p className="sr-only" role="status" aria-live="polite">
         {stats.map(([value, label]) => `${value} ${label}`).join(', ')}
       </p>
-    </header>
+    </>
   )
 }

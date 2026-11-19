@@ -2,6 +2,8 @@ type Props = {
   /** 0–100 */
   score: number
   size?: 'sm' | 'md'
+  /** Thanh dày/đậm lên khi hàng cha (class `group/row`) được hover/focus-within */
+  reactive?: boolean
 }
 
 /** Mức phù hợp theo điểm (khớp MatchLevel trong @/types). */
@@ -13,7 +15,7 @@ function levelOf(score: number) {
 }
 
 /** Điểm phù hợp việc làm–ứng viên: số %, thanh mảnh và nhãn mức. Dùng ở thẻ việc/ứng viên. */
-export default function MatchScore({ score, size = 'md' }: Props) {
+export default function MatchScore({ score, size = 'md', reactive }: Props) {
   const value = Math.round(Math.min(100, Math.max(0, score)))
   const level = levelOf(value)
   return (
@@ -24,8 +26,14 @@ export default function MatchScore({ score, size = 'md' }: Props) {
         </span>
         <span className="whitespace-nowrap text-xs text-page-muted">{level}</span>
       </div>
-      <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-page-line" aria-hidden="true">
-        <div className="h-full rounded-full bg-accent" style={{ width: `${value}%` }} />
+      <div
+        className={`mt-1.5 h-1 overflow-hidden rounded-full bg-page-line ${reactive ? 'origin-center transition-transform duration-base ease-out group-focus-within/row:scale-y-[1.75] group-hover/row:scale-y-[1.75] motion-reduce:transition-none' : ''}`}
+        aria-hidden="true"
+      >
+        <div
+          className={`h-full rounded-full bg-accent ${reactive ? 'transition-[filter] duration-base ease-out group-focus-within/row:brightness-90 group-hover/row:brightness-90 motion-reduce:transition-none' : ''}`}
+          style={{ width: `${value}%` }}
+        />
       </div>
     </div>
   )

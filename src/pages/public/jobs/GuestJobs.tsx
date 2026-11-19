@@ -8,8 +8,10 @@ import { ProfileTag, ClosingBand, DetailHead, PrimaryLink, SampleNote, TextLink 
 import type { GalleryItem } from '@components/discover/types'
 import { BTN_SECONDARY } from '@utils/ui'
 import type { DiscoverCompany } from './data'
-import { companiesMatching, EMPTY_FILTERS, type MatchJob } from './catalog'
+import { useAllJobs, companiesMatching, EMPTY_FILTERS, type MatchJob } from './catalog'
 import JobSearchBar from './JobSearchBar'
+import { LIGHT_CARD_VARS } from '@components/home/homeBackground'
+import { DarkPageBody } from '@components/common/PageCover'
 import JobsHero from './JobsHero'
 import PositionChips from './PositionChips'
 import { useJobFilters } from './useJobFilters'
@@ -40,22 +42,22 @@ export default function GuestJobs() {
     [filters, moderation, locked],
   )
   const jobCount = items.reduce((n, x) => n + x.jobs.length, 0)
+  const allJobs = useAllJobs()
+  const companyCount = useCatalogStore((s) => s.companies.length)
+  const fact = `${allJobs.length} việc đang tuyển · ${companyCount} doanh nghiệp`
 
   return (
     <>
-      <JobsHero
-        eyebrow="Khám phá"
-        title="Những nơi đang tìm người"
-        text="Các công ty ở Đà Nẵng. Cuộn để xem từng nơi. Xem công ty không cần tài khoản, ứng tuyển thì cần."
-        stats={[[items.length, 'công ty'], [jobCount, 'việc']]}
-      />
-      <JobSearchBar filters={filters} onChange={setFilters} />
+      <JobsHero title="Việc làm theo ca ở Đà Nẵng" fact={fact} stats={[[items.length, 'công ty'], [jobCount, 'việc']]}>
+        <JobSearchBar filters={filters} onChange={setFilters} inCover />
+      </JobsHero>
+      <DarkPageBody>
       {items.length === 0 && !settled ? (
         <div className="shell py-section-sm">
           <SkeletonCards count={6} image label="Đang tải danh sách công ty…" />
         </div>
       ) : items.length === 0 ? (
-        <div className="shell py-section-sm">
+        <div className={`shell py-section-sm ${LIGHT_CARD_VARS}`}>
           <EmptyState
             icon={SearchX}
             title="Không có việc nào khớp"
@@ -100,6 +102,7 @@ export default function GuestJobs() {
         <TextLink to="/dang-ky?role=recruiter">Tôi cần tuyển người</TextLink>
       </ClosingBand>
       <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
+      </DarkPageBody>
     </>
   )
 }
