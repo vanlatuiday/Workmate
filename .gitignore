@@ -10,6 +10,7 @@ dist
 /skills/
 /agent-skills/
 /ui-ux-pro-max-skill/
+/gsap-skills/
 
 # Python cache của skill ui-ux-pro-max
 __pycache__/
