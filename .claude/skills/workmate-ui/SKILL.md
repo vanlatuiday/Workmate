@@ -26,12 +26,25 @@ Thứ tự ưu tiên khi các nguồn khác nhau: yêu cầu của người dùn
   bg-page-surface border-page-edge` — tự khớp mọi section.
 - Phần luôn một màu cố định: `wm-*` (Tailwind) hoặc `THEMES` (TS). Không viết hex trong component.
 - Màu mới → thêm vào `src/styles/tokens.json`, tính tương phản (chữ ≥ 4.5:1, viền ô nhập ≥ 3:1), cập nhật `DESIGN.md`.
-- Không: màu bão hòa, gradient màu, glow, bóng đổ, `#000`/`#fff`, modifier `/opacity` trên `page-*`.
+- Không (trừ trang chủ — xem mục trên): màu bão hòa, gradient màu, glow, bóng đổ, `#000`/`#fff`, modifier `/opacity` trên `page-*`.
+
+## Trang chủ nền xanh (2026-11-19, chủ dự án duyệt)
+
+Trang chủ KHÔNG còn nền ngà/than chì: cả trang nằm trên nền ảnh xanh (DESIGN.md → "Trang chủ nền xanh").
+Khi sửa/thêm section trang chủ:
+- `data-theme="night"` (chữ ngà). Đặt section vào trong khối nền của `HomePage.tsx` (lớp nền nằm dưới, section `relative z-10`).
+- Thẻ: kính trắng (`LIGHT_CARD_VARS` + `bg-wm-ivory/75` + blur) — chữ trong thẻ tự về than chì. Ô/nhãn/nút nhỏ thẳng trên nền:
+  `HOME_GLASS_DARK`. Không thêm cam vào nền ngoài hero và khối tuyển dụng; không hồng dưới hero.
+- Ngoại lệ có chủ đích với mục "Màu" bên dưới (gradient, glow, kính mờ, bóng mềm) — chỉ trong trang chủ.
+- Chữ: nút = động từ + việc; không "Xem tất cả/Xem chi tiết", không "X, không phải Y", không "—", không nhãn in hoa trên
+  tiêu đề, tiêu đề section không là câu hỏi.
+- Đã có 2 "khoảnh khắc" (câu sáng dần, ảnh hiện dần ở thẻ ca) và 1 hiệu ứng theo chuột (hero) — không thêm cái thứ ba khi chưa hỏi.
+  Nền tự chuyển động (tia sáng thở, sóng/sao trôi) — đừng thêm parallax khác chồng lên.
 
 ## Thêm một section vào trang chủ
 
 ```tsx
-<section data-theme="stone" className="shell py-section">   {/* theme: charcoal|ivory|stone|sage|graphite */}
+<section data-theme="night" className="relative z-10 shell py-section">   {/* trang chủ: night (nền xanh); trang khác: charcoal|ivory|stone|sage|graphite */}
   <p className="eyebrow text-page-muted"><span className="w-8 h-px bg-page-line" />Nhãn</p>
   <TextReveal text="Tiêu đề ngắn, có quan điểm." className="font-display text-display-md font-semibold text-page-fg mt-8 max-w-[16ch]" />
 </section>

@@ -1,12 +1,13 @@
 import { Fragment, forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
-import { Search, MapPin, ArrowDown, ArrowUpRight } from 'lucide-react'
+import { Link, useLocation, useNavigationType } from 'react-router-dom'
+import { ArrowDown, ArrowUpRight } from 'lucide-react'
 
 import { gsap, ScrollTrigger, useGSAP } from '@utils/gsap'
 import { setInitialScroll } from '@components/common/RouteScroll'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { getSmoothScroll, scrollToY } from '@hooks/useSmoothScroll'
 import HeroRoleCards from './HeroRoleCards'
+import HomeSearchForm from './HomeSearchForm'
 import RollText from '@components/motion/RollText'
 import Magnetic from '@components/motion/Magnetic'
 import { useParticlesFailed } from '@components/motion/particleStatus'
@@ -121,20 +122,9 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
     }
   }, [])
 
-  const [keyword, setKeyword] = useState('')
-  const [location, setLocation] = useState('')
-  const navigate = useNavigate()
   // Lời mở đầu đổi theo vai trò (khách: trung lập)
   const audience = useAuthStore((s) => s.user?.role) ?? 'guest'
   const copy = heroCopy[audience]
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    const params = new URLSearchParams()
-    if (keyword) params.set('keyword', keyword)
-    if (location) params.set('city', location)
-    navigate(`/viec-lam?${params.toString()}`)
-  }
 
   useImperativeHandle(ref, () => ({
     focusSearch() {
@@ -485,7 +475,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
 
             {/* Khối chữ chiếm phần còn lại phía trên hàng thẻ, căn giữa */}
             <div className="relative shell flex w-full flex-1 flex-col items-center justify-center pt-24 lg:pt-20 pb-16 lg:pb-4 text-center text-wm-ivory">
-              <p data-hero-item className="eyebrow text-wm-mist">
+              <p data-hero-item className="text-sm font-medium tracking-normal text-wm-mist">
                 Nền tảng việc làm linh hoạt
               </p>
 
@@ -525,52 +515,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
               <>
               <div data-hero-item className="mx-auto mt-6 md:mt-8 w-full max-w-3xl text-left">
                 {/* Viên thuốc kính trên ảnh tối; focus hiện bằng vòng sáng quanh cả form */}
-                <form
-                  onSubmit={handleSearch}
-                  role="search"
-                  className="flex flex-col sm:flex-row sm:items-center p-1.5 rounded-card sm:rounded-full
-                             border border-wm-ivory/40 bg-wm-ivory/10 backdrop-blur-xl backdrop-saturate-150
-                             shadow-[inset_0_1px_0_color-mix(in_srgb,var(--wm-ivory)_45%,transparent),inset_0_0_18px_color-mix(in_srgb,var(--wm-ivory)_8%,transparent),0_8px_24px_-8px_color-mix(in_srgb,var(--wm-charcoal)_45%,transparent)]
-                             transition-[transform,background-color,border-color,box-shadow] duration-300
-                             hover:bg-wm-ivory/20 hover:border-wm-ivory/60 hover:-translate-y-0.5 motion-reduce:transform-none
-                             hover:shadow-[inset_0_1px_0_color-mix(in_srgb,var(--wm-ivory)_60%,transparent),inset_0_0_18px_color-mix(in_srgb,var(--wm-ivory)_12%,transparent),0_14px_32px_-8px_color-mix(in_srgb,var(--wm-charcoal)_60%,transparent)]
-                             focus-within:border-wm-ivory/80 focus-within:ring-2 focus-within:ring-wm-ivory/50"
-                >
-                  <label className="flex-1 flex items-center gap-3 px-5 py-3.5 min-h-11">
-                    <Search className="w-4 h-4 text-wm-ivory shrink-0" aria-hidden="true" />
-                    <span className="sr-only">Từ khóa tìm việc</span>
-                    <input
-                      ref={keywordRef}
-                      type="text"
-                      placeholder="Vị trí, kỹ năng, ngành nghề…"
-                      value={keyword}
-                      onChange={(e) => setKeyword(e.target.value)}
-                      className="flex-1 min-w-0 bg-transparent !outline-none text-base text-wm-ivory placeholder:text-wm-ivory/80"
-                    />
-                  </label>
-
-                  <label className="flex items-center gap-3 px-5 py-3.5 min-h-11 sm:w-56 border-t border-wm-ivory/25 sm:border-t-0 sm:border-l">
-                    <MapPin className="w-4 h-4 text-wm-ivory shrink-0" aria-hidden="true" />
-                    <span className="sr-only">Địa điểm</span>
-                    <input
-                      type="text"
-                      placeholder="Địa điểm…"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className="flex-1 w-full min-w-0 bg-transparent !outline-none text-base text-wm-ivory placeholder:text-wm-ivory/80"
-                    />
-                  </label>
-
-                  <button
-                    type="submit"
-                    className="group mt-1.5 sm:mt-0 sm:ml-1.5 min-h-11 rounded-full bg-accent text-accent-fg font-semibold text-sm px-8 py-3
-                               hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100
-                               transition-[filter,transform] duration-300
-                               focus-visible:!outline-wm-ivory focus-visible:!outline-offset-[-4px]"
-                  >
-                    <RollText>Tìm việc</RollText>
-                  </button>
-                </form>
+                <HomeSearchForm inputRef={keywordRef} />
               </div>
 
               <ul data-hero-item className="flex flex-wrap justify-center gap-2 mt-4" aria-label="Ngành nghề phổ biến">

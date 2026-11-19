@@ -7,9 +7,9 @@ import { useReducedMotion } from '@hooks/useReducedMotion'
 import CustomCursor from '@components/motion/CustomCursor'
 import { afterHeroBgStyle, HOME_BG_JOIN, waveBgStyle } from '@components/home/homeBackground'
 import { HomeBgLayers, useHomeBgParallax } from '@components/home/HomeBackdrop'
-import IntroHero, { supportsWebGL, type IntroHeroHandle } from '@components/home/IntroHero'
-import UrgentJobsSection from '@components/home/UrgentJobsSection'
-import StreetSceneSection from '@components/home/StreetSceneSection'
+import IntroHero, { supportsWebGL } from '@components/home/IntroHero'
+import ShiftBoardSection from '@components/home/ShiftBoardSection'
+import StatementSection from '@components/home/StatementSection'
 import FeatureBlocksSection from '@components/home/FeatureBlocksSection'
 import NewJobsSection from '@components/home/NewJobsSection'
 import ExploreSection from '@components/home/ExploreSection'
@@ -25,18 +25,18 @@ const ParticleField = lazy(() => import('@components/motion/ParticleField'))
  * Trang chủ: intro logo rồi một chuỗi section kiểu "ảnh + khối + hàng thẻ".
  *
  *   ①  IntroHero            than chì        logo hạt giữa màn hình tan ra; hero là ảnh tràn màn hình + tìm kiếm
- *   ②  UrgentJobsSection    than chì        hàng thẻ việc cuộn ngang
- *   ②b StreetSceneSection  than chì         con phố nét mảnh, người đi bộ bước ra từ tiệm Workmate — chỉ trang trí
+ *   ①b ShiftBoardSection     nền xanh        bảng ca sắp tới đang cần người (Hôm nay / Ngày mai / Cuối tuần), theo vai trò
+ *   ②  StatementSection     than chì        câu nhấn, từng từ sáng dần theo cuộn
  *   ③  FeatureBlocksSection ngà (than chì → ngà, chuyển dài ở đầu section)             "cuốn sách" lật trang khi cuộn (máy tính); điện thoại xếp dọc
- *   ④  NewJobsSection       ngà             lưới 6 việc mới đăng (NTD: "Tin của bạn")
+ *   ④  NewJobsSection       ngà             vòng 3D các việc mới đăng — danh sách việc duy nhất (NTD: "Tin của bạn")
  *   ⑤  ExploreSection       ngà             ô nhóm ngành có ảnh + liên kết khu vực/hình thức
  *   ⑥  RecruiterSection     ngà             tấm than chì cho nhà tuyển dụng, nở ra khi cuộn tới
- *   ⑦  FinalCtaSection      than chì        lời kết + nút quay về tìm kiếm
+ *   ⑦  FinalCtaSection      than chì        lời kết + ô tìm việc (khách/người tìm việc) hoặc nút hành động
  *
  * Màu nền/chữ đổi theo `data-theme` của từng section (useSectionThemes). Trang chủ chỉ dùng
- * hai nền, theo thứ tự: than chì (① + ② + ②b) → ngà (③–⑥) → than chì (⑦).
+ * hai nền, theo thứ tự: than chì (① + ②) → ngà (③–⑥) → than chì (⑦).
  * Chữ mẫu ở components/home/content.ts, ảnh ở components/home/homeMedia.ts.
- * Các section cũ (Fit/Opportunities/HowItWorks/Statement/Closing) còn trong thư mục nhưng không render.
+ * Các section cũ (Urgent/StreetScene/Fit/Opportunities/HowItWorks/Closing) còn trong thư mục nhưng không render.
  */
 export default function HomePage() {
   useSmoothScroll()
@@ -46,7 +46,6 @@ export default function HomePage() {
   const particles = !reduced && supportsWebGL() && !particlesFailed
 
   const rootRef = useRef<HTMLDivElement>(null)
-  const heroRef = useRef<IntroHeroHandle>(null)
   useSectionThemes(rootRef)
   useHomeHeader()
   useHomeBgParallax(rootRef)
@@ -80,7 +79,7 @@ export default function HomePage() {
           </Suspense>
         </ParticleBoundary>
       )}
-      <IntroHero ref={heroRef} />
+      <IntroHero />
       {/* Nền xanh nối tiếp hero cho cả phần còn lại của trang (homeBackground.ts) */}
       {/* Lớp nền không đặt z-index: nằm dưới hạt (z-[5]) và dưới các phần (mỗi phần là relative z-10) */}
       {/* overflow-clip: cắt phần nền kéo dài lên trên khi nền trôi chậm (không tạo khung cuộn, sticky vẫn chạy) */}
@@ -116,13 +115,13 @@ export default function HomePage() {
         </div>
         {/* Mép dưới tối dần sang màu chân trang (night) để không có vết cắt ngang */}
         <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-b from-transparent to-wm-night" />
-        <UrgentJobsSection />
-        <StreetSceneSection />
+        <ShiftBoardSection />
+        <StatementSection />
         <FeatureBlocksSection />
         <NewJobsSection />
         <ExploreSection />
         <RecruiterSection />
-        <FinalCtaSection onFindJob={() => heroRef.current?.focusSearch()} />
+        <FinalCtaSection />
       </div>
     </div>
   )

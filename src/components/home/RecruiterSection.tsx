@@ -13,11 +13,12 @@ import { homeSections, homeSectionsByRole } from './content'
 import { useHomeRole } from './homeData'
 
 /**
- * Section ⑥ — dải gradient tím → hồng dành cho nhà tuyển dụng. Chữ ngà trên nền ảnh xanh (tấm
- * này tự mang màu cố định). Khi cuộn tới, tấm phóng từ 0,9 → 1 theo tiến trình cuộn.
+ * Section ⑥ — dải gradient cam mơ → đào dành cho nhà tuyển dụng, ăn với quầng cam phía sau. Chữ than chì
+ * (≥ 4,5:1 trên cả hai đầu gradient) và nút than chì; tấm tự mang màu cố định. Khi cuộn tới, tấm phóng từ 0,9 → 1 (scrub theo cuộn). Giảm chuyển động: tấm hiện sẵn.
  */
 export default function RecruiterSection() {
   const ref = useRef<HTMLElement>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
   const role = useHomeRole()
@@ -31,16 +32,14 @@ export default function RecruiterSection() {
 
   useGSAP(
     () => {
-      if (reduced || !panelRef.current) return
-      gsap.fromTo(
-        panelRef.current,
-        { scale: 0.9 },
-        {
-          scale: 1,
-          ease: 'none',
-          scrollTrigger: { trigger: panelRef.current, start: 'top 95%', end: 'top 40%', scrub: 0.6 },
-        },
-      )
+      const wrap = wrapRef.current
+      const panel = panelRef.current
+      if (reduced || !wrap || !panel) return
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: { trigger: wrap, start: 'top 90%', end: 'top 35%', scrub: 0.6, invalidateOnRefresh: true },
+      })
+      tl.fromTo(wrap, { scale: 0.9 }, { scale: 1 }, 0)
     },
     { scope: ref, dependencies: [reduced] },
   )
@@ -52,19 +51,21 @@ export default function RecruiterSection() {
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 bottom-section -z-10 flex items-center justify-center">
         <div data-home-orange className="home-orange h-[190%] w-screen shrink-0" />
       </div>
-      <div ref={panelRef} className="grid overflow-hidden rounded-card bg-gradient-to-r from-wm-iris to-wm-magenta text-wm-ivory md:grid-cols-2">
+      <div ref={wrapRef} className="relative">
+      <div ref={panelRef} className="grid overflow-hidden rounded-card bg-gradient-to-r from-wm-apricot to-wm-peach text-wm-charcoal md:grid-cols-2">
         <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-16">
           <TextReveal
             id="home-recruiter-title"
             text={copy.title}
             className="font-display text-display-sm font-semibold"
           />
-          <p className="mt-5 max-w-md text-base leading-relaxed text-wm-ivory/90 md:text-lg">{copy.body}</p>
+          <p className="mt-5 max-w-md text-base leading-relaxed text-wm-charcoal/90 md:text-lg">{copy.body}</p>
           <Magnetic className="mt-8 self-start">
           <Link
             to={copy.cta.href}
-            className="group inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-accent px-8 py-3.5 text-sm font-semibold
-                       text-accent-fg transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100"
+            className="group inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-wm-charcoal px-8 py-3.5 text-sm font-semibold
+                       text-wm-ivory transition-[background-color,transform] duration-300 hover:bg-wm-charcoal/80 active:scale-[0.97] motion-reduce:active:scale-100
+                       focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wm-charcoal"
           >
             <RollText>{copy.cta.label}</RollText>
             <ArrowUpRight className="h-4 w-4" aria-hidden />
@@ -84,6 +85,7 @@ export default function RecruiterSection() {
             className="h-full w-full object-cover"
           />
         </div>
+      </div>
       </div>
     </section>
   )

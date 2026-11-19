@@ -27,6 +27,17 @@ colors:
   rust-light: "#F08A7B" # danger trên nền tối
   amber-light: "#D9A441" # warning-ink trên nền tối
 
+  # Trang chủ nền xanh (2026-11-19, chủ dự án duyệt) — chỉ dùng ở trang chủ, xem mục "Trang chủ nền xanh"
+  ocean: "#0B2FA8"      # xanh biển: màu lót dưới ảnh nền, kính header khi cuộn, quầng xanh sau chữ hero
+  abyss: "#05155E"      # xanh rất đậm: nền màn mở đầu (logo Workmate)
+  azure: "#1F6FFF"      # xanh dương tươi: lớp nhuộm hai mép nền dưới hero (mix-blend color)
+  cyan: "#5FE6F7"       # xanh ngọc: vòm sáng màn mở đầu, quầng sáng sau tiêu đề hero, viền nhạt quầng cam
+  apricot: "#FF9457"    # cam: lõi quầng cam (đáy hero, sau khối tuyển dụng), dải tuyển dụng
+  peach: "#FFC7A3"      # đào: viền quầng cam, đầu kia dải tuyển dụng
+  tangerine: "#F58A4C"  # cam nhấn sáng hơn clay — --accent của trang chủ (trừ người tìm việc: giữ xanh lá)
+  iris: "#5B4CF0"       # (thôi dùng 2026-11-20 — dải tuyển dụng đổi sang cam–đào; giữ token để tránh vỡ)
+  magenta: "#D8338F"    # (thôi dùng 2026-11-20, như trên)
+
 # Màu theo ngữ cảnh — biến CSS, đổi theo section đang xem (Tailwind: *-page-*)
 semantic:
   page-bg: "var(--page-bg)"           # nền section hiện tại
@@ -177,6 +188,43 @@ chữ sáng trên khối tối, chữ tối trên khối sáng. Không có khố
 Giai đoạn 2 = trang con công khai: dải đầu trang tối có hạt bụi + nội dung trắng ấm + footer tối; popup = thẻ trắng trên màn phủ tối
 (bands phải trải dưới cả header — header hiện là thanh sticky trong luồng nên lúc đó cần chồng lên dải). Giai đoạn 3 = danh sách công ty `/cong-ty` toàn tối.
 `/ca-nhan` (Câu chuyện của tôi) cùng nền kem như mọi trang — chỉ khác kiểu chữ và bố cục, không khác màu; riêng footer của trang này tối có hạt bụi như trang chủ (PublicLayout, `nightFooter`).
+
+### Trang chủ nền xanh (2026-11-19, chủ dự án duyệt — thay nền ngà/than chì ở TRANG CHỦ)
+
+Chỉ áp dụng cho trang chủ `/`. Các trang khác vẫn theo mục **Hai nền** ở trên. Đây là ngoại lệ có chủ đích với
+"không gradient / glow / kính mờ / bóng" trong Do's and Don'ts — đừng "sửa" khi rà soát.
+
+**Nền** (`components/home/homeBackground.ts`, `HomeBackdrop.tsx`, ảnh `src/assets/images/home-bg-*`; gốc `references/backgr.png`):
+- ① Màn mở đầu: nền `abyss`→`ocean` phủ kín ảnh + **vòm sáng xanh** hình cầu ôm phần dưới màn hình (không cam). Lướt xuống:
+  vòm nở ra, lớp phủ mờ dần lộ hero, cuối cùng cụm cam dâng lên.
+- ① Hero: ảnh tia sáng xanh ngọc ở giữa, **cam chỉ ở đáy** (nón cam nhô cao + quầng + dải cam–đào dọc mép nối hai góc hồng).
+  Hồng hai bên **chỉ có ở hero**.
+- Dưới hero → hết trang: **một cột tia sáng ở chính giữa, to nhỏ lượn sóng**, hai bên tối dần (chiều sâu), sao nhỏ. Không cam,
+  không hồng (lớp nhuộm `azure` hai mép). Chỗ nối hero → phần dưới: ảnh hero soi gương + quầng cam tắt nhanh — không vết cắt.
+- Cam lần thứ hai **chỉ sau khối tuyển dụng** (quầng cam mềm quanh khối). Mép dưới trang tối dần sang `night` của chân trang.
+- Vùng sáng của ảnh đã làm mịn sọc dọc; vùng tối giữ sao và sợi mờ.
+
+**Chuyển động nền** (đều có nhánh `prefers-reduced-motion` → đứng yên): tia sáng "thở" (bản sao sáng hơn ở cột giữa,
+6 s, tối đa 45%); sóng tia sáng, sao và quầng cam trôi chậm hơn nội dung (nhẹ); không có gì khác chạy theo nền.
+
+**Chữ & thẻ trên nền xanh:**
+- Mọi section dưới hero `data-theme="night"` → chữ ngà. Tiêu đề không dùng text-shadow (mặt nạ từng từ cắt bóng thành ô).
+- Thẻ việc, 3 thẻ tính năng, 3 thẻ vai trò ở hero: **kính trắng** (`bg-wm-ivory/75–84` + blur + `LIGHT_CARD_VARS` ghim chữ than chì).
+- Ô/nhãn/nút nhỏ nằm thẳng trên nền: **kính tối** `HOME_GLASS_DARK` (`bg-wm-night/35` + blur) để chữ ngà đọc được trên vệt cam.
+- Khối tuyển dụng: dải **cam–đào** (`apricot`→`peach`), chữ than chì, nút tối; phóng nhẹ khi cuộn tới.
+- Header khi cuộn quá 80px: kính `ocean` 58% + blur. Màu nhấn trang chủ `tangerine` (người tìm việc vẫn `fern`/`leaf`).
+
+**Hero:** tiêu đề hai dòng lớn + quầng sáng xanh ngọc phía sau; ô tìm kiếm + thẻ ngành giữ nguyên; **3 thẻ vai trò**
+(Ứng viên · Nhà tuyển dụng · Quản trị) chĩa ba hướng (trái nghiêng trái, giữa thẳng, phải nghiêng phải), nổi lên lần lượt,
+lơ lửng, rê chuột thì thẳng lại; chỉ hiện từ `lg` và khi màn cao ≥ 820px. Các lớp (quầng sáng, tiêu đề, ô tìm kiếm, thẻ)
+trôi nhẹ theo chuột với độ sâu khác nhau (chỉ chuột thật).
+
+**Khoảnh khắc** (theo taste skill, viết lại bằng GSAP; tối đa 2 mỗi trang): ảnh thẻ ca dưới hero "hiện dần" từ xám sang màu
+một lần khi cuộn tới (`ShiftBoardSection`) và câu lớn sáng dần từng chữ (`StatementSection`). Vòng tròn mở khối tuyển dụng đã bỏ (2026-11-20). Không thêm khoảnh khắc thứ ba; chỉ một hiệu ứng theo chuột mỗi trang (đã dùng ở hero).
+
+**Chữ (2026-11-20):** nút = động từ + việc ("Xem việc mới đăng", "Đăng tin tuyển người"), không "Xem tất cả"/"Xem chi tiết";
+không câu "X, không phải Y"; không dấu gạch dài "—" trong chữ hiển thị; không nhãn in hoa trên tiêu đề section;
+tiêu đề section không là câu hỏi (riêng tiêu đề hero giữ câu hỏi — chủ dự án chọn).
 
 ### Header (QUY TẮC CỐ ĐỊNH — chủ dự án chốt 2026-11-16)
 Áp cho MỌI trang có thanh trên cùng (PublicLayout → `SiteHeader`), kể cả trang chủ. Không đổi khi chưa hỏi chủ dự án.
@@ -375,6 +423,8 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
   Giới hạn: không mang các hiệu ứng này sang trang công khai khác khi chưa hỏi; bản giảm chuyển động
   (`StaticGallery`) không có vệt sáng. Ô tìm kiếm ở các trang khác vẫn theo mục **Thanh tìm kiếm** ở trên.
   **Ngoại lệ thứ năm (2026-11-15, đổi cùng ngày, chủ dự án yêu cầu):** form bắt đầu của nhà tuyển dụng `/tuyen-dung/bat-dau` (`pages/recruiter/onboarding/*`) theo trang Đăng ký: nền `wm-night` + hạt bụi, một thẻ kính tối `.glass-dark`; chữ, ô nhập, nút, cảnh báo dùng biến `page-*`/`accent`/`danger` nên tự đúng màu trên nền tối (`TaxCodeField` dùng chung với khung Xác minh sáng không cần thêm prop). Không glow; có phương án đặc; chuyển bước chỉ opacity/transform, có nhánh giảm chuyển động.
+  **Ngoại lệ thứ sáu (2026-11-19, chủ dự án duyệt):** toàn bộ **trang chủ** dùng nền xanh có ảnh, glow, kính mờ (trắng và tối),
+  dải màu chuyển cam–đào và bóng mềm cho thẻ — xem mục **Trang chủ nền xanh**. Không mang sang trang khác khi chưa hỏi.
 - Dùng `#000` / `#fff` tuyệt đối (nền tối là `#0A0F0D`, nền sáng `#FAF4EA`).
 - Viết hex trực tiếp trong component — thêm vào `tokens.json` nếu thật sự cần màu mới.
 - Đánh số 01/02/03 cho nội dung không phải trình tự thật.
@@ -385,4 +435,5 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
 - **[giả định]** Thang `title/body/body-sm` ghi theo cách code đang dùng class Tailwind mặc định; chưa có token riêng.
 - **[giả định]** Trạng thái lỗi/thành công của form chưa được thiết kế cho bảng màu này (không có đỏ/xanh). Khi cần, ưu tiên biểu tượng + chữ thay vì chỉ màu, và hỏi chủ dự án trước khi thêm màu ngữ nghĩa.
 - Màu trong shader nền intro (`HeroCanvas.tsx`) ghi trực tiếp dưới dạng số thực theo charcoal/graphite/ivory — đổi bảng màu thì sửa cả ở đó.
-- Skill `frontend-design` liệt kê “nền kem gần #F4F1EA” và “nhãn in hoa phía trên mọi tiêu đề” là dấu hiệu giao diện do AI tạo. Ivory `#FAF4EA` và `.eyebrow` là lựa chọn có chủ đích của chủ dự án — giữ nguyên, nhưng dùng eyebrow tiết chế ở trang mới.
+- Skill `frontend-design` liệt kê “nền kem gần #F4F1EA” và “nhãn in hoa phía trên mọi tiêu đề” là dấu hiệu giao diện do AI tạo. Ivory `#FAF4EA` và `.eyebrow` là lựa chọn có chủ đích của chủ dự án — giữ nguyên ở các trang khác, nhưng dùng eyebrow tiết chế ở trang mới. **Trang chủ đã bỏ eyebrow trên tiêu đề section (2026-11-20).**
+- `HeroCanvas.tsx` (shader nền intro cũ) không còn dùng ở trang chủ từ 2026-11-19 (màn mở đầu dùng nền xanh + vòm sáng).

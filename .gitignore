@@ -11,6 +11,11 @@ dist
 /agent-skills/
 /ui-ux-pro-max-skill/
 /gsap-skills/
+/awesome-design-md/
+# taste skill (npx skills add Leonxlnx/taste-skill): 39 MB, cài lại bằng lệnh đó; .taste-skill = thư mục làm việc của bộ kiểm tra
+/.claude/skills/design-taste-frontend/
+/skills-lock.json
+.taste-skill/
 
 # Python cache của skill ui-ux-pro-max
 __pycache__/

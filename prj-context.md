@@ -135,28 +135,30 @@ Phân quyền: `ProtectedRoute` chỉ kiểm tra `user.role` trong Zustand store
 Màn mở đầu (logo) lấy cảm hứng từ uncommondesign.group; từ màn hero trở xuống làm lại
 2026-11-04 theo hướng Snagajob (ảnh, khối, hàng thẻ) — **không** sao chép thương hiệu.
 
-Thứ tự (`src/pages/public/HomePage.tsx`):
+Thứ tự (`src/pages/public/HomePage.tsx`) — **từ 2026-11-19/20 cả trang nằm trên nền xanh**
+(DESIGN.md → "Trang chủ nền xanh"; nền: `components/home/homeBackground.ts` + `HomeBackdrop.tsx`):
 
-| | Component | Nền | Nội dung |
-|---|---|---|---|
-| ① | `IntroHero` | than chì → ngà | Logo giữa màn hình → lướt nhẹ là trôi trọn (2,4s) tới hero: khối ảnh lớn bo góc, chữ ngà + ô tìm kiếm đè lên |
-| ② | `UrgentJobsSection` | ngà | Hàng thẻ việc cuộn ngang (8 tin demo thật, bấm mở chi tiết) |
-| ③ | `FeatureBlocksSection` | đá | 2 khối ảnh + chữ xen kẽ (lịch rảnh, gần nhà; 2 khối khác tạm ẩn); ảnh hé lộ bằng tấm màn + parallax |
-| ④ | `NewJobsSection` | ngà | Lưới 6 thẻ việc |
-| ⑤ | `ExploreSection` | ngà | Ô ngành nghề có ảnh (đếm việc thật) + khu vực + hình thức |
-| ⑥ | `RecruiterSection` | ngà (tấm than chì) | Khối nhà tuyển dụng, phóng 0,9 → 1 khi cuộn tới |
-| ⑦ | `FinalCtaSection` | than chì | "Chưa thấy việc hợp?" → về ô tìm kiếm |
+| | Component | Nội dung |
+|---|---|---|
+| ① | `IntroHero` | Màn mở đầu: logo hạt trên nền xanh tối + vòm sáng → lướt xuống lộ hero (cam dâng lên ở đáy). Hero: tiêu đề hai dòng + quầng sáng, ô tìm kiếm (`HomeSearchForm`) + thẻ ngành, 3 thẻ vai trò chĩa ba hướng (`HeroRoleCards`, chỉ ≥lg và cao ≥820px) |
+| ①b | `ShiftBoardSection` | "Ca đang cần người tuần này" (7 ngày tới, không tab): băng chuyền ngang các NGHỀ (12 nhóm theo tên việc ở `categories.ts` + "Việc khác"; chỉ nhóm có ca), 5 thẻ/màn ở ≥lg (3 ở md), trải gần sát hai mép; kéo chuột / trackpad / mũi tên, snap từng thẻ. Bấm thẻ: nở rộng ≈ 2 thẻ + 12% bằng GSAP Flip, ảnh trượt ra theo phía của thẻ so với giữa màn, danh sách doanh nghiệp (2 cột khi đủ rộng; ảnh bìa công ty thay logo, việc, lương, quận, ca, nút theo vai trò). Điện thoại: accordion dọc, 6 nghề + "Xem thêm nghề". Ảnh "hiện dần" khi cuộn tới (khoảnh khắc 2). Theo vai trò như cũ |
+| ② | `StatementSection` | Trái: câu lớn sáng dần từng chữ theo cuộn (khoảnh khắc 1). Phải: 3 tiêu chí (Lịch rảnh · Quãng đường · Kỹ năng; NTD: Ca làm · Khu vực · Kỹ năng), mỗi mục sáng đúng lúc từ của nó trong câu sáng tới; nút theo vai trò (khách → đăng ký, ứng viên → mục trong hồ sơ, NTD → đăng tin) |
+| ③ | `FeatureBlocksSection` | 3 thẻ kính trắng xếp chồng (lịch rảnh, gần nhà, kết nối), lật xem chi tiết |
+| ④ | `NewJobsSection` | Dải chữ chạy + vòng ảnh 3D việc mới đăng (điện thoại: danh sách thẻ kính tối) |
+| ⑤ | `ExploreSection` | "Việc theo khu vực và hình thức": chỉ còn chip khu vực + hình thức (ô ảnh ngành chuyển lên ①b, 2026-11-20) |
+| ⑥ | `RecruiterSection` | Dải cam–đào "Tuyển người theo ca làm", phóng 0,9 → 1 khi cuộn tới + quầng cam phía sau |
+| ⑦ | `FinalCtaSection` | "Tìm việc theo lịch rảnh của bạn" + ô tìm kiếm (khách/ứng viên); NTD/admin giữ nút riêng |
 
 Ảnh demo của trang chủ gom ở `src/components/home/homeMedia.ts` (chủ dự án sẽ thay ảnh).
-Thẻ việc dùng `JobCard` + `useCardsEnter`. Section cũ (`FitSection`, `OpportunitiesSection`,
-`HowItWorksSection`, `StatementSection`, `ClosingSection`) còn file nhưng không còn hiển thị.
+`UrgentJobsSection`, `StreetSceneSection` (2026-11-20, gộp vào ④ / bỏ) và các section cũ (`FitSection`,
+`OpportunitiesSection`, `HowItWorksSection`, `ClosingSection`) còn file nhưng không còn hiển thị.
 
 Cơ chế quan trọng (đọc comment trong từng file trước khi sửa):
 - **Logo là một phần tử duy nhất** — chính logo trong header (`PublicLayout`), được
   `IntroHero` điều khiển qua data-attribute: `data-brand-logo`, `data-header-item`,
   `data-header-bg`. Header/hero mặc định ở trạng thái cuối; JS chỉ thêm intro → tắt JS
   hoặc bật “giảm chuyển động” vẫn dùng được.
-- **Màu theo section**: mỗi section có `data-theme`; `useSectionThemes` nội suy biến CSS
+- **Màu theo section**: mỗi section có `data-theme` (trang chủ nay đều `night` → chữ ngà trên nền xanh); `useSectionThemes` nội suy biến CSS
   `--page-bg` theo cuộn, còn `--page-fg` đổi ở mốc 50% bằng CSS transition (`@property`)
   để chữ không bao giờ trùng màu nền. Dùng token Tailwind `page-bg/fg/muted/line/surface/edge`.
 - **Nội dung placeholder** nằm ở `src/components/home/content.ts` (`homeSections`).

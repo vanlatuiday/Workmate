@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowUp, ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 
 import { useAuthStore } from '@context/authStore'
 import Reveal from '@components/motion/Reveal'
@@ -7,14 +7,14 @@ import TextReveal from '@components/motion/TextReveal'
 import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
 import { homeSections, homeSectionsByRole } from './content'
+import HomeSearchForm from './HomeSearchForm'
 
-type Props = {
-  /** Đưa người dùng về thanh tìm kiếm ở hero. */
-  onFindJob: () => void
-}
-
-/** Section ⑦ — lời kết trên nền đen ấm (night). Footer nằm ngay sau. */
-export default function FinalCtaSection({ onFindJob }: Props) {
+/**
+ * Section ⑦ — lời kết trên nền đen ấm (night). Footer nằm ngay sau.
+ * Khách / người tìm việc: ô tìm việc gọn (cùng form với hero; nút "Tìm việc" là điểm nhấn duy nhất).
+ * Nhà tuyển dụng / quản trị (hero không có ô tìm việc): nút dẫn tới việc của họ.
+ */
+export default function FinalCtaSection() {
   const role = useAuthStore((s) => s.user?.role)
   const recruiter = role === 'recruiter'
   const copy = recruiter ? homeSectionsByRole.recruiter.final : homeSections.final
@@ -38,22 +38,19 @@ export default function FinalCtaSection({ onFindJob }: Props) {
       <TextReveal
         id="home-final-title"
         text={copy.title}
-        className="max-w-[16ch] font-display text-display-lg font-semibold text-page-fg"
+        className="max-w-[18ch] font-display text-display-lg font-semibold text-page-fg"
       />
       <Reveal delay={0.2} className="mt-12">
-        <Magnetic>
-          {roleLink ? (
+        {roleLink ? (
+          <Magnetic>
             <Link to={roleLink.to} className={button}>
               <RollText>{roleLink.label}</RollText>
               <ArrowUpRight className="h-4 w-4" aria-hidden />
             </Link>
-          ) : (
-            <button type="button" onClick={onFindJob} className={button}>
-              <RollText>{homeSections.final.cta}</RollText>
-              <ArrowUp className="h-4 w-4" aria-hidden />
-            </button>
-          )}
-        </Magnetic>
+          </Magnetic>
+        ) : (
+          <HomeSearchForm size="sm" className="w-full max-w-2xl" />
+        )}
       </Reveal>
     </section>
   )

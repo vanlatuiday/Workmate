@@ -103,7 +103,7 @@ function Details({ row }: { row: Row }) {
   )
 }
 
-/** Nút "Xem chi tiết →" / "Quản lý tin →" của một việc */
+/** Nút "Xem tin này →" / "Quản lý tin →" của một việc */
 function RowLink({ row, label }: { row: Row; label: string }) {
   return (
     <Link to={row.href} data-cursor="Xem" className="group inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-wm-ivory">
@@ -162,7 +162,7 @@ export default function NewJobsSection() {
     : jobs.map((job) => ({ job, href: `/viec-lam/${job.id}` }))
   const count = items.length
   const empty = recruiter && rows.length === 0
-  const linkLabel = recruiter ? 'Quản lý tin' : 'Xem chi tiết'
+  const linkLabel = recruiter ? 'Quản lý tin' : 'Xem tin này'
   // Dựng bánh xe ghim hay danh sách tĩnh
   const wheel = wide && !reduced && !empty && count >= 2
 

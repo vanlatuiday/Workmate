@@ -4,8 +4,8 @@ export const heroTags = ['Barista', 'Bán hàng', 'Marketing', 'Giao hàng', 'Ph
 
 export const benefits = [
   {
-    title: 'Lịch rảnh là điều kiện, không phải tiêu chí phụ.',
-    body: 'Nhập giờ học, giờ làm hiện tại — chỉ những ca khớp với bạn mới được đề xuất.',
+    title: 'Chỉ gợi ý ca nằm trong giờ bạn rảnh.',
+    body: 'Nhập giờ học, giờ làm hiện tại. Chỉ những ca khớp với bạn mới được đề xuất.',
   },
   {
     title: 'Gần nhà, đúng quãng đường bạn muốn đi.',
@@ -35,13 +35,13 @@ const sampleJobs: SampleJob[] = [
 ]
 
 export const steps = [
-  { title: 'Tạo hồ sơ trong 5 phút', body: 'Kỹ năng, khu vực và lịch rảnh trong tuần — không cần CV dài.' },
+  { title: 'Tạo hồ sơ trong 5 phút', body: 'Kỹ năng, khu vực và lịch rảnh trong tuần là đủ.' },
   { title: 'Nhận gợi ý vừa khít', body: 'Mỗi việc làm kèm điểm phù hợp và lý do vì sao nó hợp với bạn.' },
   { title: 'Kết nối rồi mới trò chuyện', body: 'Hai bên cùng quan tâm thì kênh chat riêng mở ra, hẹn phỏng vấn ngay trong đó.' },
 ]
 
 export const brandStatement =
-  'Chúng tôi không đo thành công bằng số tin đăng, mà bằng số người thật sự đi làm.'
+  'Thành công của Workmate là số người thật sự đi làm.'
 
 /** Lời mở đầu trang chủ theo người đang xem. Khách: trung lập cho cả hai phía.
     `search` = hiện ô tìm việc; `actions` = các nút thay cho ô tìm việc. */
@@ -58,9 +58,9 @@ export const heroCopy: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin', Her
   guest: {
     title: 'Bạn đang cần gì hôm nay?',
     titleLines: ['Bạn đang cần gì', 'hôm nay?'],
-    lead: 'Một công việc vừa với lịch sống, hay một người làm đúng ca bạn thiếu — Workmate chỉ kết nối khi cả hai bên cùng phù hợp.',
+    lead: 'Một công việc vừa với lịch sống, hay một người làm đúng ca bạn thiếu. Workmate chỉ kết nối khi cả hai bên cùng phù hợp.',
     search: true,
-    actions: [{ label: 'Tôi cần tuyển người', href: '/dang-ky?role=recruiter' }],
+    actions: [{ label: 'Đăng tin tuyển người', href: '/dang-ky?role=recruiter' }],
   },
   jobseeker: {
     title: 'Hôm nay bạn muốn làm việc gì?',
@@ -72,7 +72,7 @@ export const heroCopy: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin', Her
   recruiter: {
     title: 'Bạn đang thiếu vị trí nào?',
     titleLines: ['Bạn đang thiếu', 'vị trí nào?'],
-    lead: 'Đăng tin với lịch làm và tiêu chí rõ ràng — Workmate gợi ý người rảnh đúng ca, sống gần và đủ kỹ năng.',
+    lead: 'Đăng tin với lịch làm và tiêu chí rõ ràng. Workmate gợi ý người rảnh đúng ca, sống gần và đủ kỹ năng.',
     search: false,
     actions: [
       { label: 'Đăng tin tuyển dụng', href: '/dang-tin' },
@@ -97,9 +97,8 @@ export const heroCopy: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin', Her
 export type Audience = 'guest' | 'jobseeker' | 'recruiter' | 'admin'
 
 export type HomeCopy = {
-  fit: { eyebrow: string; title: string; lead: string; items: { title: string; body: string }[] }
+  fit: { title: string; lead: string; items: { title: string; body: string }[] }
   opportunities: {
-    eyebrow: string
     title: string
     notice: string
     cardLabel: string
@@ -129,19 +128,17 @@ const sampleCandidates: SampleJob[] = [
 
 const guestCopy: HomeCopy = {
   fit: {
-    eyebrow: 'Tìm đúng nhịp',
-    title: 'Kết nối theo nhịp sống, không theo xấp hồ sơ.',
-    lead: 'Người tìm việc khai lịch rảnh, quãng đường và mức lương mong muốn; nhà tuyển dụng khai ca làm và tiêu chí — Workmate chỉ ghép khi hai bên thật sự khớp.',
+    title: 'Ghép việc theo lịch rảnh và quãng đường.',
+    lead: 'Người tìm việc khai lịch rảnh, quãng đường và mức lương mong muốn; nhà tuyển dụng khai ca làm và tiêu chí. Workmate chỉ ghép khi hai bên thật sự khớp.',
     items: [
-      { title: 'Lịch là điều kiện, không phải tiêu chí phụ.', body: 'Ca làm cần người và giờ rảnh của người làm phải khớp nhau trước khi được gợi ý.' },
+      { title: 'Ca làm chỉ được gợi ý khi khớp lịch.', body: 'Ca làm cần người và giờ rảnh của người làm phải khớp nhau trước khi được gợi ý.' },
       { title: 'Gần nhau, đúng quãng đường mong muốn.', body: 'Khoảng cách đi làm được tính sẵn cho cả hai phía.' },
       benefits[2],
     ],
   },
   opportunities: {
-    eyebrow: 'Đang diễn ra',
     title: 'Việc đang mở quanh Đà Nẵng.',
-    notice: 'Dữ liệu minh họa — không phải tin tuyển dụng thật',
+    notice: 'Dữ liệu minh họa, chưa phải tin tuyển dụng thật',
     cardLabel: 'Tin mẫu',
     cards: sampleJobs,
     link: { label: 'Xem việc làm', href: '/viec-lam' },
@@ -150,7 +147,7 @@ const guestCopy: HomeCopy = {
     title: 'Ba bước cho cả hai phía.',
     steps: [
       { title: 'Khai điều kiện thật', body: 'Người tìm việc: kỹ năng, khu vực, lịch rảnh. Nhà tuyển dụng: vị trí, ca làm, tiêu chí bắt buộc.' },
-      { title: 'Nhận gợi ý có lý do', body: 'Mỗi gợi ý kèm điểm phù hợp và vì sao — cho việc làm lẫn ứng viên.' },
+      { title: 'Nhận gợi ý có lý do', body: 'Mỗi gợi ý kèm điểm phù hợp và vì sao, cho cả việc làm lẫn ứng viên.' },
       matchStep,
     ],
   },
@@ -162,44 +159,40 @@ export const homeCopy: Record<Audience, HomeCopy> = {
   admin: guestCopy,
   jobseeker: {
     fit: {
-      eyebrow: 'Tìm đúng nhịp',
       title: 'Công việc phù hợp với nhịp sống của bạn.',
-      lead: 'Workmate bắt đầu từ lịch rảnh, quãng đường và mức lương bạn mong muốn — rồi mới tới danh sách việc làm.',
+      lead: 'Workmate bắt đầu từ lịch rảnh, quãng đường và mức lương bạn mong muốn, rồi mới tới danh sách việc làm.',
       items: benefits,
     },
     opportunities: {
-      eyebrow: 'Khám phá cơ hội',
       title: 'Việc đang chờ người như bạn.',
-      notice: 'Dữ liệu minh họa — không phải tin tuyển dụng thật',
+      notice: 'Dữ liệu minh họa, chưa phải tin tuyển dụng thật',
       cardLabel: 'Tin mẫu',
       cards: sampleJobs,
       link: { label: 'Xem việc phù hợp với tôi', href: '/tim-viec/phu-hop' },
     },
-    how: { title: 'Ba bước, không cần CV dài.', steps },
+    how: { title: 'Ba bước, chỉ cần lịch rảnh và kỹ năng.', steps },
     closing: { title: 'Việc tiếp theo của bạn bắt đầu từ đây.' },
   },
   recruiter: {
     fit: {
-      eyebrow: 'Tuyển đúng ca',
       title: 'Người làm khớp với ca bạn đang thiếu.',
-      lead: 'Workmate bắt đầu từ ca làm, khu vực và tiêu chí bắt buộc của bạn — rồi mới tới danh sách ứng viên.',
+      lead: 'Workmate bắt đầu từ ca làm, khu vực và tiêu chí bắt buộc của bạn, rồi mới tới danh sách ứng viên.',
       items: [
         { title: 'Lịch làm là điều kiện.', body: 'Chỉ ứng viên rảnh đúng ca bạn cần mới được gợi ý.' },
-        { title: 'Ứng viên sống gần chỗ làm.', body: 'Lọc theo quãng đường ứng viên chấp nhận đi — ít bỏ ca, ít nghỉ ngang.' },
-        { title: 'Chỉ kết nối khi cả hai bên cùng muốn.', body: 'Bạn và ứng viên cùng quan tâm thì kênh trò chuyện mới mở — không phải đọc hàng trăm CV rải.' },
+        { title: 'Ứng viên sống gần chỗ làm.', body: 'Lọc theo quãng đường ứng viên chấp nhận đi. Ít bỏ ca, ít nghỉ ngang.' },
+        { title: 'Chỉ kết nối khi cả hai bên cùng muốn.', body: 'Bạn và ứng viên cùng quan tâm thì kênh trò chuyện mới mở. Bạn chỉ xem hồ sơ khớp ca cần người.' },
       ],
     },
     opportunities: {
-      eyebrow: 'Ứng viên quanh bạn',
       title: 'Người đang rảnh đúng ca bạn cần.',
-      notice: 'Dữ liệu minh họa — không phải hồ sơ thật',
+      notice: 'Dữ liệu minh họa, chưa phải hồ sơ thật',
       cardLabel: 'Hồ sơ mẫu',
       cardHref: '/tuyen-dung/ung-vien-phu-hop',
       cards: sampleCandidates,
       link: { label: 'Xem ứng viên phù hợp', href: '/tuyen-dung/ung-vien-phu-hop' },
     },
     how: {
-      title: 'Ba bước, không cần đọc trăm CV.',
+      title: 'Ba bước, từ đăng tin đến phỏng vấn.',
       steps: [
         { title: 'Đăng tin có tiêu chí', body: 'Vị trí, ca làm theo từng ngày, mức lương và tiêu chí bắt buộc.' },
         { title: 'Nhận ứng viên vừa khít', body: 'Mỗi ứng viên kèm điểm phù hợp và lý do: rảnh đúng ca, ở gần, đủ kỹ năng.' },
@@ -216,21 +209,35 @@ export const homeCopy: Record<Audience, HomeCopy> = {
 export const homeSections = {
   /** Chú thích gắn ở các hàng thẻ việc làm */
   sampleNote: 'Dữ liệu minh họa',
-  urgent: { title: 'Việc đang tuyển gấp', all: { label: 'Xem tất cả', href: '/viec-lam' } },
-  /** Lời dẫn của section ③ (khối ảnh dọc) — title ngắt dòng bằng '|' */
-  blocksIntro: {
-    eyebrow: 'Workmate giúp bạn thế nào',
-    title: 'Việc làm|vừa với|nhịp sống.',
-    lead: 'Khai lịch rảnh và khu vực một lần, phần còn lại để Workmate lo — từ gợi ý ca khớp giờ đến kết nối hai bên.',
-    footer: 'đà nẵng   ·   2026',
+  /** Câu nhấn ở giữa trang (StatementSection): từng từ sáng dần theo cuộn */
+  statement: 'Workmate ghép việc theo lịch rảnh, quãng đường và kỹ năng của từng người.',
+  /** 3 tiêu chí bên phải câu nhấn (StatementSection). `word`: từ trong câu mà khi sáng tới thì mục này sáng theo */
+  statementCriteria: {
+    guest: [
+      { key: 'lich', word: 'rảnh,', title: 'Lịch rảnh', body: 'Chọn các buổi bạn đi làm được trong tuần.', cta: { label: 'Khai lịch rảnh', href: '/dang-ky?role=jobseeker' } },
+      { key: 'duong', word: 'đường', title: 'Quãng đường', body: 'Đặt khoảng cách tối đa từ nhà tới chỗ làm.', cta: { label: 'Đặt quãng đường', href: '/dang-ky?role=jobseeker' } },
+      { key: 'kynang', word: 'năng', title: 'Kỹ năng', body: 'Ghi những việc bạn đã làm hoặc làm được.', cta: { label: 'Thêm kỹ năng', href: '/dang-ky?role=jobseeker' } },
+    ],
+    jobseeker: [
+      { key: 'lich', word: 'rảnh,', title: 'Lịch rảnh', body: 'Cập nhật buổi rảnh để gợi ý luôn khớp lịch.', cta: { label: 'Sửa lịch rảnh', href: '/tim-viec/ho-so#lich-ranh' } },
+      { key: 'duong', word: 'đường', title: 'Quãng đường', body: 'Đổi khu vực và khoảng cách bạn muốn đi làm.', cta: { label: 'Sửa quãng đường', href: '/tim-viec/ho-so#thong-tin' } },
+      { key: 'kynang', word: 'năng', title: 'Kỹ năng', body: 'Thêm kỹ năng để có thêm việc phù hợp.', cta: { label: 'Thêm kỹ năng', href: '/tim-viec/ho-so#kinh-nghiem' } },
+    ],
+    recruiter: [
+      { key: 'lich', word: 'rảnh,', title: 'Ca làm', body: 'Khai đúng ca cần người, Workmate tìm người rảnh ca đó.', cta: { label: 'Khai ca làm', href: '/dang-tin' } },
+      { key: 'duong', word: 'đường', title: 'Khu vực', body: 'Ứng viên được gợi ý theo quãng đường tới cửa hàng.', cta: { label: 'Chọn khu vực tuyển', href: '/dang-tin' } },
+      { key: 'kynang', word: 'năng', title: 'Kỹ năng', body: 'Ghi kỹ năng bắt buộc để lọc đúng người.', cta: { label: 'Ghi kỹ năng cần', href: '/dang-tin' } },
+    ],
   },
+  urgent: { title: 'Việc đang tuyển gấp', all: { label: 'Xem việc tuyển gấp', href: '/viec-lam' } },
   blocks: [
     {
       id: 'schedule',
       label: 'Lịch rảnh',
       title: 'Việc tự tìm đến bạn',
-      body: 'Khai lịch rảnh một lần — những ca khớp với giờ học, giờ làm của bạn sẽ được gợi ý, không phải ngồi lọc từng tin.',
+      body: 'Khai lịch rảnh một lần, những ca khớp với giờ học, giờ làm của bạn sẽ được gợi ý.',
       cta: 'Tạo hồ sơ',
+      detailLabel: 'Xem cách khớp lịch',
     },
     {
       id: 'near',
@@ -238,13 +245,15 @@ export const homeSections = {
       title: 'Gần nhà, đúng quãng đường',
       body: 'Đặt bán kính di chuyển bạn chấp nhận, Workmate chỉ hiện việc nằm trong tầm đó.',
       cta: 'Xem việc gần tôi',
+      detailLabel: 'Xem cách tính quãng đường',
     },
     {
       id: 'match',
       label: 'Kết nối',
       title: 'Kết nối rồi mới trò chuyện',
-      body: 'Hai bên cùng quan tâm thì kênh chat riêng mới mở ra — không tin nhắn rải, không bị làm phiền.',
+      body: 'Hai bên cùng quan tâm thì kênh chat riêng mới mở ra.',
       cta: 'Xem kết nối',
+      detailLabel: 'Xem cách kết nối',
     },
     {
       id: 'guide',
@@ -252,12 +261,13 @@ export const homeSections = {
       title: 'Cẩm nang đi làm',
       body: 'Viết hồ sơ ngắn gọn, đi phỏng vấn ca đầu tiên, hiểu quyền lợi của người làm linh hoạt.',
       cta: 'Đọc cẩm nang',
+      detailLabel: 'Xem cẩm nang',
     },
   ],
-  fresh: { title: 'Việc mới đăng', all: { label: 'Xem tất cả', href: '/viec-lam' } },
+  fresh: { title: 'Việc mới đăng', all: { label: 'Xem việc mới đăng', href: '/viec-lam' } },
   explore: {
-    title: 'Khám phá theo nhóm',
-    /** `q` là từ khóa lọc ở /viec-lam; số việc đếm thật từ danh mục demo */
+    title: 'Việc theo khu vực và hình thức',
+    /** Nhóm ngành của bảng ca (`categories.ts`): `q` là từ khóa lọc ở /viec-lam, cũng dùng để xếp việc vào nhóm */
     categories: [
       { key: 'pha_che', label: 'Pha chế', q: 'Pha chế' },
       { key: 'ban_hang', label: 'Bán hàng', q: 'Bán hàng' },
@@ -269,11 +279,11 @@ export const homeSections = {
     types: 'Hình thức',
   },
   recruiter: {
-    title: 'Bạn đang thiếu người?',
+    title: 'Tuyển người theo ca làm',
     body: 'Đăng tin kèm ca làm và tiêu chí rõ ràng, Workmate gợi ý người rảnh đúng ca và sống gần chỗ làm.',
     cta: { label: 'Đăng tin tuyển dụng', href: '/dang-tin' },
   },
-  final: { title: 'Chưa thấy việc hợp với bạn?', cta: 'Tìm việc ngay' },
+  final: { title: 'Tìm việc theo lịch rảnh của bạn' },
 }
 
 /**
@@ -285,39 +295,34 @@ export const homeSectionsByRole = {
   jobseeker: {
     urgent: {
       title: 'Việc hợp với bạn',
-      all: { label: 'Xem tất cả', href: '/tim-viec/phu-hop' },
+      all: { label: 'Xem việc phù hợp với tôi', href: '/tim-viec/phu-hop' },
       /** aria-label của nút ‹ › */
       prev: 'Xem các việc trước',
       next: 'Xem các việc tiếp theo',
     },
     /** Tấm tối ⑥: người tìm việc thấy lời mời tìm việc thay cho lời mời đăng tin */
     panel: {
-      title: 'Bạn đang tìm việc?',
-      body: 'Khai lịch rảnh và khu vực một lần, Workmate gợi ý việc đúng ca, gần nhà, không cần CV dài.',
+      title: 'Tìm việc hợp lịch rảnh của bạn',
+      body: 'Khai lịch rảnh và khu vực một lần, Workmate gợi ý việc đúng ca, gần nhà.',
       cta: { label: 'Xem việc phù hợp với tôi', href: '/tim-viec/phu-hop' },
     },
   },
   recruiter: {
     urgent: {
       title: 'Ứng viên sẵn sàng đi làm',
-      all: { label: 'Xem tất cả', href: '/tuyen-dung/tim-ung-vien' },
+      all: { label: 'Xem ứng viên sẵn sàng', href: '/tuyen-dung/tim-ung-vien' },
       prev: 'Xem các ứng viên trước',
       next: 'Xem các ứng viên tiếp theo',
     },
     blocksLabel: 'Workmate giúp bạn tìm người thế nào',
-    blocksIntro: {
-      eyebrow: 'Workmate giúp bạn tìm người thế nào',
-      title: 'Người đúng ca|ở ngay|gần bạn.',
-      lead: 'Đăng tin kèm ca làm và vị trí, Workmate gợi ý những ứng viên đang rảnh và sống quanh cửa hàng của bạn.',
-      footer: 'đà nẵng   ·   2026',
-    },
     blocks: [
       {
         id: 'slots',
         label: 'Đúng ca',
         title: 'Người rảnh đúng ca bạn cần',
-        body: 'Đăng tin kèm ca làm, Workmate chỉ gợi ý những người đang rảnh đúng các ca đó — không phải đọc từng hồ sơ.',
+        body: 'Đăng tin kèm ca làm, Workmate gợi ý những người đang rảnh đúng các ca đó.',
         cta: 'Đăng tin tuyển dụng',
+        detailLabel: 'Xem cách chọn ca',
         href: '/dang-tin',
       },
       {
@@ -326,6 +331,7 @@ export const homeSectionsByRole = {
         title: 'Ứng viên sống gần cửa hàng',
         body: 'Người ở gần đi làm đúng giờ và gắn bó lâu hơn. Xem ai quanh cửa hàng đang sẵn sàng nhận việc.',
         cta: 'Tìm ứng viên',
+        detailLabel: 'Xem cách tìm người gần',
         href: '/match', // trang web, không vào dashboard
       },
     ],
@@ -349,24 +355,16 @@ export const homeSectionsByRole = {
       },
     },
     explore: {
-      title: 'Tìm ứng viên theo nhóm',
-      /** `skill` là từ khóa khớp kỹ năng của ứng viên (không dấu, chữ thường) */
-      categories: [
-        { key: 'pha_che', label: 'Pha chế', skill: 'pha che' },
-        { key: 'ban_hang', label: 'Bán hàng', skill: 'ban hang' },
-        { key: 'phuc_vu', label: 'Phục vụ', skill: 'phuc vu' },
-        { key: 'thu_ngan', label: 'Thu ngân', skill: 'thu ngan' },
-      ],
+      title: 'Ứng viên theo khu vực và kỹ năng',
       districts: 'Khu vực',
       skills: 'Kỹ năng',
-      unit: 'ứng viên',
     },
     panel: {
       title: 'Hoàn thiện trang công ty',
       body: 'Trang công ty đầy đủ giúp ứng viên tin tưởng hơn và dễ nhận lời hơn.',
       cta: { label: 'Hoàn thiện trang công ty', href: '/tuyen-dung/ho-so-cong-ty' },
     },
-    final: { title: 'Cần thêm người?', cta: { label: 'Đăng tin tuyển dụng', href: '/dang-tin' } },
+    final: { title: 'Đăng tin cho ca đang thiếu', cta: { label: 'Đăng tin tuyển dụng', href: '/dang-tin' } },
   },
 }
 
@@ -407,4 +405,48 @@ export const heroPreview = {
     footer: 'Tin đã duyệt tuần này',
     count: 128,
   },
+}
+
+/**
+ * Bảng ca "đang cần người" (dưới hero): chữ theo vai trò. Quản trị xem như khách.
+ * `empty` nhận tên tab (Hôm nay / Ngày mai / Cuối tuần) ở dạng chữ thường.
+ */
+export const shiftBoardCopy = {
+  guest: {
+    title: 'Ca đang cần người tuần này',
+    link: { label: 'Xem việc theo ca', href: '/viec-lam' },
+    apply: 'Ứng tuyển',
+    applied: 'Đã ứng tuyển',
+    emptyLink: 'Xem việc theo ca',
+  },
+  jobseeker: {
+    title: 'Ca khớp lịch rảnh của bạn tuần này',
+    link: { label: 'Xem việc theo ca', href: '/viec-lam' },
+    apply: 'Ứng tuyển',
+    applied: 'Đã ứng tuyển',
+    emptyLink: 'Xem việc theo ca',
+  },
+  recruiter: {
+    title: 'Ca của bạn đang cần người',
+    link: { label: 'Xem tin của bạn', href: '/tuyen-dung/tin-dang' },
+    candidates: 'Xem ứng viên',
+    emptyLink: 'Đăng tin tuyển người',
+    emptyHref: '/dang-tin',
+  },
+  note: 'Dữ liệu minh họa, chưa phải tin tuyển dụng thật',
+  carouselLabel: 'Các nghề đang cần người',
+  prevLabel: 'Xem nghề trước',
+  nextLabel: 'Xem nghề tiếp theo',
+  moreLabel: 'Xem thêm nghề',
+  fitLabel: (n: number) => `${n}% hợp`,
+  freeLabel: (n: number) => (n === 0 ? 'Chưa có ứng viên rảnh ca này' : `${n} ứng viên rảnh ca này`),
+  /** Thẻ ngành */
+  catStats: (shifts: number, companies: number) => `${shifts} ca · ${companies} doanh nghiệp đang cần người`,
+  catEarliest: (when: string) => `Sớm nhất: ${when}`,
+  catHint: 'Xem doanh nghiệp',
+  listTitle: (cat: string) => `Doanh nghiệp tuyển ${cat.toLowerCase()}`,
+  close: 'Đóng',
+  closeLabel: (cat: string) => `Đóng danh sách ${cat.toLowerCase()}`,
+  emptyText: 'Chưa có ca nào trong 7 ngày tới.',
+  emptyJobseeker: 'Chưa có ca nào trong 7 ngày tới nằm trong lịch rảnh của bạn.',
 }

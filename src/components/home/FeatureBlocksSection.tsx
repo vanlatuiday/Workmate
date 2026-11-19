@@ -8,7 +8,6 @@ import { useMediaQuery } from "@hooks/useMediaQuery";
 import { useCompanyStore } from "@context/companyStore";
 import { cn } from "@utils/cn";
 import { photoSrcSet, photoUrl } from "@components/discover/types";
-import TextReveal from "@components/motion/TextReveal";
 import {
   EMPTY_FILTERS,
   filtersToParams,
@@ -48,7 +47,7 @@ const POINTS: Record<string, string[]> = {
   ],
   match: [
     "Hai bên cùng quan tâm mới mở chat",
-    "Không tin nhắn rác",
+    "Chat chỉ mở sau khi hai bên kết nối",
     "Hẹn phỏng vấn ngay trong chat",
   ],
   guide: [
@@ -60,7 +59,7 @@ const POINTS: Record<string, string[]> = {
   slots: [
     "Đăng tin kèm ca làm",
     "Chỉ gợi ý người rảnh đúng ca",
-    "Không phải đọc từng hồ sơ",
+    "Chỉ xem hồ sơ khớp ca",
   ],
   nearby: [
     "Xem ứng viên quanh cửa hàng",
@@ -73,10 +72,10 @@ const POINTS: Record<string, string[]> = {
 const DETAIL: Record<string, { detail: string; steps: string[] }> = {
   schedule: {
     detail:
-      "Bạn đánh dấu các buổi rảnh trong tuần — sáng, chiều, tối từ thứ Hai tới Chủ nhật. Workmate so từng ca của tin tuyển dụng với lịch đó và chỉ đưa lên những việc nằm gọn trong giờ bạn rảnh.",
+      "Bạn đánh dấu các buổi rảnh trong tuần: sáng, chiều, tối từ thứ Hai tới Chủ nhật. Workmate so từng ca của tin tuyển dụng với lịch đó và chỉ đưa lên những việc nằm gọn trong giờ bạn rảnh.",
     steps: [
       "Tạo hồ sơ và chọn các buổi rảnh trong tuần",
-      "Xem việc phù hợp — điểm khớp lịch hiện ngay trên từng tin",
+      "Xem việc phù hợp, điểm khớp lịch hiện ngay trên từng tin",
       "Đổi lịch bất cứ lúc nào, gợi ý tự cập nhật theo",
     ],
   },
@@ -91,7 +90,7 @@ const DETAIL: Record<string, { detail: string; steps: string[] }> = {
   },
   match: {
     detail:
-      "Bạn ứng tuyển, doanh nghiệp quan tâm hồ sơ — chỉ khi cả hai cùng đồng ý, kênh chat riêng mới mở. Họ tên đầy đủ, số điện thoại và CV chỉ hiện sau khi đã kết nối.",
+      "Bạn ứng tuyển, doanh nghiệp quan tâm hồ sơ. Chỉ khi cả hai cùng đồng ý, kênh chat riêng mới mở. Họ tên đầy đủ, số điện thoại và CV chỉ hiện sau khi đã kết nối.",
     steps: [
       "Ứng tuyển những việc bạn thấy hợp",
       "Theo dõi đơn: doanh nghiệp đã xem, đang cân nhắc, đồng ý kết nối",
@@ -119,11 +118,11 @@ const DETAIL: Record<string, { detail: string; steps: string[] }> = {
   },
   nearby: {
     detail:
-      "Ứng viên ghi khu vực và quãng đường chấp nhận đi làm. Bạn thấy ngay ai đang ở quanh cửa hàng — người ở gần thường đi làm đúng giờ và gắn bó lâu hơn.",
+      "Ứng viên ghi khu vực và quãng đường chấp nhận đi làm. Bạn thấy ngay ai đang ở quanh cửa hàng. Người ở gần thường đi làm đúng giờ và gắn bó lâu hơn.",
     steps: [
       "Đặt bán kính tuyển khi đăng tin",
       "Xem ứng viên quanh cửa hàng ở trang Kết nối",
-      "Quan tâm — hai bên cùng đồng ý thì kênh chat mở",
+      "Quan tâm, hai bên cùng đồng ý thì kênh chat mở",
     ],
   },
 };
@@ -138,6 +137,8 @@ type Block = {
   title: string;
   body: string;
   cta: string;
+  /** Nhãn nút lật thẻ ở mặt trước */
+  detailLabel: string;
   href: string;
 };
 
@@ -158,7 +159,7 @@ const pill =
 
 /**
  * Một hàng của danh sách: thẻ chia đôi, ảnh trái – chữ phải (mobile: ảnh trên, chữ dưới).
- * Nửa chữ là "trang giấy" có bản lề ở cạnh trái (giữa thẻ). Bấm "Xem chi tiết" thì trang xoay
+ * Nửa chữ là "trang giấy" có bản lề ở cạnh trái (giữa thẻ). Bấm nút ở mặt trước thì trang xoay
  * rotateY 0 → 180° (lật từ phải sang trái, như sang trang sách) và nằm đè lên nửa ảnh: mặt sau
  * là trang trái, còn trang phải mới (các bước bắt đầu) lộ ra bên dưới. Mobile: phần chữ xoay tại
  * chỗ, mặt sau chứa cả hai phần xếp dọc. Giảm chuyển động: không xoay, chỉ mờ chéo ~0,2s.
@@ -445,7 +446,7 @@ function BlockRow({
                   onClick={() => flip(true)}
                   className={cn(pill, "mt-6")}
                 >
-                  Xem chi tiết
+                  {block.detailLabel}
                 </button>
               </div>
             </div>
@@ -581,13 +582,8 @@ export default function FeatureBlocksSection() {
             .map((b) => ({ ...b, href: HREF[b.id] })),
     [recruiter],
   );
-  const intro = recruiter
-    ? homeSectionsByRole.recruiter.blocksIntro
-    : homeSections.blocksIntro;
   const count = blocks.length;
   const chips = useChipJobs(blocks, role);
-  // Tiêu đề "Việc làm|vừa với|nhịp sống." → gộp các dòng thành một câu
-  const title = intro.title.split("|").join(" ");
 
   useGSAP(
     () => {
@@ -639,22 +635,8 @@ export default function FeatureBlocksSection() {
           : "Workmate giúp bạn thế nào"
       }
     >
-      <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
-        <div>
-          <p className="eyebrow text-page-muted">
-                        {intro.eyebrow}
-          </p>
-          <TextReveal
-            text={title}
-            className="mt-6 max-w-[14ch] font-display text-display-md font-semibold text-page-fg"
-          />
-        </div>
-        <p className="max-w-sm text-sm leading-relaxed text-page-muted">
-          {intro.lead}
-        </p>
-      </div>
-
-      <ol ref={listRef} className="mt-12 md:mt-16">
+      {/* Không còn tiêu đề dẫn: câu nhấn ngay phía trên đã nói cùng ý */}
+      <ol ref={listRef}>
         {blocks.map((block, i) => (
           <BlockRow
             key={block.id}

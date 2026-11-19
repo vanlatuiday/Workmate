@@ -22,11 +22,15 @@ Alias: `@/`, `@components`, `@pages`, `@hooks`, `@context`, `@services`, `@utils
 - Nút/icon nổi cố định trên màn hình (vd. nút tin nhắn) phải gắn `data-floating`: tự ẩn ở màn mở đầu trang chủ (chỉ còn chữ Workmate), hiện khi lướt tới banner.
 
 ## Skills
-- `workmate-ui` — **luôn dùng** khi sửa/thêm UI. Ưu tiên: yêu cầu người dùng > DESIGN.md > workmate-ui > skill khác.
+- `workmate-ui` — **luôn dùng** khi sửa/thêm UI. Ưu tiên: yêu cầu người dùng > DESIGN.md > workmate-ui > skill khác (taste skill xếp cuối).
 - `frontend-design` — định hướng sáng tạo khi thiết kế trang mới (không ghi đè DESIGN.md).
 - `ui-ux-pro-max` — tra cứu/nghiên cứu UX (`python3 "${CLAUDE_SKILL_DIR}/scripts/search.py" …`), chỉ tham khảo.
 - `web-design-guidelines` — audit UI (tải luật từ GitHub, cần mạng).
 - `vercel-react-best-practices` — hiệu năng React; bỏ qua quy tắc riêng cho Next.js/server.
+- `design-taste-frontend` (taste skill, gitignore — cài lại: `npx skills add Leonxlnx/taste-skill -a claude-code -y`) — **chỉ để góp ý**, không thiết kế lại:
+  dùng quy tắc viết chữ (`references/copy*.md`), bộ kiểm tra trên trang thật (lề, tràn, nút nhỏ, tương phản, tốc độ) và thư viện "moments" làm ý tưởng (viết lại bằng GSAP/React).
+  KHÔNG dùng bước "deal" (tự chọn hero/bảng màu/font), không đổi nền, hero, bảng màu hay hiệu ứng chủ dự án đã duyệt.
+  Quy tắc của nó trái với thiết kế đã chốt (cấm thẻ nghiêng, màu tím, chuyển động theo cuộn/chuột, ghi chú "Dữ liệu minh họa"…) → báo chủ dự án, không tự sửa; lỗi chấm điểm do khác quan điểm ghi miễn trừ vào `.taste-skill/waivers.json`.
 
 ## Phân công Opus → Sonnet
 Opus (phiên chính) = tech lead: phân tích, lập kế hoạch, quyết định kiến trúc, review, xử lý việc khó.
