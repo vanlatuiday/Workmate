@@ -26,6 +26,12 @@ class SettingsService {
   }
 
   async update(userId: string, dto: UpdateSettingsDto) {
+    // Người tìm việc chỉ có hai mức: công khai / riêng tư (connected). "hidden" cũ của họ = riêng tư.
+    // Nhà tuyển dụng dùng hidden để tắt "Công khai trang công ty" nên giữ nguyên.
+    if (dto.visibility === 'hidden') {
+      const u = await this.prisma.user.findUnique({ where: { id: userId }, select: { role: true } })
+      if (u?.role === 'jobseeker') dto.visibility = 'connected'
+    }
     for (const [kind, on] of Object.entries(dto.notify ?? {})) {
       if (!Object.keys(NotificationKind).includes(kind) || typeof on !== 'boolean') throw new BadRequestException(`Cài đặt thông báo không hợp lệ: ${kind}`)
     }
