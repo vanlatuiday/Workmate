@@ -1,4 +1,4 @@
-// /cam-nang/:slug — bài viết mẫu
+// /cam-nang/:slug — một bài cẩm nang
 import { Link, useParams } from 'react-router-dom'
 import { photoUrl } from '@components/discover/types'
 import { FOCUS } from '@utils/focus'
@@ -27,7 +27,7 @@ export default function ArticlePage() {
           <ProseBlock key={p}>{p}</ProseBlock>
         ))}
       </div>
-      <Link to="/cam-nang" className={`link-underline rounded-control text-sm text-page-fg ${FOCUS}`}>← Tất cả bài viết</Link>
+      <Link to="/cam-nang" className={`link-underline rounded-control text-sm text-page-fg ${FOCUS}`}>Về cẩm nang</Link>
     </ContentPage>
   )
 }

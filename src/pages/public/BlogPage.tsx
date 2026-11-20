@@ -1,4 +1,4 @@
-// /cam-nang — danh sách bài mẫu, dàn theo video tham khảo references/p7.mp4:
+// /cam-nang — danh sách bài, dàn theo video tham khảo references/p7.mp4:
 // tiêu đề lớn + đoạn giới thiệu bên phải, lưới 2 cột thẻ ảnh lớn.
 // Chuyển động: thẻ trồi lên khi vào khung (Rise, chạy lại khi cuộn ngược), ảnh trong thẻ trôi chậm hơn thẻ (parallax).
 import { useRef } from 'react'
@@ -48,7 +48,7 @@ function ArticleCard({ a, index }: { a: Article; index: number }) {
           </div>
         </div>
 
-        <p className="mt-5 text-xs uppercase tracking-wide text-page-muted">
+        <p className="mt-5 text-sm text-page-muted">
           {[...a.tags, `${a.readMin} phút đọc`].join(' • ')}
         </p>
         <h2 className="relative mt-2 font-display text-xl font-normal text-page-fg md:text-2xl">
@@ -83,7 +83,6 @@ export default function BlogPage() {
           <p className="leading-relaxed text-page-muted">
             Mẹo nhỏ cho đường việc làm: viết CV, đi phỏng vấn, cân bằng học và làm.
           </p>
-          <p className="mt-3 text-sm text-page-muted">Bài viết mẫu — sẽ được thay bằng nội dung thật.</p>
         </Reveal>
       </div>
 
@@ -98,7 +97,7 @@ export default function BlogPage() {
       <div className="mt-16 flex justify-center md:mt-24">
         <Link
           to="/viec-lam"
-          className={`rounded-control text-xs uppercase tracking-wide text-page-fg underline-offset-8 transition-opacity hover:underline ${FOCUS}`}
+          className={`rounded-control text-sm text-page-fg underline-offset-8 transition-opacity hover:underline ${FOCUS}`}
         >
           Xem việc làm
         </Link>
