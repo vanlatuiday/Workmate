@@ -9,7 +9,7 @@ import { FOCUS } from '@utils/focus'
 export function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-6 first:mt-0">
-      <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-page-muted">{title}</h3>
+      <h3 className="text-sm font-medium text-page-muted">{title}</h3>
       <div className="mt-2.5 text-base leading-relaxed">{children}</div>
     </section>
   )

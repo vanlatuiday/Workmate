@@ -59,7 +59,7 @@ export default function ReviewDialog({ viewer, jobId, seekerId, targetName, onCl
                 type="button"
                 role="radio"
                 aria-checked={stars === n}
-                aria-label={`${n} sao — ${STAR_WORDS[n - 1]}`}
+                aria-label={`${n} sao: ${STAR_WORDS[n - 1]}`}
                 tabIndex={stars === n || (!stars && n === 1) ? 0 : -1}
                 onClick={() => setStars(n)}
                 onKeyDown={(e) => onStarKey(e, n)}

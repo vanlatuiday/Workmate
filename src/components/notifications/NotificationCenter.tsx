@@ -223,7 +223,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
             </div>
             <div className="border-t border-page-line px-4 py-3 text-center">
               <Link to="/thong-bao" onClick={closeCenter} className={cn(LINK, 'text-sm font-medium underline')}>
-                Xem tất cả
+                Xem mọi thông báo
               </Link>
             </div>
           </div>

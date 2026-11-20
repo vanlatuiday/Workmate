@@ -91,7 +91,7 @@ function JobCard({ job, outcome, saved, onToggleSave }: Scored & { saved: boolea
           to={`/viec-lam/${job.id}`}
           className={cn(BTN_PRIMARY, BTN_SM)}
         >
-          Xem chi tiết
+          Xem việc này
         </Link>
         <button
           type="button"
@@ -100,7 +100,7 @@ function JobCard({ job, outcome, saved, onToggleSave }: Scored & { saved: boolea
           onClick={() => setOpen((v) => !v)}
           className={`ml-auto inline-flex items-center gap-1 rounded-control text-sm text-page-fg underline underline-offset-4 ${FOCUS}`}
         >
-          Vì sao phù hợp?
+          Xem lý do phù hợp
           <ChevronDown className={cn('h-4 w-4 transition-transform duration-base', open && 'rotate-180')} aria-hidden="true" />
         </button>
       </div>

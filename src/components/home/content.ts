@@ -30,7 +30,7 @@ const sampleJobs: SampleJob[] = [
   { title: 'Nhân viên bán hàng',         location: 'Hải Châu, Đà Nẵng',     type: 'Theo ca',       salary: '4–5 triệu/tháng' },
   { title: 'Thực tập sinh marketing',    location: 'Sơn Trà, Đà Nẵng',      type: 'Toàn thời gian', salary: 'Thỏa thuận' },
   { title: 'Nhân viên phục vụ',          location: 'Ngũ Hành Sơn, Đà Nẵng', type: 'Cuối tuần',     salary: '30.000đ/giờ' },
-  { title: 'Cộng tác viên bán online',   location: 'Làm từ xa',             type: 'Linh hoạt',     salary: 'Theo hoa hồng' },
+  { title: 'Cộng tác viên bán hàng trực tuyến',   location: 'Làm từ xa',             type: 'Linh hoạt',     salary: 'Theo hoa hồng' },
   { title: 'Nhân viên giao hàng',        location: 'Toàn thành phố',        type: 'Theo ngày',     salary: '200.000đ/ngày' },
 ]
 
@@ -92,7 +92,7 @@ export const heroCopy: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin', Her
 }
 
 /* ── Nội dung giữa trang chủ theo người đang xem ───────────────────────────
-   Khách (và admin): trung lập, nói cho cả hai phía. Ứng viên / NTD: nói với đúng vai trò. */
+   Khách (và admin): trung lập, nói cho cả hai phía. Ứng viên / nhà tuyển dụng: nói với đúng vai trò. */
 
 export type Audience = 'guest' | 'jobseeker' | 'recruiter' | 'admin'
 
@@ -122,7 +122,7 @@ const sampleCandidates: SampleJob[] = [
   { title: 'Bán hàng · sinh viên năm 3', location: 'Hải Châu · cách 2,5 km', type: 'Rảnh buổi chiều', salary: 'Mong muốn 22.000đ/giờ' },
   { title: 'Thực tập marketing', location: 'Sơn Trà · cách 4 km', type: 'Toàn thời gian', salary: 'Thỏa thuận' },
   { title: 'Phục vụ · cuối tuần', location: 'Ngũ Hành Sơn · cách 3,2 km', type: 'Rảnh T7–CN', salary: 'Mong muốn 28.000đ/giờ' },
-  { title: 'Cộng tác bán online', location: 'Làm từ xa', type: 'Linh hoạt', salary: 'Theo hoa hồng' },
+  { title: 'Cộng tác bán hàng trực tuyến', location: 'Làm từ xa', type: 'Linh hoạt', salary: 'Theo hoa hồng' },
   { title: 'Giao hàng · có xe máy', location: 'Toàn thành phố', type: 'Theo ngày', salary: 'Mong muốn 200.000đ/ngày' },
 ]
 
@@ -223,7 +223,7 @@ export const homeSections = {
     jobseeker: [
       { key: 'lich', word: 'rảnh,', title: 'Lịch rảnh', body: 'Cập nhật buổi rảnh để gợi ý luôn khớp lịch.', cta: { label: 'Sửa lịch rảnh', href: '/tim-viec/ho-so#lich-ranh' } },
       { key: 'duong', word: 'đường', title: 'Quãng đường', body: 'Đổi khu vực và khoảng cách bạn muốn đi làm.', cta: { label: 'Sửa quãng đường', href: '/tim-viec/ho-so#thong-tin' } },
-      { key: 'ketnoi', word: 'kết', title: 'Kết nối', body: 'Doanh nghiệp đồng ý thì kênh chat với bạn mở ra.', cta: { label: 'Xem việc đã ứng tuyển', href: '/match' } },
+      { key: 'ketnoi', word: 'kết', title: 'Kết nối', body: 'Nhà tuyển dụng đồng ý thì kênh chat với bạn mở ra.', cta: { label: 'Xem việc đã ứng tuyển', href: '/match' } },
     ],
     recruiter: [
       { key: 'lich', word: 'rảnh,', title: 'Ca làm', body: 'Khai đúng ca cần người, Workmate tìm người rảnh ca đó.', cta: { label: 'Khai ca làm', href: '/dang-tin' } },

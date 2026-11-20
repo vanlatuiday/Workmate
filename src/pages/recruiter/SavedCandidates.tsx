@@ -7,7 +7,7 @@ import { EmptyState, MatchScore, PageHeader, Panel, StatusBadge } from '@compone
 import { useMatchStore } from '@context/matchStore'
 import { useCandidates, usePositions } from '@pages/public/match/data'
 import { useCandidateMatches } from '@services/matchingService'
-import { expressInterest, useOnNewConnection, usePairStatuses } from '@services/connectionService'
+import { CONNECTED_MESSAGE, expressInterest, useOnNewConnection, usePairStatuses } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import FadeIn from '@components/motion/FadeIn'
@@ -32,7 +32,7 @@ export default function SavedCandidates() {
   // Điểm do máy chủ tính theo từng tin; chưa có điểm thì không hiện phần trăm
   const { outcomeOf } = useCandidateMatches(positions.map((p) => p.id))
 
-  useOnNewConnection(() => notifySuccess('Đã kết nối — giờ hai bên nhắn tin được'))
+  useOnNewConnection(() => notifySuccess(CONNECTED_MESSAGE))
 
   // Khóa dạng `positionId:candidateId` → nhóm theo tin; bỏ khóa không còn khớp dữ liệu
   const groups = positions.map((position) => ({

@@ -5,7 +5,7 @@ import { Bookmark, MapPin } from 'lucide-react'
 import { EmptyState, MatchScore, PageHeader, Panel, SkeletonList, StatusBadge } from '@components/dashboard'
 import { useCatalogStore } from '@context/catalogStore'
 import { useMatchStore } from '@context/matchStore'
-import { APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStages, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
+import { CONNECTED_MESSAGE, APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStages, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
 import { useAllJobs, useSeekerOutcomes } from '@pages/public/jobs/catalog'
 import { companyOf } from '@pages/public/match/data'
 import { cn } from '@utils/cn'
@@ -34,7 +34,7 @@ export default function SavedJobs() {
   const { outcomeOf } = useSeekerOutcomes()
 
   useOnNewConnection((c) => {
-    if (c.seekerId === ME) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
+    if (c.seekerId === ME) notifySuccess(CONNECTED_MESSAGE)
   })
 
   // Giữ thứ tự lưu, bỏ id không còn trong danh mục

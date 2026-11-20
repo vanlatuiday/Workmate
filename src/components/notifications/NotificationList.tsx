@@ -91,7 +91,7 @@ const targetOf = (n: DemoNotification) => {
   }
 }
 
-/** Nút "Đánh dấu đã đọc tất cả" (tự tắt khi không còn thông báo chưa đọc) */
+/** Nút "Đánh dấu tất cả là đã đọc" (tự tắt khi không còn thông báo chưa đọc) */
 export function MarkAllReadButton({ viewer, className }: { viewer: Side; className?: string }) {
   const items = useNotifications(viewer)
   const unread = items.filter((n) => !n.read).length
@@ -102,7 +102,7 @@ export function MarkAllReadButton({ viewer, className }: { viewer: Side; classNa
       onClick={() => markAllNotificationsRead(viewer)}
       className={cn(BTN_SECONDARY, BTN_SM, className)}
     >
-      Đánh dấu đã đọc tất cả
+      Đánh dấu tất cả là đã đọc
     </button>
   )
 }

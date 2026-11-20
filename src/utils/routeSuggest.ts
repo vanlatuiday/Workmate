@@ -21,29 +21,29 @@ const PUBLIC: RouteEntry[] = [
 ]
 
 const SEEKER: RouteEntry[] = [
-  { to: '/tim-viec', label: 'Bảng điều khiển ứng viên' },
+  { to: '/tim-viec', label: 'Tổng quan người tìm việc' },
   { to: '/tim-viec/phu-hop', label: 'Việc phù hợp' },
   { to: '/tim-viec/da-luu', label: 'Việc đã lưu' },
-  { to: '/tim-viec/ung-tuyen', label: 'Đơn ứng tuyển' },
-  { to: '/tim-viec/match', label: 'Ghép việc của tôi' },
+  { to: '/tim-viec/ung-tuyen', label: 'Đã ứng tuyển' },
+  { to: '/tim-viec/match', label: 'Kết nối của tôi' },
   { to: '/tim-viec/cv', label: 'Quản lý CV' },
-  { to: '/tim-viec/ho-so', label: 'Hồ sơ ứng viên' },
+  { to: '/tim-viec/ho-so', label: 'Hồ sơ của tôi' },
   { to: '/tim-viec/cai-dat', label: 'Cài đặt' },
 ]
 
 const RECRUITER: RouteEntry[] = [
-  { to: '/tuyen-dung', label: 'Bảng điều khiển tuyển dụng' },
-  { to: '/tuyen-dung/tin-dang', label: 'Tin đã đăng' },
-  { to: '/dang-tin', label: 'Đăng tin tuyển dụng' },
+  { to: '/tuyen-dung', label: 'Tổng quan nhà tuyển dụng' },
+  { to: '/tuyen-dung/tin-dang', label: 'Tin tuyển dụng' },
+  { to: '/dang-tin', label: 'Đăng tin' },
   { to: '/tuyen-dung/tim-ung-vien', label: 'Tìm ứng viên' },
   { to: '/tuyen-dung/ung-vien-da-luu', label: 'Ứng viên đã lưu' },
-  { to: '/tuyen-dung/match', label: 'Ghép ứng viên' },
+  { to: '/tuyen-dung/match', label: 'Kết nối ứng viên' },
   { to: '/tuyen-dung/ho-so-cong-ty', label: 'Hồ sơ công ty' },
   { to: '/tuyen-dung/cai-dat', label: 'Cài đặt' },
 ]
 
 const ADMIN: RouteEntry[] = [
-  { to: '/admin', label: 'Quản trị' },
+  { to: '/admin', label: 'Khu quản trị' },
   { to: '/admin/nguoi-dung', label: 'Người dùng' },
   { to: '/admin/nha-tuyen-dung', label: 'Nhà tuyển dụng' },
   { to: '/admin/tin-tuyen-dung', label: 'Tin tuyển dụng' },

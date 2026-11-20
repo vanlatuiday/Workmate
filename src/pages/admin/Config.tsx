@@ -122,11 +122,11 @@ export default function Config() {
       <Panel title="Kiểm duyệt tin">
         <p className="text-xs text-page-muted">Hệ thống bỏ dấu và bỏ dấu chấm/khoảng trắng chèn giữa chữ khi dò, nên chỉ cần nhập cụm từ bình thường.</p>
         <WordList
-          id={`${uid}-banned`} title="Cấm tuyệt đối — tin chứa cụm này bị tự từ chối" noun="từ cấm"
+          id={`${uid}-banned`} title="Cấm tuyệt đối: tin chứa cụm này bị tự từ chối" noun="từ cấm"
           words={form.bannedWords} onChange={(w) => patch({ bannedWords: w })}
         />
         <WordList
-          id={`${uid}-suspect`} title="Đáng ngờ — tin chứa cụm này được giữ lại chờ duyệt" noun="cụm đáng ngờ"
+          id={`${uid}-suspect`} title="Đáng ngờ: tin chứa cụm này được giữ lại chờ duyệt" noun="cụm đáng ngờ"
           words={form.suspectWords ?? []} onChange={(w) => patch({ suspectWords: w })}
         />
 

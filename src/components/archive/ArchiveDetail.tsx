@@ -202,7 +202,7 @@ export default function ArchiveDetail({
 
         <div data-body className="flex min-h-0 flex-1 flex-col">
           <header className="flex items-center justify-between gap-4 border-b border-page-line px-6 py-4 md:px-8">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-page-muted">
+            <p className="text-sm font-medium text-page-muted">
               {eyebrow} :: {entry.number}
             </p>
             <button

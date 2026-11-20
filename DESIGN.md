@@ -55,8 +55,8 @@ themes:          # tên theme dùng trong data-theme="…"
   graphite: { bg: graphite, fg: ivory }
 
 typography:
-  font-display: "Plus Jakarta Sans (500–700)"
-  font-body: "Inter (400–500)"
+  font-display: "Plus Jakarta Sans (400–700)"
+  font-body: "Inter (400–700)"
   display-lg: { size: "clamp(2.75rem, 7vw, 5.5rem)", lineHeight: 1.06, letterSpacing: "-0.03em", class: text-display-lg }
   display-md: { size: "clamp(2.5rem, 6vw, 4.5rem)",  lineHeight: 1.08, letterSpacing: "-0.03em", class: text-display-md }
   display-sm: { size: "clamp(2rem, 4.5vw, 3.25rem)", lineHeight: 1.12, letterSpacing: "-0.025em", class: text-display-sm }
@@ -230,6 +230,8 @@ một lần khi cuộn tới (`ShiftBoardSection`) và câu lớn sáng dần t�
 không câu "X, không phải Y"; không dấu gạch dài "—" trong chữ hiển thị; không nhãn in hoa trên tiêu đề section;
 tiêu đề section không là câu hỏi (riêng tiêu đề hero giữ câu hỏi — chủ dự án chọn).
 
+**Chữ (2026-11-20, rà soát):** không "—" trong chữ hiển thị; không tiêu đề câu hỏi (trừ tiêu đề hero trang chủ); không "Xem tất cả" (dùng động từ + đối tượng, vd. "Xem mọi đơn ứng tuyển"); dùng "…" thay "..."; không nhãn in hoa; thông báo thành công không dấu "!"; "Bán thời gian"/"Toàn thời gian" thay "Part-time"/"Full-time"; hai họ chữ (Plus Jakarta Sans, Inter).
+
 ### Trang bìa các trang khác (2026-11-20, chủ dự án chọn phương án c — đang làm thử 3 trang)
 
 `components/common/PageCover.tsx`, dùng lại ảnh nền trang chủ:
@@ -237,10 +239,11 @@ tiêu đề section không là câu hỏi (riêng tiêu đề hero giữ câu h�
 - **md** (khám phá, thử ở `/viec-lam`): ~34svh, cột tia sáng, không cam; h1 + số liệu thật + ô tìm kiếm kính tối trong bìa.
 - **strip** (khu quản lý, thử ở `/tim-viec`): 140–168px, tĩnh hoàn toàn; breadcrumb + h1 + nút; vạch 2px màu vai trò ở đáy.
 - Mọi cấp: chữ hiện một lần khi tải (`.pc-rise`), không chạy theo cuộn. Mép dưới bìa tan về cùng màu đầu `DarkPageBody` (`.pc-cover-fade` / `.pc-body-fade`).
-- **Dưới bìa:** trang công khai → `DarkPageBody` (nền sóng tia sáng tĩnh + abyss 34%, chữ ngà, thẻ kính tối) và footer tối (`PublicLayout` `DARK_BODY_PATHS`); khu quản lý → nội dung giữ nền ngà, chỉ dải trên cùng xanh.
+- **Dưới bìa:** trang công khai → `DarkPageBody` (nền sóng tia sáng tĩnh + abyss tối dần, chữ ngà, thẻ kính tối) và footer tối (`PublicLayout` `DARK_BODY_PATHS`); khu quản lý → nội dung giữ nền ngà, chỉ dải trên cùng xanh.
 - `/viec-lam`: ô tìm kiếm và thẻ chi tiết đổi từ `glass-liquid` ngà sang kính tối (thay mô tả ở "Ngoại lệ thứ ba").
 - `/match` (Kết nối, 2026-11-20): bìa md + nền tối; tab và nút chế độ xem dạng kính tối, mục chọn màu ngà; WebGL bỏ ánh vàng ấm (xám trung tính khi nghỉ). MatchDetail và ngăn Tiêu chí vẫn là tấm ngà.
-- **Sáng hơn (2026-11-20):** phủ abyss bìa lg 25%, md 30%, nội dung 20% (`.pc-body-dim`) + tia sáng thở rất nhẹ (tối đa 0,2); dải mỏng ảnh 60%.
+- **Nền nội dung lặng hơn (2026-11-20, chủ dự án duyệt phương án B):** bìa giữ nguyên độ sáng; `DarkPageBody` tối dần khi cuộn (`.pc-body-dim`: abyss 30% → 62% trong 140svh), tia sáng dạt ra hai mép nhờ lớp `.pc-body-calm` (cột giữa abyss 60% từ 30% đến 70% ngang + night 22% cho bớt bão hòa), không còn tia sáng "thở" trong thân trang. Cả hai lớp dùng chung mặt nạ tan từ 0 ở đầu nên nối liền với bìa. Dải mỏng ảnh 60%.
+- **Tấm ngà (2026-11-20, đang thử; đã bỏ ánh màu vai trò vì không hiệu quả):** `<PageCover sheet>` bỏ lớp tan dần `.pc-cover-fade` (đáy bìa giữ abyss, mép gọn) và nội dung bọc bằng `IvoryPageBody` (tấm ngà bo góc trên `rounded-lg`, kéo lên 24px, `data-surface="light"`) — sửa vết chuyển xanh → ngà bị đục. Thử ở `/cong-ty`.
 - **Hiệu ứng:** thẻ không có liên kết chỉ sáng viền/icon/góc khi rê (không nhấc); thẻ có liên kết nhấc 2px. `/nha-tuyen-dung` có 1 khoảnh khắc: đường nối "Quy trình" sáng dần, vòng số sáng khi đường chạm tới (dọc trên điện thoại). `/viec-lam`: thẻ chi tiết viền + quầng xanh ngọc, công ty đang xem có vạch sáng. Khu quản lý: chỉ hiệu ứng khi rê (ô số liệu, dòng việc phù hợp).
 
 ### Header (QUY TẮC CỐ ĐỊNH — chủ dự án chốt 2026-11-16)
@@ -306,7 +309,7 @@ và class `.btn-*`, `.card`, `.input`, `.badge-*` khỏi `index.css`. Mọi tran
 
 ## Typography
 
-- **Plus Jakarta Sans** cho display và tiêu đề thẻ; **Inter** cho nội dung (cả hai có bộ chữ tiếng Việt). Tải từ Google Fonts trong `index.html`.
+- **Plus Jakarta Sans** cho display và tiêu đề thẻ; **Inter** cho nội dung (cả hai có bộ chữ tiếng Việt). Chỉ hai họ chữ, tải từ Google Fonts trong `index.html` với độ đậm 400–700 (Playfair Display đã gỡ 2026-11-20, không còn `font-serif`). Không dùng nhãn in hoa (`uppercase`) hay giãn chữ rộng; nhãn nhỏ là `text-sm font-medium text-page-muted`.
 - Thang chữ display co giãn theo viewport (`clamp`), nên **không** cần đổi class theo breakpoint.
 - Line-height display 1.06–1.12 — nới hơn thông lệ vì dấu chồng tiếng Việt (ấ, ỗ, ặ). Không hạ xuống dưới 1.05.
 - Đặt `max-w-[14ch]–[22ch]` cho tiêu đề lớn để xuống dòng có chủ đích.

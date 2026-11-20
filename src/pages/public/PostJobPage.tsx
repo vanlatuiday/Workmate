@@ -294,7 +294,7 @@ export default function PostJobPage() {
             {skills.length > 0 && (
               <div role="group" aria-labelledby="pj-required">
                 <p id="pj-required" className="mb-2 text-sm text-page-muted">
-                  Kỹ năng nào là bắt buộc? Bấm để đánh dấu — ứng viên thiếu sẽ bị xếp ở mức chưa phù hợp (tối đa 39%). Còn lại là ưu tiên, thiếu chỉ bị trừ điểm.
+                  Kỹ năng nào là bắt buộc? Bấm để đánh dấu: ứng viên thiếu sẽ bị xếp ở mức chưa phù hợp (tối đa 39%). Còn lại là ưu tiên, thiếu chỉ bị trừ điểm.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {skills.map((s) => {
@@ -354,7 +354,7 @@ export default function PostJobPage() {
               {banned.length > 0 && (
                 <p role="status" className="flex items-start gap-2 rounded-control bg-danger-soft px-3 py-2 text-sm text-danger">
                   <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                  Tin có cụm từ không được phép: {banned.join(', ')}. Tin sẽ bị từ chối tự động — hãy sửa trước khi đăng.
+                  Tin có cụm từ không được phép: {banned.join(', ')}. Tin sẽ bị từ chối tự động, hãy sửa trước khi đăng.
                 </p>
               )}
             </div>

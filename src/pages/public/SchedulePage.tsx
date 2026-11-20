@@ -136,7 +136,7 @@ function Schedule({ viewer }: { viewer: Side }) {
             ]}
           >
             {lists[tab].length === 0 ? (
-              <EmptyState icon={CalendarX} title={empty[tab]} description={viewer === 'recruiter' ? 'Mời ứng viên đã kết nối phỏng vấn ở trang Kết nối hoặc Tin nhắn.' : 'Khi doanh nghiệp mời phỏng vấn, lịch sẽ hiện ở đây.'} />
+              <EmptyState icon={CalendarX} title={empty[tab]} description={viewer === 'recruiter' ? 'Mời ứng viên đã kết nối phỏng vấn ở trang Kết nối hoặc Tin nhắn.' : 'Khi nhà tuyển dụng mời phỏng vấn, lịch sẽ hiện ở đây.'} />
             ) : tab === 'upcoming' ? (
               groups.map((g) => (
                 <div key={g.key} id={`day-${g.key}`} className="mb-8 scroll-mt-24">

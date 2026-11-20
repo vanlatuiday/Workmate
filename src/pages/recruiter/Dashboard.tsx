@@ -108,7 +108,7 @@ export default function RecruiterDashboard() {
         <FadeIn className="[&>section]:h-full">
         <Panel
           title="Ứng viên vừa quan tâm"
-          action={<Link to="/match" className={LINK}>Xem tất cả</Link>}
+          action={<Link to="/match" className={LINK}>Xem mọi ứng viên quan tâm</Link>}
         >
           {interested.length === 0 ? (
             <EmptyState

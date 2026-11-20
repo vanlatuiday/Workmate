@@ -48,7 +48,7 @@ function PreviewDialog({ cv, onClose }: { cv: CvMeta; onClose: () => void }) {
           </button>
         </div>
         <div className="min-h-0 flex-1 overflow-auto p-4">
-          {missing && <p className="py-12 text-center text-sm text-page-muted">Không mở được file, vui lòng thử lại.</p>}
+          {missing && <p className="py-12 text-center text-sm text-page-muted">Không mở được tệp, vui lòng thử lại.</p>}
           {!missing && !url && <div role="status" className="space-y-3 py-6"><span className="sr-only">Đang tải…</span><Skeleton className="mx-auto h-48 w-full max-w-md" /></div>}
           {url && (cv.type === 'application/pdf'
             ? <iframe title={`Xem trước ${cv.name}`} src={url} className="h-full min-h-[60vh] w-full rounded-control border border-page-line" />
@@ -85,7 +85,7 @@ function CvRow({ cv, isDefault, onPreview }: { cv: CvMeta; isDefault: boolean; o
       a.href = await fileUrl(cv.id, true)
       a.click()
     } catch {
-      notifyError('Không tải được file, vui lòng thử lại.')
+      notifyError('Không tải được tệp, vui lòng thử lại.')
     }
   }
 
@@ -198,9 +198,9 @@ export default function CVManager() {
           className={cn('flex flex-col items-center rounded-card border border-dashed px-6 py-10 text-center transition-colors', dragging ? 'border-page-fg bg-page-bg' : 'border-page-edge')}
         >
           <Upload className="mb-3 h-6 w-6 text-page-muted" aria-hidden="true" />
-          <p className="text-sm text-page-fg">Kéo file vào đây hoặc</p>
-          <button type="button" className={cn(BTN_ACCENT, 'mt-3')} disabled={uploading} onClick={() => inputRef.current?.click()}>{uploading ? 'Đang tải lên…' : 'Chọn file'}</button>
-          <input ref={inputRef} type="file" multiple accept={CV_TYPES.join(',')} className="sr-only" tabIndex={-1} aria-label="Chọn file CV"
+          <p className="text-sm text-page-fg">Kéo tệp vào đây hoặc</p>
+          <button type="button" className={cn(BTN_ACCENT, 'mt-3')} disabled={uploading} onClick={() => inputRef.current?.click()}>{uploading ? 'Đang tải lên…' : 'Chọn tệp'}</button>
+          <input ref={inputRef} type="file" multiple accept={CV_TYPES.join(',')} className="sr-only" tabIndex={-1} aria-label="Chọn tệp CV"
             onChange={(e) => { if (e.target.files) void upload(e.target.files); e.target.value = '' }} />
           <p className="mt-3 text-xs text-page-muted">PDF hoặc ảnh, tối đa 5MB, tối đa {CV_MAX_COUNT} CV.</p>
         </div>

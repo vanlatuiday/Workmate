@@ -151,7 +151,7 @@ export default function NewJobsSection() {
   const rows = useCompanyJobs(useCompanyStore((s) => s.id)).slice(0, 6)
   const numbers = useJobNumbers(rows.map((r) => r.job))
   const copy = recruiter ? mine : homeSections.fresh
-  const phrase = `${copy.title.toUpperCase()}`
+  const phrase = `${copy.title}`
 
   const items: Row[] = recruiter
     ? rows.map((r) => ({
@@ -393,7 +393,7 @@ export default function NewJobsSection() {
       >
         <div
           data-marquee
-          className="flex w-max whitespace-nowrap font-display text-[clamp(1.75rem,4.2vw,3.85rem)] font-semibold uppercase leading-[1.05] tracking-[-0.04em]"
+          className="flex w-max whitespace-nowrap font-display text-[clamp(1.75rem,4.2vw,3.85rem)] font-semibold leading-[1.05] tracking-[-0.04em]"
         >
           {[0, 1].map((g) => (
             <div key={g} className="flex shrink-0">

@@ -48,7 +48,7 @@ export default function JobseekerDashboard() {
         role="jobseeker"
         breadcrumb={[{ label: 'Khu tìm việc', to: '/tim-viec' }, { label: 'Tổng quan' }]}
         title="Tổng quan"
-        lead={`Xin chào, ${name}. 3 việc hợp nhất với hồ sơ và lịch rảnh của bạn đang chờ ở dưới.`}
+        lead={`Xin chào, ${name}. 3 việc phù hợp nhất với hồ sơ và lịch rảnh của bạn đang chờ ở dưới.`}
         actions={<Link to="/tim-viec/phu-hop" className={cn(BTN_PRIMARY, BTN_SM)}>Xem việc phù hợp</Link>}
       />
 
@@ -63,7 +63,7 @@ export default function JobseekerDashboard() {
         <FadeIn className="lg:col-span-2 [&>section]:h-full">
         <Panel
           title="Việc phù hợp với bạn"
-          action={<Link to="/tim-viec/phu-hop" className={LINK}>Xem tất cả</Link>}
+          action={<Link to="/tim-viec/phu-hop" className={LINK}>Xem mọi việc phù hợp</Link>}
         >
           {(!catalogLoaded || !scoresReady) && jobs.length === 0 ? <SkeletonList rows={3} label="Đang tải việc phù hợp…" /> : (
           <ul className="divide-y divide-page-line">
@@ -123,7 +123,7 @@ export default function JobseekerDashboard() {
       <FadeIn className="mt-6">
       <Panel
         title="Đơn ứng tuyển gần đây"
-        action={<Link to="/tim-viec/ung-tuyen" className={LINK}>Xem tất cả</Link>}
+        action={<Link to="/tim-viec/ung-tuyen" className={LINK}>Xem mọi đơn ứng tuyển</Link>}
       >
         {recent.length === 0 ? (
           <EmptyState icon={ClipboardList} title="Chưa có đơn ứng tuyển" description="Hãy ứng tuyển việc đầu tiên." />

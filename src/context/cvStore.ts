@@ -75,7 +75,7 @@ export const useCvStore = create<CvState>()((set, get) => {
       // Kiểm tra trước ở trình duyệt cho nhanh; máy chủ vẫn kiểm tra lại
       if (!CV_TYPES.includes(file.type)) return 'Chỉ nhận file PDF hoặc ảnh (PNG, JPG, WEBP).'
       if (file.size > CV_MAX_BYTES) return 'File lớn hơn 5MB.'
-      if (get().items.length >= CV_MAX_COUNT) return `Tối đa ${CV_MAX_COUNT} CV — xóa bớt rồi tải lên.`
+      if (get().items.length >= CV_MAX_COUNT) return `Tối đa ${CV_MAX_COUNT} CV. Xóa bớt một CV rồi tải lên lại.`
       const form = new FormData()
       form.append('file', file)
       try {

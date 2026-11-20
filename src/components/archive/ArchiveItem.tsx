@@ -111,7 +111,7 @@ const ArchiveItem = forwardRef<HTMLButtonElement, Props>(function ArchiveItem(
         onPointerCancel={onUp}
         onPointerLeave={onLeave}
         aria-haspopup="dialog"
-        aria-label={`${entry.number} — ${entry.title}. ${entry.caption}`}
+        aria-label={`${entry.number}, ${entry.title}. ${entry.caption}`}
         data-cursor={entry.cursor}
         className={cn(
           'group block w-full touch-manipulation select-none rounded-card text-left',

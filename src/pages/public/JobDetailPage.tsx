@@ -7,7 +7,7 @@ import { Bookmark, Check } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { useMatchStore } from '@context/matchStore'
 import { useCatalogStore } from '@context/catalogStore'
-import { APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStage, useOnNewConnection, usePairStatuses, withdrawInterest } from '@services/connectionService'
+import { CONNECTED_MESSAGE, APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStage, useOnNewConnection, usePairStatuses, withdrawInterest } from '@services/connectionService'
 import { JOB_TYPES } from '@constants/index'
 import { Facts, PrimaryLink, TextLink } from '@components/discover/parts'
 import DetailHero from '@components/discover/detail/DetailHero'
@@ -37,7 +37,7 @@ function SeekerActions({ job }: { job: MatchJob }) {
 
   // Kết nối mới (kể cả do doanh nghiệp đáp lại sau vài giây) → báo thành công
   useOnNewConnection((c) => {
-    if (c.jobId === job.id && c.seekerId === ME) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
+    if (c.jobId === job.id && c.seekerId === ME) notifySuccess(CONNECTED_MESSAGE)
   })
 
   const apply = () => {

@@ -116,7 +116,7 @@ function Cursor() {
       <div aria-hidden className="pointer-events-none fixed inset-0 z-[100]">
         <motion.div
           className="absolute left-0 top-0 flex items-center justify-center rounded-full border
-                     text-[11px] font-medium uppercase tracking-[0.14em]
+                     text-xs font-medium
                      transition-[background-color,border-color] duration-300"
           style={{ x: ringX, y: ringY, translateX: '-50%', translateY: '-50%', ...RING_STYLE[variant] }}
           animate={{

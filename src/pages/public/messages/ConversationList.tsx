@@ -52,7 +52,7 @@ export default function ConversationList({ viewer, conversations, activeKey, onS
           <EmptyState
             icon={MessageSquare}
             title="Chưa có cuộc trò chuyện nào"
-            description="Kết nối ở trang Kết nối để bắt đầu."
+            description="Khi hai bên kết nối ở trang Kết nối, cuộc trò chuyện sẽ hiện ở đây."
             action={
               <Link to="/match" className={cn('rounded-control text-sm underline underline-offset-4 text-page-fg', FOCUS)}>
                 Đến trang Kết nối
@@ -84,7 +84,7 @@ export default function ConversationList({ viewer, conversations, activeKey, onS
                     <span className="block truncate text-xs text-page-muted">{info.subtitle}</span>
                     <span className="mt-0.5 flex items-center justify-between gap-2">
                       <span className={cn('truncate text-sm', c.unread > 0 ? 'text-page-fg' : 'text-page-muted')}>
-                        {c.last ? `${c.last.from === viewer ? 'Bạn: ' : ''}${c.last.text}` : 'Chưa có tin nhắn — hãy chào trước'}
+                        {c.last ? `${c.last.from === viewer ? 'Bạn: ' : ''}${c.last.text}` : 'Chưa có tin nhắn. Hãy gửi lời chào trước.'}
                       </span>
                       {c.unread > 0 && (
                         <span className="shrink-0 rounded-full bg-page-fg px-2 text-xs font-medium text-page-bg">

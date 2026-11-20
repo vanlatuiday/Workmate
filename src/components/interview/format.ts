@@ -8,4 +8,4 @@ export const fmtSlot = (iso: string) =>
 export const fmtShort = (iso: string) =>
   new Date(iso).toLocaleString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 
-export const MODE_LABEL: Record<InterviewMode, string> = { onsite: 'Trực tiếp', online: 'Online' }
+export const MODE_LABEL: Record<InterviewMode, string> = { onsite: 'Trực tiếp', online: 'Trực tuyến' }

@@ -11,9 +11,9 @@ export const HIRE_LABEL: Record<Side, Record<HireStatus, string>> = {
   recruiter: {
     offered: 'Chờ xác nhận đi làm',
     accepted: 'Đã đi làm',
-    declined: 'Ứng viên từ chối',
+    declined: 'Ứng viên đã từ chối',
     withdrawn: 'Đã rút lời mời',
-    rejected: 'Đã không nhận',
+    rejected: 'Đã từ chối ứng viên',
   },
   seeker: {
     offered: 'Có lời mời nhận việc',

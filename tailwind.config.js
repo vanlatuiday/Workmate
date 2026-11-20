@@ -42,8 +42,6 @@ export default {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
         display: ['"Plus Jakarta Sans"', 'Inter', 'ui-sans-serif', 'system-ui'],
-        // Chữ có chân — CHỈ cho chữ Workmate ở header và các link trong menu phủ toàn màn hình
-        serif: ['"Playfair Display"', 'ui-serif', 'Georgia', 'serif'],
       },
       fontSize: {
         // Chữ lớn theo viewport cho các "màn" statement.

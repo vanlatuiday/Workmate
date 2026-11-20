@@ -38,7 +38,7 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
   const [devCode, setDevCode] = useState('')
   useFocusFirst(root, focus || !!pendingEmail, pendingEmail)
   const { touch, show, submit } = useFieldTouch(root)
-  const nameErr = form.fullName.trim() ? undefined : role === 'recruiter' ? 'Vui lòng nhập tên người liên hệ' : 'Vui lòng nhập họ và tên'
+  const nameErr = form.fullName.trim() ? undefined : role === 'recruiter' ? 'Vui lòng nhập tên người liên hệ.' : 'Vui lòng nhập họ và tên.'
   const emailErr = registerEmailError(form.email)
   const passErr = passwordMinError(form.password)
   const confirmErr = confirmError(form.confirm, form.password)
@@ -159,7 +159,7 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
               />
             </Item>
             <Item className="pt-2">
-              <SubmitButton loading={loading} idle="Xác nhận và vào Workmate" busy="Đang xác nhận..." />
+              <SubmitButton loading={loading} idle="Xác nhận và vào Workmate" busy="Đang xác nhận…" />
             </Item>
           </form>
           <Item className="mt-2">
@@ -271,7 +271,7 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
           </Item>
 
           <Item className="pt-2">
-            <SubmitButton loading={loading} idle="Tiếp tục" busy="Đang gửi mã xác nhận..." />
+            <SubmitButton loading={loading} idle="Tiếp tục" busy="Đang gửi mã xác nhận…" />
           </Item>
         </form>
 

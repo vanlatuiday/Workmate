@@ -217,14 +217,17 @@ export function getPairStatus(viewer: Side, jobId: string, seekerId: string): Pa
   return 'none'
 }
 
+/** Thông báo khi hai bên vừa kết nối (dùng chung mọi nơi) */
+export const CONNECTED_MESSAGE = 'Đã kết nối. Giờ hai bên nhắn tin được.'
+
 /** Bày tỏ quan tâm (người tìm việc: ứng tuyển; doanh nghiệp: quan tâm ứng viên). Hiện ngay, máy chủ từ chối thì hoàn lại */
 export function expressInterest(from: Side, jobId: string, seekerId: string) {
   if (getPairStatus(from, jobId, seekerId) === 'sent' || getPairStatus(from, jobId, seekerId) === 'connected') return
   setStore((s) => ({ interests: [...s.interests, { from, jobId, seekerId, at: new Date().toISOString() }] }))
   void write(() => api.post(`/connections/${pairPath(jobId, seekerId)}/interest`), 'Chưa gửi được quan tâm, vui lòng thử lại.', () =>
     getPairStatus(from, jobId, seekerId) === 'connected'
-      ? 'Đã kết nối — giờ hai bên nhắn tin được'
-      : from === 'seeker' ? 'Đã ứng tuyển — chờ doanh nghiệp phản hồi' : 'Đã quan tâm — chờ ứng viên phản hồi')
+      ? CONNECTED_MESSAGE
+      : from === 'seeker' ? 'Đã ứng tuyển, đang chờ nhà tuyển dụng phản hồi' : 'Đã quan tâm, đang chờ ứng viên phản hồi')
 }
 
 /** Rút quan tâm — không rút được khi đã kết nối */
@@ -238,7 +241,7 @@ export function withdrawInterest(from: Side, jobId: string, seekerId: string) {
 export type ApplicationStage = 'applied' | 'viewed' | 'considering'
 export const APPLICATION_STAGE_LABEL: Record<ApplicationStage, string> = {
   applied: 'chờ phản hồi',
-  viewed: 'doanh nghiệp đã xem',
+  viewed: 'nhà tuyển dụng đã xem',
   considering: 'đang được cân nhắc',
 }
 
@@ -476,7 +479,7 @@ export const rejectCandidate = (jobId: string, seekerId: string, reason?: string
 /** Doanh nghiệp rút lời mời khi còn chờ */
 export const withdrawOffer = (jobId: string, seekerId: string) => void write(() => api.post(`/hires/${pairPath(jobId, seekerId)}/withdraw`), HIRE_ERROR, 'Đã rút lời mời')
 /** Người tìm việc xác nhận đi làm — lúc này cặp mới tính là "đã đi làm" */
-export const acceptOffer = (jobId: string, seekerId: string) => void write(() => api.post(`/hires/${pairPath(jobId, seekerId)}/accept`), HIRE_ERROR, 'Đã xác nhận đi làm. Chúc bạn một khởi đầu thuận lợi!')
+export const acceptOffer = (jobId: string, seekerId: string) => void write(() => api.post(`/hires/${pairPath(jobId, seekerId)}/accept`), HIRE_ERROR, 'Đã xác nhận đi làm. Chúc bạn khởi đầu thuận lợi.')
 export const declineOffer = (jobId: string, seekerId: string, reason?: string) =>
   void write(() => api.post(`/hires/${pairPath(jobId, seekerId)}/decline`, { reason }), HIRE_ERROR, 'Đã từ chối lời mời')
 
@@ -530,7 +533,7 @@ export function reviewStats(list: { stars: number }[]): { average: number; count
 /** Gửi đánh giá — máy chủ kiểm tra đã tới ngày đi làm và chưa đánh giá */
 export const submitReview = (input: { jobId: string; seekerId: string; from: Side; stars: number; tags: string[]; comment?: string }) => {
   const { jobId, seekerId, stars, tags, comment } = input
-  void write(() => api.post('/reviews', { jobId, seekerId: toServer(seekerId), stars, tags, comment: comment?.trim() || undefined }), 'Chưa gửi được đánh giá, vui lòng thử lại.', 'Đã gửi đánh giá. Cảm ơn bạn!')
+  void write(() => api.post('/reviews', { jobId, seekerId: toServer(seekerId), stars, tags, comment: comment?.trim() || undefined }), 'Chưa gửi được đánh giá, vui lòng thử lại.', 'Đã gửi đánh giá. Cảm ơn bạn.')
 }
 
 // ─── Danh sách cho dashboard ────────────────────────────────────────────────

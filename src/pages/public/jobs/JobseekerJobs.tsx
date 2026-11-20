@@ -47,7 +47,7 @@ export default function JobseekerJobs() {
   const jobCount = items.reduce((n, x) => n + x.jobs.length, 0)
   const allJobs = useAllJobs()
   const companyCount = useCatalogStore((s) => s.companies.length)
-  const fact = `${allJobs.length} việc đang tuyển · ${companyCount} doanh nghiệp`
+  const fact = `${allJobs.length} việc đang tuyển · ${companyCount} công ty`
 
   return (
     <>
@@ -67,7 +67,7 @@ export default function JobseekerJobs() {
             description="Thử bỏ bớt điều kiện hoặc gõ từ khóa khác."
             action={
               <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className={BTN_SECONDARY}>
-                Xóa lọc
+                Xóa bộ lọc
               </button>
             }
           />
@@ -82,8 +82,8 @@ export default function JobseekerJobs() {
       />
       )}
       <ClosingBand
-        title="Muốn xem việc theo lịch của bạn?"
-        text="Trang Việc phù hợp xếp tin theo lịch rảnh, khoảng cách và mức lương bạn đã khai trong hồ sơ."
+        title="Xem việc khớp lịch rảnh của bạn"
+        text="Trang Việc phù hợp xếp tin theo kỹ năng, lịch rảnh, mức lương, khoảng cách và loại việc bạn đã khai trong hồ sơ."
       >
         <PrimaryLink to="/tim-viec/phu-hop">Xem việc phù hợp</PrimaryLink>
       </ClosingBand>
@@ -103,7 +103,7 @@ function CompanyDetail({ company: c, jobs, filtered }: { company: DiscoverCompan
       {/* Thẻ gọn (thấp hơn ảnh): mô tả công ty nằm ở trang công ty; độ phù hợp gói trong một hàng */}
       {best && (
         <div className="mt-4 flex items-center justify-between gap-4" title={`Theo hồ sơ của bạn, với việc “${best.job.title}”`}>
-          <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-page-muted">Độ phù hợp</h3>
+          <h3 className="text-sm font-medium text-page-muted">Độ phù hợp</h3>
           <MatchScore score={best.outcome.score} size="sm" />
         </div>
       )}

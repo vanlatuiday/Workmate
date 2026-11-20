@@ -53,10 +53,10 @@ const DETAIL: Record<string, { detail: string; steps: string[] }> = {
   },
   match: {
     detail:
-      "Bạn ứng tuyển, doanh nghiệp quan tâm hồ sơ. Chỉ khi cả hai cùng đồng ý, kênh chat riêng mới mở. Họ tên đầy đủ, số điện thoại và CV chỉ hiện sau khi đã kết nối.",
+      "Bạn ứng tuyển, nhà tuyển dụng quan tâm hồ sơ. Chỉ khi cả hai cùng đồng ý, kênh chat riêng mới mở. Họ tên đầy đủ, số điện thoại và CV chỉ hiện sau khi đã kết nối.",
     steps: [
       "Ứng tuyển những việc bạn thấy hợp",
-      "Theo dõi đơn: doanh nghiệp đã xem, đang cân nhắc, đồng ý kết nối",
+      "Theo dõi đơn: nhà tuyển dụng đã xem, đang cân nhắc, đồng ý kết nối",
       "Nhắn tin và chọn giờ phỏng vấn ngay trong chat",
     ],
   },

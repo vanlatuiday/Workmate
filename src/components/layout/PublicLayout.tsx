@@ -171,15 +171,15 @@ export default function PublicLayout() {
               </p>
             </div>
             <div>
-              <h4 className="text-xs font-medium uppercase tracking-[0.18em] mb-4 text-page-muted">Tìm việc</h4>
+              <h4 className="text-sm font-medium mb-4 text-page-muted">Tìm việc</h4>
               <ul className="space-y-3 text-sm text-page-muted">
-                <li><Link to="/viec-lam?type=part-time" className={FOOT_LINK}>Part-time</Link></li>
-                <li><Link to="/viec-lam?type=full-time" className={FOOT_LINK}>Full-time</Link></li>
+                <li><Link to="/viec-lam?type=part-time" className={FOOT_LINK}>Bán thời gian</Link></li>
+                <li><Link to="/viec-lam?type=full-time" className={FOOT_LINK}>Toàn thời gian</Link></li>
                 <li><Link to="/viec-lam?nearMe=true" className={FOOT_LINK}>Gần tôi</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-xs font-medium uppercase tracking-[0.18em] mb-4 text-page-muted">Nhà tuyển dụng</h4>
+              <h4 className="text-sm font-medium mb-4 text-page-muted">Nhà tuyển dụng</h4>
               <ul className="space-y-3 text-sm text-page-muted">
                 <li><Link to="/nha-tuyen-dung" className={FOOT_LINK}>Dành cho nhà tuyển dụng</Link></li>
                 <li><Link to="/dang-ky" className={FOOT_LINK}>Đăng tin miễn phí</Link></li>
@@ -187,7 +187,7 @@ export default function PublicLayout() {
               </ul>
             </div>
             <div>
-              <h4 className="text-xs font-medium uppercase tracking-[0.18em] mb-4 text-page-muted">Hỗ trợ</h4>
+              <h4 className="text-sm font-medium mb-4 text-page-muted">Hỗ trợ</h4>
               <ul className="space-y-3 text-sm text-page-muted">
                 <li><Link to="/ho-tro" className={FOOT_LINK}>Câu hỏi thường gặp</Link></li>
                 <li><Link to="/cam-nang" className={FOOT_LINK}>Cẩm nang</Link></li>
@@ -196,7 +196,7 @@ export default function PublicLayout() {
             </div>
           </div>
           <div className="mt-16 pt-8 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-xs border-page-line text-page-muted">
-            <p>© 2026 Workmate. All rights reserved.</p>
+            <p>© 2026 Workmate. Bảo lưu mọi quyền.</p>
             <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               <li><Link to="/gioi-thieu" className={FOOT_LINK}>Giới thiệu</Link></li>
               <li><Link to="/cong-ty" className={FOOT_LINK}>Công ty</Link></li>

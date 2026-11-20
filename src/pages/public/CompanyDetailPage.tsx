@@ -46,7 +46,7 @@ export default function CompanyDetailPage() {
     return (
       <DetailNotFound
         title="Trang công ty này đang ẩn"
-        text="Doanh nghiệp đã tạm ẩn trang giới thiệu. Các tin tuyển dụng của họ vẫn xem được ở mục Việc làm."
+        text="Công ty đã tạm ẩn trang giới thiệu. Các tin tuyển dụng của họ vẫn xem được ở mục Việc làm."
       />
     )
   }
@@ -112,7 +112,7 @@ export default function CompanyDetailPage() {
           <Reveal>
             <div className="rounded-card border border-page-line p-6 md:p-8">
               <h2 className="font-display text-xl md:text-2xl font-semibold leading-tight tracking-[-0.02em]">
-                Bạn là người tìm việc hay người cần tuyển?
+                Chọn vai trò để bắt đầu
               </h2>
               <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">
                 <PrimaryLink to="/dang-ky?role=jobseeker">Đăng ký để ứng tuyển</PrimaryLink>

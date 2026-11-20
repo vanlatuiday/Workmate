@@ -44,7 +44,7 @@ export default function IntroChapter({ api }: { api: ProfileApi }) {
           </div>
         </div>
       </div>
-      <Switch id="sw-avatar" checked={profile.showAvatar} onChange={() => set('showAvatar', !profile.showAvatar)} label="Cho doanh nghiệp thấy ảnh" />
+      <Switch id="sw-avatar" checked={profile.showAvatar} onChange={() => set('showAvatar', !profile.showAvatar)} label="Cho nhà tuyển dụng thấy ảnh" />
     </Group>
   )
 }

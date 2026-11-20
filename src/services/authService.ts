@@ -7,9 +7,9 @@ export interface AuthResponse { user: User; token: string }
 export interface ForgotPasswordResponse { ok: true; devCode?: string }
 
 /** Lấy thông báo lỗi tiếng Việt từ phản hồi của máy chủ; mất kết nối thì báo riêng */
-export function apiErrorMessage(err: unknown, fallback = 'Có lỗi xảy ra, vui lòng thử lại.'): string {
+export function apiErrorMessage(err: unknown, fallback = 'Chưa thực hiện được. Vui lòng thử lại sau ít phút.'): string {
   if (axios.isAxiosError(err)) {
-    if (!err.response) return 'Không kết nối được máy chủ'
+    if (!err.response) return 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.'
     const msg = (err.response.data as { message?: string | string[] } | undefined)?.message
     if (Array.isArray(msg)) return msg[0] ?? fallback
     if (typeof msg === 'string' && msg) return msg

@@ -312,7 +312,7 @@ export default function Profile() {
         <button type="submit" className={BTN_ACCENT}>
           Lưu hồ sơ
         </button>
-        <p role="status" className="text-sm text-page-muted">{saved ? 'Đã lưu trên trình duyệt này' : ''}</p>
+        <p role="status" className="text-sm text-page-muted">{saved ? 'Đã lưu hồ sơ' : ''}</p>
       </div>
     </form>
   )

@@ -27,7 +27,7 @@ function ReviewBlock({ title, reviews, emptyText, hideTitle }: {
   const { average, count } = reviewStats(reviews)
   return (
     <section aria-label={title}>
-      <h3 className={hideTitle ? 'sr-only' : 'text-xs font-medium uppercase tracking-[0.18em] text-page-muted'}>{title}</h3>
+      <h3 className={hideTitle ? 'sr-only' : 'text-sm font-medium text-page-muted'}>{title}</h3>
       {count === 0 ? (
         <p className="mt-2.5 rounded-card border border-dashed border-page-edge px-4 py-3 text-sm text-page-muted">{emptyText}</p>
       ) : (
@@ -79,13 +79,13 @@ export function CompanyReviews({ companyId, className, hideTitle }: { companyId:
   )
 }
 
-/** Đánh giá từ doanh nghiệp về một người tìm việc (người viết = tên công ty) */
+/** Đánh giá từ nhà tuyển dụng về một người tìm việc (người viết = tên công ty) */
 export function SeekerReviews({ seekerId, className }: { seekerId: string; className?: string }) {
   const reviews = useSeekerReviews(seekerId)
   return (
     <div className={className}>
       <ReviewBlock
-        title="Đánh giá từ doanh nghiệp"
+        title="Đánh giá từ nhà tuyển dụng"
         reviews={reviews}
         emptyText="Chưa có đánh giá nào. Đánh giá xuất hiện sau khi người tìm việc hoàn thành một đợt làm việc."
       />

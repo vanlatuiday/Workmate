@@ -32,7 +32,7 @@ const toItem = (p: CatalogJob): Item => ({
   href: `/vi-tri/${p.id}`,
   photo: p.photo,
   cursor: 'Xem',
-  linkLabel: `Xem chi tiết vị trí ${p.title}`,
+  linkLabel: `Mở vị trí ${p.title}`,
   position: p,
   statusLabel: p.moderation === 'approved' ? JOB_STATUS_LABELS[p.status] : STATUS_LABEL[p.moderation],
   typeLabel: JOB_TYPES.find((t) => t.value === p.jobType)?.label ?? p.jobType,
@@ -85,7 +85,7 @@ export default function RecruiterJobs() {
             description="Thử bỏ bớt điều kiện hoặc gõ từ khóa khác."
             action={
               <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className={BTN_SECONDARY}>
-                Xóa lọc
+                Xóa bộ lọc
               </button>
             }
           />
@@ -120,7 +120,7 @@ export default function RecruiterJobs() {
       />
       )}
       <ClosingBand
-        title="Cần người cho một vị trí khác?"
+        title="Đăng thêm một vị trí"
         text="Đăng tin kèm lịch làm và tiêu chí bắt buộc, Workmate sẽ gợi ý ứng viên khớp lịch gần nơi làm."
       >
         <PrimaryLink to="/dang-tin">Đăng tin mới</PrimaryLink>

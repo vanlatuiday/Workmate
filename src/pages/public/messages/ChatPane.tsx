@@ -298,7 +298,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
           </label>
           <button
             type="button"
-            aria-label="Gửi"
+            aria-label="Gửi tin nhắn"
             disabled={!draft.trim()}
             onClick={() => send(draft)}
             className={cn(BTN_ICON, 'border-accent bg-accent text-accent-fg hover:brightness-110 disabled:cursor-default disabled:opacity-50 disabled:hover:brightness-100 disabled:active:scale-100')}

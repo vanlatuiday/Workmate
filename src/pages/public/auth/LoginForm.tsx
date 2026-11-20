@@ -41,7 +41,7 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
   useFocusFirst(root, focus)
   const { touch, show, submit } = useFieldTouch(root)
   const userErr = loginEmailError(form.username)
-  const passErr = form.password ? undefined : 'Vui lòng nhập mật khẩu'
+  const passErr = form.password ? undefined : 'Vui lòng nhập mật khẩu.'
 
   const login = async (username: string, password: string) => {
     // Đăng nhập nhanh (demo) đi thẳng, đã có giá trị hợp lệ
@@ -137,7 +137,7 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
           </Item>
 
           <Item>
-            <SubmitButton loading={loading} idle="Đăng nhập" busy="Đang đăng nhập..." />
+            <SubmitButton loading={loading} idle="Đăng nhập" busy="Đang đăng nhập…" />
           </Item>
         </form>
 

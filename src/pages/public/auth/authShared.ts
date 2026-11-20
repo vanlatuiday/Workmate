@@ -54,25 +54,25 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 /** Ngoài production, ô "Email" của đăng nhập / quên mật khẩu nhận cả tên ngắn của tài khoản demo */
 export const loginEmailError = (value: string) => {
   const v = value.trim()
-  if (!v) return 'Vui lòng nhập email'
-  if (IS_PRODUCTION && !EMAIL_RE.test(v)) return 'Email không hợp lệ'
+  if (!v) return 'Vui lòng nhập email.'
+  if (IS_PRODUCTION && !EMAIL_RE.test(v)) return 'Email chưa đúng định dạng, ví dụ ten@email.com.'
   return undefined
 }
 
 export const registerEmailError = (value: string) => {
   const v = value.trim()
-  if (!v) return 'Vui lòng nhập email'
-  return EMAIL_RE.test(v) ? undefined : 'Email không hợp lệ'
+  if (!v) return 'Vui lòng nhập email.'
+  return EMAIL_RE.test(v) ? undefined : 'Email chưa đúng định dạng, ví dụ ten@email.com.'
 }
 
 export const passwordMinError = (value: string) => {
-  if (!value) return 'Vui lòng nhập mật khẩu'
-  return value.length >= PASSWORD_MIN ? undefined : `Mật khẩu tối thiểu ${PASSWORD_MIN} ký tự`
+  if (!value) return 'Vui lòng nhập mật khẩu.'
+  return value.length >= PASSWORD_MIN ? undefined : `Mật khẩu cần ít nhất ${PASSWORD_MIN} ký tự.`
 }
 
 export const confirmError = (value: string, password: string) => {
-  if (!value) return 'Vui lòng nhập lại mật khẩu'
-  return value === password ? undefined : 'Mật khẩu nhập lại không khớp'
+  if (!value) return 'Vui lòng nhập lại mật khẩu.'
+  return value === password ? undefined : 'Mật khẩu nhập lại chưa khớp.'
 }
 
 /**

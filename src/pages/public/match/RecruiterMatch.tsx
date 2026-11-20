@@ -7,7 +7,7 @@ import InterviewAction from '@components/interview/InterviewAction'
 import ConsiderButton from '@components/application/ConsiderButton'
 import { EmptyState, MatchScore, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
-import { expressInterest, markApplicationViewed, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
+import { CONNECTED_MESSAGE, expressInterest, markApplicationViewed, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { candidateHref } from '@pages/public/personal/links'
@@ -60,7 +60,7 @@ export default function RecruiterMatch() {
         <EmptyState
           icon={Briefcase}
           title="Chưa có tin đang hiển thị"
-          description="Ứng viên phù hợp hiện ở đây khi có tin đang mở đã được duyệt."
+          description="Ứng viên phù hợp sẽ hiện ở đây khi bạn có tin đang mở và đã được duyệt."
           action={<Link to="/dang-tin" className={BTN_PRIMARY}>Đăng tin</Link>}
         />
         </div>
@@ -98,7 +98,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
   useOnNewConnection((c) => {
     const pos = positions.find((p) => p.id === c.jobId)
     const cd = candidates.find((x) => x.id === c.seekerId)
-    if (pos && cd) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
+    if (pos && cd) notifySuccess(CONNECTED_MESSAGE)
   })
 
   // Điểm ứng viên của vị trí đang chọn do máy chủ tính (trọng số mặc định), cao trước.
@@ -318,7 +318,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
                     ? 'Bấm Lưu ở một ứng viên để xem lại tại đây.'
                     : tab === 'interested'
                       ? 'Ứng viên bạn quan tâm sẽ nằm ở đây.'
-                      : 'Khi ứng viên cũng quan tâm lại, họ sẽ nằm ở đây.'
+                      : 'Khi ứng viên quan tâm lại, hai bên kết nối và họ sẽ nằm ở đây.'
               }
             />
             </div>

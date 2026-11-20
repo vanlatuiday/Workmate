@@ -46,7 +46,7 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard label="Người dùng" value={users.length.toLocaleString('vi-VN')} icon={Users} hint={`${seekerCount} người tìm việc, ${recruiterCount} nhà tuyển dụng`} />
-        <StatCard label="NTD chưa xác minh" value={unverified} icon={Building2} href="/admin/xac-minh" hint="Công ty chưa có nhãn xác minh" />
+        <StatCard label="Nhà tuyển dụng chưa xác minh" value={unverified} icon={Building2} href="/admin/xac-minh" hint="Công ty chưa có nhãn xác minh" />
         <StatCard label="Tin chờ kiểm duyệt" value={pendingJobs.length} icon={FileText} href="/admin/kiem-duyet" hint={`${flaggedLive} tin đang hiện bị gắn cờ`} />
         <StatCard label="Kết nối 7 ngày qua" value={weekMatches} icon={Handshake} hint="Hai bên cùng quan tâm" />
       </div>
@@ -79,7 +79,7 @@ export default function AdminDashboard() {
         </FadeIn>
 
         <FadeIn delay={80} className="[&>section]:h-full">
-        <Panel title="Đăng ký mới" action={<Link to="/admin/nguoi-dung" className={`text-page-muted underline underline-offset-4 hover:text-page-fg rounded-control ${FOCUS}`}>Xem tất cả</Link>}>
+        <Panel title="Đăng ký mới" action={<Link to="/admin/nguoi-dung" className={`text-page-muted underline underline-offset-4 hover:text-page-fg rounded-control ${FOCUS}`}>Xem mọi người dùng</Link>}>
           <ul className="divide-y divide-page-line">
             {recentSignups.map((u) => (
               <li key={u.id} className="flex items-center justify-between gap-3 py-3">

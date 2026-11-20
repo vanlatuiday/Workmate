@@ -11,10 +11,10 @@ import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
 
 const BENEFITS = [
-  { icon: CalendarCheck, title: 'Ứng viên đúng lịch', text: 'Chỉ thấy người có giờ rảnh khớp ca làm của bạn.' },
+  { icon: CalendarCheck, title: 'Ứng viên đúng lịch', text: 'Người rảnh đúng ca làm của bạn được xếp lên đầu.' },
   { icon: Gauge, title: 'Điểm phù hợp rõ ràng', text: 'Biết vì sao một ứng viên được gợi ý.' },
   { icon: MessagesSquare, title: 'Kết nối hai chiều', text: 'Chỉ trò chuyện khi cả hai bên đã đồng ý.' },
-  { icon: Zap, title: 'Đăng tin nhanh', text: 'Tạo tin tuyển trong vài phút, không mất phí.' },
+  { icon: Zap, title: 'Đăng tin trong vài phút', text: 'Đăng tin tuyển người miễn phí.' },
 ]
 
 const STEPS = [

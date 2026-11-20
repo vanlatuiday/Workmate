@@ -20,7 +20,7 @@ export const ABOUT_POSTS: AboutPost[] = [
     title: 'Workmate là gì',
     meta: 'Đội Workmate · 3 phút đọc',
     excerpt:
-      'Workmate là nền tảng việc làm linh hoạt tại Đà Nẵng. Chúng tôi ghép người tìm việc với nhà tuyển dụng dựa trên lịch rảnh, khoảng cách và mức lương, để bạn không phải lọc từng tin một.',
+      'Workmate là nền tảng việc làm linh hoạt tại Đà Nẵng. Workmate ghép người tìm việc với nhà tuyển dụng dựa trên kỹ năng, lịch rảnh, mức lương, khoảng cách và loại hình việc, để bạn không phải lọc từng tin một.',
     photoId: '1523240795612-9a054b0db644',
     photoAlt: 'Ba người cười nói bên máy tính trong thư viện',
     cta: { label: 'Xem việc làm', to: '/viec-lam' },
@@ -28,10 +28,10 @@ export const ABOUT_POSTS: AboutPost[] = [
   {
     id: 'lich-ranh',
     category: 'Người tìm việc',
-    title: 'Lịch rảnh là điều kiện, không phải tiêu chí phụ',
+    title: 'Lịch rảnh là điều kiện bắt buộc',
     meta: 'Đội Workmate · 2 phút đọc',
     excerpt:
-      'Bạn khai những buổi mình rảnh, Workmate chỉ gợi ý các ca nằm gọn trong đó. Học, làm thêm hay chăm gia đình — lịch của bạn đến trước, công việc đến sau.',
+      'Bạn khai những buổi mình rảnh, ca nào khớp lịch đó càng nhiều thì càng được xếp lên trước. Học, làm thêm hay chăm gia đình: lịch của bạn đến trước, công việc đến sau.',
     photoId: '1435527173128-983b87201f4d',
     photoAlt: 'Cuốn sổ lịch mở trên bàn làm việc',
     cta: { label: 'Đăng ký', to: '/dang-ky' },
@@ -53,7 +53,7 @@ export const ABOUT_POSTS: AboutPost[] = [
     title: 'Kết nối hai chiều rồi mới trò chuyện',
     meta: 'Đội Workmate · 3 phút đọc',
     excerpt:
-      'Mỗi việc có điểm khớp theo lịch, khoảng cách và lương. Cả hai bên cùng đồng ý thì cuộc trò chuyện mới mở ra, nên không ai bị làm phiền vô cớ.',
+      'Mỗi việc có điểm phù hợp tính từ kỹ năng, lịch, lương và khoảng cách. Cả hai bên cùng đồng ý thì cuộc trò chuyện mới mở ra, nên không ai bị làm phiền vô cớ.',
     photoId: '1521791136064-7986c2920216',
     photoAlt: 'Hai người bắt tay nhau trong buổi gặp',
     cta: { label: 'Xem kết nối', to: '/match' },
@@ -64,7 +64,7 @@ export const ABOUT_POSTS: AboutPost[] = [
     title: 'Dành cho nhà tuyển dụng',
     meta: 'Đội Workmate · 3 phút đọc',
     excerpt:
-      'Đăng ca cần người, chọn khung giờ và khu vực. Workmate gợi ý những ứng viên rảnh đúng giờ và ở gần, giúp bạn lấp ca nhanh hơn mà không phải đọc hàng chục hồ sơ.',
+      'Đăng ca cần người, chọn khung giờ và khu vực. Workmate gợi ý những ứng viên rảnh đúng giờ và ở gần, giúp bạn khỏi phải đọc hàng chục hồ sơ.',
     photoId: '1554118811-1e0d58224f24',
     photoAlt: 'Không gian quán cà phê nhiều cây xanh',
     cta: { label: 'Dành cho nhà tuyển dụng', to: '/nha-tuyen-dung' },
@@ -75,7 +75,7 @@ export const ABOUT_POSTS: AboutPost[] = [
     title: 'Bắt đầu ở Đà Nẵng',
     meta: 'Đội Workmate · 2 phút đọc',
     excerpt:
-      'Chúng tôi bắt đầu từ một thành phố để làm cho thật kỹ: quán cà phê, cửa hàng, kho, giao hàng. Khi đã vững, Workmate mới mở rộng ra nơi khác.',
+      'Workmate bắt đầu từ một thành phố để làm cho thật kỹ: quán cà phê, cửa hàng, kho, giao hàng. Khi đã vững, Workmate mới mở rộng ra nơi khác.',
     photoId: '1522071820081-009f0129c71c',
     photoAlt: 'Nhóm đồng nghiệp trẻ cùng làm việc quanh một chiếc bàn',
     cta: { label: 'Đọc cẩm nang', to: '/cam-nang' },

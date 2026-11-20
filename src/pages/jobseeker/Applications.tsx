@@ -7,7 +7,7 @@ import { HireStatusChip, OfferCard } from '@components/hire'
 import InterviewAction from '@components/interview/InterviewAction'
 import { describeConversation } from '@pages/public/messages/describe'
 import { useConnectionStore } from '@context/connectionStore'
-import { APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStage, useHires, useMyPairs, useOnNewConnection, withdrawInterest, type PairItem } from '@services/connectionService'
+import { CONNECTED_MESSAGE, APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStage, useHires, useMyPairs, useOnNewConnection, withdrawInterest, type PairItem } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { BTN_ACCENT, BTN_DANGER, BTN_PRIMARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
@@ -86,7 +86,7 @@ export default function Applications() {
 
   useOnNewConnection((c) => {
     // Phía kia vừa đồng ý (realtime); cùng câu với service nên không báo hai lần
-    if (c.seekerId === ME) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
+    if (c.seekerId === ME) notifySuccess(CONNECTED_MESSAGE)
   })
 
   const mine = pairs.filter((p) => p.status === 'sent' || p.status === 'connected')

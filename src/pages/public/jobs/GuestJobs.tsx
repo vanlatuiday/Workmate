@@ -44,7 +44,7 @@ export default function GuestJobs() {
   const jobCount = items.reduce((n, x) => n + x.jobs.length, 0)
   const allJobs = useAllJobs()
   const companyCount = useCatalogStore((s) => s.companies.length)
-  const fact = `${allJobs.length} việc đang tuyển · ${companyCount} doanh nghiệp`
+  const fact = `${allJobs.length} việc đang tuyển · ${companyCount} công ty`
 
   return (
     <>
@@ -64,7 +64,7 @@ export default function GuestJobs() {
             description="Thử bỏ bớt điều kiện hoặc gõ từ khóa khác."
             action={
               <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className={BTN_SECONDARY}>
-                Xóa lọc
+                Xóa bộ lọc
               </button>
             }
           />
@@ -79,7 +79,7 @@ export default function GuestJobs() {
           <>
             <DetailHead kicker={`${c.industry} · ${c.district}`} title={c.name} />
             <div className="mt-3">
-              <ProfileTag to={`/cong-ty/${c.id}`}>Trang doanh nghiệp</ProfileTag>
+              <ProfileTag to={`/cong-ty/${c.id}`}>Trang công ty</ProfileTag>
             </div>
             {/* Thẻ gọn (thấp hơn ảnh): chỉ giữ lý do đáng xem; mô tả, quy mô nằm ở trang công ty */}
             <p className="mt-3 text-sm leading-relaxed">{c.why}</p>
@@ -95,7 +95,7 @@ export default function GuestJobs() {
       />
       )}
       <ClosingBand
-        title="Bạn đứng ở phía nào?"
+        title="Chọn vai trò để bắt đầu"
         text="Một tài khoản cho người tìm việc, một cho nơi cần người. Chọn đúng phía để Workmate gợi ý đúng thứ bạn cần."
       >
         <PrimaryLink to="/dang-ky?role=jobseeker">Tôi tìm việc</PrimaryLink>

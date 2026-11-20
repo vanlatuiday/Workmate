@@ -45,7 +45,7 @@ function buildSeekerEntries({ owner, P, cvCount, applied }: BuildOpts): ArchiveE
     {
       id: 'toi-la-ai',
       number: '01',
-      title: 'Tôi là ai?',
+      title: 'Về tôi',
       caption: P.intro.trim() ? snippet(P.intro) : 'Chưa có câu giới thiệu.',
       photo: { id: '1517842645767-c639042777db', alt: 'Cuốn sổ tay và cây bút đặt trên bàn' },
       cursor: 'Mở',
@@ -61,7 +61,7 @@ function buildSeekerEntries({ owner, P, cvCount, applied }: BuildOpts): ArchiveE
             <TagList items={typeLabels} />
           </Section>
           <Section title="Số điện thoại">
-            {owner ? <p>{P.phone || 'Chưa cập nhật'}</p> : <p className="text-page-muted">Thông tin được ẩn</p>}
+            {owner ? <p>{P.phone || 'Chưa cập nhật'}</p> : <p className="text-page-muted">Chỉ hiện sau khi hai bên kết nối</p>}
           </Section>
           <Section title="Giới thiệu">
             {P.intro || P.about ? (
@@ -80,7 +80,7 @@ function buildSeekerEntries({ owner, P, cvCount, applied }: BuildOpts): ArchiveE
     {
       id: 'toi-lam-gi',
       number: '02',
-      title: 'Tôi có thể làm gì?',
+      title: 'Việc tôi làm được',
       caption: P.skills.length ? `${P.skills.slice(0, 4).join(' · ')}${P.skills.length > 4 ? ` · +${P.skills.length - 4}` : ''}` : 'Chưa thêm kỹ năng.',
       photo: { id: '1581783898377-1c85bf937427', alt: 'Bộ dụng cụ làm việc xếp trên nền trắng' },
       cursor: 'Mở',
@@ -137,8 +137,8 @@ function buildSeekerEntries({ owner, P, cvCount, applied }: BuildOpts): ArchiveE
           <Section title="Lịch rảnh trong tuần">
             <WeekGrid on={AVAILABLE} />
             <p className="mt-3 text-sm text-page-muted">
-              Đây là dữ liệu quan trọng nhất để ghép việc theo ca: tin chỉ được gợi ý khi ca làm nằm trong các
-              buổi rảnh.
+              Lịch này được dùng để tính độ phù hợp với việc theo ca: ca làm của tin càng nằm trong các
+              buổi rảnh thì điểm càng cao.
             </p>
           </Section>
           <Section title="Loại việc mong muốn">
@@ -191,7 +191,7 @@ function buildSeekerEntries({ owner, P, cvCount, applied }: BuildOpts): ArchiveE
           <Section title="CV">
             {owner
               ? (cvCount ? <p>{cvCount} CV đã tải lên</p> : <EmptyNote invite={{ to: '/tim-viec/cv', label: 'Tải CV lên' }}>Chưa có CV.</EmptyNote>)
-              : <p className="text-page-muted">Doanh nghiệp xem được sau khi hai bên kết nối</p>}
+              : <p className="text-page-muted">Nhà tuyển dụng xem được sau khi hai bên kết nối</p>}
           </Section>
           {owner && (
             <Section title="Đơn đã ứng tuyển">

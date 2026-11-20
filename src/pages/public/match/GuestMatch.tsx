@@ -35,7 +35,7 @@ export default function GuestMatch() {
         <div className="absolute inset-0 flex items-center justify-center p-4">
           <div className={cn('w-full max-w-lg rounded-card bg-wm-abyss/80 p-6 text-center md:p-8', COVER_GLASS)}>
             <h2 className="font-display text-2xl font-medium text-page-fg md:text-3xl">
-              Tìm công việc hoặc ứng viên phù hợp với bạn chỉ trong vài giây
+              Tìm công việc hoặc ứng viên phù hợp với bạn
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-page-muted">
               Đăng ký miễn phí, khai tiêu chí một lần và xem ngay điểm phù hợp cùng lý do cho từng kết quả.
@@ -45,7 +45,7 @@ export default function GuestMatch() {
                 Tôi tìm việc
               </Link>
               <Link to="/dang-ky?role=recruiter" className={BTN_SECONDARY}>
-                Tôi tuyển dụng
+                Tôi cần tuyển người
               </Link>
             </div>
             <p className="mt-5 text-sm text-page-muted">

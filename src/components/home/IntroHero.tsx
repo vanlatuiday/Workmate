@@ -569,7 +569,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
             data-scroll-hint
             aria-hidden
             className="absolute bottom-8 inset-x-0 flex flex-col items-center gap-2
-                       text-xs uppercase tracking-[0.2em] text-page-muted"
+                       text-sm text-page-muted"
           >
             Cuộn để bắt đầu
             <ArrowDown className="w-3.5 h-3.5" />

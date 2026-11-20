@@ -162,7 +162,7 @@ export default function DashboardShell({ sidebarRole, roleLabel, searchHref, sea
             {settingsHref ? (
               <Link
                 to={settingsHref}
-                aria-label={`Tài khoản ${user?.email ?? ''} — mở cài đặt`}
+                aria-label={`Mở cài đặt tài khoản ${user?.email ?? ''}`}
                 className={cn('flex h-10 w-10 items-center justify-center rounded-full bg-page-fg text-sm font-medium text-page-bg', FOCUS)}
               >
                 {initial}

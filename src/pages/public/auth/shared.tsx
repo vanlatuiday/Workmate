@@ -196,7 +196,7 @@ const ROLES: { value: AuthRole; label: string; icon: LucideIcon }[] = [
 
 export function RoleSwitch({ value, onChange }: { value: AuthRole; onChange: (r: AuthRole) => void }) {
   return (
-    <div role="radiogroup" aria-label="Bạn là ai?" className="flex gap-2">
+    <div role="radiogroup" aria-label="Chọn vai trò" className="flex gap-2">
       {ROLES.map(({ value: v, label, icon: Icon }) => {
         const active = value === v
         return (

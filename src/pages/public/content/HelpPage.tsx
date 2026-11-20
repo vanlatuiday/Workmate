@@ -12,18 +12,18 @@ const GROUPS = [
     title: 'Người tìm việc',
     items: [
       { q: 'Workmate có thu phí người tìm việc không?', a: 'Không. Tạo hồ sơ và ứng tuyển đều miễn phí.' },
-      { q: 'Điểm phù hợp được tính thế nào?', a: 'Dựa trên lịch rảnh, khoảng cách và mức lương bạn mong muốn.' },
+      { q: 'Điểm phù hợp được tính thế nào?', a: 'Dựa trên kỹ năng, lịch rảnh (ca), mức lương, khoảng cách và loại hình việc. Nếu tin đặt kỹ năng bắt buộc mà bạn còn thiếu, điểm tối đa là 39%.' },
       { q: 'Khi nào tôi nhắn tin được với nhà tuyển dụng?', a: 'Sau khi cả hai bên cùng đồng ý kết nối.' },
-      { q: 'Tôi có thể đổi lịch rảnh không?', a: 'Có, bạn cập nhật trong hồ sơ bất cứ lúc nào.' },
+      { q: 'Tôi có thể đổi lịch rảnh không?', a: 'Có, bạn cập nhật lịch rảnh trong hồ sơ bất cứ lúc nào.' },
     ],
   },
   {
     title: 'Nhà tuyển dụng',
     items: [
-      { q: 'Đăng tin có mất phí không?', a: 'Đăng tin cơ bản miễn phí.' },
-      { q: 'Làm sao để công ty được xác minh?', a: 'Bổ sung thông tin công ty, quản trị viên sẽ duyệt.' },
+      { q: 'Đăng tin có mất phí không?', a: 'Miễn phí.' },
+      { q: 'Làm sao để công ty được xác minh?', a: 'Nhập mã số doanh nghiệp và tải lên giấy tờ của công ty. Quản trị viên sẽ duyệt và gửi kết quả qua email.' },
       { q: 'Tôi thấy ứng viên nào trước?', a: 'Những người có điểm phù hợp cao nhất với vị trí.' },
-      { q: 'Có thể tạm ẩn tin tuyển không?', a: 'Có, bạn đóng hoặc mở lại tin trong khu tuyển dụng.' },
+      { q: 'Có thể tạm ẩn tin tuyển không?', a: 'Có, bạn đóng hoặc mở lại tin ở mục Tin tuyển dụng. Mở lại tin đã hết hạn sẽ gia hạn thêm 30 ngày.' },
     ],
   },
 ]
@@ -92,8 +92,8 @@ export default function HelpPage() {
             <span className="flex h-10 w-10 items-center justify-center rounded-full border border-page-line text-page-fg">
               <MessageCircle className="h-5 w-5" aria-hidden="true" />
             </span>
-            <h2 className="mt-4 font-display text-lg font-semibold text-page-fg">Chưa tìm thấy câu trả lời?</h2>
-            <p className="mt-2 text-sm leading-relaxed text-page-muted">Nhắn cho đội Workmate, chúng tôi sẽ phản hồi sớm.</p>
+            <h2 className="mt-4 font-display text-lg font-semibold text-page-fg">Cần hỏi thêm</h2>
+            <p className="mt-2 text-sm leading-relaxed text-page-muted">Nhắn cho đội Workmate để được phản hồi sớm.</p>
             <Link to="/lien-he" className={cn(BTN_ACCENT, 'mt-5')}>Liên hệ hỗ trợ</Link>
           </div>
         </aside>

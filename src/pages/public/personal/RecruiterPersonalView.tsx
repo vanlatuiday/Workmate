@@ -43,7 +43,7 @@ function buildCompanyEntries({ owner, P, openJobs }: BuildOpts): ArchiveEntry[] 
     {
       id: 'chung-toi-la-ai',
       number: '01',
-      title: 'Chúng tôi là ai?',
+      title: 'Về chúng tôi',
       caption: snippet(P.tagline || P.industry || 'Chưa có giới thiệu ngắn.'),
       photo: { id: '1486406146926-c627a92ad1ab', alt: 'Toà nhà văn phòng nhìn từ bên ngoài' },
       cursor: 'Mở',
@@ -130,7 +130,7 @@ function buildCompanyEntries({ owner, P, openJobs }: BuildOpts): ArchiveEntry[] 
     {
       id: 'tim-ai',
       number: '05',
-      title: 'Chúng tôi tìm kiếm ai?',
+      title: 'Người chúng tôi đang tìm',
       caption: skillsWanted.length ? snippet(skillsWanted.slice(0, 4).join(' · ')) : 'Kỹ năng lấy từ các tin đang mở.',
       photo: { id: '1521791136064-7986c2920216', alt: 'Hai người bắt tay nhau trong buổi gặp' },
       cursor: 'Mở',
@@ -144,12 +144,12 @@ function buildCompanyEntries({ owner, P, openJobs }: BuildOpts): ArchiveEntry[] 
     {
       id: 'ket-noi',
       number: '06',
-      title: 'Kết nối với chúng tôi',
+      title: 'Liên hệ với chúng tôi',
       caption: P.email || P.phone || 'Chưa nêu cách liên hệ.',
       photo: { id: '1455390582262-044cdead277a', alt: 'Cây bút đang viết thư trên giấy' },
       cursor: 'Mở',
       content: (
-        <Facts rows={[['Email', P.email || 'Chưa nêu'], ['Điện thoại', P.phone || 'Chưa nêu']]} />
+        <Facts rows={[['Email', P.email || 'Chưa nêu'], ['Số điện thoại', P.phone || 'Chưa nêu']]} />
       ),
       actions,
     },
@@ -165,16 +165,16 @@ export default function RecruiterPersonalView({ owner }: Opts) {
     <>
       <PersonalArchive
         entries={buildCompanyEntries({ owner, P, openJobs })}
-        label="Trang doanh nghiệp"
-        eyebrow="Doanh nghiệp"
+        label="Trang công ty"
+        eyebrow="Công ty"
         intro={
           <PersonalIntro
-            eyebrow="Phía sau doanh nghiệp"
-            title={owner ? 'Doanh nghiệp của tôi' : P.name}
+            eyebrow="Phía sau công ty"
+            title={owner ? 'Công ty của tôi' : P.name}
             text={
               owner
                 ? 'Sáu phần mà người tìm việc sẽ thấy khi xem công ty bạn. Bấm từng tấm ảnh để xem.'
-                : 'Sáu phần giới thiệu doanh nghiệp: con người, nơi làm việc và những vị trí đang mở.'
+                : 'Sáu phần giới thiệu công ty: con người, nơi làm việc và những vị trí đang mở.'
             }
             mode={owner ? 'Trang của bạn' : `Bạn đang xem trang công khai của ${P.name}`}
             back={owner ? undefined : { to: '/viec-lam', label: 'Quay lại việc làm' }}

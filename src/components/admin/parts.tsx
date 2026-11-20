@@ -34,14 +34,14 @@ export const STATUS_TONE: Record<ModerationStatus, 'neutral' | 'soft' | 'danger'
 export function JobStatusBadges({ row, hideStatus }: { row: AdminJobRow; hideStatus?: boolean }) {
   return (
     <span className="inline-flex flex-wrap items-center gap-1.5">
-      {/* Đã duyệt nhưng NTD tạm dừng/đóng thì không còn "Đang hiện" — tránh mâu thuẫn với huy hiệu NTD */}
+      {/* Đã duyệt nhưng nhà tuyển dụng tạm dừng/đóng thì không còn "Đang hiện" */}
       {!hideStatus && (
         <StatusBadge tone={STATUS_TONE[row.status]}>
           {row.status === 'approved' && row.jobStatus !== 'open' ? 'Đã duyệt' : STATUS_LABEL[row.status]}
         </StatusBadge>
       )}
       {row.companyLocked && <StatusBadge tone="danger">Công ty bị khóa</StatusBadge>}
-      {row.jobStatus !== 'open' && <StatusBadge tone="muted">{row.jobStatus === 'paused' ? 'NTD tạm dừng' : 'NTD đã đóng'}</StatusBadge>}
+      {row.jobStatus !== 'open' && <StatusBadge tone="muted">{row.jobStatus === 'paused' ? 'Nhà tuyển dụng tạm dừng' : 'Nhà tuyển dụng đã đóng'}</StatusBadge>}
     </span>
   )
 }

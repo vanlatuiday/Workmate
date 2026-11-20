@@ -162,9 +162,9 @@ export function StepCulture({ draft, set }: StepProps) {
     <>
       <Intro>Cho người tìm việc thấy làm ở đây sẽ ra sao. Có thể bỏ qua và bổ sung sau.</Intro>
       <div className="mt-5 flex flex-col gap-6">
-        <ListEditor label="Môi trường làm việc" items={draft.environment} onChange={(v) => set('environment', v)} placeholder="Vd. Đồng nghiệp thân thiện" />
-        <ListEditor label="Giá trị" items={draft.values} onChange={(v) => set('values', v)} placeholder="Vd. Tôn trọng giờ giấc" />
-        <ListEditor label="Chính sách" items={draft.policies} onChange={(v) => set('policies', v)} placeholder="Vd. Trả lương đúng hạn" />
+        <ListEditor label="Môi trường làm việc" items={draft.environment} onChange={(v) => set('environment', v)} placeholder="Ví dụ: Đồng nghiệp thân thiện" />
+        <ListEditor label="Giá trị" items={draft.values} onChange={(v) => set('values', v)} placeholder="Ví dụ: Tôn trọng giờ giấc" />
+        <ListEditor label="Chính sách" items={draft.policies} onChange={(v) => set('policies', v)} placeholder="Ví dụ: Trả lương đúng hạn" />
         <Field label="Văn hóa công ty">
           {(p) => <textarea {...p} rows={4} value={draft.culture} onChange={(e) => set('culture', e.target.value)} className={FIELD} />}
         </Field>

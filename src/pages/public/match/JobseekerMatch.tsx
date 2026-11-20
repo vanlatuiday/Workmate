@@ -6,7 +6,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, Bookmark, Briefcase, Check, Clock, Gri
 import InterviewAction from '@components/interview/InterviewAction'
 import { EmptyState } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
-import { APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStages, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
+import { CONNECTED_MESSAGE, APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStages, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
@@ -73,7 +73,7 @@ export default function JobseekerMatch() {
   // Kết nối mới (kể cả do doanh nghiệp đáp lại sau vài giây) → báo thành công
   useOnNewConnection((c) => {
     if (c.seekerId !== ME) return
-    if (findAnyJob(c.jobId)) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
+    if (findAnyJob(c.jobId)) notifySuccess(CONNECTED_MESSAGE)
   })
   const gallery = view === 'gallery'
   // Lenis chỉ chạy ở Bộ sưu tập (canvas WebGL cần cuộn mượt đồng bộ); chế độ Danh sách giữ cuộn thường
@@ -197,7 +197,7 @@ export default function JobseekerMatch() {
         {status === 'received' && (
           <>
             <span className="inline-flex items-center rounded-full border border-page-line px-3 py-1 text-xs text-page-muted">
-              Doanh nghiệp đã quan tâm bạn
+              Nhà tuyển dụng đã quan tâm bạn
             </span>
             <button type="button" onClick={() => { apply(job); close?.(true) }} className={cn(BTN_PRIMARY, BTN_SM)}>
               Đồng ý kết nối<span className="sr-only"> {job.title}</span>
@@ -283,7 +283,7 @@ export default function JobseekerMatch() {
             segments={() => (
               <BarSelect icon={<ArrowUpDown className="h-4 w-4" />} label="Sắp xếp" value={sort} onChange={(v) => setSort(v as SortKey)} className="sm:w-44">
                 <option value="score">Độ phù hợp</option>
-                <option value="salary">Lương cao</option>
+                <option value="salary">Lương cao nhất</option>
                 <option value="distance">Gần nhất</option>
               </BarSelect>
             )}
@@ -306,7 +306,7 @@ export default function JobseekerMatch() {
                 <FilterMenu
                   glass={floating}
                   multiple
-                  label={jobTypes.length === 0 ? 'Hình thức' : jobTypes.length === 1 ? (JOB_TYPES.find((t) => t.value === jobTypes[0])?.label ?? 'Hình thức') : `Hình thức · ${jobTypes.length}`}
+                  label={jobTypes.length === 0 ? 'Loại việc' : jobTypes.length === 1 ? (JOB_TYPES.find((t) => t.value === jobTypes[0])?.label ?? 'Loại việc') : `Loại việc · ${jobTypes.length}`}
                   active={typesChanged}
                   options={JOB_TYPES.map((t) => ({ value: t.value, label: t.label }))}
                   selected={jobTypes}
@@ -387,7 +387,7 @@ export default function JobseekerMatch() {
                       ? 'Bấm Lưu ở một vị trí để xem lại tại đây.'
                       : tab === 'applied'
                         ? 'Các vị trí bạn ứng tuyển sẽ nằm ở đây.'
-                        : 'Khi doanh nghiệp cũng quan tâm bạn, vị trí sẽ nằm ở đây.'
+                        : 'Khi nhà tuyển dụng quan tâm bạn, vị trí sẽ nằm ở đây.'
                 }
               />
               </div>
@@ -502,7 +502,7 @@ export default function JobseekerMatch() {
 
         <div>
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-medium text-page-fg">Điều gì quan trọng nhất với bạn?</h3>
+            <h3 className="text-sm font-medium text-page-fg">Tiêu chí quan trọng nhất với bạn</h3>
             <button type="button" onClick={resetAll}
               className={`rounded-control text-xs underline underline-offset-4 ${FOCUS}`}>
               Đặt lại

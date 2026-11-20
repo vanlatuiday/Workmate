@@ -58,7 +58,7 @@ export const MATCH_JOBS: MatchJob[] = [
   { id: 'm4', companyId: 'bien-xanh', title: 'Kiểm kho ban đêm', district: 'Hải Châu', distanceKm: 2.0, salaryLabel: '22.000–24.000đ/giờ', shiftLabel: 'Tối T7–CN',
     skills: ['Kiểm kho', 'Excel'], slots: slots([5, 6], [2]), salaryMinK: 22, salaryMaxK: 24, jobType: 'shift',
     photo: { id: '1586528116311-ad8dd3c8310d', alt: 'Kho hàng với các kệ cao xếp đầy thùng hàng' } },
-  { id: 'm5', companyId: 'may-trang', title: 'Phục vụ tiệc cưới', district: 'Thanh Khê', distanceKm: 4.1, salaryLabel: '350.000đ/ngày', shiftLabel: 'Tối T7',
+  { id: 'm5', companyId: 'may-trang', title: 'Phục vụ tiệc cưới', district: 'Thanh Khê', distanceKm: 4.1, salaryLabel: '40.000–45.000đ/giờ', shiftLabel: 'Tối T7',
     skills: ['Giao tiếp khách hàng', 'Phục vụ bàn'], slots: slots([5], [2]), salaryMinK: 40, salaryMaxK: 45, jobType: 'event',
     photo: { id: '1511795409834-ef04bbd61622', alt: 'Bàn tiệc dài trang trí hoa và ly thủy tinh' } },
   { id: 'm6', companyId: 'may-trang', title: 'Điều phối viên sự kiện', district: 'Thanh Khê', distanceKm: 4.5, salaryLabel: '30.000–35.000đ/giờ', shiftLabel: 'Sáng, chiều T7–CN',
@@ -109,7 +109,7 @@ function baseCompany(id: string): DiscoverCompany | undefined {
 }
 
 const UNKNOWN_COMPANY: DiscoverCompany = {
-  id: '', name: 'Doanh nghiệp', industry: '', district: '', size: '1-10', cover: DEMO_COMPANY.cover,
+  id: '', name: 'Công ty', industry: '', district: '', size: '1-10', cover: DEMO_COMPANY.cover,
   tagline: '', why: '', about: '', environment: [],
 }
 

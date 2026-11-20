@@ -132,7 +132,7 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
         {step === 'request' && (
           <form onSubmit={requestCode} className="mt-5 space-y-4" noValidate>
             <Item>
-              <p className="text-base text-page-muted">Nhập email của tài khoản, chúng tôi sẽ gửi mã xác nhận để bạn đặt mật khẩu mới.</p>
+              <p className="text-base text-page-muted">Nhập email của tài khoản, Workmate sẽ gửi mã xác nhận để bạn đặt mật khẩu mới.</p>
             </Item>
             <Item>
               <AuthField
@@ -150,7 +150,7 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
               />
             </Item>
             <Item>
-              <SubmitButton loading={loading} idle="Gửi mã xác nhận" busy="Đang gửi..." />
+              <SubmitButton loading={loading} idle="Gửi mã xác nhận" busy="Đang gửi…" />
             </Item>
           </form>
         )}
@@ -220,7 +220,7 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
               </Item>
 
               <Item className="pt-2">
-                <SubmitButton loading={loading} idle="Đặt lại mật khẩu" busy="Đang đặt lại..." />
+                <SubmitButton loading={loading} idle="Đặt lại mật khẩu" busy="Đang đặt lại…" />
               </Item>
             </form>
 
@@ -238,7 +238,7 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
         {step === 'done' && (
           <>
             <Item>
-              <p className="text-base text-page-muted mt-3" role="status">Mật khẩu mới đã có hiệu lực. Hãy đăng nhập lại bằng mật khẩu này.</p>
+              <p className="text-base text-page-muted mt-3" role="status">Mật khẩu mới đã có hiệu lực và các phiên đăng nhập cũ đã bị đăng xuất. Hãy đăng nhập lại bằng mật khẩu này.</p>
             </Item>
             <Item className="mt-6">
               <Link to={AUTH_PATHS.login} state={{ username: identifier.trim() }} className={PRIMARY}>

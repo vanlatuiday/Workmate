@@ -33,7 +33,7 @@ export default function NotFoundPage() {
       </FadeIn>
 
       <FadeIn delay={80} className="mt-12">
-        <h2 className="font-display text-xl font-semibold text-page-fg">Có phải bạn muốn tìm:</h2>
+        <h2 className="font-display text-xl font-semibold text-page-fg">Có thể bạn đang tìm</h2>
         <ul className="mt-4 flex flex-wrap gap-3">
           {suggestions.map((r) => (
             <li key={r.to} className="max-w-full">

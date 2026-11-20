@@ -11,7 +11,7 @@ const MATCH_LABELS: Record<MatchLevel, string> = {
   high:     'Rất phù hợp',
   medium:   'Phù hợp',
   possible: 'Có thể phù hợp',
-  low:      'Không phù hợp',
+  low:      'Ít phù hợp',
 }
 
 export function getMatchLabel(level: MatchLevel): string {

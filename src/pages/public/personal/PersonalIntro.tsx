@@ -12,7 +12,7 @@ type Props = {
 export default function PersonalIntro({ eyebrow, title, text, mode }: Props) {
   return (
     <div className="pt-section-sm">
-      <p className="text-xs font-medium uppercase tracking-[0.18em] text-page-muted">{eyebrow}</p>
+      <p className="text-sm font-medium text-page-muted">{eyebrow}</p>
       <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold leading-tight text-page-fg md:text-5xl">{title}</h1>
       <p className="mt-4 max-w-2xl text-base leading-relaxed text-page-muted md:text-lg">{text}</p>
       {mode && <p className="mt-3 text-sm text-page-muted">{mode}</p>}

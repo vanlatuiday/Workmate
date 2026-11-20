@@ -29,7 +29,7 @@ export function describeConversation(viewer: Side, jobId: string, seekerId: stri
   const subtitle = conv?.jobTitle ?? job?.title ?? 'Vị trí đã đóng'
   if (viewer === 'seeker') {
     const companyId = conv?.peer.companyId ?? job?.companyId
-    const name = conv?.peer.name ?? useCatalogStore.getState().companies.find((c) => c.id === companyId)?.name ?? 'Doanh nghiệp'
+    const name = conv?.peer.name ?? useCatalogStore.getState().companies.find((c) => c.id === companyId)?.name ?? 'Công ty'
     return { name, subtitle, initials: initialsOf(name), avatarUrl: conv?.peer.avatarUrl ?? null, profileHref: companyId ? `/cong-ty/${companyId}` : '/cong-ty', profileLabel: 'Xem công ty' }
   }
   const name = conv?.peer.name ?? candidatesOf().find((c) => c.id === seekerId)?.name ?? 'Ứng viên'

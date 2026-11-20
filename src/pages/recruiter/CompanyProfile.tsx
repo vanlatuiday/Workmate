@@ -264,9 +264,9 @@ export default function CompanyProfile() {
           <FadeIn>
           <Panel title="Môi trường, giá trị, chính sách">
             <div className="flex flex-col gap-6">
-              <ListEditor label="Môi trường làm việc" items={form.environment} onChange={(v) => set('environment', v)} placeholder="Vd. Đồng nghiệp thân thiện" />
-              <ListEditor label="Giá trị" items={form.values} onChange={(v) => set('values', v)} placeholder="Vd. Tôn trọng giờ giấc" />
-              <ListEditor label="Chính sách" items={form.policies} onChange={(v) => set('policies', v)} placeholder="Vd. Trả lương đúng hạn" />
+              <ListEditor label="Môi trường làm việc" items={form.environment} onChange={(v) => set('environment', v)} placeholder="Ví dụ: Đồng nghiệp thân thiện" />
+              <ListEditor label="Giá trị" items={form.values} onChange={(v) => set('values', v)} placeholder="Ví dụ: Tôn trọng giờ giấc" />
+              <ListEditor label="Chính sách" items={form.policies} onChange={(v) => set('policies', v)} placeholder="Ví dụ: Trả lương đúng hạn" />
             </div>
           </Panel>
           </FadeIn>

@@ -50,8 +50,8 @@ const WELCOME: Record<AuthMode, { title: string; text: string; cta: string; to: 
     to: 'login',
   },
   forgot: {
-    title: 'Quên mật khẩu?',
-    text: 'Đừng lo, chuyện này ai cũng gặp. Cho chúng tôi biết tài khoản của bạn, mã xác nhận sẽ giúp bạn đặt lại mật khẩu mới.',
+    title: 'Quên mật khẩu',
+    text: 'Nhập email của tài khoản, Workmate sẽ gửi mã xác nhận để bạn đặt lại mật khẩu.',
     cta: 'Quay lại đăng nhập',
     to: 'login',
     back: true,
@@ -259,7 +259,7 @@ function WelcomeBlock({ mode }: { mode: AuthMode }) {
   const { state } = useLocation()
   return (
     <div>
-      <h2 className="font-display text-[clamp(2.25rem,4.2vw,3.5rem)] font-bold uppercase leading-[1.02] tracking-tight text-page-fg">
+      <h2 className="font-display text-[clamp(2.25rem,4.2vw,3.5rem)] font-bold leading-[1.02] tracking-tight text-page-fg">
         {w.title}
       </h2>
       <p className="mt-5 max-w-[34ch] text-base text-page-muted">{w.text}</p>
@@ -282,7 +282,7 @@ function LiveJobs() {
   return (
     <div className="mt-10 max-w-[34ch]">
       <p className="tnum text-sm font-medium text-page-fg">
-        {open.length} việc làm đang tuyển{companies.length > 0 && <span className="text-page-muted"> · {companies.length} doanh nghiệp</span>}
+        {open.length} việc làm đang tuyển{companies.length > 0 && <span className="text-page-muted"> · {companies.length} công ty</span>}
       </p>
       <div className="mt-3 rounded-card border border-wm-ivory/20 bg-wm-night/30 p-4 backdrop-blur-md">
         <p className="eyebrow text-page-muted">Việc đang tuyển</p>
@@ -303,7 +303,7 @@ function MobileWelcome({ mode }: { mode: AuthMode }) {
   const { state } = useLocation()
   return (
     <div className="flex items-center justify-between gap-3 border-b border-page-line pb-4">
-      <p className="font-display text-lg font-bold uppercase leading-tight tracking-tight text-page-fg">{w.title}</p>
+      <p className="font-display text-lg font-bold leading-tight tracking-tight text-page-fg">{w.title}</p>
       <OutlinePill to={AUTH_PATHS[w.to]} state={state} back={w.back} small>{w.cta}</OutlinePill>
     </div>
   )

@@ -12,7 +12,7 @@ export default function ProfilePreview({ api }: { api: ProfileApi }) {
   const jobTypes = JOB_TYPES.filter((t) => profile.jobTypes.includes(t.value)).map((t) => t.label)
   return (
     <div data-lenis-prevent className="rounded-card border border-page-line bg-page-surface p-5 lg:max-h-[calc(100svh-8rem)] lg:overflow-y-auto">
-      <p className="text-xs uppercase tracking-widest text-page-muted">Nhà tuyển dụng sẽ thấy</p>
+      <p className="text-sm text-page-muted">Nhà tuyển dụng sẽ thấy</p>
       <div className="mt-4 flex items-center gap-4">
         <Avatar name={profile.fullName} url={profile.avatarUrl} show={profile.showAvatar} className="h-16 w-16 text-xl" />
         <div className="min-w-0">
@@ -42,7 +42,7 @@ export default function ProfilePreview({ api }: { api: ProfileApi }) {
       <h3 className="mt-5 text-xs font-medium text-page-muted">Kinh nghiệm</h3>
       <ul className="mt-2 space-y-1.5 text-sm">
         {profile.experience.filter((e) => e.title.trim() || e.company.trim()).map((e) => (
-          <li key={e.id} className="break-words"><span className="font-medium text-page-fg">{e.title || 'Chưa đặt tên'}</span><span className="text-page-muted"> — {[e.company, e.period].filter(Boolean).join(', ')}</span></li>
+          <li key={e.id} className="break-words"><span className="font-medium text-page-fg">{e.title || 'Chưa đặt tên'}</span><span className="text-page-muted">: {[e.company, e.period].filter(Boolean).join(', ')}</span></li>
         ))}
         {!profile.experience.some((e) => e.title.trim() || e.company.trim()) && <li className="text-page-muted">Chưa có.</li>}
       </ul>

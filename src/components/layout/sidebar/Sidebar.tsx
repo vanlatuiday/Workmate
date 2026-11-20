@@ -336,7 +336,7 @@ export default function Sidebar({ role, variant, onClose }: Props) {
         <div className="flex h-[76px] flex-shrink-0 items-center px-4">
           <Link
             to="/"
-            aria-label="Workmate — về trang chủ"
+            aria-label="Về trang chủ Workmate"
             onClick={finish}
             {...tip.bind('Workmate')}
             className={cn('flex min-w-0 items-center rounded-full', FOCUS)}
@@ -382,7 +382,7 @@ export default function Sidebar({ role, variant, onClose }: Props) {
               aria-label="Tìm trang"
               autoComplete="off"
               tabIndex={collapsed ? -1 : 0}
-              placeholder="Tìm trang..."
+              placeholder="Tìm trang…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={onSearchKey}
@@ -457,7 +457,7 @@ export default function Sidebar({ role, variant, onClose }: Props) {
             {config.groups.map((g, gi) => (
               <div key={g.label} className={cn(gi > 0 && 'mt-1')}>
                 <div className="relative flex h-8 items-end px-[15px] pb-1">
-                  <span className={cn('text-xs font-semibold uppercase tracking-[0.12em] text-page-muted', fade(collapsed))}>{g.label}</span>
+                  <span className={cn('text-sm font-medium text-page-muted', fade(collapsed))}>{g.label}</span>
                   {/* Thu gọn: vạch ngăn ngắn thay nhãn nhóm */}
                   <span
                     aria-hidden="true"

@@ -125,7 +125,7 @@ export default function MenuOverlay({ id, open, onClose, items, actions }: Props
                         {String(i + 1).padStart(2, '0')}
                       </span>
                       <span
-                        className="font-serif text-[clamp(1.875rem,8.5vw,3.25rem)] font-medium leading-[1.25] text-wm-mist
+                        className="font-display text-[clamp(1.875rem,8.5vw,3.25rem)] font-medium leading-[1.25] text-wm-mist
                                    group-hover:text-wm-ivory transition-colors duration-fast"
                       >
                         <RollText>{item.label}</RollText>
@@ -173,7 +173,7 @@ export default function MenuOverlay({ id, open, onClose, items, actions }: Props
               <button
                 type="button"
                 onClick={() => setQuality(quality === 'high' ? 'low' : 'high')}
-                className="ml-auto text-xs uppercase tracking-[0.18em] text-wm-sage hover:text-wm-ivory transition-colors"
+                className="ml-auto text-sm text-wm-sage hover:text-wm-ivory transition-colors"
               >
                 Chất lượng <span className="text-wm-ivory">{quality === 'high' ? 'Cao' : 'Thấp'}</span>
               </button>

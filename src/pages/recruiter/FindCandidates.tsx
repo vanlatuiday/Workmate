@@ -5,7 +5,7 @@ import { EmptyState, FilterToggle, PageHeader, Panel, SkeletonCards, StatusBadge
 import { candidateKey, useMatchStore } from '@context/matchStore'
 import { availabilityLabel, useCandidates, usePositions, type MatchCandidate, type MatchPosition } from '@pages/public/match/data'
 import { useCandidateMatches } from '@services/matchingService'
-import { expressInterest, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
+import { CONNECTED_MESSAGE, expressInterest, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
 import { useFlip } from '@hooks/useFlip'
 import PopIcon from '@components/common/PopIcon'
 import { useQueryParam } from '@hooks/useQueryParam'
@@ -93,7 +93,7 @@ function CandidateCard({ c, positions, outcomeOf }: { c: MatchCandidate; positio
 
       {best.score !== undefined && (
         <p className="mt-4 text-sm text-page-fg">
-          <span className="text-page-muted">Hợp nhất: </span>
+          <span className="text-page-muted">Phù hợp nhất: </span>
           {best.p.job.title} · <span className="tnum font-medium">{best.score}%</span>
         </p>
       )}
@@ -168,7 +168,7 @@ export default function FindCandidates() {
 
   useOnNewConnection((c) => {
     const cand = ALL_CANDIDATES.find((x) => x.id === c.seekerId)
-    if (cand) notifySuccess('Đã kết nối — giờ hai bên nhắn tin được')
+    if (cand) notifySuccess(CONNECTED_MESSAGE)
   })
 
   const list = useMemo(() => {

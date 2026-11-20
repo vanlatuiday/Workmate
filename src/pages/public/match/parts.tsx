@@ -164,7 +164,7 @@ export function CheckList({
             )}
             <span>
               <span className="sr-only">
-                {CRITERION_LABELS[r.key]} — {r.ok ? 'đạt' : 'chưa đạt'}:{' '}
+                {CRITERION_LABELS[r.key]}: {r.ok ? 'đạt' : 'chưa đạt'}.{' '}
               </span>
               {noteOf(r)}
             </span>

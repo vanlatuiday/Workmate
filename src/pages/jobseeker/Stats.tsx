@@ -107,7 +107,7 @@ function WeeklyChart({ weekly }: { weekly: SeekerStats['weekly'] }) {
           {/* Nhãn trục hoành */}
           <div className="mt-2 flex" aria-hidden="true">
             {weekly.map((w) => (
-              <span key={w.weekStart} className="flex-1 text-center text-[11px] text-page-muted tnum max-sm:odd:invisible sm:text-xs">{weekLabel(w.weekStart)}</span>
+              <span key={w.weekStart} className="flex-1 text-center text-xs text-page-muted tnum max-sm:odd:invisible">{weekLabel(w.weekStart)}</span>
             ))}
           </div>
         </div>
@@ -202,7 +202,7 @@ export default function JobseekerStats() {
 
   return (
     <div>
-      <PageHeader title="Thống kê" description="Theo dõi hành trình ứng tuyển của bạn: bao nhiêu đơn được xem, kết nối và đi tới phỏng vấn." />
+      <PageHeader title="Thống kê" description="Theo dõi quá trình ứng tuyển của bạn: bao nhiêu đơn được xem, kết nối và đi tới phỏng vấn." />
 
       {loading && (
         <div role="status" aria-live="polite">
@@ -234,7 +234,7 @@ export default function JobseekerStats() {
           <EmptyState
             icon={BarChart3}
             title="Chưa có số liệu để thống kê"
-            description="Khi bạn ứng tuyển hoặc doanh nghiệp quan tâm bạn, hành trình và biểu đồ hoạt động sẽ hiện ở đây."
+            description="Khi bạn ứng tuyển hoặc doanh nghiệp quan tâm bạn, các bước và biểu đồ hoạt động sẽ hiện ở đây."
             action={<Link to="/tim-viec/phu-hop" className={BTN_ACCENT}>Xem việc phù hợp</Link>}
           />
         ) : (
@@ -253,7 +253,7 @@ export default function JobseekerStats() {
               <Panel title="Hoạt động 8 tuần" className="lg:col-span-3">
                 <WeeklyChart weekly={stats.weekly} />
               </Panel>
-              <Panel title="Hành trình ứng tuyển" className="lg:col-span-2">
+              <Panel title="Các bước ứng tuyển" className="lg:col-span-2">
                 <Funnel t={t} />
               </Panel>
             </div>
@@ -262,7 +262,7 @@ export default function JobseekerStats() {
               <Panel title="Tỉ lệ">
                 <div className="grid grid-cols-2 gap-6">
                   <RateRow label="Đơn được xem" value={stats.rates.viewed} hint="doanh nghiệp đã mở xem đơn" />
-                  <RateRow label="Thành kết nối" value={stats.rates.connected} hint="đơn gửi và lời mời được nhận" />
+                  <RateRow label="Dẫn tới kết nối" value={stats.rates.connected} hint="đơn gửi và lời mời được nhận" />
                 </div>
               </Panel>
               <Panel title="Đánh giá từ doanh nghiệp">

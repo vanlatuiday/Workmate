@@ -128,7 +128,7 @@ export default function HireAction({ viewer, jobId, seekerId, compact }: Props) 
         <ConfirmDialog
           titleId="decline-title"
           title="Từ chối lời mời nhận việc?"
-          description="Doanh nghiệp sẽ được báo là bạn không nhận việc lần này. Bạn không thể đổi lại sau khi từ chối."
+          description="Nhà tuyển dụng sẽ được báo là bạn không nhận việc lần này. Bạn không thể đổi lại sau khi từ chối."
           askReason
           confirmLabel="Từ chối"
           cancelLabel="Quay lại"

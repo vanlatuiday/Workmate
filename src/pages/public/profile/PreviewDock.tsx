@@ -10,7 +10,7 @@ import { BTN_ICON, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import Avatar from './Avatar'
 import { fmtMoney, type ProfileApi } from './useProfileDraft'
 
-/** Nút "Xem bản doanh nghiệp thấy": bấm thì nút lật 3D một vòng rồi mở khung xem trước. */
+/** Nút "Xem bản nhà tuyển dụng thấy": bấm thì nút lật 3D một vòng rồi mở khung xem trước. */
 export default function PreviewDock({ api }: { api: ProfileApi }) {
   const reduced = useReducedMotion()
   const [open, setOpen] = useState(false)
@@ -32,7 +32,7 @@ export default function PreviewDock({ api }: { api: ProfileApi }) {
         data-cursor="Xem trước"
         className={`${BTN_SECONDARY} ${BTN_SM}`}
       >
-        Xem bản doanh nghiệp thấy
+        Xem bản nhà tuyển dụng thấy
       </button>
       {open && (
         <PreviewModal api={api} reduced={reduced} onClosed={() => { setOpen(false); btnRef.current?.focus({ preventScroll: true }) }} />
@@ -104,7 +104,7 @@ function PreviewModal({ api, reduced, onClosed }: ModalProps) {
         <button ref={closeRef} type="button" onClick={() => requestClose.current()} aria-label="Đóng" className={`${BTN_ICON} absolute right-4 top-4`}>
           <X className="h-4 w-4" aria-hidden />
         </button>
-        <p className="text-xs uppercase tracking-widest text-page-muted">Bản doanh nghiệp nhìn thấy</p>
+        <p className="text-sm text-page-muted">Bản nhà tuyển dụng nhìn thấy</p>
         <div className="mt-5 flex items-center gap-4">
           <Avatar name={profile.fullName} url={profile.avatarUrl} show={profile.showAvatar} className="h-20 w-20 text-2xl" />
           <div>

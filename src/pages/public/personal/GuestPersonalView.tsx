@@ -86,7 +86,7 @@ function buildGuestEntries(admin: boolean): ArchiveEntry[] {
           </Section>
           <div className="mt-5">
             <WeekGrid on={SAMPLE} sample />
-            <p className="mt-2 text-xs text-page-muted">Đây chỉ là ví dụ, không phải lịch của ai.</p>
+            <p className="mt-2 text-xs text-page-muted">Đây là lịch ví dụ.</p>
           </div>
         </>
       ),

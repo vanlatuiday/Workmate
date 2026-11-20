@@ -36,7 +36,7 @@ export default function OfferDialog({ jobId, seekerId, onClose }: Props) {
         className="space-y-6"
       >
         <p className="text-sm leading-relaxed text-page-muted">
-          Ứng viên sẽ nhận được lời mời và cần xác nhận đi làm. Chỉ khi họ xác nhận, lượt này mới được tính là "đã đi làm".
+          Ứng viên sẽ nhận được lời mời và cần xác nhận đi làm. Chỉ khi họ xác nhận, lần nhận việc này mới được tính là "đã đi làm".
         </p>
         <label className="block">
           <span className="text-sm font-medium text-page-fg">Ngày bắt đầu</span>
