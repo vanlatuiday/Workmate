@@ -29,7 +29,7 @@ export default function PositionChips({ jobs, moreHref, heading, className, max 
   const rest = jobs.length - shown.length
   return (
     <div className={className}>
-      <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-page-muted">{heading}</h3>
+      <h3 className="text-sm text-page-muted">{heading}</h3>
       {jobs.length ? (
         <ul className="mt-3 flex flex-wrap gap-2">
           {shown.map((j) => (

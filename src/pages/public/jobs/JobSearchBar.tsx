@@ -69,7 +69,7 @@ export default function JobSearchBar({
     return () => window.clearTimeout(t)
   }, [text])
 
-  // URL đổi từ nơi khác (nút "Xóa lọc" ở trạng thái rỗng, nút Back) → đồng bộ lại ô gõ.
+  // URL đổi từ nơi khác (nút "Xóa bộ lọc" ở trạng thái rỗng, nút Back) → đồng bộ lại ô gõ.
   // Bỏ qua giá trị do chính thanh đẩy lên và lúc đang gõ (tránh mất ký tự / làm hỏng IME tiếng Việt).
   useEffect(() => {
     if (filters.q === pushed.current) return
@@ -247,11 +247,29 @@ export default function JobSearchBar({
             {t.label}
           </Chip>
         ))}
-        {showSalary && SALARY_STEPS.map((k) => (
-          <Chip key={k} glass pressed={filters.minSalaryK === k} onClick={() => set({ minSalaryK: filters.minSalaryK === k ? 0 : k })}>
-            {formatHourlyFromK(k).replace(/^t/, 'T')}
-          </Chip>
-        ))}
+        {showSalary && (
+          // Mức lương: một <select> gốc (bàn phím/đọc màn hình sẵn có), dáng chip kính; chọn một mức, "Mọi mức lương" = bỏ lọc
+          <label
+            className={cn(
+              CHIP,
+              'relative shrink-0 cursor-pointer py-1 pl-3 pr-8 text-xs focus-within:ring-2 focus-within:ring-page-fg',
+              filters.minSalaryK ? CHIP_ON : cn(CHIP_OFF, 'bg-wm-abyss/60 backdrop-blur-[16px]'),
+            )}
+          >
+            <span className="sr-only">Mức lương</span>
+            <select
+              value={filters.minSalaryK}
+              onChange={(e) => set({ minSalaryK: Number(e.target.value) })}
+              className="cursor-pointer appearance-none bg-transparent pr-1 outline-none"
+            >
+              <option value={0}>Mọi mức lương</option>
+              {SALARY_STEPS.map((k) => (
+                <option key={k} value={k}>{formatHourlyFromK(k).replace(/^t/, 'T')}</option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2.5 h-3.5 w-3.5" aria-hidden="true" />
+          </label>
+        )}
         {showNearMe && (
           <Chip glass pressed={filters.nearMe} onClick={() => set({ nearMe: !filters.nearMe })}>
             <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
@@ -269,7 +287,7 @@ export default function JobSearchBar({
             )}
           >
             <X className="h-4 w-4" aria-hidden="true" />
-            Xóa lọc
+            Xóa bộ lọc
           </button>
         )}
       </div>

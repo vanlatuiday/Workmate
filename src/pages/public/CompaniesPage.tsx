@@ -3,7 +3,7 @@ import CompanyLogo from '@components/common/CompanyLogo'
 import { Link } from 'react-router-dom'
 import { photoUrl } from '@components/discover/types'
 import { FOCUS } from '@utils/focus'
-import ContentPage from './content/ContentPage'
+import PageCover, { COVER_EDGE, IvoryPageBody } from '@components/common/PageCover'
 import { useCatalogStore } from '@context/catalogStore'
 import { SkeletonCards } from '@components/dashboard/Skeleton'
 import FadeIn from '@components/motion/FadeIn'
@@ -17,7 +17,15 @@ export default function CompaniesPage() {
   const companies = useCatalogStore((s) => s.companies).filter((c) => !c.hidden)
   const settled = useCatalogStore((s) => s.settled)
   return (
-    <ContentPage eyebrow="Công ty" title="Nơi bạn có thể làm việc." intro="Các công ty đang tuyển tại Đà Nẵng.">
+    <>
+      <PageCover
+        level="md"
+        sheet
+        title="Nơi bạn có thể làm việc."
+        fact={settled || companies.length > 0 ? `${companies.length} công ty đang tuyển tại Đà Nẵng` : 'Các công ty đang tuyển tại Đà Nẵng'}
+      />
+      <IvoryPageBody>
+        <div className={cn('pb-section-sm pt-10 md:pt-12', COVER_EDGE)}>
       {companies.length === 0 && !settled ? (
         <SkeletonCards count={6} image className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3" label="Đang tải danh sách công ty…" />
       ) : (
@@ -38,16 +46,18 @@ export default function CompaniesPage() {
                 <CompanyLogo name={c.name} logoUrl={c.logoUrl} decorative className="h-10 w-10 text-xs" />
                 <h2 className="min-w-0 font-display text-lg font-semibold text-page-fg">{c.name}</h2>
               </div>
-              <p className="text-sm text-page-muted">{c.industry} · {c.district}</p>
+              <p className="text-sm text-page-muted">{[c.industry, c.district].filter(Boolean).join(' · ')}</p>
               <TaxValidBadge valid={c.taxValid} className="mt-2 inline-block" />
               <p className="mt-2 text-sm leading-relaxed text-page-muted">{c.tagline}</p>
-              <p className="mt-2 text-xs font-medium text-page-fg">{jobsOfCompany(c.id).length} vị trí đang tuyển</p>
+              <p className="mt-2 text-xs font-medium text-page-fg">{jobsOfCompany(c.id).length ? `${jobsOfCompany(c.id).length} vị trí đang tuyển` : 'Chưa có vị trí đang tuyển'}</p>
             </Link>
           </li>
         ))}
       </ul>
       </FadeIn>
       )}
-    </ContentPage>
+        </div>
+      </IvoryPageBody>
+    </>
   )
 }

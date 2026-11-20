@@ -154,9 +154,9 @@ html[data-page='home'] {
     @apply max-w-[1440px] mx-auto px-6 md:px-10 lg:px-16;
   }
 
-  /* Nhãn nhỏ in hoa đứng trên mỗi section */
+  /* Nhãn nhỏ đứng trên mỗi section */
   .eyebrow {
-    @apply inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em];
+    @apply inline-flex items-center gap-2 text-sm font-medium;
   }
 
   /* Gạch chân chạy từ trái khi hover */
@@ -1083,19 +1083,20 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
 
 /* ── Hiệu ứng đợt 2 (bìa + trang công khai + dashboard người tìm việc) ─────────────────────────── */
 
-/* Nền DarkPageBody sáng hơn trang chủ một chút: abyss 20% (home-page-dim là 34%, dùng chung nên không đổi) */
+/* Nền DarkPageBody lặng hơn bìa: tối dần theo chiều cuộn (abyss 30% → 62% trong 140svh). home-page-dim dùng chung nên không đổi.
+   Mặt nạ tan từ 0 ở đầu để nối liền với đáy bìa. */
 .pc-body-dim {
-  background: color-mix(in srgb, var(--wm-abyss) 20%, transparent);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--wm-abyss) 30%, transparent) 0, color-mix(in srgb, var(--wm-abyss) 62%, transparent) 140svh);
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 60svh);
   mask-image: linear-gradient(to bottom, transparent 0, #000 60svh);
 }
-/* Tia sáng "thở" trong DarkPageBody: dùng lại .home-bg-glow nhưng nhẹ hơn (tối đa 0,2). Giảm chuyển động → .home-bg-glow đã ẩn (opacity 0, không animation). */
-@media (prefers-reduced-motion: no-preference) {
-  .home-bg-glow.pc-body-glow { animation-name: pc-body-breathe; animation-duration: 8s; }
-}
-@keyframes pc-body-breathe {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 0.2; }
+/* Cột giữa (sau nội dung) tối hơn, ánh sáng dạt ra hai mép; thêm night 22% để bớt bão hòa. Cùng mặt nạ với .pc-body-dim. */
+.pc-body-calm {
+  background:
+    linear-gradient(to right, transparent 0%, color-mix(in srgb, var(--wm-abyss) 60%, transparent) 30%, color-mix(in srgb, var(--wm-abyss) 60%, transparent) 70%, transparent 100%),
+    color-mix(in srgb, var(--wm-night) 22%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 60svh);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 60svh);
 }
 
 /* Thẻ lợi ích /nha-tuyen-dung: hover/focus-within → quầng cyan góc trên-trái hiện dần, vòng cyan mảnh, vòng tròn icon sáng lên.

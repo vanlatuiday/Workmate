@@ -53,6 +53,8 @@ type Props = {
   actions?: ReactNode
   /** md: chỗ cho ô tìm kiếm / bộ lọc (tự vẽ kính tối) */
   children?: ReactNode
+  /** lg / md: bỏ lớp tan dần ở đáy (pc-cover-fade) để nội dung bên dưới là tấm ngà <IvoryPageBody> đè lên mép bìa */
+  sheet?: boolean
   className?: string
 }
 
@@ -68,7 +70,7 @@ export default function PageCover(props: Props) {
 
 /* ─── lg / md ─────────────────────────────────────────────────────────────── */
 
-function Cover({ level, title, label, lead, fact, actions, children, className }: Props) {
+function Cover({ level, title, label, lead, fact, actions, children, sheet, className }: Props) {
   const enter = usePageEnterDelay()
   const lg = level === 'lg'
   return (
@@ -99,10 +101,10 @@ function Cover({ level, title, label, lead, fact, actions, children, className }
         {/* Vùng chữ bên trái tối thêm để chữ ngà đọc được kể cả trên vệt cam / tia sáng */}
         <div className="absolute inset-0 bg-gradient-to-t from-wm-abyss/80 via-wm-abyss/20 to-transparent md:bg-gradient-to-r md:from-wm-abyss/80 md:via-wm-abyss/35 md:to-transparent" />
         {/* Mép dưới tan dần về đúng màu đầu phần nội dung (DarkPageBody bắt đầu cùng màu) — không có vết cắt ngang */}
-        <div className="pc-cover-fade absolute inset-x-0 bottom-0 h-3/5" />
+        {!sheet && <div className="pc-cover-fade absolute inset-x-0 bottom-0 h-3/5" />}
       </div>
 
-      <div className={cn('relative', EDGE, lg ? 'pb-10 pt-12 md:pb-14' : 'pb-6 pt-10 md:pb-8')}>
+      <div className={cn('relative', EDGE, lg ? 'pb-10 pt-12 md:pb-14' : 'pb-6 pt-10 md:pb-8', sheet && 'pb-14 md:pb-16')}>
         {label && (
           <p {...rise(enter, 0)} className={cn('pc-rise mb-3 text-sm font-medium text-page-muted')}>
             {label}
@@ -197,8 +199,9 @@ function Strip({ title, lead, breadcrumb, role = 'jobseeker', actions, className
 /**
  * Nền xanh tiếp nối bên dưới bìa lg/md (chủ dự án chọn: nội dung trang công khai tối như trang chủ).
  * Dùng ảnh tia sáng lượn sóng của trang chủ (waveBgStyle) nhưng TĨNH — không sao, không trôi, không "thở" —
- * phủ thêm abyss 20% (.pc-body-dim) và một lớp tia sáng "thở" nhẹ (.pc-body-glow). `join`: thêm quầng cam tắt nhanh ngay chỗ nối
- * với bìa lg (cùng cách trang chủ nối hero → phần ②).
+ * nhưng lặng hơn bìa: (a) tối dần khi cuộn xuống (.pc-body-dim: abyss 30% → 62% trong 140svh), (b) tia sáng dạt ra hai mép,
+ * cột giữa (sau nội dung) tối hơn và bớt bão hòa (.pc-body-calm), (c) KHÔNG còn tia sáng "thở". Cả hai lớp cùng mặt nạ
+ * tan từ 0 ở đầu nên không tạo vết cắt với bìa; .pc-body-fade phủ lên cùng chỗ nối.
  */
 export function DarkPageBody({ className, children }: { join?: boolean; className?: string; children: ReactNode }) {
   return (
@@ -206,12 +209,28 @@ export function DarkPageBody({ className, children }: { join?: boolean; classNam
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-0" style={waveBgStyle} />
         <div className="pc-body-dim absolute inset-0" />
-        {/* Tia sáng "thở" nhẹ như trang chủ (tối đa 0,2; tĩnh khi giảm chuyển động), không trôi theo cuộn */}
-        <div className="home-bg-glow pc-body-glow absolute inset-0" style={waveBgStyle} />
+        {/* Cột giữa tối hơn + hơi nhạt màu: ánh sáng chỉ còn ở hai mép */}
+        <div className="pc-body-calm absolute inset-0" />
         {/* Đầu phần nội dung bắt đầu đúng màu mép dưới của bìa rồi tan vào tia sáng */}
         <div className="pc-body-fade absolute inset-x-0 top-0 h-[36svh]" />
       </div>
       <div className="relative">{children}</div>
+    </div>
+  )
+}
+
+/**
+ * Tấm ngà đè lên đáy bìa lg/md (dùng cùng `<PageCover sheet>`): góc trên bo lớn, kéo lên 24px.
+ * data-surface="light" để header cố định chuyển sang kiểu sáng khi nằm trên tấm; phía sau góc bo là đáy abyss của bìa.
+ * Bìa có `sheet` đã đệm đáy đủ nên nội dung bìa không bị tấm che.
+ */
+export function IvoryPageBody({ className, children }: { className?: string; children: ReactNode }) {
+  return (
+    <div
+      data-surface="light"
+      className={cn('theme-ivory relative z-10 -mt-6 min-h-[40svh] flex-1 rounded-t-lg', className)}
+    >
+      {children}
     </div>
   )
 }

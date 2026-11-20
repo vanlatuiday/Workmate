@@ -18,7 +18,7 @@ export function GalleryIntro({ eyebrow, title, text }: { eyebrow: string; title:
   const enter = usePageEnterDelay()
   return (
     <>
-      <p className="eyebrow text-page-muted">
+      <p className="inline-flex items-center gap-2 text-sm text-page-muted">
         <span className="h-px w-8 bg-page-line" />
         {eyebrow}
       </p>
@@ -39,7 +39,7 @@ export function GalleryIntro({ eyebrow, title, text }: { eyebrow: string; title:
 export function DetailHead({ kicker, title }: { kicker: string; title: string }) {
   return (
     <>
-      <p className="text-xs font-medium uppercase tracking-[0.18em] text-page-muted">{kicker}</p>
+      <p className="text-sm text-page-muted">{kicker}</p>
       <h2 className="mt-3 font-display text-xl font-semibold leading-snug tracking-[-0.01em] md:text-2xl">{title}</h2>
     </>
   )

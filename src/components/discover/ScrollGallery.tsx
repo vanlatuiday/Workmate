@@ -263,7 +263,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                         'relative flex w-full items-baseline gap-3 text-left leading-snug transition-[color,opacity,transform] duration-base ease-out motion-reduce:transition-none',
                         i === active
                           ? 'translate-x-1 font-display text-lg font-semibold text-wm-ivory' // đang xem: to + sáng hơn
-                          : 'text-sm text-wm-ivory/60 hover:text-wm-ivory',
+                          : 'text-sm text-page-muted hover:text-wm-ivory', // 82% ngà: ≥ 4,5:1 trên nền xanh
                       )}
                     >
                       {/* Vạch cyan 3px ở mép trái mục đang xem (lấn vào lề trái pl-4 của <ol>) */}
@@ -274,7 +274,6 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                           i === active ? 'opacity-100' : 'opacity-0',
                         )}
                       />
-                      <span className="tnum w-5 shrink-0 text-xs text-page-muted">{pad(i + 1)}</span>
                       <span className="line-clamp-2">{item.title}</span>
                     </button>
                   </li>
@@ -433,10 +432,9 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                       onClick={() => jumpTo(i)}
                       className={cn(
                         'flex w-full gap-3 text-left transition-opacity duration-base',
-                        i === active ? 'opacity-100' : 'opacity-40 hover:opacity-80',
+                        i === active ? 'opacity-100' : 'opacity-80 hover:opacity-100',
                       )}
                     >
-                      <span className="tnum text-page-muted">{pad(i + 1)}</span>
                       <span className="truncate">{item.title}</span>
                     </button>
                   </li>

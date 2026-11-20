@@ -5,11 +5,11 @@ import { Check, Lightbulb, X, type LucideIcon } from 'lucide-react'
 import { cn } from '@utils/cn'
 import { CRITERION_LABELS, type CriterionKey, type CriterionResult } from './score'
 
-/** Một khối trong cột nội dung: nhãn nhỏ in hoa rồi nội dung */
+/** Một khối trong cột nội dung: nhãn nhỏ rồi nội dung */
 export function DetailSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-8">
-      <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-page-muted">{title}</h3>
+      <h3 className="text-sm text-page-muted">{title}</h3>
       <div className="mt-3">{children}</div>
     </section>
   )
