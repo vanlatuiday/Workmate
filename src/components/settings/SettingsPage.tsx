@@ -18,15 +18,15 @@ const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px
 /** Các loại thông báo theo phía (nhãn khác nhau vì nhìn từ hai phía) */
 const NOTIFY: Record<Side, { kind: NotificationKind; label: string }[]> = {
   seeker: [
-    { kind: 'interest', label: 'Doanh nghiệp quan tâm hồ sơ của bạn' },
-    { kind: 'considering', label: 'Doanh nghiệp đang cân nhắc đơn của bạn' },
+    { kind: 'interest', label: 'Nhà tuyển dụng quan tâm hồ sơ của bạn' },
+    { kind: 'considering', label: 'Nhà tuyển dụng đang cân nhắc đơn của bạn' },
     { kind: 'connected', label: 'Hai bên đã kết nối' },
     { kind: 'interview_invited', label: 'Lời mời phỏng vấn' },
     { kind: 'interview_cancelled', label: 'Lịch phỏng vấn bị hủy' },
     { kind: 'offer', label: 'Lời mời nhận việc' },
     { kind: 'offer_withdrawn', label: 'Lời mời nhận việc bị rút' },
-    { kind: 'rejected', label: 'Doanh nghiệp chưa chọn bạn' },
-    { kind: 'review', label: 'Doanh nghiệp đánh giá bạn' },
+    { kind: 'rejected', label: 'Nhà tuyển dụng chưa chọn bạn' },
+    { kind: 'review', label: 'Nhà tuyển dụng đánh giá bạn' },
     { kind: 'job_match', label: 'Việc mới rất phù hợp với bạn' },
   ],
   recruiter: [
@@ -36,7 +36,7 @@ const NOTIFY: Record<Side, { kind: NotificationKind; label: string }[]> = {
     { kind: 'interview_declined', label: 'Ứng viên từ chối lịch phỏng vấn' },
     { kind: 'offer_accepted', label: 'Ứng viên xác nhận đi làm' },
     { kind: 'offer_declined', label: 'Ứng viên từ chối nhận việc' },
-    { kind: 'review', label: 'Ứng viên đánh giá doanh nghiệp' },
+    { kind: 'review', label: 'Ứng viên đánh giá công ty của bạn' },
     { kind: 'candidate_match', label: 'Ứng viên mới rất phù hợp với tin của bạn' },
   ],
 }
@@ -46,17 +46,21 @@ const DIGESTS: { value: EmailDigest; label: string }[] = [
   { value: 'daily', label: 'Tóm tắt mỗi ngày lúc 8:00' },
   { value: 'off', label: 'Tắt' },
 ]
-const VISIBILITIES: { value: ProfileVisibility; label: string }[] = [
-  { value: 'public', label: 'Mọi doanh nghiệp' },
-  { value: 'connected', label: 'Chỉ doanh nghiệp đã kết nối' },
-  { value: 'hidden', label: 'Ẩn hồ sơ' },
+/**
+ * Người tìm việc có hai mức (2026-11-20, chủ dự án chọn gộp): máy chủ chỉ phân biệt "công khai" và "không công khai",
+ * nên "Ẩn hồ sơ" cũ (hidden) chạy y hệt "connected" → gộp thành "Riêng tư". Giá trị hidden cũ hiển thị như riêng tư.
+ */
+type SeekerVisibility = 'public' | 'connected'
+const VISIBILITIES: { value: SeekerVisibility; label: string }[] = [
+  { value: 'public', label: 'Công khai' },
+  { value: 'connected', label: 'Riêng tư' },
 ]
 /** Giải thích tác dụng của từng mức hiển thị hồ sơ */
-const SEEKER_VISIBILITY_HINT: Record<ProfileVisibility, string> = {
-  public: 'Mọi doanh nghiệp thấy bạn trong danh sách ứng viên.',
-  connected: 'Doanh nghiệp chỉ thấy bạn trong danh sách ứng viên của tin mà bạn đã kết nối. Các kết nối đã có vẫn giữ nguyên.',
-  hidden: 'Doanh nghiệp không thấy bạn trong danh sách ứng viên. Các kết nối đã có vẫn giữ nguyên.',
+const SEEKER_VISIBILITY_HINT: Record<SeekerVisibility, string> = {
+  public: 'Mọi nhà tuyển dụng tìm thấy bạn trong danh sách ứng viên, được gợi ý cho tin phù hợp và có thể bấm quan tâm bạn.',
+  connected: 'Chỉ công ty bạn đã ứng tuyển hoặc đã kết nối mới xem được hồ sơ. Công ty khác không tìm thấy và không gợi ý bạn.',
 }
+const seekerVisibility = (v: ProfileVisibility): SeekerVisibility => (v === 'public' ? 'public' : 'connected')
 
 /** Công tắc bật/tắt (role="switch") kèm nhãn; bật = nền đặc */
 function Switch({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
@@ -193,8 +197,8 @@ export default function SettingsPage({ side }: { side: Side }) {
         <Section title="Quyền riêng tư">
           {side === 'seeker' ? (
             <>
-              <RadioGroup legend="Ai xem được hồ sơ" options={VISIBILITIES} value={settings.visibility} onChange={(v) => { update(side, { visibility: v }); saved() }} />
-              <p className="mt-3 text-sm text-page-muted">{SEEKER_VISIBILITY_HINT[settings.visibility]}</p>
+              <RadioGroup legend="Ai xem được hồ sơ" options={VISIBILITIES} value={seekerVisibility(settings.visibility)} onChange={(v) => { update(side, { visibility: v }); saved() }} />
+              <p className="mt-3 text-sm text-page-muted">{SEEKER_VISIBILITY_HINT[seekerVisibility(settings.visibility)]}</p>
             </>
           ) : (
             <>
@@ -216,7 +220,7 @@ export default function SettingsPage({ side }: { side: Side }) {
         <Section title="Tài khoản">
           <dl className="mb-6 grid gap-4 sm:grid-cols-2">
             <div><dt className="text-sm text-page-muted">Email</dt><dd className="mt-1 text-sm text-page-fg">{user?.email ?? '—'}</dd></div>
-            <div><dt className="text-sm text-page-muted">Vai trò</dt><dd className="mt-1 text-sm text-page-fg">{side === 'seeker' ? 'Người tìm việc' : 'Doanh nghiệp'}</dd></div>
+            <div><dt className="text-sm text-page-muted">Vai trò</dt><dd className="mt-1 text-sm text-page-fg">{side === 'seeker' ? 'Người tìm việc' : 'Nhà tuyển dụng'}</dd></div>
           </dl>
           <form onSubmit={changePassword} noValidate className="flex flex-col gap-4 border-t border-page-line pt-6">
             <h3 className="font-medium text-page-fg">Đổi mật khẩu</h3>
@@ -232,7 +236,7 @@ export default function SettingsPage({ side }: { side: Side }) {
           <p className="mb-4 text-sm text-page-muted">
             {side === 'seeker'
               ? 'Xóa vĩnh viễn hồ sơ, CV, ảnh đại diện, đơn ứng tuyển, kết nối, tin nhắn, lịch phỏng vấn và đánh giá của bạn. Không thể khôi phục.'
-              : 'Xóa vĩnh viễn tài khoản của bạn. Nếu bạn là người quản lý duy nhất, công ty, mọi tin tuyển dụng cùng kết nối và tin nhắn với ứng viên cũng bị xóa. Không thể khôi phục.'}
+              : 'Xóa vĩnh viễn tài khoản của bạn. Nếu bạn là người quản lý duy nhất, công ty cùng mọi tin tuyển dụng, kết nối và tin nhắn với ứng viên cũng bị xóa. Không thể khôi phục.'}
           </p>
           {!deleting ? (
             <button type="button" className={cn(BTN_DANGER, BTN_SM)} onClick={() => setDeleting(true)}>Xóa tài khoản</button>

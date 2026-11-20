@@ -122,7 +122,7 @@ export default function CandidateProfile() {
   }, [id, connected])
 
   if (state === 'missing') {
-    return <DetailNotFound title="Hồ sơ này không hiển thị" text="Ứng viên đã ẩn hồ sơ hoặc đường dẫn không còn đúng." />
+    return <DetailNotFound title="Hồ sơ này không hiển thị" text="Ứng viên đã để hồ sơ ở chế độ riêng tư hoặc đường dẫn không còn đúng." />
   }
   if (state === 'error') {
     return <DetailNotFound title="Chưa tải được hồ sơ" text="Kết nối tới máy chủ đang có vấn đề, vui lòng thử lại sau." />
