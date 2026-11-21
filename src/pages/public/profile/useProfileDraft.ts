@@ -12,17 +12,17 @@ export type ProfileDraft = SeekerProfile & {
 
 /** Các mục tính vào mức hoàn thiện: nhãn + điều kiện đã điền */
 /** `hint` = câu gợi ý hiển thị cạnh vòng tiến độ; `target` = id phần tử trên trang để nhảy/focus tới */
-function checklist(p: ProfileDraft): { label: string; hint: string; target: string; done: boolean }[] {
+function checklist(p: ProfileDraft): { label: string; hint: string; target: string; section: string; done: boolean }[] {
   return [
-    { label: 'tên', hint: 'Nhập họ tên', target: 'pf-name', done: p.fullName.trim().length > 0 },
-    { label: 'giới thiệu ngắn', hint: 'Viết giới thiệu ngắn', target: 'pf-intro', done: p.intro.trim().length > 0 },
-    { label: 'ít nhất 3 ca rảnh', hint: 'Chọn ít nhất 3 ca rảnh', target: 'pf-avail', done: p.availability.length >= 3 },
-    { label: 'ít nhất 3 kỹ năng', hint: 'Thêm ít nhất 3 kỹ năng', target: 'pf-skill', done: p.skills.length >= 3 },
-    { label: 'kinh nghiệm', hint: 'Thêm một kinh nghiệm làm việc', target: 'pf-add-exp', done: p.experience.length >= 1 },
-    { label: 'mức lương mong muốn', hint: 'Chọn mức lương mong muốn', target: 'pf-salary', done: p.salaryMin > 0 },
-    { label: 'khoảng cách tối đa', hint: 'Chọn khoảng cách tối đa', target: 'pf-distance', done: p.maxDistanceKm > 0 },
-    { label: 'loại việc', hint: 'Chọn ít nhất một loại việc', target: 'pf-jobtype', done: p.jobTypes.length >= 1 },
-    { label: 'ảnh đại diện', hint: 'Thêm ảnh đại diện', target: 'avatar-file', done: !!p.avatarUrl },
+    { label: 'tên', hint: 'Nhập họ tên', target: 'pf-name', section: 'thong-tin', done: p.fullName.trim().length > 0 },
+    { label: 'giới thiệu ngắn', hint: 'Viết giới thiệu ngắn', target: 'pf-intro', section: 'thong-tin', done: p.intro.trim().length > 0 },
+    { label: 'ít nhất 3 ca rảnh', hint: 'Chọn ít nhất 3 ca rảnh', target: 'pf-avail', section: 'lich-ranh', done: p.availability.length >= 3 },
+    { label: 'ít nhất 3 kỹ năng', hint: 'Thêm ít nhất 3 kỹ năng', target: 'pf-skill', section: 'ky-nang', done: p.skills.length >= 3 },
+    { label: 'kinh nghiệm', hint: 'Thêm một kinh nghiệm làm việc', target: 'pf-add-exp', section: 'kinh-nghiem', done: p.experience.length >= 1 },
+    { label: 'mức lương mong muốn', hint: 'Chọn mức lương mong muốn', target: 'pf-salary', section: 'mong-muon', done: p.salaryMin > 0 },
+    { label: 'khoảng cách tối đa', hint: 'Chọn khoảng cách tối đa', target: 'pf-distance', section: 'mong-muon', done: p.maxDistanceKm > 0 },
+    { label: 'loại việc', hint: 'Chọn ít nhất một loại việc', target: 'pf-jobtype', section: 'mong-muon', done: p.jobTypes.length >= 1 },
+    { label: 'ảnh đại diện', hint: 'Thêm ảnh đại diện', target: 'avatar-file', section: 'thong-tin', done: !!p.avatarUrl },
   ]
 }
 
@@ -30,6 +30,25 @@ function checklist(p: ProfileDraft): { label: string; hint: string; target: stri
 export function completeness(p: ProfileDraft): number {
   const list = checklist(p)
   return Math.round((list.filter((i) => i.done).length / list.length) * 100)
+}
+
+/** Các phần của /ho-so theo thứ tự trên trang (mục lục dính bên trái dùng danh sách này) */
+export const SECTIONS = [
+  { id: 'thong-tin', label: 'Giới thiệu' },
+  { id: 'ky-nang', label: 'Kỹ năng' },
+  { id: 'kinh-nghiem', label: 'Kinh nghiệm' },
+  { id: 'lich-ranh', label: 'Lịch rảnh' },
+  { id: 'mong-muon', label: 'Mong muốn' },
+  { id: 've-ban', label: 'Về bạn' },
+] as const
+
+/** Phần nào đã xong: mọi mục của phần đó trong `checklist` đã điền (cùng tiêu chí với %); "Về bạn" không tính vào % nên xét có nội dung */
+export function sectionStatus(p: ProfileDraft): { id: string; label: string; done: boolean }[] {
+  const items = checklist(p)
+  return SECTIONS.map((s) => {
+    const own = items.filter((i) => i.section === s.id)
+    return { ...s, done: own.length ? own.every((i) => i.done) : p.about.trim().length > 0 }
+  })
 }
 
 export function useProfileDraft() {
@@ -82,6 +101,7 @@ export function useProfileDraft() {
   }, [update])
 
   const percent = useMemo(() => completeness(profile), [profile])
+  const sections = useMemo(() => sectionStatus(profile), [profile])
   const missing = useMemo(() => checklist(profile).filter((i) => !i.done).map((i) => i.label), [profile])
 
   // Gợi ý cụ thể còn thiếu để đạt 100% — cùng tiêu chí với `completeness`
@@ -91,7 +111,7 @@ export function useProfileDraft() {
   )
 
   return {
-    profile, suggestions, set, toggleCell, toggleJobType, addSkill, removeSkill,
+    profile, suggestions, sections, set, toggleCell, toggleJobType, addSkill, removeSkill,
     addExperience, updateExperience, removeExperience, setAvatarFile, percent, missing,
   }
 }

@@ -10,7 +10,7 @@ import { useProfileStore, type SeekerProfile } from '@context/profileStore'
 import PersonalIntro from './PersonalIntro'
 import { ActionNote, ActionPrimary, ActionText, Actions, EmptyNote, PageActions, Section, snippet, TagList, WeekGrid } from './parts'
 
-const EDIT_HREF = '/tim-viec/ho-so'
+const EDIT_HREF = '/ho-so'
 
 type Opts = { owner: boolean }
 type BuildOpts = Opts & { P: SeekerProfile; cvCount: number; applied: number }

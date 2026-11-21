@@ -7,6 +7,7 @@ import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { BTN_ICON, BTN_SECONDARY, BTN_SM } from '@utils/ui'
+import { usePublicProfile } from '@hooks/usePublicProfile'
 import Avatar from './Avatar'
 import { fmtMoney, type ProfileApi } from './useProfileDraft'
 
@@ -46,6 +47,7 @@ type ModalProps = { api: ProfileApi; reduced: boolean; onClosed: () => void }
 /** Khung lớn giữa màn hình — hồ sơ như doanh nghiệp thấy (không có SĐT/email). */
 function PreviewModal({ api, reduced, onClosed }: ModalProps) {
   const { profile, percent } = api
+  const { isPublic } = usePublicProfile()
   const titleId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -109,7 +111,7 @@ function PreviewModal({ api, reduced, onClosed }: ModalProps) {
           <Avatar name={profile.fullName} url={profile.avatarUrl} show={profile.showAvatar} className="h-20 w-20 text-2xl" />
           <div>
             <h2 id={titleId} className="font-display text-2xl font-semibold md:text-3xl">{profile.fullName || 'Chưa có tên'}</h2>
-            <p className="text-sm text-page-muted">{profile.area} · {profile.published ? 'Đã công khai' : 'Chưa công khai'} · hoàn thiện {percent}%</p>
+            <p className="text-sm text-page-muted">{profile.area} · {isPublic ? 'Đang công khai' : 'Chưa công khai'} · hoàn thiện {percent}%</p>
           </div>
         </div>
         {profile.intro && <p className="mt-6 leading-relaxed">{profile.intro}</p>}
@@ -132,7 +134,7 @@ function PreviewModal({ api, reduced, onClosed }: ModalProps) {
         <h3 className="mt-8 text-sm font-medium text-page-muted">Kinh nghiệm</h3>
         <ul className="mt-2 space-y-2">
           {profile.experience.map((e) => (
-            <li key={e.id}><span className="font-medium">{e.title}</span><span className="text-page-muted"> — {[e.company, e.period].filter(Boolean).join(', ')}</span></li>
+            <li key={e.id}><span className="font-medium">{e.title}</span><span className="text-page-muted">: {[e.company, e.period].filter(Boolean).join(', ')}</span></li>
           ))}
         </ul>
 

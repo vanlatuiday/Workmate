@@ -5,7 +5,7 @@ import { AVAILABILITY_DEFAULT, PROFILE_DEFAULT } from '@pages/jobseeker/mockData
 import type { SeekerCriteria } from '@pages/public/match/score'
 import type { JobType } from '@/types'
 
-// Hồ sơ người tìm việc của tài khoản demo (admin1) — MỘT nguồn duy nhất cho /ho-so, /tim-viec/ho-so,
+// Hồ sơ người tìm việc của tài khoản demo (admin1) — MỘT nguồn duy nhất cho /ho-so (/tim-viec/ho-so chuyển về đây),
 // /ca-nhan và mọi điểm phù hợp (catalog, /match, dashboard). Bản sao trên máy ở localStorage (`workmate-profile`).
 // Đăng nhập bằng người tìm việc: nạp từ /api/seeker/profile, mọi thay đổi tự lưu lên máy chủ (services/profileService).
 // Khách / tài khoản khác: hồ sơ mẫu chỉ trên máy; đăng xuất thì về hồ sơ mẫu.

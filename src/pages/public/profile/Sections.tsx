@@ -10,13 +10,13 @@ import PeriodField from './PeriodField'
 import { chip, Group, INPUT } from './ui'
 import { fmtMoney, type ProfileApi } from './useProfileDraft'
 
-/** Nhóm 02 — Kỹ năng: chip bỏ được + ô thêm. */
-export function SkillsChapter({ api }: { api: ProfileApi }) {
+/** Kỹ năng: chip bỏ được + ô thêm (dùng ở /ho-so và form bắt đầu). */
+export function SkillsFields({ api }: { api: ProfileApi }) {
   const { profile, addSkill, removeSkill } = api
   const [draft, setDraft] = useState('')
   const add = () => { addSkill(draft); setDraft('') }
   return (
-    <Group title="Kỹ năng" index={2}>
+    <div className="space-y-4">
       <ul className="flex flex-wrap gap-2">
         {profile.skills.map((s) => (
           <li key={s} className="flex items-center gap-1 rounded-full border border-page-edge py-1 pl-3 pr-1 text-sm text-page-fg">
@@ -33,15 +33,19 @@ export function SkillsChapter({ api }: { api: ProfileApi }) {
         <input id="pf-skill" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Ví dụ: Thu ngân (Enter để thêm)" className={INPUT} />
         <button type="submit" className={cn(BTN_SECONDARY, BTN_SM, 'shrink-0')}><Plus className="h-4 w-4" aria-hidden />Thêm</button>
       </form>
-    </Group>
+    </div>
   )
 }
 
-/** Nhóm 03 — Kinh nghiệm: danh sách dòng sửa trực tiếp. */
+export function SkillsChapter({ api }: { api: ProfileApi }) {
+  return <Group id="ky-nang" title="Kỹ năng"><SkillsFields api={api} /></Group>
+}
+
+/** Kinh nghiệm: danh sách dòng sửa trực tiếp. */
 export function ExperienceChapter({ api }: { api: ProfileApi }) {
   const { profile, addExperience, updateExperience, removeExperience } = api
   return (
-    <Group title="Kinh nghiệm" index={3}>
+    <Group id="kinh-nghiem" title="Kinh nghiệm">
       {!profile.experience.length && <p className="text-sm text-page-muted">Chưa có kinh nghiệm nào.</p>}
       <ul className="space-y-3">
         {profile.experience.map((e) => (
@@ -70,39 +74,46 @@ export function ExperienceChapter({ api }: { api: ProfileApi }) {
   )
 }
 
+/** Lưới lịch rảnh 7 ngày × 3 buổi (dùng ở /ho-so và form bắt đầu); ô bật = nền màu vai trò. */
+export function AvailabilityGrid({ availability, onToggle }: { availability: string[]; onToggle: (key: string) => void }) {
+  return (
+    <div className="grid grid-cols-[auto_repeat(3,1fr)] gap-1.5" role="group" aria-label="Lịch rảnh trong tuần">
+      <span />
+      {SESSIONS.map((s) => <span key={s} className="text-center text-xs text-page-muted">{s}</span>)}
+      {DAY_SHORT.map((d, di) => (
+        <div key={d} className="contents">
+          <span className="flex items-center pr-2 text-xs text-page-muted">{d}</span>
+          {SESSIONS.map((s, si) => {
+            const key = `${di}-${si}`
+            const on = availability.includes(key)
+            return (
+              <button
+                key={key}
+                id={di === 0 && si === 0 ? 'pf-avail' : undefined}
+                type="button"
+                aria-pressed={on}
+                aria-label={`${d} ${s}`}
+                onClick={() => onToggle(key)}
+                className={`h-8 rounded-control border transition-colors duration-fast motion-reduce:transition-none ${FOCUS} ${
+                  on ? CHIP_ON : 'border-page-line bg-page-surface hover:border-page-fg'
+                }`}
+              />
+            )
+          })}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 /** Nhóm 04 — Lịch rảnh: lưới 7 ngày × 3 buổi. */
 export function AvailabilityChapter({ api }: { api: ProfileApi }) {
   const { profile, toggleCell, set } = api
   const later = isFutureStart(profile.availableFrom)
   return (
-    <Group title="Lịch rảnh" index={4}>
+    <Group id="lich-ranh" title="Lịch rảnh">
       <p className="text-sm text-page-muted">Bấm vào ô để bật/tắt ca bạn rảnh. Hiện có {profile.availability.length} ca mỗi tuần.</p>
-      <div className="grid grid-cols-[auto_repeat(3,1fr)] gap-1.5" role="group" aria-label="Lịch rảnh trong tuần">
-        <span />
-        {SESSIONS.map((s) => <span key={s} className="text-center text-xs text-page-muted">{s}</span>)}
-        {DAY_SHORT.map((d, di) => (
-          <div key={d} className="contents">
-            <span className="flex items-center pr-2 text-xs text-page-muted">{d}</span>
-            {SESSIONS.map((s, si) => {
-              const key = `${di}-${si}`
-              const on = profile.availability.includes(key)
-              return (
-                <button
-                  key={key}
-                  id={di === 0 && si === 0 ? 'pf-avail' : undefined}
-                  type="button"
-                  aria-pressed={on}
-                  aria-label={`${d} ${s}`}
-                  onClick={() => toggleCell(key)}
-                  className={`h-8 rounded-control border transition-colors duration-fast motion-reduce:transition-none ${FOCUS} ${
-                    on ? CHIP_ON : 'border-page-line bg-page-surface hover:border-page-fg'
-                  }`}
-                />
-              )
-            })}
-          </div>
-        ))}
-      </div>
+      <AvailabilityGrid availability={profile.availability} onToggle={toggleCell} />
       <fieldset className="space-y-2">
         <legend className="text-sm text-page-muted">Có thể bắt đầu</legend>
         <div className="flex flex-wrap gap-2">
@@ -121,11 +132,11 @@ export function AvailabilityChapter({ api }: { api: ProfileApi }) {
   )
 }
 
-/** Nhóm 05 — Mong muốn: lương, khoảng cách, loại việc, khu vực. */
-export function WantsChapter({ api }: { api: ProfileApi }) {
+/** Mong muốn: lương, khoảng cách, loại việc, khu vực (dùng ở /ho-so và form bắt đầu). */
+export function WantsFields({ api }: { api: ProfileApi }) {
   const { profile, set, toggleJobType } = api
   return (
-    <Group title="Mong muốn" index={5}>
+    <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block text-sm text-page-muted">
           Lương tối thiểu: <span className="tnum text-page-fg">{fmtMoney(profile.salaryMin)}/giờ</span>
@@ -151,15 +162,20 @@ export function WantsChapter({ api }: { api: ProfileApi }) {
         <label htmlFor="pf-area" className="mb-1 block text-sm text-page-muted">Khu vực mong muốn</label>
         <input id="pf-area" value={profile.area} onChange={(e) => set('area', e.target.value)} className={INPUT} />
       </div>
-    </Group>
+    </div>
   )
+}
+
+/** Nhóm 05 — Mong muốn. */
+export function WantsChapter({ api }: { api: ProfileApi }) {
+  return <Group id="mong-muon" title="Mong muốn"><WantsFields api={api} /></Group>
 }
 
 /** Nhóm 06 — Về bạn (giới thiệu thêm). */
 export function AboutChapter({ api }: { api: ProfileApi }) {
   const { profile, set } = api
   return (
-    <Group title="Về bạn" index={6}>
+    <Group id="ve-ban" title="Về bạn">
       <label htmlFor="pf-about" className="sr-only">Giới thiệu thêm</label>
       <textarea id="pf-about" rows={5} value={profile.about} onChange={(e) => set('about', e.target.value)} placeholder="Tùy chọn: vài dòng về bản thân, điều bạn mong muốn ở công việc" className={INPUT} />
     </Group>

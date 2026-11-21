@@ -5,8 +5,9 @@ import { useNavigate } from 'react-router-dom'
 import { AlertCircle } from 'lucide-react'
 import { PageHeader, Panel } from '@components/dashboard'
 import { useAuthStore } from '@context/authStore'
+import { usePublicProfile } from '@hooks/usePublicProfile'
 import type { Side } from '@context/connectionStore'
-import { isNotifyOn, useSettingsStore, type EmailDigest, type NotificationKind, type ProfileVisibility } from '@context/settingsStore'
+import { isNotifyOn, useSettingsStore, type EmailDigest, type NotificationKind } from '@context/settingsStore'
 import { apiErrorMessage, authService } from '@services/authService'
 import { setNotifyPref, startConnections } from '@services/connectionService'
 import { cn } from '@utils/cn'
@@ -47,20 +48,13 @@ const DIGESTS: { value: EmailDigest; label: string }[] = [
   { value: 'off', label: 'Tắt' },
 ]
 /**
- * Người tìm việc có hai mức (2026-11-20, chủ dự án chọn gộp): máy chủ chỉ phân biệt "công khai" và "không công khai",
- * nên "Ẩn hồ sơ" cũ (hidden) chạy y hệt "connected" → gộp thành "Riêng tư". Giá trị hidden cũ hiển thị như riêng tư.
+ * Người tìm việc: MỘT công tắc "Công khai hồ sơ" (2026-11-21), dùng chung hook với /ho-so (usePublicProfile):
+ * bật = published + visibility 'public'; tắt = published=false + visibility 'connected' ("hidden" cũ coi như tắt).
  */
-type SeekerVisibility = 'public' | 'connected'
-const VISIBILITIES: { value: SeekerVisibility; label: string }[] = [
-  { value: 'public', label: 'Công khai' },
-  { value: 'connected', label: 'Riêng tư' },
-]
-/** Giải thích tác dụng của từng mức hiển thị hồ sơ */
-const SEEKER_VISIBILITY_HINT: Record<SeekerVisibility, string> = {
-  public: 'Mọi nhà tuyển dụng tìm thấy bạn trong danh sách ứng viên, được gợi ý cho tin phù hợp và có thể bấm quan tâm bạn.',
-  connected: 'Chỉ công ty bạn đã ứng tuyển hoặc đã kết nối mới xem được hồ sơ. Công ty khác không tìm thấy và không gợi ý bạn.',
+const PUBLIC_HINT = {
+  on: 'Mọi nhà tuyển dụng tìm thấy bạn trong danh sách ứng viên, được gợi ý cho tin phù hợp và có thể bấm quan tâm bạn.',
+  off: 'Chỉ công ty bạn đã ứng tuyển hoặc đã kết nối mới xem được hồ sơ. Công ty khác không tìm thấy và không gợi ý bạn.',
 }
-const seekerVisibility = (v: ProfileVisibility): SeekerVisibility => (v === 'public' ? 'public' : 'connected')
 
 /** Công tắc bật/tắt (role="switch") kèm nhãn; bật = nền đặc */
 function Switch({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
@@ -121,6 +115,7 @@ export default function SettingsPage({ side }: { side: Side }) {
   const logout = useAuthStore((s) => s.logout)
   const settings = useSettingsStore((s) => s.bySide[side])
   const update = useSettingsStore((s) => s.update)
+  const { isPublic, setPublic } = usePublicProfile()
 
   const [cur, setCur] = useState('')
   const [next, setNext] = useState('')
@@ -197,8 +192,10 @@ export default function SettingsPage({ side }: { side: Side }) {
         <Section title="Quyền riêng tư">
           {side === 'seeker' ? (
             <>
-              <RadioGroup legend="Ai xem được hồ sơ" options={VISIBILITIES} value={seekerVisibility(settings.visibility)} onChange={(v) => { update(side, { visibility: v }); saved() }} />
-              <p className="mt-3 text-sm text-page-muted">{SEEKER_VISIBILITY_HINT[seekerVisibility(settings.visibility)]}</p>
+              <ul>
+                <Switch label="Công khai hồ sơ" checked={isPublic} onChange={(on) => { setPublic(on); saved() }} />
+              </ul>
+              <p className="mt-3 text-sm text-page-muted">{isPublic ? PUBLIC_HINT.on : PUBLIC_HINT.off}</p>
             </>
           ) : (
             <>

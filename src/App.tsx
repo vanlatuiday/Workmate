@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Messenger from '@components/messenger/Messenger'
 import NotificationCenter from '@components/notifications/NotificationCenter'
 import { useAuthStore } from '@context/authStore'
@@ -63,7 +63,7 @@ const Applications = lazy(() => import('@pages/jobseeker/Applications'))
 const JobseekerStats = lazy(() => import('@pages/jobseeker/Stats'))
 const JobseekerMatch = lazy(() => import('@pages/jobseeker/Match'))
 const CVManager = lazy(() => import('@pages/jobseeker/CVManager'))
-const JobseekerProfile = lazy(() => import('@pages/jobseeker/Profile'))
+const JobseekerOnboarding = lazy(() => import('@pages/jobseeker/onboarding/OnboardingPage'))
 const JobseekerSettings = lazy(() => import('@pages/jobseeker/Settings'))
 
 // Recruiter pages
@@ -92,6 +92,12 @@ import ProtectedRoute from '@components/common/ProtectedRoute'
 import OnboardingGate, { GateSkeleton, useOnboardingRedirect } from '@components/common/OnboardingGate'
 const OnboardingPage = lazy(() => import('@pages/recruiter/onboarding/OnboardingPage'))
 const CandidateProfile = lazy(() => import('@pages/recruiter/CandidateProfile'))
+
+/** /tim-viec/ho-so cũ → /ho-so, giữ nguyên #neo */
+function ProfileRedirect() {
+  const { hash } = useLocation()
+  return <Navigate to={`/ho-so${hash}`} replace />
+}
 
 export default function App() {
   // Có token lưu sẵn: hỏi máy chủ một lần để làm mới thông tin người dùng (token hỏng/hết hạn → interceptor tự đăng xuất)
@@ -181,6 +187,8 @@ export default function App() {
 
       {/* Jobseeker routes */}
       <Route element={<ProtectedRoute role="jobseeker" />}>
+        {/* Hướng dẫn lần đầu: toàn trang, ngoài khung dashboard; không bắt buộc */}
+        <Route path="/tim-viec/bat-dau" element={<Suspense fallback={<GateSkeleton />}><JobseekerOnboarding /></Suspense>} />
         <Route element={<Suspense fallback={DashFallback}><JobseekerLayout /></Suspense>}>
           <Route path="/tim-viec" element={<JobseekerDashboard />} />
           <Route path="/tim-viec/phu-hop" element={<RecommendedJobs />} />
@@ -191,7 +199,8 @@ export default function App() {
           <Route path="/tim-viec/tin-nhan" element={<Navigate to="/tin-nhan" replace />} />
           <Route path="/tim-viec/lich-phong-van" element={<Navigate to="/lich-phong-van" replace />} />
           <Route path="/tim-viec/cv" element={<CVManager />} />
-          <Route path="/tim-viec/ho-so" element={<JobseekerProfile />} />
+          {/* Trình sửa hồ sơ duy nhất là /ho-so; giữ #neo cũ (thong-tin, kinh-nghiem, lich-ranh) */}
+          <Route path="/tim-viec/ho-so" element={<ProfileRedirect />} />
           <Route path="/tim-viec/cai-dat" element={<JobseekerSettings />} />
         </Route>
       </Route>

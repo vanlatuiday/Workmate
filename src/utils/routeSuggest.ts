@@ -27,7 +27,7 @@ const SEEKER: RouteEntry[] = [
   { to: '/tim-viec/ung-tuyen', label: 'Đã ứng tuyển' },
   { to: '/tim-viec/match', label: 'Kết nối của tôi' },
   { to: '/tim-viec/cv', label: 'Quản lý CV' },
-  { to: '/tim-viec/ho-so', label: 'Hồ sơ của tôi' },
+  { to: '/ho-so', label: 'Hồ sơ của tôi' },
   { to: '/tim-viec/cai-dat', label: 'Cài đặt' },
 ]
 

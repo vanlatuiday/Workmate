@@ -95,7 +95,7 @@ export default function JobseekerDashboard() {
         </FadeIn>
 
         <FadeIn delay={80} className="[&>section]:h-full">
-        <Panel title="Hồ sơ của bạn" action={<Link to="/tim-viec/ho-so" className={LINK}>Hoàn thiện</Link>}>
+        <Panel title="Hồ sơ của bạn" action={<Link to="/ho-so" className={LINK}>Hoàn thiện</Link>}>
           <p className="tnum font-display text-3xl font-medium text-page-fg">{PROFILE_PERCENT}%</p>
           <div
             role="progressbar"
@@ -111,7 +111,7 @@ export default function JobseekerDashboard() {
             Còn thiếu lịch rảnh cho vài buổi trong tuần. Lịch rảnh càng đầy đủ, việc gợi ý càng sát với bạn.
           </p>
           <Link
-            to="/tim-viec/ho-so"
+            to="/ho-so"
             className={`${BTN_ACCENT} mt-5`}
           >
             Cập nhật hồ sơ <ArrowRight className="h-4 w-4" aria-hidden="true" />

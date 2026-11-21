@@ -104,8 +104,8 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
     // Thẻ mờ đi xong mới đổi trang
     await leave()
     setUser(res.user, res.token)
-    // Nhà tuyển dụng mới: vào thẳng form bắt đầu (mã số, tên, logo…) thay vì trang chủ
-    navigate(res.user.role === 'recruiter' ? '/tuyen-dung/bat-dau' : '/')
+    // Nhà tuyển dụng mới: vào thẳng form bắt đầu (mã số, tên, logo…); người tìm việc mới: hướng dẫn 3 bước (không bắt buộc)
+    navigate(res.user.role === 'recruiter' ? '/tuyen-dung/bat-dau' : res.user.role === 'jobseeker' ? '/tim-viec/bat-dau' : '/')
   }
 
   const resend = async () => {

@@ -9,14 +9,11 @@ export const INPUT = `w-full rounded-control border border-page-edge bg-page-sur
 /** Chip bật/tắt (loại việc, kỹ năng) */
 export const chip = (on: boolean) => cn(CHIP, on ? CHIP_ON : CHIP_OFF)
 
-/** Nhóm trường dạng thẻ kính, số thứ tự mờ ở góc phải (chỉ trang trí); legend thả nổi để nằm trong thẻ. */
-export function Group({ title, index, children }: { title: string; index: number; children: ReactNode }) {
+/** Nhóm trường dạng thẻ; `id` là #neo cho mục lục và liên kết ngoài (scroll-mt chừa chỗ cho header cố định). */
+export function Group({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
-    <fieldset data-group className="relative rounded-card border border-page-line bg-page-surface p-5">
-      <span aria-hidden="true" className="pointer-events-none absolute right-4 top-2 select-none font-display text-5xl font-semibold leading-none text-page-line">
-        {String(index).padStart(2, '0')}
-      </span>
-      <legend className="float-left mb-4 w-full pr-16 text-sm font-medium text-page-fg">{title}</legend>
+    <fieldset id={id} data-group className="relative scroll-mt-28 rounded-card border border-page-line bg-page-surface p-5">
+      <legend className="float-left mb-4 w-full text-sm font-medium text-page-fg">{title}</legend>
       <div className="clear-both space-y-4">{children}</div>
     </fieldset>
   )

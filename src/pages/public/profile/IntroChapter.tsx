@@ -5,7 +5,7 @@ import Avatar from './Avatar'
 import { Group, INPUT, Switch } from './ui'
 import type { ProfileApi } from './useProfileDraft'
 
-/** Nhóm 01 — ảnh đại diện, họ tên, câu giới thiệu. */
+/** Thông tin cơ bản: ảnh đại diện, họ tên, số điện thoại, câu giới thiệu. */
 export default function IntroChapter({ api }: { api: ProfileApi }) {
   const { profile, set, setAvatarFile } = api
   // Ảnh hiện ngay, tải lên chạy nền; lỗi thì ảnh cũ quay lại và báo lý do
@@ -15,7 +15,7 @@ export default function IntroChapter({ api }: { api: ProfileApi }) {
   }
 
   return (
-    <Group title="Giới thiệu" index={1}>
+    <Group id="thong-tin" title="Giới thiệu">
       <div className="flex flex-col gap-5 sm:flex-row">
         <div className="flex shrink-0 flex-col items-start gap-3">
           <Avatar name={profile.fullName} url={profile.avatarUrl} className="h-24 w-24 text-3xl" />
@@ -37,6 +37,10 @@ export default function IntroChapter({ api }: { api: ProfileApi }) {
           <div>
             <label htmlFor="pf-name" className="mb-1 block text-sm text-page-muted">Họ tên</label>
             <input id="pf-name" value={profile.fullName} onChange={(e) => set('fullName', e.target.value)} className={INPUT} />
+          </div>
+          <div>
+            <label htmlFor="pf-phone" className="mb-1 block text-sm text-page-muted">Số điện thoại (chỉ mở sau khi hai bên kết nối)</label>
+            <input id="pf-phone" type="tel" inputMode="tel" autoComplete="tel" value={profile.phone} onChange={(e) => set('phone', e.target.value)} className={INPUT} />
           </div>
           <div>
             <label htmlFor="pf-intro" className="mb-1 block text-sm text-page-muted">Giới thiệu ngắn (1–2 câu)</label>

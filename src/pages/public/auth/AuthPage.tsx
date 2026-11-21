@@ -72,9 +72,11 @@ export default function AuthPage() {
   const { pathname, state } = useLocation()
   if (user && token && (pathname === AUTH_PATHS.login || pathname === AUTH_PATHS.register)) {
     const from = (state as { from?: string } | null)?.from
-    // Nhà tuyển dụng vừa xác nhận email ở /dang-ky: vào thẳng form bắt đầu. Phải xử lý ở đây vì
+    // Người dùng mới vừa xác nhận email ở /dang-ky: nhà tuyển dụng vào form bắt đầu, người tìm việc vào hướng dẫn 3 bước. Phải xử lý ở đây vì
     // setUser làm trang này render lại và chuyển hướng TRƯỚC lệnh navigate() trong RegisterForm
-    const fallback = user.role === 'recruiter' && pathname === AUTH_PATHS.register ? '/tuyen-dung/bat-dau' : '/'
+    const fallback = pathname !== AUTH_PATHS.register ? '/'
+      : user.role === 'recruiter' ? '/tuyen-dung/bat-dau'
+      : user.role === 'jobseeker' ? '/tim-viec/bat-dau' : '/'
     return <Navigate to={from && canVisit(user.role, from) ? from : fallback} replace />
   }
   return <AuthCard />

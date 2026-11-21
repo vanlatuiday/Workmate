@@ -425,7 +425,7 @@ export default function JobseekerMatch() {
     <CriteriaDrawer id="match-criteria" open={panelOpen} onClose={closePanel} triggerRef={criteriaBtn}>
       <div className="mb-5 flex items-center justify-between gap-3">
         <p className="text-xs text-page-muted">Lấy sẵn từ hồ sơ. Chỉnh ở đây không đổi hồ sơ.</p>
-        <Link to="/tim-viec/ho-so" className={`shrink-0 rounded-control text-xs underline underline-offset-4 ${FOCUS}`}>
+        <Link to="/ho-so" className={`shrink-0 rounded-control text-xs underline underline-offset-4 ${FOCUS}`}>
           Sửa hồ sơ
         </Link>
       </div>

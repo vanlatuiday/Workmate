@@ -10,7 +10,7 @@ export type BadgeKind = 'messages' | 'applications' | 'interviews'
 
 export type SidebarChild = {
   label: string
-  /** Đường dẫn kèm #neo, vd. /tim-viec/ho-so#kinh-nghiem */
+  /** Đường dẫn kèm #neo, vd. /ho-so#kinh-nghiem */
   href: string
   /** Lớp màu chấm nhỏ đầu dòng */
   dot: string
@@ -55,7 +55,7 @@ export const SIDEBAR_CONFIG: Record<SidebarRole, SidebarConfig> = {
   seeker: {
     subtitle: 'Không gian người tìm việc',
     homeHref: '/tim-viec',
-    profileHref: '/tim-viec/ho-so',
+    profileHref: '/ho-so',
     settingsHref: '/tim-viec/cai-dat',
     groups: [
       {
@@ -74,11 +74,11 @@ export const SIDEBAR_CONFIG: Record<SidebarRole, SidebarConfig> = {
         items: [
           messages,
           {
-            key: 'profile', label: 'Hồ sơ của tôi', icon: User, href: '/tim-viec/ho-so',
+            key: 'profile', label: 'Hồ sơ của tôi', icon: User, href: '/ho-so',
             children: [
-              { label: 'Thông tin cá nhân', href: '/tim-viec/ho-so#thong-tin', dot: 'bg-wm-fern' },
-              { label: 'Kinh nghiệm', href: '/tim-viec/ho-so#kinh-nghiem', dot: 'bg-wm-clay' },
-              { label: 'Lịch rảnh', href: '/tim-viec/ho-so#lich-ranh', dot: 'bg-wm-violet' },
+              { label: 'Thông tin cá nhân', href: '/ho-so#thong-tin', dot: 'bg-wm-fern' },
+              { label: 'Kinh nghiệm', href: '/ho-so#kinh-nghiem', dot: 'bg-wm-clay' },
+              { label: 'Lịch rảnh', href: '/ho-so#lich-ranh', dot: 'bg-wm-violet' },
             ],
           },
           item('cv', 'CV', FileText, '/tim-viec/cv'),

@@ -1,6 +1,7 @@
 import { JOB_TYPES } from '@constants/index'
 import { startLabel } from '@utils/format'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
+import { usePublicProfile } from '@hooks/usePublicProfile'
 import Avatar from './Avatar'
 import { fmtMoney, type ProfileApi } from './useProfileDraft'
 
@@ -9,15 +10,16 @@ const chipCls = 'rounded-full border border-page-edge px-3 py-1 text-xs text-pag
 /** Thẻ xem trước: hồ sơ như doanh nghiệp thấy, cập nhật theo từng phím gõ (không có SĐT/email). */
 export default function ProfilePreview({ api }: { api: ProfileApi }) {
   const { profile, percent } = api
+  const { isPublic } = usePublicProfile()
   const jobTypes = JOB_TYPES.filter((t) => profile.jobTypes.includes(t.value)).map((t) => t.label)
   return (
-    <div data-lenis-prevent className="rounded-card border border-page-line bg-page-surface p-5 lg:max-h-[calc(100svh-8rem)] lg:overflow-y-auto">
+    <div data-lenis-prevent className="rounded-card border border-page-line bg-page-surface p-5 xl:max-h-[calc(100svh-8rem)] xl:overflow-y-auto">
       <p className="text-sm text-page-muted">Nhà tuyển dụng sẽ thấy</p>
       <div className="mt-4 flex items-center gap-4">
         <Avatar name={profile.fullName} url={profile.avatarUrl} show={profile.showAvatar} className="h-16 w-16 text-xl" />
         <div className="min-w-0">
           <h2 className="break-words font-display text-xl font-semibold text-page-fg">{profile.fullName.trim() || 'Chưa có tên'}</h2>
-          <p className="text-sm text-page-muted">{[profile.area, profile.published ? 'Đã công khai' : 'Chưa công khai'].filter(Boolean).join(' · ')}</p>
+          <p className="text-sm text-page-muted">{[profile.area, isPublic ? 'Đang công khai' : 'Chưa công khai'].filter(Boolean).join(' · ')}</p>
         </div>
       </div>
       <p className="mt-4 whitespace-pre-line break-words text-sm leading-relaxed text-page-fg">{profile.intro.trim() || <span className="text-page-muted">Chưa có giới thiệu.</span>}</p>
