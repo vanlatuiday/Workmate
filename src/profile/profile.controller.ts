@@ -35,4 +35,15 @@ export class ProfileController {
   removeAvatar(@CurrentUser() user: AuthUser) {
     return this.profile.removeAvatar(user.id)
   }
+
+  @Post('cover')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: AVATAR_MAX_BYTES, files: 1 } }))
+  setCover(@CurrentUser() user: AuthUser, @UploadedFile() file: UploadedImage | undefined) {
+    return this.profile.setCover(user.id, file)
+  }
+
+  @Delete('cover')
+  removeCover(@CurrentUser() user: AuthUser) {
+    return this.profile.removeCover(user.id)
+  }
 }

@@ -81,12 +81,19 @@ async function main() {
   await prisma.user.createMany({ data: users })
 
   // ── Hồ sơ người tìm việc ──
+  const DEMO_BULLETS: Record<string, string[]> = {
+    'kn-1': ['Đón khách và ghi món nhanh, đúng', 'Pha chế đồ uống cơ bản vào giờ cao điểm', 'Giữ quầy gọn gàng, báo thiếu hàng sớm'],
+    'kn-2': ['Đón khách và phát tài liệu tại sự kiện', 'Phối hợp nhóm dựng sân khấu và dọn dẹp'],
+  }
   const p = d.profile
   const seekers: any[] = [
     {
       userId: ME, fullName: p.fullName, phone: p.phone, showAvatar: p.showAvatar, intro: p.intro, about: p.about,
       area: p.area, ...geo(p.area, ME), salaryMinK: Math.round(p.salaryMin / 1000), maxDistanceKm: p.maxDistanceKm,
       jobTypes: p.jobTypes.map(jobType), skills: p.skills, availability: p.availability, published: p.published,
+      // Mẫu CV (ngày sinh / giới tính để trống)
+      headline: 'Nhân viên phục vụ', skillLevels: Object.fromEntries(p.skills.map((k: string, i: number) => [k, [4, 3][i] ?? 3])),
+      hobbies: ['Đọc sách', 'Nấu ăn'],
     },
     ...d.candidates.map((c: any) => ({
       userId: c.id, fullName: c.name, area: `${c.area}, Đà Nẵng`, ...geo(c.area, c.id), intro: c.summary,
@@ -97,7 +104,7 @@ async function main() {
   await prisma.seekerProfile.createMany({ data: seekers })
   const seekerIds = new Set<string>(seekers.map((s) => s.userId))
   await prisma.seekerExperience.createMany({
-    data: p.experience.map((e: any, i: number) => ({ id: e.id, seekerId: ME, title: e.title, company: e.company, period: e.period, order: i })),
+    data: p.experience.map((e: any, i: number) => ({ id: e.id, seekerId: ME, title: e.title, company: e.company, period: e.period, bullets: DEMO_BULLETS[e.id] ?? [], order: i })),
   })
 
   // ── Doanh nghiệp ──

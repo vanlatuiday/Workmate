@@ -51,7 +51,7 @@ export function composeMail(items: MailItem[]) {
   const more = lines.length - shown.length
   const subject = lines.length === 1 ? `Workmate: ${lines[0]}` : `Workmate: bạn có ${lines.length} thông báo mới`
   const base = appUrl()
-  const inbox = `${base}/thong-bao`
+  const inbox = `${base}${items[0].side === 'seeker' ? '/tim-viec' : '/tuyen-dung'}`
   const settings = `${base}${items[0].side === 'seeker' ? '/tim-viec/cai-dat' : '/tuyen-dung/cai-dat'}`
   const moreText = more > 0 ? `và ${more} thông báo khác` : ''
   const stop = 'Bạn nhận thư này theo lựa chọn trong Cài đặt. Đổi tần suất hoặc tắt email tại:'
@@ -60,12 +60,12 @@ export function composeMail(items: MailItem[]) {
     subject,
     text: [
       'Chào bạn,', '', ...shown.map((l) => `- ${l}`), ...(moreText ? [`- ${moreText}`] : []), '',
-      `Xem chi tiết: ${inbox}`, '', `${stop} ${settings}`,
+      `Mở Workmate và bấm nút chuông để xem thông báo: ${inbox}`, '', `${stop} ${settings}`,
     ].join('\n'),
     html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#242522">
   <p style="font-size:18px;font-weight:600;margin:0 0 16px">Workmate</p>
   <ul style="margin:0 0 20px;padding-left:20px">${shown.map((l) => `<li style="margin:0 0 8px">${escapeHtml(l)}</li>`).join('')}${moreText ? `<li style="margin:0 0 8px">${moreText}</li>` : ''}</ul>
-  <p style="margin:0 0 20px"><a href="${inbox}" style="color:#242522;font-weight:600">Xem chi tiết trên Workmate</a></p>
+  <p style="margin:0 0 20px"><a href="${inbox}" style="color:#242522;font-weight:600">Mở Workmate</a> và bấm nút chuông để xem thông báo.</p>
   <p style="margin:0;color:#454640;font-size:14px">${stop} <a href="${settings}" style="color:#454640">Cài đặt</a></p>
 </div>`,
   }

@@ -116,6 +116,8 @@ model SeekerProfile {
   fullName      String
   phone         String    @default("")
   avatarUrl     String?
+  /// Ảnh bìa trang cá nhân; null = dùng ảnh mặc định
+  coverUrl      String?
   showAvatar    Boolean   @default(true)
   /// Câu giới thiệu ngắn (1–2 câu)
   intro         String    @default("")
@@ -135,6 +137,17 @@ model SeekerProfile {
   /// Ngày bắt đầu đi làm được; null = có thể bắt đầu ngay
   availableFrom DateTime? @db.Date
   published     Boolean   @default(false)
+  /// Dòng chức danh dưới tên (CV), vd. "Nhân viên phục vụ"
+  headline      String    @default("")
+  /// Ngày sinh (tùy chọn) — chỉ DN thấy khi showPersonal bật; KHÔNG dùng để ghép việc
+  birthDate     DateTime? @db.Date
+  /// 'nam' | 'nu' | 'khac' | null — như birthDate
+  gender        String?
+  /// Cho DN xem ngày sinh / giới tính? Mặc định tắt
+  showPersonal  Boolean   @default(false)
+  /// Tên kỹ năng → mức 1..5 (khóa phải nằm trong skills)
+  skillLevels   Json      @default("{}")
+  hobbies       String[]
   updatedAt     DateTime  @updatedAt
   /// Lần cuối MatchAlertService xét hồ sơ này để báo doanh nghiệp (< updatedAt → xét lại). Ghi bằng SQL thô để không đổi updatedAt
   matchAlertedAt DateTime?
@@ -161,6 +174,8 @@ model SeekerExperience {
   company  String
   /// Thời gian dạng chữ như frontend đang nhập, vd. "06/2025 – 01/2026"
   period   String        @default("")
+  /// Đã làm gì (gạch đầu dòng)
+  bullets  String[]
   order    Int           @default(0)
   seeker   SeekerProfile @relation(fields: [seekerId], references: [userId], onDelete: Cascade)
 

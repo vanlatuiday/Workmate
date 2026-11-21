@@ -1,8 +1,10 @@
 import { Transform, Type } from 'class-transformer'
 import {
-  ArrayMaxSize, IsArray, IsBoolean, IsDateString, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, ValidateIf, ValidateNested,
+  ArrayMaxSize, IsArray, IsBoolean, IsDateString, IsIn, IsInt, IsObject, IsOptional, IsString, Matches, Max, MaxLength, Min, ValidateIf, ValidateNested,
 } from 'class-validator'
 import { JOB_TYPES } from '../jobs/jobs.dto'
+
+export const GENDERS = ['nam', 'nu', 'khac'] as const
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value)
 
@@ -19,6 +21,10 @@ export class ExperienceDto {
 
   @Transform(trim) @IsString() @MaxLength(60)
   period!: string
+
+  @IsOptional() @IsArray() @ArrayMaxSize(8) @Transform(({ value }) => (Array.isArray(value) ? value.map((v) => (typeof v === 'string' ? v.trim() : v)) : value))
+  @IsString({ each: true }) @MaxLength(200, { each: true })
+  bullets?: string[]
 }
 
 /** Sửa hồ sơ: mọi trường tùy chọn. `experience` nếu gửi thì thay cả danh sách */
@@ -61,8 +67,29 @@ export class UpdateProfileDto {
   @IsOptional() @IsArray() @ArrayMaxSize(30) @IsString({ each: true }) @MaxLength(60, { each: true })
   skills?: string[]
 
-  @IsOptional() @IsArray() @ArrayMaxSize(21)
-  @Matches(/^[0-6]-[0-2]$/, { each: true, message: 'Ô lịch rảnh phải có dạng "ngày-buổi", vd. 0-2' })
+  @IsOptional() @Transform(trim) @IsString() @MaxLength(80)
+  headline?: string
+
+  /** YYYY-MM-DD hoặc null */
+  @IsOptional() @ValidateIf((o) => o.birthDate !== null) @IsDateString({ strict: true }, { message: 'Ngày sinh không hợp lệ' }) @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'Ngày sinh không hợp lệ' })
+  birthDate?: string | null
+
+  @IsOptional() @ValidateIf((o) => o.gender !== null) @IsIn(GENDERS, { message: 'Giới tính không hợp lệ' })
+  gender?: (typeof GENDERS)[number] | null
+
+  @IsOptional() @IsBoolean()
+  showPersonal?: boolean
+
+  /** Tên kỹ năng → 1..5; khóa lạ (không có trong skills) bị bỏ khi lưu */
+  @IsOptional() @IsObject()
+  skillLevels?: Record<string, number>
+
+  @IsOptional() @IsArray() @ArrayMaxSize(10) @Transform(({ value }) => (Array.isArray(value) ? value.map((v) => (typeof v === 'string' ? v.trim() : v)) : value))
+  @IsString({ each: true }) @MaxLength(40, { each: true })
+  hobbies?: string[]
+
+  @IsOptional() @IsArray() @ArrayMaxSize(28)
+  @Matches(/^[0-6]-[0-3]$/, { each: true, message: 'Ô lịch rảnh phải có dạng "ngày-buổi", vd. 0-3' })
   availability?: string[]
 
   @IsOptional() @IsArray() @ArrayMaxSize(20) @ValidateNested({ each: true }) @Type(() => ExperienceDto)

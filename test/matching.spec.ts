@@ -78,3 +78,10 @@ test('trừ số đã nhận hôm nay, bỏ cặp đã báo và cặp trùng', (
 test('đã đủ hạn mức hôm nay thì không gửi thêm', () => {
   assert.equal(pickWithinCap([c('u1', 'j1', 99)], new Map([['u1', DAILY_CAP]]), new Set()).length, 0)
 })
+
+test('buổi khuya (3) khớp như các buổi khác', () => {
+  const r = scoreMatch(seeker({ slots: ['4-3', '5-3'] }), job({ slots: ['4-3', '5-3'], requireAllSlots: true }), 2, W)
+  assert.equal(r.results.find((x) => x.key === 'schedule')?.value, 1)
+  const miss = scoreMatch(seeker({ slots: ['4-2'] }), job({ slots: ['4-3'], requireAllSlots: true }), 2, W)
+  assert.equal(miss.results.find((x) => x.key === 'schedule')?.value, 0)
+})

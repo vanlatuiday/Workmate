@@ -26,7 +26,15 @@ export interface ProfileView {
   /** YYYY-MM-DD; null = có thể bắt đầu ngay */
   availableFrom: string | null
   avatarUrl: string | null
-  experience: { id: string; title: string; company: string; period: string }[]
+  coverUrl: string | null
+  headline: string
+  /** YYYY-MM-DD hoặc null */
+  birthDate: string | null
+  gender: 'nam' | 'nu' | 'khac' | null
+  showPersonal: boolean
+  skillLevels: Record<string, number>
+  hobbies: string[]
+  experience: { id: string; title: string; company: string; period: string; bullets: string[] }[]
   updatedAt: string
 }
 
@@ -34,11 +42,23 @@ export { IMAGE_MAX_BYTES as AVATAR_MAX_BYTES, type UploadedImage } from '../comm
 
 const dateOnly = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null)
 
+/** Chỉ giữ khóa nằm trong skills, giá trị nguyên 1..5 */
+export function cleanSkillLevels(raw: unknown, skills: string[]): Record<string, number> {
+  const out: Record<string, number> = {}
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out
+  for (const [k, v] of Object.entries(raw)) {
+    if (skills.includes(k) && typeof v === 'number' && Number.isInteger(v) && v >= 1 && v <= 5) out[k] = v
+  }
+  return out
+}
+
 const view = (p: SeekerProfile & { experiences: SeekerExperience[] }): ProfileView => ({
   fullName: p.fullName, phone: p.phone, intro: p.intro, about: p.about, showAvatar: p.showAvatar, published: p.published,
   area: p.area, jobTypes: p.jobTypes.map((t) => JOB_TYPE_LABEL[t]), salaryMinK: p.salaryMinK, maxDistanceKm: p.maxDistanceKm,
-  skills: p.skills, availability: p.availability, availableFrom: dateOnly(p.availableFrom), avatarUrl: p.avatarUrl,
-  experience: p.experiences.map((e) => ({ id: e.id, title: e.title, company: e.company, period: e.period })),
+  skills: p.skills, availability: p.availability, availableFrom: dateOnly(p.availableFrom), avatarUrl: p.avatarUrl, coverUrl: p.coverUrl,
+  headline: p.headline, birthDate: dateOnly(p.birthDate), gender: p.gender as ProfileView['gender'], showPersonal: p.showPersonal,
+  skillLevels: cleanSkillLevels(p.skillLevels, p.skills), hobbies: p.hobbies,
+  experience: p.experiences.map((e) => ({ id: e.id, title: e.title, company: e.company, period: e.period, bullets: e.bullets })),
   updatedAt: p.updatedAt.toISOString(),
 })
 
@@ -55,7 +75,7 @@ export class ProfileService {
   }
 
   async update(userId: string, dto: UpdateProfileDto): Promise<ProfileView> {
-    const { experience, jobTypes, area, availableFrom, ...rest } = dto
+    const { experience, jobTypes, area, availableFrom, birthDate, skillLevels, ...rest } = dto
     const data: Prisma.SeekerProfileUpdateInput = {
       ...rest,
       ...(jobTypes && { jobTypes: [...new Set(jobTypes)].map((t) => JOB_TYPE_ENUM[t]) }),
@@ -66,13 +86,21 @@ export class ProfileService {
       ...(area !== undefined && { area, ...geo(area, userId) }),
       ...(availableFrom !== undefined && { availableFrom: availableFrom ? new Date(availableFrom) : null }),
     }
+    if (birthDate !== undefined) data.birthDate = birthDate ? new Date(birthDate) : null
+    if (rest.hobbies) data.hobbies = rest.hobbies.filter(Boolean)
     try {
       const p = await this.prisma.$transaction(async (tx) => {
+        // Mức kỹ năng bám theo danh sách kỹ năng sau khi lưu (mới gửi hoặc hiện có)
+        if (skillLevels !== undefined || rest.skills) {
+          const cur = await tx.seekerProfile.findUniqueOrThrow({ where: { userId }, select: { skills: true, skillLevels: true } })
+          const skills = (data.skills as string[] | undefined) ?? cur.skills
+          data.skillLevels = cleanSkillLevels(skillLevels !== undefined ? skillLevels : cur.skillLevels, skills)
+        }
         await tx.seekerProfile.update({ where: { userId }, data })
         if (experience) {
           await tx.seekerExperience.deleteMany({ where: { seekerId: userId } })
           await tx.seekerExperience.createMany({
-            data: experience.map((e, order) => ({ ...(e.id && { id: e.id }), seekerId: userId, title: e.title, company: e.company, period: e.period, order })),
+            data: experience.map((e, order) => ({ ...(e.id && { id: e.id }), seekerId: userId, title: e.title, company: e.company, period: e.period, bullets: (e.bullets ?? []).filter(Boolean), order })),
           })
         }
         return tx.seekerProfile.findUniqueOrThrow({ where: { userId }, include: withExperiences })
@@ -107,5 +135,31 @@ export class ProfileService {
     const oldKey = this.storage.publicKeyOf(old.avatarUrl)
     if (oldKey) await this.storage.deletePublic(oldKey)
     return view(p)
+  }
+
+  async setCover(userId: string, upload: UploadedImage | undefined): Promise<{ coverUrl: string }> {
+    const { file, ext } = checkImage(upload)
+    const old = await this.prisma.seekerProfile.findUnique({ where: { userId }, select: { coverUrl: true } })
+    if (!old) throw new NotFoundException('Chưa có hồ sơ người tìm việc')
+    const key = `covers/${userId}/${randomBytes(8).toString('hex')}.${ext}`
+    const coverUrl = await this.storage.putPublic(key, file.buffer, file.mimetype)
+    try {
+      await this.prisma.seekerProfile.update({ where: { userId }, data: { coverUrl } })
+    } catch (err) {
+      await this.storage.deletePublic(key)
+      throw err
+    }
+    const oldKey = this.storage.publicKeyOf(old.coverUrl)
+    if (oldKey) await this.storage.deletePublic(oldKey)
+    return { coverUrl }
+  }
+
+  async removeCover(userId: string): Promise<{ coverUrl: null }> {
+    const old = await this.prisma.seekerProfile.findUnique({ where: { userId }, select: { coverUrl: true } })
+    if (!old) throw new NotFoundException('Chưa có hồ sơ người tìm việc')
+    await this.prisma.seekerProfile.update({ where: { userId }, data: { coverUrl: null } })
+    const oldKey = this.storage.publicKeyOf(old.coverUrl)
+    if (oldKey) await this.storage.deletePublic(oldKey)
+    return { coverUrl: null }
   }
 }

@@ -14,8 +14,8 @@ một bảng trong PostgreSQL. `[]` = danh sách lưu ngay trong ô (mảng).
 ## 2. Người tìm việc
 | Bảng | Lưu gì |
 |---|---|
-| **seeker_profiles** | (1–1 với users) họ tên, SĐT, ảnh đại diện, cho DN thấy ảnh?, giới thiệu ngắn, "về bạn", khu vực, toạ độ, lương tối thiểu (nghìn đ/giờ), khoảng cách tối đa (km), loại việc[], kỹ năng[], lịch rảnh[] (ô "thứ-buổi", 7×3), đã công khai? |
-| **seeker_experiences** | chức danh, nơi làm, thời gian — nhiều dòng mỗi người |
+| **seeker_profiles** | (1–1 với users) họ tên, SĐT, ảnh đại diện, cho DN thấy ảnh?, giới thiệu ngắn, "về bạn", khu vực, toạ độ, lương tối thiểu (nghìn đ/giờ), khoảng cách tối đa (km), loại việc[], kỹ năng[], lịch rảnh[] (ô "thứ-buổi", 7×4: sáng, chiều, tối 17–22h, khuya 22h–6h tính vào ngày bắt đầu ca), đã công khai?, **dòng chức danh (headline), ngày sinh, giới tính (nam/nu/khac), cho DN xem ngày sinh/giới tính? (showPersonal, mặc định tắt), mức kỹ năng 1–5 (skillLevels, JSON tên→mức), sở thích[] (≤10)**. Ngày sinh/giới tính không dùng để ghép việc và chỉ lộ cho DN khi showPersonal bật |
+| **seeker_experiences** | chức danh, nơi làm, thời gian, **gạch đầu dòng đã làm gì[] (≤8, mỗi dòng ≤200 ký tự)** — nhiều dòng mỗi người |
 | **cvs** | tên file, đường dẫn file, loại, dung lượng, CV mặc định?, ngày tải lên |
 
 ## 3. Doanh nghiệp & tin tuyển dụng

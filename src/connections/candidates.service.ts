@@ -4,6 +4,7 @@ import type { AuthUser } from '../auth/current-user.decorator'
 import { JOB_TYPE_LABEL } from '../catalog/catalog.service'
 import { DANANG_CENTER, haversineKm } from '../common/geo'
 import { PrismaService } from '../prisma/prisma.service'
+import { cleanSkillLevels } from '../profile/profile.service'
 import { hireView } from './hires.service'
 import { interviewView } from './interviews.service'
 import { PairService } from './pair.service'
@@ -81,7 +82,12 @@ export class CandidatesService {
       ...toCandidate(s, origin, connected ? s.fullName : abbreviate(s.fullName)),
       connected,
       about: s.about,
-      experience: s.experiences.map((e) => ({ id: e.id, title: e.title, company: e.company, period: e.period })),
+      headline: s.headline,
+      skillLevels: cleanSkillLevels(s.skillLevels, s.skills),
+      hobbies: s.hobbies,
+      // Ngày sinh / giới tính chỉ khi người tìm việc bật showPersonal (không dùng để ghép việc)
+      ...(s.showPersonal ? { birthDate: s.birthDate ? s.birthDate.toISOString().slice(0, 10) : null, gender: s.gender } : {}),
+      experience: s.experiences.map((e) => ({ id: e.id, title: e.title, company: e.company, period: e.period, bullets: e.bullets })),
       ...(connected ? { fullArea: s.area, phone: s.phone, hasCv: s._count.cvs > 0 } : {}),
     }
   }

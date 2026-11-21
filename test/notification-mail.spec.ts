@@ -48,3 +48,15 @@ test('liên kết Cài đặt theo đúng vai trò, địa chỉ lấy từ CORS
     else process.env.CORS_ORIGIN = saved
   }
 })
+
+test('email mở khu làm việc theo vai trò, không trỏ tới trang thông báo đã bỏ', () => {
+  for (const [side, path] of [['seeker', '/tim-viec'], ['recruiter', '/tuyen-dung']] as const) {
+    const mail = composeMail([item({ side })])
+    assert.ok(!mail.html.includes('/thong-bao'))
+    assert.ok(!mail.text.includes('/thong-bao'))
+    const firstHref = mail.html.match(/href="([^"]+)"/)?.[1]
+    assert.ok(firstHref)
+    assert.equal(new URL(firstHref).pathname, path)
+    assert.ok(mail.text.includes('bấm nút chuông'))
+  }
+})
