@@ -12,7 +12,7 @@ export default function DetailLayout({ aside, children }: { aside: ReactNode; ch
   const curtain = useCurtainDelay()
 
   return (
-    <div className="shell mt-14 grid gap-12 md:mt-20 lg:grid-cols-12 lg:gap-16">
+    <div className="shell mt-10 grid gap-10 md:mt-12 lg:grid-cols-12 lg:gap-14">
       <m.aside
         className="lg:sticky lg:top-24 lg:col-span-4 lg:self-start"
         {...(reduced
@@ -25,7 +25,7 @@ export default function DetailLayout({ aside, children }: { aside: ReactNode; ch
       >
         {aside}
       </m.aside>
-      <div className="flex flex-col gap-14 md:gap-20 lg:col-span-8">{children}</div>
+      <div className="flex flex-col gap-12 lg:col-span-8 lg:gap-14">{children}</div>
     </div>
   )
 }

@@ -6,7 +6,7 @@ import { useAuthStore } from './authStore'
 import type { DemoNotification, Side } from './connectionStore'
 
 // Cài đặt của tài khoản đang đăng nhập — lưu trên máy chủ (GET/PATCH /settings); đổi là hiện ngay rồi gửi đi.
-// Tắt một loại thông báo thì loại đó không hiện ở /thong-bao và không tính vào số chưa đọc.
+// Tắt một loại thông báo thì loại đó không hiện trong cửa sổ thông báo và không tính vào số chưa đọc.
 
 export type NotificationKind = DemoNotification['kind']
 export type ProfileVisibility = 'public' | 'connected' | 'hidden'

@@ -1,0 +1,45 @@
+/* Xanh trắng như trang cá nhân, chỉ áp dụng cho thông báo và tin nhắn. */
+.communication-theme {
+  --page-bg: var(--wm-day);
+  --page-fg: var(--wm-abyss);
+  --page-muted: color-mix(in srgb, var(--wm-abyss) 76%, var(--wm-day));
+  --page-line: color-mix(in srgb, var(--wm-azure) 13%, var(--wm-day));
+  --page-surface: var(--wm-day-tint);
+  --page-edge: color-mix(in srgb, var(--wm-abyss) 50%, var(--wm-day));
+  --accent: var(--wm-ocean);
+  --accent-fg: var(--wm-day);
+  --accent-ink: var(--wm-ocean);
+  --danger: var(--wm-rust);
+  --warning-ink: var(--wm-amber-ink);
+  color: var(--page-fg);
+  color-scheme: light;
+}
+
+.messenger-titlebar,
+.notification-titlebar {
+  --page-bg: color-mix(in srgb, var(--wm-ocean) 80%, var(--wm-day));
+  --page-fg: var(--wm-day);
+  --page-line: color-mix(in srgb, var(--wm-day) 35%, var(--page-bg));
+  background-color: var(--page-bg);
+  color: var(--page-fg);
+}
+
+.messenger-conversation { background-color: var(--wm-day-tint); }
+.messenger-conversation:hover { background-color: color-mix(in srgb, var(--wm-azure) 10%, var(--wm-day)); }
+.messenger-conversation[aria-current='true'] {
+  background-color: color-mix(in srgb, var(--wm-azure) 18%, var(--wm-day));
+  box-shadow: inset 3px 0 0 var(--wm-ocean), inset 0 0 0 1px color-mix(in srgb, var(--wm-ocean) 30%, var(--wm-day));
+}
+
+.messenger-scroll,
+.notification-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--wm-ocean) 35%, var(--wm-day)) transparent;
+}
+
+.communication-theme .dash-card {
+  background-color: var(--page-bg);
+  border-color: var(--page-line);
+  box-shadow: none;
+}
+.notification-actions button { min-height: 44px; }

@@ -54,6 +54,26 @@ export default function MatchSearchBar({ query, onQueryChange, placeholder, sear
     return () => io.disconnect()
   }, [])
 
+  // Thanh gốc trôi lên dưới các viên header nổi → mờ dần để không đè lên viên Workmate/nav
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    let raf = 0
+    const update = () => {
+      raf = 0
+      const top = el.getBoundingClientRect().top
+      el.style.opacity = String(Math.min(1, Math.max(0, (top - HEADER_PX - 7) / 48)))
+    }
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update) }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+      el.style.opacity = ''
+    }
+  }, [])
+
   // Hướng lướt lấy từ thao tác thật (bánh xe, vuốt, phím), không từ sự kiện scroll —
   // bộ ảnh tự trôi về ảnh gần nhất sau khi dừng, cú trôi đó không được làm viên ẩn/hiện.
   useEffect(() => {
@@ -132,7 +152,7 @@ export default function MatchSearchBar({ query, onQueryChange, placeholder, sear
         onSubmit={submit}
         className={cn(
           COVER_GLASS,
-          'flex max-w-2xl flex-col rounded-card p-1',
+          'mx-auto flex max-w-2xl flex-col rounded-card p-1',
           floating && 'bg-wm-abyss/80',
           'sm:flex-row sm:items-center sm:rounded-full',
           'focus-within:ring-2 focus-within:ring-page-fg focus-within:ring-offset-2 focus-within:ring-offset-wm-abyss',
@@ -167,7 +187,7 @@ export default function MatchSearchBar({ query, onQueryChange, placeholder, sear
         <div
           role="group"
           aria-label="Lọc nhanh"
-          className="mt-3 flex max-w-4xl flex-wrap gap-1.5 overflow-visible"
+          className="mx-auto mt-3 flex max-w-4xl flex-wrap gap-1.5 overflow-visible sm:justify-center"
         >
           {chips(floating)}
         </div>

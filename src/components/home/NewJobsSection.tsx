@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Pause, Play } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 import { photoSrcSet, photoUrl } from '@components/discover/types'
 import { JOB_TYPES } from '@constants/index'
@@ -8,7 +8,7 @@ import { useAllJobs } from '@pages/public/jobs/catalog'
 import { companyOf, type MatchJob } from '@pages/public/match/data'
 import { useCompanyStore } from '@context/companyStore'
 import { useCompanyJobs, useJobNumbers, type CompanyJobRow } from '@services/adminService'
-import { gsap, ScrollTrigger, useGSAP } from '@utils/gsap'
+import { gsap, useGSAP } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useMediaQuery } from '@hooks/useMediaQuery'
 import { cn } from '@utils/cn'
@@ -36,18 +36,6 @@ const WHEEL_RANGE = 360
 const WHEEL_HIT_DEG = 75
 
 type Row = { job: MatchJob; href: string; status?: string; note?: string }
-
-/** Dải chữ lớn chạy ngang: một "đơn vị" = cụm chữ + dấu ✱ (olive) */
-function MarqueeUnit({ phrase, muted }: { phrase: string; muted?: boolean }) {
-  return (
-    <span className={cn('flex shrink-0 items-center gap-[0.35em] pr-[0.35em]', muted ? 'nj-outline' : 'text-page-fg/90')}>
-      <span>{phrase}</span>
-      <span aria-hidden className="text-wm-ivory/60">
-        ✱
-      </span>
-    </span>
-  )
-}
 
 /** Nhãn nhỏ phía trên ảnh: "01 · BÁN THỜI GIAN" */
 function Tag({ index, label }: { index: number; label: string }) {
@@ -172,40 +160,6 @@ export default function NewJobsSection() {
   // Dựng bánh xe ghim hay danh sách tĩnh
   const wheel = wide && !reduced && !empty && count >= 2
   const mobileItems = items.slice(0, 3)
-
-  // Dải chữ chạy ngang + nhích tốc độ theo vận tốc cuộn. Có nút tạm dừng + dừng khi rê chuột (taste skill:
-  // thứ gì chạy quá 5 s phải dừng được)
-  const loopRef = useRef<gsap.core.Tween | null>(null)
-  const [marqueePaused, setMarqueePaused] = useState(false)
-  useGSAP(
-    () => {
-      const root = ref.current
-      const track = root?.querySelector<HTMLElement>('[data-marquee]')
-      if (!root || !track || reduced) return
-
-      const loop = gsap.to(track, { xPercent: -50, duration: 40, ease: 'none', repeat: -1 })
-      loopRef.current = loop
-      if (marqueePaused) loop.pause()
-      let kick: gsap.core.Tween | undefined
-      const st = ScrollTrigger.create({
-        trigger: root,
-        start: 'top bottom',
-        end: 'bottom top',
-        onUpdate: (self) => {
-          kick?.kill()
-          if (loop.paused()) return
-          loop.timeScale(1 + Math.min(Math.abs(self.getVelocity()) / 300, 5))
-          kick = gsap.to(loop, { timeScale: 1, duration: 0.8, ease: 'power2.out' })
-        },
-      })
-      return () => {
-        kick?.kill()
-        st.kill()
-        loopRef.current = null
-      }
-    },
-    { scope: ref, dependencies: [reduced, role] },
-  )
 
   // Vòng 3D: góc đích `target` (cộng dồn từ chuột/kéo/phím), góc thật `cur` đuổi theo bằng lerp mỗi khung
   useGSAP(
@@ -390,45 +344,16 @@ export default function NewJobsSection() {
         {copy.title}
       </h2>
 
-      {/* Dải chữ lớn — trang trí, tiêu đề thật là h2 ẩn ở trên */}
-      <div
-        aria-hidden
-        className={'select-none overflow-hidden'}
-        onPointerEnter={() => loopRef.current?.pause()}
-        onPointerLeave={() => !marqueePaused && loopRef.current?.resume()}
-      >
-        <div
-          data-marquee
-          className="flex w-max whitespace-nowrap font-display text-[clamp(1.75rem,4.2vw,3.85rem)] font-semibold leading-[1.05] tracking-[-0.04em]"
-        >
-          {[0, 1].map((g) => (
-            <div key={g} className="flex shrink-0">
-              <MarqueeUnit phrase={phrase} />
-              <MarqueeUnit phrase={phrase} muted />
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Tiêu đề lớn nằm yên, chữ in hoa căn giữa (chủ dự án 2026-11-22 — ngoại lệ có chủ đích với quy tắc "không in hoa", thay dải chữ chạy ngang): chữ "kính" trong suốt — cỡ chữ giữ như dải cũ.
+          Trang trí; tiêu đề thật là h2 ẩn ở trên */}
+      <p aria-hidden className="shell select-none text-center">
+        <span className="nj-glass-title font-display text-[clamp(1.75rem,4.2vw,3.85rem)] font-semibold uppercase leading-[1.2] tracking-[-0.01em] pb-[0.08em]">
+          {phrase}
+        </span>
+      </p>
 
       {/* Hàng phụ: nút tạm dừng dải chữ + liên kết xem tất cả */}
-      <div className="shell mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-        {!reduced ? (
-          <button
-            type="button"
-            aria-pressed={marqueePaused}
-            aria-label={marqueePaused ? 'Chạy dải chữ' : 'Dừng dải chữ'}
-            title={marqueePaused ? 'Chạy dải chữ' : 'Dừng dải chữ'}
-            onClick={() => {
-              const next = !marqueePaused
-              setMarqueePaused(next)
-              if (next) loopRef.current?.pause()
-              else loopRef.current?.resume()
-            }}
-            className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-wm-ivory/30 ${HOME_GLASS_DARK} text-wm-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wm-ivory`}
-          >
-            {marqueePaused ? <Play className="h-4 w-4" aria-hidden /> : <Pause className="h-4 w-4" aria-hidden />}
-          </button>
-        ) : <span />}
+      <div className="shell mt-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
         <Link to={copy.all.href} className="group inline-flex min-h-11 items-center gap-2 text-sm font-medium text-page-fg underline-offset-4 hover:underline focus-visible:underline">
           {copy.all.label}
           <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-editorial group-hover:translate-x-1" aria-hidden />

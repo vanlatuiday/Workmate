@@ -2,13 +2,14 @@ import { useRef } from 'react'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { CHIP_ON } from '@utils/ui'
 
 /**
- * Lưới ca làm 7 ngày × 3 buổi. Bấm để bật/tắt; nhấn giữ rồi kéo (chuột hoặc ngón tay)
+ * Lưới ca làm 7 ngày × 4 buổi. Bấm để bật/tắt; nhấn giữ rồi kéo (chuột hoặc ngón tay)
  * để tô nhiều ô cùng lúc — ô đầu tiên quyết định kéo là bật hay tắt.
  * Khóa ca: `${ngày}-${buổi}` (khớp score.ts).
  */
-export default function ShiftGrid({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+export default function ShiftGrid({ value, onChange, firstId }: { value: string[]; onChange: (v: string[]) => void; firstId?: string }) {
   // Chế độ kéo: true = đang bật ô, false = đang tắt ô, null = không kéo
   const mode = useRef<boolean | null>(null)
   const current = useRef(value)
@@ -36,7 +37,7 @@ export default function ShiftGrid({ value, onChange }: { value: string[]; onChan
       onPointerCancel={() => (mode.current = null)}
       onPointerLeave={() => (mode.current = null)}
     >
-      <div className="grid min-w-[20rem] grid-cols-[auto_repeat(3,1fr)] gap-1.5" role="group" aria-label="Ca làm trong tuần">
+      <div className="grid grid-cols-[auto_repeat(4,1fr)] gap-1.5" role="group" aria-label="Ca làm trong tuần">
         <span />
         {SESSIONS.map((s) => (
           <span key={s} className="pb-1 text-center text-xs text-page-muted">{s}</span>
@@ -51,6 +52,7 @@ export default function ShiftGrid({ value, onChange }: { value: string[]; onChan
                 <button
                   key={key}
                   type="button"
+                  id={di === 0 && si === 0 ? firstId : undefined}
                   data-slot={key}
                   aria-pressed={on}
                   aria-label={`${s} thứ ${di + 2 <= 7 ? di + 2 : 'CN'}`.replace('thứ CN', 'Chủ nhật')}
@@ -65,8 +67,8 @@ export default function ShiftGrid({ value, onChange }: { value: string[]; onChan
                     onChange(on ? value.filter((k) => k !== key) : [...value, key])
                   }}
                   className={cn(
-                    'h-9 rounded-control border transition-colors duration-fast',
-                    on ? 'border-page-fg bg-page-fg' : 'border-page-line bg-page-bg hover:border-page-fg',
+                    'h-8 rounded-control border transition-colors duration-fast motion-reduce:transition-none',
+                    on ? CHIP_ON : 'border-page-line bg-page-surface hover:border-page-fg',
                     FOCUS,
                   )}
                 />
@@ -75,6 +77,7 @@ export default function ShiftGrid({ value, onChange }: { value: string[]; onChan
           </div>
         ))}
       </div>
+      <p className="mt-2 text-xs text-page-muted">Tối 17:00–22:00 · Khuya 22:00–06:00 (tính vào ngày ca bắt đầu)</p>
     </div>
   )
 }

@@ -1,7 +1,6 @@
 import { forwardRef, useEffect, useRef, useState } from 'react'
 import { gsap } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
-import Tilt from '@components/motion/Tilt'
 import { photoUrl, type Photo } from '@components/discover/types'
 import { personInitials } from '../match/parts'
 
@@ -12,6 +11,7 @@ interface Props {
   photoIndex: number
   title: string
   subtitle: string
+  shift: string
   count: number
   total: number
   top: TopCandidate[]
@@ -20,7 +20,7 @@ interface Props {
 
 /** Xem trước tin: thẻ như ở Bộ sưu tập + số ứng viên phù hợp cập nhật trực tiếp. */
 const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
-  { photos, photoIndex, title, subtitle, count, total, top, posted },
+  { photos, photoIndex, title, subtitle, shift, count, total, top, posted },
   cardRef,
 ) {
   const reduced = useReducedMotion()
@@ -88,31 +88,30 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
   }, [posted, reduced, cardRef])
 
   return (
-    <div className="space-y-6">
-      <div ref={cardRef} className="relative">
-        <Tilt>
-        <div className="relative aspect-[16/10] overflow-hidden rounded-card bg-page-surface">
+    <div className="space-y-5">
+      {/* Thẻ tin gọn: ảnh, tên, công ty · khu vực · lương, tóm tắt ca */}
+      <div ref={cardRef} className="day-card relative overflow-hidden rounded-card border border-page-line bg-page-surface">
+        <div className="relative aspect-[16/9] overflow-hidden bg-page-line">
           {seen.map((i) => (
             <img
               key={i}
-              data-tilt-media
-              src={photoUrl(photos[i].id, 800)}
+              src={photoUrl(photos[i].id, 600)}
               alt={i === photoIndex ? photos[i].alt : ''}
-              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-slow"
+              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-slow motion-reduce:transition-none"
               style={{ opacity: i === photoIndex ? 1 : 0 }}
             />
           ))}
         </div>
-        </Tilt>
-        <div className="mt-3 border-b border-page-line pb-4">
+        <div className="p-4">
           <p className="font-display text-lg font-medium text-page-fg">{title ? <>{title.slice(0, -1)}<span ref={lastChar} className="inline-block whitespace-pre">{title.slice(-1)}</span></> : 'Tên vị trí của bạn'}</p>
           <p className="mt-1 text-sm text-page-muted">{subtitle}</p>
+          <p className="mt-2 border-t border-page-line pt-2 text-sm text-page-muted">Ca làm: <span className="text-page-fg">{shift || 'chưa chọn'}</span></p>
         </div>
         {posted && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
             <div
               ref={stamp}
-              className="rounded-card border-[3px] border-page-fg bg-page-bg px-5 py-2 font-display text-2xl font-semibold text-page-fg"
+              className="rounded-card border-[3px] border-page-fg bg-page-surface px-5 py-2 font-display text-2xl font-semibold text-page-fg"
               style={{ opacity: 0 }}
             >
               Đã gửi duyệt
@@ -121,7 +120,7 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
         )}
       </div>
 
-      <section aria-label="Ứng viên phù hợp ngay lúc này" className="rounded-card border border-page-line p-5">
+      <section aria-label="Ứng viên phù hợp ngay lúc này" className="day-card rounded-card border border-page-line bg-page-surface p-5">
         <p className="text-sm text-page-muted">Ứng viên phù hợp ngay lúc này</p>
         <div className="mt-2 flex items-end gap-3">
           <span ref={numRef} className="tnum inline-block origin-bottom-left font-display text-display-md font-semibold leading-none text-page-fg">{shown}</span>

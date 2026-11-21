@@ -1,13 +1,15 @@
 import type { MatchJob } from '@pages/public/match/data'
 
-/** Ba buổi của một ngày; chỉ số buổi khớp khóa ca `${ngày}-${buổi}` (0 Sáng, 1 Chiều, 2 Tối) */
-export type SessionIndex = 0 | 1 | 2
+/** Bốn buổi của một ngày; chỉ số buổi khớp khóa ca `${ngày}-${buổi}` (0 Sáng, 1 Chiều, 2 Tối, 3 Khuya — Khuya thuộc ngày bắt đầu ca) */
+export type SessionIndex = 0 | 1 | 2 | 3
 
-/** Giờ ước lượng cho buổi (dữ liệu chỉ có Sáng/Chiều/Tối, chưa có giờ cụ thể) */
+/** Giờ ước lượng cho buổi (dữ liệu chỉ có Sáng/Chiều/Tối/Khuya, chưa có giờ cụ thể) */
 export const SESSION_HOURS: Record<SessionIndex, { name: string; start: number; end: number }> = {
   0: { name: 'Sáng', start: 7, end: 12 },
   1: { name: 'Chiều', start: 13, end: 17 },
-  2: { name: 'Tối', start: 18, end: 22 },
+  2: { name: 'Tối', start: 17, end: 22 },
+  /** Khuya 22:00–06:00: end > 24 nghĩa là sang hôm sau (Date tự cuộn ngày) */
+  3: { name: 'Khuya', start: 22, end: 30 },
 }
 
 /** Một lần xuất hiện của ca: (việc, ngày, buổi) */
@@ -27,7 +29,7 @@ const dayIndexOf = (d: Date) => (d.getDay() + 6) % 7
 export const DAY_SHORT = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
 
 const pad = (n: number) => String(n).padStart(2, '0')
-export const timeRange = (s: SessionIndex) => `${pad(SESSION_HOURS[s].start)}:00–${pad(SESSION_HOURS[s].end)}:00`
+export const timeRange = (s: SessionIndex) => `${pad(SESSION_HOURS[s].start)}:00–${pad(SESSION_HOURS[s].end % 24)}:00`
 
 /** Số ngày bảng ca nhìn tới: hôm nay (phần còn lại) + 6 ngày sau */
 const WEEK_DAYS = 7

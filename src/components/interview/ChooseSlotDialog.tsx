@@ -12,8 +12,13 @@ type Props = { interview: Interview; onClose: () => void }
 export default function ChooseSlotDialog({ interview: iv, onClose }: Props) {
   const info = describeConversation('seeker', iv.jobId, iv.seekerId)
   const [slot, setSlot] = useState(iv.slots[0])
+  const [error, setError] = useState('')
 
   const confirm = () => {
+    if (!iv.slots.includes(slot) || Date.parse(slot) <= Date.now()) {
+      setError('Khung giờ này đã qua. Bạn chọn giờ khác nhé.')
+      return
+    }
     confirmInterview(iv.id, slot)
     onClose()
   }
@@ -30,7 +35,7 @@ export default function ChooseSlotDialog({ interview: iv, onClose }: Props) {
           <div className="mt-3 space-y-2">
             {iv.slots.map((s) => (
               <label key={s} className="block cursor-pointer">
-                <input type="radio" name="slot" value={s} checked={slot === s} onChange={() => setSlot(s)} className="peer sr-only" />
+                <input type="radio" name="slot" value={s} checked={slot === s} onChange={() => { setSlot(s); setError('') }} className="peer sr-only" />
                 <span className="block rounded-card border border-page-edge px-4 py-3 text-base font-medium capitalize text-page-fg transition-colors duration-fast peer-checked:border-page-fg peer-checked:bg-page-surface peer-focus-visible:ring-2 peer-focus-visible:ring-page-fg peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-page-bg">
                   {fmtSlot(s)}
                 </span>
@@ -44,6 +49,8 @@ export default function ChooseSlotDialog({ interview: iv, onClose }: Props) {
           <div className="flex gap-2"><dt className="w-24 shrink-0 text-page-muted">Địa điểm</dt><dd className="min-w-0 text-page-fg"><PlaceText place={iv.place} /></dd></div>
           {iv.note && <div className="flex gap-2"><dt className="w-24 shrink-0 text-page-muted">Ghi chú</dt><dd className="text-page-fg">{iv.note}</dd></div>}
         </dl>
+
+        {error && <p role="alert" className="text-sm text-danger">{error}</p>}
 
         <div className="flex flex-wrap justify-end gap-2">
           <button type="button" onClick={decline} className={BTN_DANGER}>

@@ -91,6 +91,27 @@ export default function JobSearchBar({
     return () => io.disconnect()
   }, [])
 
+  // Thanh gốc trôi lên dưới các viên header nổi → mờ dần để không đè lên viên Workmate/nav
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    let raf = 0
+    const update = () => {
+      raf = 0
+      const top = el.getBoundingClientRect().top
+      // top ≥ 120: rõ hẳn; top ≤ 72 (mép dưới header): ẩn hẳn
+      el.style.opacity = String(Math.min(1, Math.max(0, (top - HEADER_PX - 7) / 48)))
+    }
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update) }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+      el.style.opacity = ''
+    }
+  }, [])
+
   // Hướng lướt lấy từ thao tác thật (bánh xe, vuốt, phím) chứ không từ sự kiện scroll —
   // vì bộ ảnh tự trôi về ảnh gần nhất sau khi dừng, cú trôi đó không được làm viên ẩn/hiện.
   useEffect(() => {
@@ -184,8 +205,7 @@ export default function JobSearchBar({
         onSubmit={submit}
         className={cn(
           DARK_GLASS,
-          'flex max-w-2xl flex-col rounded-card p-1',
-          !inCover && 'mx-auto',
+          'mx-auto flex max-w-2xl flex-col rounded-card p-1',
           floating && 'bg-wm-abyss/80',
           'sm:flex-row sm:items-center sm:rounded-full',
           'focus-within:ring-2 focus-within:ring-page-fg focus-within:ring-offset-2 focus-within:ring-offset-page-bg',
@@ -249,7 +269,7 @@ export default function JobSearchBar({
         className={cn(
           'mt-3 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
           // Trong bìa: luôn một dòng, cuộn ngang khi tràn, mờ dần mép phải
-          inCover ? 'chip-row-mask pr-10 sm:justify-start' : '-mx-6 px-6 sm:mx-auto sm:max-w-4xl sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0',
+          inCover ? 'chip-row-mask mx-auto max-w-4xl pr-10 sm:[-webkit-mask-image:none] sm:[mask-image:none] sm:flex-wrap sm:justify-center sm:overflow-visible sm:pr-0' : '-mx-6 px-6 sm:mx-auto sm:max-w-4xl sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0',
         )}
       >
         {JOB_TYPES.map((t) => (

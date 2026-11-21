@@ -1265,11 +1265,13 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
   background:
     linear-gradient(to bottom, transparent 55%, color-mix(in srgb, var(--wm-ocean) 30%, transparent) 100%),
     linear-gradient(165deg,
-      color-mix(in srgb, color-mix(in srgb, var(--wm-azure) 30%, var(--wm-ocean)) 74%, transparent) 0%,
-      color-mix(in srgb, var(--wm-ocean) 82%, transparent) 100%);
+      color-mix(in srgb, color-mix(in srgb, var(--wm-azure) 30%, var(--wm-ocean)) 40%, transparent) 0%,
+      color-mix(in srgb, var(--wm-ocean) 52%, transparent) 100%);
   border-color: color-mix(in srgb, var(--wm-ivory) 35%, transparent);
-  -webkit-backdrop-filter: blur(18px) saturate(1.3);
-  backdrop-filter: blur(18px) saturate(1.3);
+  /* Trong hơn (chủ dự án 2026-11-22) để nhìn xuyên thấy cầu Rồng phía sau; bóng chữ giữ chữ ngà đọc được trên đèn sáng */
+  -webkit-backdrop-filter: blur(5px) saturate(1.2);
+  backdrop-filter: blur(5px) saturate(1.2);
+  text-shadow: 0 1px 3px color-mix(in srgb, var(--wm-abyss) 75%, transparent);
   box-shadow:
     0 0 36px -4px color-mix(in srgb, var(--wm-cyan) 45%, transparent),
     0 18px 36px -20px color-mix(in srgb, var(--wm-abyss) 70%, transparent),
@@ -1369,7 +1371,7 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
 }
 
 /* ─── Dashboard người tìm việc: xanh kính (chủ dự án 2026-11-21) ─────────────────────────────────────────
-   Chỉ áp trong .jd-root (GlassDashboardShell, khu /tim-viec). Dashboard nhà tuyển dụng / quản trị giữ nền ngà.
+   Chỉ áp trong .jd-root (GlassDashboardShell: khu /tim-viec và /tuyen-dung). Dashboard quản trị giữ nền ngà.
    Nền abyss + quầng azure/cyan tĩnh + sao (.home-stars); thanh bên, thẻ, ô kính: abyss ~52% + blur + viền cyan ~25% + quầng cyan nhẹ.
    Biến --page-* theo .theme-abyss (chữ ngà) nên các trang con tự đổi màu; chỉ các lớp "kính ngà" cũ (dash-card, sb-*) cần ghi đè dưới đây. */
 .jd-backdrop {
@@ -1439,4 +1441,91 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
 @media (prefers-reduced-motion: reduce) {
   .jd-card { transition: none; }
   .jd-lift:hover { transform: none; }
+}
+
+/* Màn chuyển trang tới trang ban ngày: cùng màu nền day + mép xanh azure + cột sáng xanh ngọc như .day-sky,
+   để tấm màn trông như "bầu trời" của trang đích chứ không phải một tấm phẳng khác màu */
+.curtain-day {
+  background-color: var(--wm-day);
+  background-image:
+    radial-gradient(ellipse 14% 70% at 50% 40%, color-mix(in srgb, var(--wm-cyan) 22%, transparent), transparent 75%),
+    linear-gradient(to bottom, color-mix(in srgb, var(--wm-azure) 22%, transparent), transparent 30%, transparent 70%, color-mix(in srgb, var(--wm-azure) 18%, transparent));
+}
+
+/* In CV (Tải CV PDF): chỉ in tờ CV khổ A4 dọc, giữ nguyên màu nền; mọi phần tử khác của <body> bị ẩn */
+@media print {
+  @page { size: A4 portrait; margin: 0; }
+  body:has(.cv-print-root) > *:not(.cv-print-root) { display: none !important; }
+  body:has(.cv-print-root) { background: white !important; margin: 0 !important; overflow: visible !important; }
+  .cv-print-root { display: block; width: 210mm; }
+  .cv-print-root, .cv-print-root * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  [data-cv-sheet] { break-inside: auto; }
+}
+@media screen { .cv-print-root { display: none; } }
+
+/* CV phóng to (CvPanel): nền mờ phía sau khung <dialog> */
+.cv-zoom::backdrop { background: color-mix(in srgb, var(--wm-abyss) 55%, transparent); backdrop-filter: blur(4px); }
+
+/* /match: phủ azure rất nhẹ lên ảnh thẻ việc (hợp nền ban ngày) + vệt abyss 0→15% ở đáy cho viên nhãn đọc rõ */
+.photo-tint {
+  background:
+    linear-gradient(to top, color-mix(in srgb, var(--wm-abyss) 15%, transparent), transparent 55%),
+    color-mix(in srgb, var(--wm-azure) 22%, transparent);
+  mix-blend-mode: soft-light;
+}
+/* Chấm "Mới" nhịp nhẹ: chỉ opacity + scale; giảm chuyển động thì đứng yên */
+@keyframes wm-pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.7); } }
+.wm-pulse-dot { animation: wm-pulse-dot 2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .wm-pulse-dot { animation: none; } }
+
+/* Trang Kết nối (/match): thẻ, dải, thanh tiêu chí, ô tìm bo góc 24px thay cho 16px của token `card` */
+.match-round .rounded-card { border-radius: 1.5rem; }
+
+/* Mở CV ứng viên (CandidateCvDialog): nền mờ hiện dần, thanh trên trượt xuống, tờ CV trồi lên + lớn dần; đóng thì ngược lại nhanh hơn */
+@keyframes cv-pop-fade-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes cv-pop-head-in { from { opacity: 0; transform: translateY(-14px) } to { opacity: 1; transform: none } }
+@keyframes cv-pop-sheet-in { from { opacity: 0; transform: translateY(28px) scale(0.94) } to { opacity: 1; transform: none } }
+@keyframes cv-pop-fade-out { from { opacity: 1 } to { opacity: 0 } }
+@keyframes cv-pop-head-out { from { opacity: 1; transform: none } to { opacity: 0; transform: translateY(-10px) } }
+@keyframes cv-pop-sheet-out { from { opacity: 1; transform: none } to { opacity: 0; transform: translateY(16px) scale(0.97) } }
+@media (prefers-reduced-motion: no-preference) {
+  .cv-pop .cv-pop-fade { animation: cv-pop-fade-in 240ms ease-out both; }
+  .cv-pop .cv-pop-head { animation: cv-pop-head-in 380ms cubic-bezier(0.22, 1, 0.36, 1) 60ms both; }
+  .cv-pop .cv-pop-sheet { animation: cv-pop-sheet-in 520ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both; transform-origin: 50% 20%; }
+  .cv-pop[data-closing] .cv-pop-fade { animation: cv-pop-fade-out 220ms ease-in both; }
+  .cv-pop[data-closing] .cv-pop-head { animation: cv-pop-head-out 200ms ease-in both; }
+  .cv-pop[data-closing] .cv-pop-sheet { animation: cv-pop-sheet-out 220ms ease-in both; }
+}
+
+/* Hero: đèn lấp lánh trên cầu, dải sáng mặt nước, vệt sáng cong trên trời.
+   Giảm chuyển động: đèn đứng yên ở 0.6, không dải sáng, không trôi. */
+.hero-skyline { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32%, #000 70%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 32%, #000 70%, transparent); }
+.hero-light { opacity: 0.6; }
+.hero-shimmer {
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--wm-apricot) 55%, transparent), color-mix(in srgb, var(--wm-cyan) 45%, transparent), transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-light { animation: hero-light-twinkle 3s ease-in-out infinite alternate; }
+  .hero-shimmer { opacity: 0.35; animation: hero-shimmer-slide 14s ease-in-out infinite alternate; }
+  .hero-streak { animation: hero-streak-drift 30s ease-in-out infinite alternate; }
+}
+@keyframes hero-light-twinkle { from { opacity: 0.3; } to { opacity: 1; } }
+@keyframes hero-shimmer-slide { from { transform: translateX(0); } to { transform: translateX(110%); } }
+@keyframes hero-streak-drift { from { transform: translateY(0); opacity: 0.8; } to { transform: translateY(8px); opacity: 1; } }
+
+/* "Việc mới đăng" (NewJobsSection): chữ kính trong suốt — ruột chữ gần như trong, viền sáng mảnh, ánh sáng loang từ trái;
+   nhìn xuyên thấy nền. Không chuyển động. */
+.nj-glass-title {
+  display: inline-block;
+  color: transparent;
+  background: linear-gradient(115deg,
+    color-mix(in srgb, var(--wm-ivory) 92%, transparent) 0%,
+    color-mix(in srgb, var(--wm-ivory) 45%, transparent) 40%,
+    color-mix(in srgb, var(--wm-cyan) 45%, transparent) 72%,
+    color-mix(in srgb, var(--wm-ivory) 70%, transparent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* Không dùng text-stroke: với dấu tiếng Việt nó vẽ cả đường nối bên trong chữ. Mép sáng bằng drop-shadow thay thế */
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--wm-ivory) 35%, transparent)) drop-shadow(0 6px 24px color-mix(in srgb, var(--wm-cyan) 35%, transparent));
 }

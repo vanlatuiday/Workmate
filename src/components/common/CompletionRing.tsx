@@ -20,6 +20,8 @@ interface CompletionRingProps {
   rowText?: string
   /** Có truyền (kể cả rỗng) → hiện dạng thẻ kèm danh sách gợi ý thay vì cột hẹp */
   suggestions?: RingSuggestion[]
+  /** Chữ khi không còn gợi ý nào (mặc định nói về hồ sơ) */
+  doneText?: string
   className?: string
 }
 
@@ -61,7 +63,7 @@ function RingBody({ ratio, value, max, label, center, card }: BodyProps) {
  * Vòng tròn tiến độ (SVG). Mobile: hàng ngang trong luồng thường, vòng 44px kèm chữ.
  * Từ lg: cột hẹp, vòng 60px dính khi cuộn (đặt trong cột riêng nên không đè nội dung).
  */
-export default function CompletionRing({ value, max, label, center, caption, rowText, suggestions, className = '' }: CompletionRingProps) {
+export default function CompletionRing({ value, max, label, center, caption, rowText, suggestions, doneText = 'Hồ sơ đã đầy đủ.', className = '' }: CompletionRingProps) {
   const ratio = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0
   const ring = (
     <div className={`flex items-center gap-3 lg:sticky lg:top-24 lg:flex-col lg:gap-1.5 lg:self-start ${className}`}>
@@ -72,7 +74,7 @@ export default function CompletionRing({ value, max, label, center, caption, row
   )
   if (!suggestions) return ring
   return (
-    <div className="rounded-card border border-page-line bg-page-surface p-4">
+    <div className="day-card rounded-card border border-page-line bg-page-surface p-4">
       {/* Trong thẻ: bỏ chế độ dính/cột dọc, vòng nằm ngang cạnh chữ ở mọi cỡ màn */}
       <div className="flex items-center gap-4">
         <RingBody card ratio={ratio} value={value} max={max} label={label} center={center} />
@@ -97,7 +99,7 @@ export default function CompletionRing({ value, max, label, center, caption, row
           </ul>
         </div>
       ) : (
-        <p className="mt-3 border-t border-page-line pt-3 text-sm text-page-muted">Hồ sơ đã đầy đủ.</p>
+        <p className="mt-3 border-t border-page-line pt-3 text-sm text-page-muted">{doneText}</p>
       )}
     </div>
   )

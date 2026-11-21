@@ -10,11 +10,20 @@ import type { JobType } from '@/types'
 // Đăng nhập bằng người tìm việc: nạp từ /api/seeker/profile, mọi thay đổi tự lưu lên máy chủ (services/profileService).
 // Khách / tài khoản khác: hồ sơ mẫu chỉ trên máy; đăng xuất thì về hồ sơ mẫu.
 
-export type ExperienceItem = { id: string; title: string; company: string; period: string }
+export type ExperienceItem = { id: string; title: string; company: string; period: string; bullets: string[] }
+
+export type Gender = 'nam' | 'nu' | 'khac'
 
 export interface SeekerProfile {
   fullName: string
   phone: string
+  /** Chức danh dưới tên trên CV (vd. "Nhân viên phục vụ") */
+  headline: string
+  /** Ngày sinh (YYYY-MM-DD); null = chưa ghi */
+  birthDate: string | null
+  gender: Gender | null
+  /** Nhà tuyển dụng chỉ thấy ngày sinh/giới tính khi bật */
+  showPersonal: boolean
   /** 1–2 câu giới thiệu (mẫu) */
   intro: string
   /** Đoạn giới thiệu dài hơn (mẫu) */
@@ -27,6 +36,10 @@ export interface SeekerProfile {
   salaryMin: number
   maxDistanceKm: number
   skills: string[]
+  /** Mức thành thạo 1–5 theo tên kỹ năng (chỉ cho kỹ năng có trong `skills`) */
+  skillLevels: Record<string, number>
+  /** Sở thích (≤10) */
+  hobbies: string[]
   experience: ExperienceItem[]
   /** Khóa `${chỉ số ngày}-${chỉ số buổi}` của các ô rảnh */
   availability: string[]
@@ -38,6 +51,10 @@ export interface SeekerProfile {
 const SEED: SeekerProfile = {
   fullName: PROFILE_DEFAULT.fullName,
   phone: PROFILE_DEFAULT.phone,
+  headline: PROFILE_DEFAULT.headline,
+  birthDate: null,
+  gender: null,
+  showPersonal: false,
   intro: 'Sinh viên năm cuối ở Đà Nẵng, quen làm ca tối và cuối tuần. Thích việc cần giao tiếp và làm việc nhóm.',
   about:
     'Mình đã làm phục vụ quán cà phê và cộng tác viên sự kiện hơn hai năm. Mình đúng giờ, học nhanh, không ngại việc nặng vào cuối tuần. Mình muốn tìm công việc gần nhà để có thể làm đều đặn.',
@@ -48,7 +65,9 @@ const SEED: SeekerProfile = {
   salaryMin: PROFILE_DEFAULT.salaryMin,
   maxDistanceKm: PROFILE_DEFAULT.maxDistanceKm,
   skills: [...PROFILE_DEFAULT.skills],
-  experience: PROFILE_DEFAULT.experience.map((e) => ({ ...e })),
+  skillLevels: { ...PROFILE_DEFAULT.skillLevels },
+  hobbies: [...PROFILE_DEFAULT.hobbies],
+  experience: PROFILE_DEFAULT.experience.map((e) => ({ ...e, bullets: [...e.bullets] })),
   availability: [...AVAILABILITY_DEFAULT],
   availableFrom: null,
 }
@@ -70,6 +89,10 @@ interface ProfileState {
   profile: SeekerProfile
   /** URL ảnh đại diện: ảnh trên máy chủ, hoặc object URL (blob:) khi chưa đăng nhập / đang tải lên */
   avatarUrl: string | null
+  /** Ảnh bìa chỉ dùng trong đúng phiên chủ hồ sơ, không lưu bản sao vào localStorage. */
+  coverUrl: string | null
+  coverOwnerId: string | null
+  setCoverUrl: (url: string | null, ownerId: string | null) => void
   update: (patch: Partial<SeekerProfile>) => void
   /** Đổi ảnh: hiện ngay bản xem trước, rồi tải lên nếu đang đăng nhập. Trả về thông báo lỗi hoặc null */
   setAvatarFile: (file: File) => Promise<string | null>
@@ -88,6 +111,9 @@ export const useProfileStore = create<ProfileState>()(
     (set, get) => ({
       profile: SEED,
       avatarUrl: null,
+      coverUrl: null,
+      coverOwnerId: null,
+      setCoverUrl: (coverUrl, coverOwnerId) => set({ coverUrl, coverOwnerId }),
       update: (patch) => {
         set((s) => ({ profile: { ...s.profile, ...patch } }))
         sync?.save(patch)
@@ -116,7 +142,10 @@ export const useProfileStore = create<ProfileState>()(
         get().setAvatarUrl(avatarUrl)
         set({ profile })
       },
-      resetLocal: () => get().replace(SEED, null),
+      resetLocal: () => {
+        get().setCoverUrl(null, null)
+        get().replace(SEED, null)
+      },
       reset: () => {
         if (sync?.active()) void sync.reload()
         else get().resetLocal()
@@ -131,7 +160,10 @@ export const useProfileStore = create<ProfileState>()(
       migrate: (state) => state as ProfileState,
       merge: (saved, cur) => {
         const sp = (saved as Partial<ProfileState> | undefined) ?? {}
-        return { ...cur, ...sp, profile: { ...cur.profile, ...(sp.profile ?? {}) } }
+        const profile = { ...cur.profile, ...(sp.profile ?? {}) }
+        // Bản lưu cũ chưa có bullets trong từng kinh nghiệm
+        profile.experience = (profile.experience ?? []).map((e) => ({ ...e, bullets: e.bullets ?? [] }))
+        return { ...cur, ...sp, profile }
       },
     },
   ),

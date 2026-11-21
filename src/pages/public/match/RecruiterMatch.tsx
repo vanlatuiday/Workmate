@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import PopIcon from '@components/common/PopIcon'
 import { Link, useSearchParams } from 'react-router-dom'
 import { notifySuccess } from '@utils/feedback'
-import { Bookmark, Briefcase, Check, Clock, MapPin, UserCheck, UserX, Wallet, X } from 'lucide-react'
+import { Bookmark, Briefcase, Check, UserX, X } from 'lucide-react'
 import InterviewAction from '@components/interview/InterviewAction'
 import ConsiderButton from '@components/application/ConsiderButton'
 import { EmptyState, MatchScore, StatusBadge } from '@components/dashboard'
@@ -18,10 +18,9 @@ import { availabilityLabel, useCandidates, usePositions, type MatchCandidate, ty
 import MatchGallery from './gallery/MatchGallery'
 import MatchSearchBar, { BarSelect, ChipReset, LevelMenu } from './MatchSearchBar'
 import ReportButton from '@components/report/ReportButton'
-import MatchDetail from './MatchDetail'
-import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
+import CandidateCvDialog from './CandidateCvDialog'
 import {
-  Avatar, CheckList, filterByLevel, foldMatches, GalleryCaption, MatchFrame, okReasons, personInitials, Tabs, ViewToggle,
+  Avatar, CheckList, filterByLevel, foldMatches, GalleryAction, GalleryCaption, MatchFrame, okReasons, personInitials, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
 import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
@@ -29,7 +28,7 @@ import { SkeletonCards } from '@components/dashboard/Skeleton'
 import { useCatalogStore } from '@context/catalogStore'
 import { useFlip } from '@hooks/useFlip'
 import { useCandidateMatches } from '@services/matchingService'
-import { DEFAULT_PRIORITY, weightsOf, type CriterionResult } from './score'
+import { type CriterionResult } from './score'
 import MessageLink from '@components/messenger/MessageLink'
 
 type TabKey = 'fit' | 'saved' | 'interested' | 'connected'
@@ -100,7 +99,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
 
   // Điểm ứng viên của vị trí đang chọn do máy chủ tính (trọng số mặc định), cao trước.
   // Người chưa có điểm (vừa xuất hiện) thì chưa liệt kê; khoảng cách lấy từ máy chủ (nơi ở → chỗ làm của tin)
-  const { ready: scoresReady, weights: serverWeights, outcomeOf } = useCandidateMatches([position.id])
+  const { ready: scoresReady, outcomeOf } = useCandidateMatches([position.id])
   const scored = useMemo(
     () =>
       candidates
@@ -321,21 +320,38 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
             </div>
           ) : gallery ? (
             <MatchGallery
-              items={shown.map((x) => ({ id: x.key, photo: x.c.photo, ...x }))}
+              items={shown.map((x) => ({ id: x.key, ...x }))}
+              avatarOf={({ c }) => ({ src: c.avatarUrl ?? null, alt: `Ảnh đại diện của ${c.name}` })}
               label="Danh sách ứng viên dạng bộ sưu tập"
-              itemLabel={({ c, outcome }) => `${c.name}, phù hợp ${outcome.score}%. Mở chi tiết`}
+              itemLabel={({ c, outcome }) => `${c.name}, phù hợp ${outcome.score}%. Xem CV`}
               renderCaption={({ c, outcome }) => (
                 <GalleryCaption
                   title={c.name}
                   subtitle={`${c.summary} · ${c.area}`}
                   score={outcome.score}
                   reasons={okReasons(outcome.results, recruiterNote)}
-                  chip={(() => { const st = statusOf(position.id, c.id); return st === 'received' ? 'Quan tâm bạn' : st === 'connected' ? 'Đã kết nối' : undefined })()}
                 />
               )}
               onOpen={(item, origin) => setOpen({ id: item.id, origin })}
-              scoreOf={(x) => x.outcome.score}
-                hiddenId={open?.id ?? null}
+              action={({ c }) => (
+                <GalleryAction
+                  status={statusOf(position.id, c.id)}
+                  name={c.name}
+                  convKey={`${position.id}|${c.id}`}
+                  onPrimary={() => invite(c)}
+                  labels={{ none: 'Quan tâm ứng viên', sent: 'Đã quan tâm' }}
+                />
+              )}
+              badgeOf={(x) => {
+                const st = statusOf(position.id, x.c.id)
+                return st === 'connected' ? 'Đã kết nối' : st === 'sent' ? 'Đã quan tâm' : st === 'received' ? 'Quan tâm bạn' : savedCandidates.includes(x.key) ? 'Đã lưu' : undefined
+              }}
+              save={{
+                isSaved: (x) => savedCandidates.includes(x.key),
+                label: (x, saved) => `${saved ? 'Bỏ lưu' : 'Lưu'} ứng viên ${x.c.name}`,
+                onToggle: (x) => toggleSavedCandidate(x.key),
+              }}
+              hiddenId={open?.id ?? null}
             />
           ) : (
             <ul ref={flipRef} className="grid gap-4 md:grid-cols-2">
@@ -381,53 +397,18 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
 
     </MatchFrame>
 
-    {detail && open && (() => {
-      const { c, key, outcome } = detail
-      // Kỹ năng thiếu nhưng không bắt buộc (thiếu bắt buộc đã nằm ở khung 'yêu cầu bắt buộc')
-      const preferredMissing = outcome.missingSkills.filter((s) => !(req.requiredSkills ?? []).includes(s))
-      const matched = req.slots.filter((s) => c.criteria.slots.includes(s)).length
-      return (
-        <MatchDetail
-          key={open.id}
-          photo={c.photo}
-          title={c.name}
-          eyebrow={`${c.area} · cách ${c.distanceKm} km`}
-          score={outcome.score}
-          origin={open.origin}
-          onClosed={() => setOpen(null)}
-          actions={(close) => candActions(c, key, close)}
-        >
-          <div className="mt-6">
-            <FactTiles
-              items={[
-                { icon: Wallet, label: 'Lương mong muốn', value: <><span className="tnum">{c.criteria.salaryMinK}.000</span>đ/giờ</> },
-                { icon: Clock, label: 'Lịch rảnh', value: <><span className="tnum">{matched}/{req.slots.length}</span> ca khớp</> },
-                { icon: MapPin, label: 'Khoảng cách', value: `${c.distanceKm} km` },
-                { icon: UserCheck, label: 'Trạng thái', value: availabilityLabel(c.availability) },
-              ]}
-            />
-          </div>
-          <DetailSection title="Mức độ khớp với tin">
-            <CriterionBars results={outcome.results} weights={serverWeights ?? weightsOf(DEFAULT_PRIORITY)} noteOf={recruiterNote} />
-            {outcome.unmet.length > 0 && (
-              <ImproveHint>
-                Chưa đạt yêu cầu bắt buộc: <strong className="font-medium">{outcome.unmet.join(', ')}</strong>.
-              </ImproveHint>
-            )}
-            {preferredMissing.length > 0 && (
-              <ImproveHint>
-                Còn thiếu kỹ năng ưu tiên: <strong className="font-medium">{preferredMissing.join(', ')}</strong>.
-              </ImproveHint>
-            )}
-          </DetailSection>
-          <DetailSection title="Về ứng viên">
-            <p className="text-sm leading-relaxed text-page-muted">{c.summary}</p>
-            <TagList tags={c.criteria.skills} />
-          </DetailSection>
-          <div className="mt-8"><ReportButton target="seeker" targetId={c.id} name={c.name} /></div>
-        </MatchDetail>
-      )
-    })()}
+    {detail && open && (
+      <CandidateCvDialog
+        key={open.id}
+        seekerId={detail.c.id}
+        name={detail.c.name}
+        score={detail.outcome.score}
+        origin={open.origin}
+        onClosed={() => setOpen(null)}
+        actions={(close) => candActions(detail.c, detail.key, close)}
+        extra={<ReportButton target="seeker" targetId={detail.c.id} name={detail.c.name} />}
+      />
+    )}
     </>
   )
 }

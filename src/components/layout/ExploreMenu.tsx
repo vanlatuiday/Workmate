@@ -8,7 +8,6 @@ import type { MenuItem } from '@components/layout/MenuOverlay'
 /** Các trang thông tin chung — gom vào mục "Khám phá" để menu chính trên header vẫn gọn */
 export const EXPLORE_ITEMS: MenuItem[] = [
   { label: 'Giới thiệu', href: '/gioi-thieu' },
-  { label: 'Công ty', href: '/cong-ty' },
   { label: 'Cẩm nang', href: '/cam-nang' },
   { label: 'Hỗ trợ', href: '/ho-tro' },
   { label: 'Liên hệ', href: '/lien-he' },

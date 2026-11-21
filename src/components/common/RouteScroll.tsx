@@ -73,7 +73,12 @@ export default function RouteScroll({ container }: Props) {
     const anchor = entry.hash && document.getElementById(decodeURIComponent(entry.hash.slice(1)))
     const override = initialOverride?.locationKey === entry.locationKey ? initialOverride.y : null
     if (anchor) anchor.scrollIntoView()
-    else target.scrollTo(0, entry.restore ? (positions.get(entry.key) ?? 0) : (override ?? 0))
+    else {
+      // Tải lại / Back: về chỗ cũ; nhưng nếu trang yêu cầu mở ở vị trí riêng (vd. trang chủ mở thẳng hero khi đã đăng nhập)
+      // thì không lùi về trước vị trí đó
+      const saved = positions.get(entry.key) ?? 0
+      target.scrollTo(0, entry.restore ? (override != null ? Math.max(saved, override) : saved) : (override ?? 0))
+    }
 
     // Chỉ ghi khi mục lịch sử hiện tại vẫn là trang này — tránh ghi đè vị trí
     // bằng giá trị bị trình duyệt kẹp lại lúc trang đang được thay.

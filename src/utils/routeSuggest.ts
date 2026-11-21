@@ -5,7 +5,6 @@ export type RouteEntry = { to: string; label: string; roles?: UserRole[]; guestO
 
 const PUBLIC: RouteEntry[] = [
   { to: '/viec-lam', label: 'Việc làm' },
-  { to: '/cong-ty', label: 'Công ty' },
   { to: '/match', label: 'Ghép việc' },
   { to: '/cam-nang', label: 'Cẩm nang' },
   { to: '/ho-tro', label: 'Hỗ trợ' },
@@ -16,7 +15,6 @@ const PUBLIC: RouteEntry[] = [
   { to: '/dang-ky', label: 'Đăng ký', guestOnly: true },
   { to: '/ca-nhan', label: 'Cá nhân' },
   { to: '/tin-nhan', label: 'Tin nhắn' },
-  { to: '/thong-bao', label: 'Thông báo' },
   { to: '/lich-phong-van', label: 'Lịch phỏng vấn' },
 ]
 
@@ -100,10 +98,10 @@ function similarity(q: string, t: string): number {
 
 const ALIASES: Record<string, string> = {
   jobs: '/viec-lam', job: '/viec-lam', login: '/dang-nhap', signin: '/dang-nhap',
-  register: '/dang-ky', signup: '/dang-ky', companies: '/cong-ty', company: '/cong-ty',
+  register: '/dang-ky', signup: '/dang-ky', companies: '/viec-lam', company: '/viec-lam',
   messages: '/tin-nhan', message: '/tin-nhan', profile: '/ca-nhan', blog: '/cam-nang',
   help: '/ho-tro', contact: '/lien-he', about: '/gioi-thieu', dashboard: '/',
-  notifications: '/thong-bao', schedule: '/lich-phong-van',
+  schedule: '/lich-phong-van',
 }
 
 const THRESHOLD = 0.6
@@ -117,7 +115,7 @@ function defaultsFor(role?: UserRole | null): string[] {
   if (role === 'jobseeker') return ['/tim-viec', '/viec-lam', '/tim-viec/da-luu']
   if (role === 'recruiter') return ['/tuyen-dung', '/tuyen-dung/tin-dang', '/dang-tin']
   if (role === 'admin') return ['/admin', '/admin/nguoi-dung', '/viec-lam']
-  return ['/viec-lam', '/cong-ty', '/dang-nhap']
+  return ['/viec-lam', '/match', '/dang-nhap']
 }
 
 /** Tối đa 3 gợi ý; không đủ điểm thì trả về 3 trang hữu ích nhất theo vai trò */

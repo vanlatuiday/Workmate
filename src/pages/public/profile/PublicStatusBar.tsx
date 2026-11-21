@@ -8,7 +8,7 @@ import type { ProfileApi } from './useProfileDraft'
 export default function PublicStatusBar({ api }: { api: ProfileApi }) {
   const { isPublic, setPublic } = usePublicProfile()
   return (
-    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-card border border-page-line bg-page-surface px-5 py-4">
+    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-card border border-page-line bg-page-surface px-5 py-4 day-card">
       <p role="status" className="min-w-0 text-sm text-page-fg">
         {isPublic ? 'Hồ sơ đang công khai.' : 'Hồ sơ chưa công khai. Nhà tuyển dụng chưa tìm thấy bạn.'}
       </p>

@@ -1,3 +1,4 @@
+import heroSkylineImg from '@assets/images/home/hero-skyline.webp'
 import heroArtCalendar from '@assets/images/home/hero-art-calendar.webp'
 import heroArtBriefcase from '@assets/images/home/hero-art-briefcase.webp'
 /** Nội dung trang chủ — sửa tại đây, không cần đụng vào các component. */
@@ -474,9 +475,24 @@ export const heroFeatures: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin',
  * `null` = không dựng gì. Chỉ hiện từ lg, trang trí (aria-hidden), nằm trong lề hai bên nên không đè chữ.
  */
 export const heroArt: { left: null | { src: string; alt: string }; right: null | { src: string; alt: string } } = {
-  left: { src: heroArtCalendar, alt: '' },
-  right: { src: heroArtBriefcase, alt: '' },
+  // tắt 2026-11-22 cho cầu Rồng nổi bật; bật lại: gán lại ảnh
+  // left: { src: heroArtCalendar, alt: '' }, right: { src: heroArtBriefcase, alt: '' }
+  left: null,
+  right: null,
 }
+// Giữ import để bật lại nhanh (tránh lỗi "unused" bằng cách tham chiếu ở đây)
+void heroArtCalendar
+void heroArtBriefcase
+
+/**
+ * Dải thành phố / cầu Rồng ở đáy hero (mọi vai trò). `null` = không dựng gì.
+ * Cắm ảnh: chủ dự án gửi panorama rộng ~2400×600 (nền trời xanh hoặc trong suốt, WebP), đặt vào
+ * `src/assets/images/home/`, rồi:
+ *   import skyline from '@assets/images/home/hero-skyline.webp'
+ *   export const heroSkyline = { src: skyline, alt: '' as const }
+ * Khi có ảnh, tự có thêm đèn lấp lánh trên cầu + dải sáng mặt nước (HeroSkyline.tsx).
+ */
+export const heroSkyline: null | { src: string; alt: '' } = { src: heroSkylineImg, alt: '' }
 
 /**
  * Bảng ca "đang cần người" (dưới hero): chữ theo vai trò. Quản trị xem như khách.

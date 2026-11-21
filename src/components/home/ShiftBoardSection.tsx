@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, ChevronLeft, ChevronRight, Clock, LayoutGrid, Moon, Sun, Sunrise, X, type LucideIcon } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, Clock, LayoutGrid, Moon, MoonStar, Sun, Sunrise, X, type LucideIcon } from 'lucide-react'
 
 import { useAllJobs, useSeekerOutcomes } from '@pages/public/jobs/catalog'
 import { companyOf, useCandidates, type MatchJob } from '@pages/public/match/data'
@@ -113,6 +113,7 @@ const SESSION_OPTIONS: { value: SessionIndex | null; label: string; icon: Lucide
   { value: 0, label: SESSION_HOURS[0].name, icon: Sun },
   { value: 1, label: SESSION_HOURS[1].name, icon: Sunrise },
   { value: 2, label: SESSION_HOURS[2].name, icon: Moon },
+  { value: 3, label: SESSION_HOURS[3].name, icon: MoonStar },
 ]
 const DAY_OPTIONS: { value: number | null; label: string }[] = [{ value: null, label: copy.filters.allWeek }, ...DAY_SHORT.map((label, value) => ({ value, label }))]
 

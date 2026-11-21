@@ -55,8 +55,12 @@ type Props = {
   actions?: ReactNode
   /** md: chỗ cho ô tìm kiếm / bộ lọc (tự vẽ kính tối) */
   children?: ReactNode
+  /** md: cột phải từ lg (vd. thẻ tóm tắt); hẹp thì xuống dưới `children` */
+  aside?: ReactNode
   /** lg / md: bỏ lớp tan dần ở đáy (pc-cover-fade) để nội dung bên dưới là tấm ngà <IvoryPageBody> đè lên mép bìa */
   sheet?: boolean
+  /** lg / md: căn giữa tiêu đề, dòng dẫn, ô tìm kiếm; `aside` (nếu có) xuống dưới `children`, không còn cột phải */
+  centered?: boolean
   className?: string
 }
 
@@ -72,7 +76,7 @@ export default function PageCover(props: Props) {
 
 /* ─── lg / md ─────────────────────────────────────────────────────────────── */
 
-function Cover({ level, title, label, lead, fact, actions, children, sheet, className }: Props) {
+function Cover({ level, title, label, lead, fact, actions, children, aside, sheet, centered, className }: Props) {
   const enter = usePageEnterDelay()
   const lg = level === 'lg'
   const day = useIsDay()
@@ -112,40 +116,50 @@ function Cover({ level, title, label, lead, fact, actions, children, sheet, clas
       )}
 
       <div className={cn('relative', EDGE, lg ? 'pb-10 pt-12 md:pb-14' : 'pb-6 pt-10 md:pb-8', sheet && !day && 'pb-14 md:pb-16')}>
-        {label && (
-          <p {...rise(enter, 0)} className={cn('pc-rise mb-3 text-sm font-medium text-page-muted')}>
-            {label}
-          </p>
-        )}
-        <h1
-          {...rise(enter, 60)}
-          className={cn(
-            'pc-rise max-w-[20ch] text-balance font-display font-semibold text-page-fg',
-            lg ? 'text-display-md' : 'text-display-sm',
+        <div className={cn(aside && !centered && 'lg:grid lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-end lg:gap-10')}>
+          <div className={cn('min-w-0', centered && 'text-center')}>
+            {label && (
+              <p {...rise(enter, 0)} className={cn('pc-rise mb-3 text-sm font-medium text-page-muted')}>
+                {label}
+              </p>
+            )}
+            <h1
+              {...rise(enter, 60)}
+              className={cn(
+                'pc-rise max-w-[20ch] text-balance font-display font-semibold text-page-fg',
+                centered && 'mx-auto',
+                lg ? 'text-display-md' : 'text-display-sm',
+              )}
+            >
+              {title}
+            </h1>
+            {lead && (
+              <p {...rise(enter, 160)} className={cn('pc-rise mt-4 max-w-xl text-base leading-relaxed text-page-fg md:text-lg', centered && 'mx-auto')}>
+                {lead}
+              </p>
+            )}
+            {fact && (
+              <p {...rise(enter, 160)} className="pc-rise tnum mt-3 text-sm text-page-muted md:text-base">
+                {fact}
+              </p>
+            )}
+            {actions && (
+              <div {...rise(enter, 260)} className="pc-rise mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+                {actions}
+              </div>
+            )}
+            {children && (
+              <div {...rise(enter, 260)} className={cn('pc-rise relative z-10 mt-6 md:mt-7', centered && 'mx-auto w-full max-w-3xl text-left')}>
+                {children}
+              </div>
+            )}
+          </div>
+          {aside && (
+            <div {...rise(enter, 260)} className={cn('pc-rise mt-6', centered ? 'mx-auto mt-5 w-full max-w-6xl' : 'lg:mt-0 lg:self-stretch')}>
+              {aside}
+            </div>
           )}
-        >
-          {title}
-        </h1>
-        {lead && (
-          <p {...rise(enter, 160)} className="pc-rise mt-4 max-w-xl text-base leading-relaxed text-page-fg md:text-lg">
-            {lead}
-          </p>
-        )}
-        {fact && (
-          <p {...rise(enter, 160)} className="pc-rise tnum mt-3 text-sm text-page-muted md:text-base">
-            {fact}
-          </p>
-        )}
-        {actions && (
-          <div {...rise(enter, 260)} className="pc-rise mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
-            {actions}
-          </div>
-        )}
-        {children && (
-          <div {...rise(enter, 260)} className="pc-rise mt-6 md:mt-7">
-            {children}
-          </div>
-        )}
+        </div>
       </div>
     </section>
   )

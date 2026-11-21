@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { AlertTriangle, Lock, X } from 'lucide-react'
@@ -19,34 +19,18 @@ import { scoreMatch } from './match/score'
 import ShiftGrid from './post/ShiftGrid'
 import CompletionRing from '@components/common/CompletionRing'
 import PostPreview from './post/PostPreview'
-import { BTN_ACCENT, BTN_LG, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
+import SectionIndex from './profile/SectionIndex'
+import { Group, INPUT, chip } from './profile/ui'
+import { BTN_ACCENT, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 
 const DISTRICTS = ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ']
 const SUGGESTED = [...new Set(CANDIDATES.flatMap((c) => c.criteria.skills))].sort((a, b) => a.localeCompare(b, 'vi'))
 const PHOTOS = MATCH_JOBS.slice(0, 6).map((j) => j.photo)
 const MATCH_MIN = 60
-// Ô nhập kính: nền ngà trong suốt + nhòe phía sau, viền giữ page-edge để đủ tương phản (WCAG 1.4.11)
-const INPUT = `w-full rounded-control border border-page-edge bg-[color-mix(in_srgb,var(--wm-ivory)_55%,transparent)] backdrop-blur-md px-3 py-2 text-sm text-page-fg ${FOCUS}`
-const chip = (on: boolean) => cn(CHIP, on ? CHIP_ON : CHIP_OFF)
-
 /** Chip bật lên thì "nảy" nhẹ; giảm chuyển động thì bỏ qua */
 function pop(el: HTMLElement, reduced: boolean) {
   if (reduced) return
   gsap.fromTo(el, { scale: 0.94 }, { scale: 1, duration: 0.3, ease: 'back.out(3)', overwrite: 'auto' })
-}
-
-function Group({ title, index, children }: { title: string; index: number; children: ReactNode }) {
-  return (
-    // Thẻ kính; legend thả nổi (float) để nằm trong thẻ thay vì cắt ngang viền
-    <fieldset className="glass-liquid min-w-0 rounded-card p-5 [--glass-alpha:40%]">
-      {/* Số thứ tự mờ ở góc phải, chỉ để trang trí */}
-      <span aria-hidden="true" className="pointer-events-none absolute right-4 top-2 select-none font-display text-5xl font-semibold leading-none text-page-line">
-        {String(index).padStart(2, '0')}
-      </span>
-      <legend className="float-left mb-4 w-full pr-16 text-sm font-medium text-page-fg">{title}</legend>
-      <div className="clear-both space-y-4">{children}</div>
-    </fieldset>
-  )
 }
 
 /** Tóm tắt ca: "T2 sáng+tối, T3 tối" */
@@ -138,9 +122,34 @@ export default function PostJobPage() {
     return { matched: ok.length, total: list.length, top: ok.slice(0, 3) }
   }, [candidates, skills, requiredPick, requireAllSlots, slots, minK, maxK, jobType, radius])
 
-  const missing = [!title.trim() && 'tên vị trí', !jobType && 'hình thức', slots.length === 0 && 'ít nhất một ca', skills.length === 0 && 'ít nhất một kỹ năng'].filter(Boolean)
-  const ready = missing.length === 0
-  const filled = 4 - missing.length
+  // Mục bắt buộc còn thiếu: nhãn cho dòng trạng thái, gợi ý bấm để nhảy tới ô cần điền
+  const todo = [
+    !title.trim() && { key: 'title', text: 'tên vị trí', label: 'Nhập tên vị trí', target: 'pj-title' },
+    !jobType && { key: 'type', text: 'hình thức', label: 'Chọn hình thức làm việc', target: 'pj-type' },
+    slots.length === 0 && { key: 'slots', text: 'ít nhất một ca', label: 'Chọn ít nhất một ca làm', target: 'pj-shift' },
+    skills.length === 0 && { key: 'skills', text: 'ít nhất một kỹ năng', label: 'Chọn ít nhất một kỹ năng', target: 'pj-skill' },
+  ].filter((x): x is { key: string; text: string; label: string; target: string } => !!x)
+  const missing = todo.map((t) => t.text)
+  const ready = todo.length === 0
+  const filled = 4 - todo.length
+  const percent = filled * 25
+  // Mục lục: chấm đặc = phần đã xong (phần không bắt buộc luôn có sẵn giá trị mặc định)
+  const sections = [
+    { id: 'pj-chung', label: 'Thông tin chung', done: !!title.trim() && !!jobType },
+    { id: 'pj-luong', label: 'Mức lương', done: true },
+    { id: 'pj-ca', label: 'Ca làm', done: slots.length > 0 },
+    { id: 'pj-kynang', label: 'Kỹ năng', done: skills.length > 0 },
+    { id: 'pj-banh', label: 'Bán kính & thời hạn', done: true },
+    { id: 'pj-mota', label: 'Mô tả ngắn', done: !!desc.trim() },
+    { id: 'pj-anh', label: 'Ảnh minh họa', done: true },
+  ]
+  // Nhảy tới ô còn thiếu: cuộn vào giữa màn hình rồi focus (không cuộn lại lần nữa)
+  const jump = (id: string) => {
+    const el = document.getElementById(id)
+    if (!el) return
+    el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' })
+    el.focus({ preventScroll: true })
+  }
 
   // Vừa đủ 4 mục bắt buộc thì nút gửi nảy một lần (không nảy khi mở trang đã đủ sẵn)
   useEffect(() => {
@@ -195,31 +204,39 @@ export default function PostJobPage() {
   }
 
   return (
-    <div className="shell py-section-sm">
-      {onboarding && (
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-card border border-page-line px-4 py-3">
-          <p className="text-sm font-medium text-page-fg">Bước 6/6 · Đăng tin đầu tiên</p>
-          <Link to="/tuyen-dung" className={`${BTN_SECONDARY} ${BTN_SM}`}>Bỏ qua, vào trang tổng quan</Link>
+    <div className="min-h-[calc(100svh-4.5rem)] overflow-x-clip text-page-fg">
+      <form className="shell py-section-sm" onSubmit={(e) => { e.preventDefault(); submit() }}>
+        {/* Dải trạng thái đầu trang: tên trang, còn thiếu gì, và MỘT nút chính "Đăng tin" */}
+        <div className="day-card flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-card border border-page-line bg-page-surface px-5 py-4">
+          <div className="min-w-0">
+            {onboarding && <p className="mb-1 text-xs text-page-muted">Bước 6/6 · Đăng tin đầu tiên</p>}
+            <h1 className="font-display text-lg font-semibold text-page-fg">{editing ? 'Sửa tin tuyển dụng' : 'Đăng tin tuyển dụng'}</h1>
+            <p role="status" className="mt-0.5 text-sm text-page-muted" aria-live="polite">
+              {ready ? (editing ? 'Sẵn sàng lưu. Sau khi sửa, tin được hệ thống kiểm tra lại trước khi hiển thị.' : 'Sẵn sàng. Hệ thống sẽ tự kiểm tra tin trước khi hiển thị.') : `Còn thiếu: ${missing.join(', ')}.`}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {onboarding && <Link to="/tuyen-dung" className={`${BTN_SECONDARY} ${BTN_SM}`}>Bỏ qua, vào trang tổng quan</Link>}
+            <button type="submit" ref={submitBtn} disabled={!ready || posted} className={cn(BTN_ACCENT, BTN_SM)}>
+              {editing ? 'Lưu thay đổi' : 'Đăng tin'}
+            </button>
+          </div>
         </div>
-      )}
-      <h1 className="mb-8 font-display text-display-sm font-semibold text-page-fg">
-        {editing ? 'Sửa tin tuyển dụng' : 'Đăng tin tuyển dụng'}
-      </h1>
 
-      <div className="relative isolate grid grid-cols-1 gap-10 lg:grid-cols-12">
-        {/* Ánh màu của ảnh minh họa đang chọn, nhòe mạnh sau cột form → kính có thứ để "lọc" */}
-        <img
-          src={`https://images.unsplash.com/photo-${PHOTOS[photoIndex].id}?w=160&q=60&auto=format&fit=crop`}
-          alt=""
-          aria-hidden
-          className="pointer-events-none absolute left-0 top-24 -z-10 h-[70%] w-full object-cover opacity-30 blur-[90px] saturate-150 lg:w-[58%]"
-        />
-        <form className="space-y-5 lg:col-span-7 lg:grid lg:grid-cols-[4.5rem_minmax(0,1fr)] lg:gap-6 lg:space-y-0" onSubmit={(e) => { e.preventDefault(); submit() }}>
-          {/* Vòng tiến độ: cột trái riêng ở lg (dính, không đè form); mobile nằm đầu cột, không dính */}
-          <CompletionRing value={filled} max={4} label="Số mục bắt buộc đã điền" center={`${filled}/4`} caption="mục bắt buộc" rowText={`Đã điền ${filled}/4 mục bắt buộc`} />
+        <div className="relative isolate mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] xl:grid-cols-[10rem_minmax(0,1fr)_minmax(0,20rem)]">
+          <SectionIndex sections={sections} reduced={reduced} label="Các phần của tin tuyển dụng" />
           <div className="min-w-0 space-y-5">
-
-          <Group title="Thông tin chung" index={1}>
+            <CompletionRing
+              value={filled}
+              max={4}
+              label="Mức hoàn thiện tin tuyển dụng"
+              center={`${percent}%`}
+              rowText={`Tin hoàn thiện ${percent}%`}
+              doneText="Tin đã đủ mục bắt buộc."
+              suggestions={todo.map((t) => ({ key: t.key, label: t.label, onSelect: () => jump(t.target) }))}
+            />
+            <div className="min-w-0 space-y-5">
+          <Group id="pj-chung" title="Thông tin chung">
             <div>
               <label htmlFor="pj-title" className="mb-1 block text-sm text-page-muted">Tên vị trí *</label>
               <input id="pj-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ví dụ: Pha chế ca tối" className={INPUT} />
@@ -228,7 +245,7 @@ export default function PostJobPage() {
               <p className="mb-2 text-sm text-page-muted">Hình thức *</p>
               <div className="flex flex-wrap gap-2">
                 {JOB_TYPES.map((t) => (
-                  <button key={t.value} type="button" aria-pressed={jobType === t.value} onClick={(e) => { if (jobType !== t.value) pop(e.currentTarget, reduced); setJobType(t.value) }} className={chip(jobType === t.value)}>
+                  <button key={t.value} type="button" aria-pressed={jobType === t.value} onClick={(e) => { if (jobType !== t.value) pop(e.currentTarget, reduced); setJobType(t.value) }} id={t.value === JOB_TYPES[0].value ? 'pj-type' : undefined} className={chip(jobType === t.value)}>
                     {t.label}
                   </button>
                 ))}
@@ -246,9 +263,9 @@ export default function PostJobPage() {
                 <input id="pj-count" type="number" min={1} max={20} value={headcount} onChange={(e) => setHeadcount(Math.min(20, Math.max(1, Number(e.target.value) || 1)))} className={`${INPUT} tnum`} />
               </div>
             </div>
-          </Group>
+              </Group>
 
-          <Group title="Mức lương" index={2}>
+              <Group id="pj-luong" title="Mức lương">
             <p className="tnum text-sm text-page-fg">{salaryLabel}</p>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block text-sm text-page-muted">
@@ -260,11 +277,11 @@ export default function PostJobPage() {
                 <input type="range" min={15} max={80} value={maxK} onChange={(e) => { const v = Number(e.target.value); setMaxK(v); if (v < minK) setMinK(v) }} className={`mt-2 w-full accent-page-fg ${FOCUS}`} />
               </label>
             </div>
-          </Group>
+              </Group>
 
-          <Group title="Ca làm *" index={3}>
+              <Group id="pj-ca" title="Ca làm *">
             <p className="text-sm text-page-muted">Bấm hoặc kéo để tô nhiều ô. Ô đậm là ca cần người.</p>
-            <ShiftGrid value={slots} onChange={setSlots} />
+            <ShiftGrid value={slots} onChange={setSlots} firstId="pj-shift" />
             <label className="flex items-start gap-2.5 text-sm text-page-fg">
               <input
                 type="checkbox"
@@ -277,9 +294,9 @@ export default function PostJobPage() {
                 <span className="block text-page-muted">Ứng viên thiếu ca nào sẽ bị xếp ở mức chưa phù hợp.</span>
               </span>
             </label>
-          </Group>
+              </Group>
 
-          <Group title="Kỹ năng *" index={4}>
+              <Group id="pj-kynang" title="Kỹ năng *">
             <div className="flex flex-wrap gap-2">
               {[...SUGGESTED, ...skills.filter((s) => !SUGGESTED.includes(s))].map((s) => {
                 const on = skills.includes(s)
@@ -326,9 +343,9 @@ export default function PostJobPage() {
                 className={INPUT}
               />
             </div>
-          </Group>
+              </Group>
 
-          <Group title="Bán kính & thời hạn" index={5}>
+              <Group id="pj-banh" title="Bán kính & thời hạn">
             <label className="block text-sm text-page-muted">
               Ứng viên trong vòng <span className="tnum text-page-fg">{radius}</span> km
               <input type="range" min={1} max={15} value={radius} onChange={(e) => setRadius(Number(e.target.value))} className={`mt-2 w-full accent-page-fg ${FOCUS}`} />
@@ -345,9 +362,9 @@ export default function PostJobPage() {
               </select>
               <p className="mt-1 text-xs text-page-muted">Hết hạn thì tin tự đóng. Mở lại tin trong mục Tin tuyển dụng để gia hạn thêm 30 ngày.</p>
             </div>
-          </Group>
+              </Group>
 
-          <Group title="Mô tả ngắn" index={6}>
+              <Group id="pj-mota" title="Mô tả ngắn">
             <label htmlFor="pj-desc" className="sr-only">Mô tả ngắn</label>
             <textarea id="pj-desc" rows={3} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Tùy chọn: vài dòng về công việc, môi trường làm việc" className={INPUT} />
             <div aria-live="polite">
@@ -358,9 +375,9 @@ export default function PostJobPage() {
                 </p>
               )}
             </div>
-          </Group>
+              </Group>
 
-          <Group title="Ảnh minh họa" index={7}>
+              <Group id="pj-anh" title="Ảnh minh họa">
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
               {PHOTOS.map((p, i) => (
                 <button
@@ -375,39 +392,26 @@ export default function PostJobPage() {
                 </button>
               ))}
             </div>
-          </Group>
+              </Group>
 
-          <div className="pt-2">
-            <button
-              type="submit"
-              ref={submitBtn}
-              disabled={!ready || posted}
-              className={cn(BTN_ACCENT, BTN_LG)}
-            >
-              {editing ? 'Lưu thay đổi' : 'Đăng tin'}
-            </button>
-            {editing && <p className="mt-3 text-sm text-page-muted">Sau khi sửa, tin được hệ thống kiểm tra lại trước khi hiển thị.</p>}
-            <p className="mt-3 text-sm text-page-muted" aria-live="polite">
-              {ready ? (editing ? 'Sẵn sàng lưu.' : 'Sẵn sàng. Hệ thống sẽ tự kiểm tra tin trước khi hiển thị.') : `Còn thiếu: ${missing.join(', ')}.`}
-            </p>
+            </div>
           </div>
-          </div>
-        </form>
-
-        <aside className="lg:col-span-5 lg:sticky lg:top-24 lg:self-start" aria-label="Xem trước tin">
-          <PostPreview
-            ref={card}
-            photos={PHOTOS}
-            photoIndex={photoIndex}
-            title={title.trim()}
-            subtitle={`${companyName || 'Công ty của bạn'} · ${district} · ${salaryLabel}${headcount > 1 ? ` · cần ${headcount} người` : ''}`}
-            count={matched}
-            total={total}
-            top={top}
-            posted={posted}
-          />
-        </aside>
-      </div>
+          <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start" aria-label="Xem trước tin">
+            <PostPreview
+              ref={card}
+              photos={PHOTOS}
+              photoIndex={photoIndex}
+              title={title.trim()}
+              subtitle={`${companyName || 'Công ty của bạn'} · ${district} · ${salaryLabel}${headcount > 1 ? ` · cần ${headcount} người` : ''}`}
+              shift={scheduleText(slots)}
+              count={matched}
+              total={total}
+              top={top}
+              posted={posted}
+            />
+          </aside>
+        </div>
+      </form>
     </div>
   )
 }

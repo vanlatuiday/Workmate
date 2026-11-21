@@ -5,14 +5,16 @@ import { usePageEnterDelay } from '@components/motion/PageTransition'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import CompletionRing from '@components/common/CompletionRing'
 import IntroChapter from './profile/IntroChapter'
-import ProfilePreview from './profile/ProfilePreview'
+import CvPanel, { toCvData } from '@components/cv/CvPanel'
+import { useAuthStore } from '@context/authStore'
+import PreviewDock from './profile/PreviewDock'
 import PublicStatusBar from './profile/PublicStatusBar'
 import SectionIndex from './profile/SectionIndex'
-import { AboutChapter, AvailabilityChapter, ExperienceChapter, SkillsChapter, WantsChapter } from './profile/Sections'
+import { AboutChapter, AvailabilityChapter, ExperienceChapter, HobbiesChapter, SkillsChapter, WantsChapter } from './profile/Sections'
 import { useProfileDraft } from './profile/useProfileDraft'
 
 /**
- * Hồ sơ người tìm việc — trình sửa DUY NHẤT (/tim-viec/ho-so chuyển về đây): mục lục dính bên trái, biểu mẫu ở giữa, xem trước bên phải (từ xl).
+ * Hồ sơ người tìm việc — trình sửa DUY NHẤT (/tim-viec/ho-so chuyển về đây): mục lục dính bên trái (từ xl), biểu mẫu ở giữa, tờ CV xem trước thu nhỏ bên phải, bấm để phóng to (từ lg; nhỏ hơn thì nút "Xem CV" mở khung).
  * Mọi ô luôn sửa được; sửa là lưu ngay vào profileStore (đã đăng nhập thì tự lưu lên máy chủ), điểm phù hợp ở mọi trang cập nhật theo.
  */
 export default function ProfilePage() {
@@ -22,6 +24,7 @@ export default function ProfilePage() {
   const formRef = useRef<HTMLDivElement>(null)
   const { percent, suggestions, sections } = api
   const { hash } = useLocation()
+  const email = useAuthStore((st) => st.user?.email)
 
   // Vào trang: các nhóm lần lượt nổi lên (chỉ transform/opacity)
   useGSAP(() => {
@@ -48,11 +51,11 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="theme-ivory min-h-[calc(100svh-4.5rem)] overflow-x-clip bg-page-bg text-page-fg">
+    <div className="min-h-[calc(100svh-4.5rem)] overflow-x-clip text-page-fg">
       <div className="shell py-section-sm">
         <h1 className="sr-only">Hồ sơ của bạn</h1>
         <PublicStatusBar api={api} />
-        <div className="relative isolate mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[10rem_minmax(0,1fr)] xl:grid-cols-[10rem_minmax(0,1fr)_20rem]">
+        <div className="relative isolate mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] xl:grid-cols-[10rem_minmax(0,1fr)_minmax(0,20rem)]">
           <SectionIndex sections={sections} reduced={reduced} />
           <div ref={formRef} className="min-w-0 space-y-5">
             {/* Vòng hoàn thiện + gợi ý cụ thể còn thiếu (cùng tiêu chí tính %), bấm để nhảy tới ô cần điền */}
@@ -70,11 +73,13 @@ export default function ProfilePage() {
               <ExperienceChapter api={api} />
               <AvailabilityChapter api={api} />
               <WantsChapter api={api} />
+              <HobbiesChapter api={api} />
               <AboutChapter api={api} />
             </div>
           </div>
-          <aside className="xl:sticky xl:top-24 xl:self-start" aria-label="Xem trước hồ sơ">
-            <ProfilePreview api={api} />
+          <aside data-lenis-prevent className="lg:sticky lg:top-24 lg:max-h-[calc(100svh-7rem)] lg:self-start lg:overflow-y-auto" aria-label="CV xem trước">
+            <div className="hidden lg:block"><CvPanel data={toCvData(api.profile, email)} /></div>
+            <PreviewDock api={api} mode="owner" label="Xem CV" className="lg:hidden" />
           </aside>
         </div>
       </div>

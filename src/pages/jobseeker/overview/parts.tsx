@@ -124,7 +124,9 @@ export function ProfileHero({ profile, name, email, avatarUrl, headline }: {
 
 // ─── Hàng tab ───────────────────────────────────────────────────────────────
 
-const TABS: { id: string; label: string; icon: LucideIcon }[] = [
+export type OverviewTab = { id: string; label: string; icon: LucideIcon }
+
+const TABS: OverviewTab[] = [
   { id: 'jd-tong-quan', label: 'Tổng quan', icon: LayoutDashboard },
   { id: 'jd-lich-ranh', label: 'Lịch rảnh', icon: CalendarDays },
   { id: 'jd-kinh-nghiem', label: 'Kinh nghiệm', icon: Briefcase },
@@ -133,8 +135,8 @@ const TABS: { id: string; label: string; icon: LucideIcon }[] = [
 ]
 
 /** Tab neo trong trang: bấm thì cuộn mượt tới thẻ tương ứng (giảm chuyển động → nhảy thẳng) */
-export function OverviewTabs() {
-  const [active, setActive] = useState(TABS[0].id)
+export function OverviewTabs({ tabs = TABS }: { tabs?: OverviewTab[] }) {
+  const [active, setActive] = useState(tabs[0].id)
   const reduced = useReducedMotion()
   const go = (e: React.MouseEvent, id: string) => {
     e.preventDefault()
@@ -144,7 +146,7 @@ export function OverviewTabs() {
   return (
     <nav aria-label="Các phần của tổng quan" className="-mx-1 overflow-x-auto px-1 py-1">
       <ul className="flex w-max gap-2 md:w-auto md:flex-wrap">
-        {TABS.map(({ id, label, icon: Icon }) => {
+        {tabs.map(({ id, label, icon: Icon }) => {
           const on = active === id
           return (
             <li key={id}>
@@ -172,7 +174,7 @@ export function OverviewTabs() {
 // ─── Lịch rảnh 7 ngày ───────────────────────────────────────────────────────
 
 /** Ngày (dd/mm) của 7 ngày trong tuần hiện tại, bắt đầu từ thứ Hai; chỉ số khớp DAY_SHORT và khóa availability */
-function weekDays(now = new Date()) {
+export function weekDays(now = new Date()) {
   const mondayOffset = (now.getDay() + 6) % 7
   return DAY_SHORT.map((label, i) => {
     const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - mondayOffset + i)

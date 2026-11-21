@@ -21,13 +21,15 @@ import { useAllJobs } from '@pages/public/jobs/catalog'
 import { reweight, useSeekerMatches } from '@services/matchingService'
 import { findAnyJob } from '@pages/public/jobs/lookup'
 import MatchGallery from './gallery/MatchGallery'
+import CriteriaSummary from './CriteriaSummary'
+import WaitingBand from './WaitingBand'
 import CriteriaDrawer from './CriteriaDrawer'
 import MatchSearchBar, { BarSelect, ChipReset, FilterMenu, LevelMenu } from './MatchSearchBar'
 import ReportButton from '@components/report/ReportButton'
 import MatchDetail from './MatchDetail'
 import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
-  filterByLevel, foldMatches, GalleryCaption, JobCard, MatchFrame, okReasons, Tabs, ViewToggle,
+  filterByLevel, fitReasons, foldMatches, GalleryAction, GalleryCaption, JobCard, MatchFrame, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
 import { BTN_DANGER, BTN_GHOST, BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
@@ -54,9 +56,8 @@ function moveItem<T>(list: T[], from: number, to: number) {
   return next
 }
 
-/** Chip nhỏ dưới ảnh ở Bộ sưu tập: chỉ hiện khi đối phương đã quan tâm hoặc đã kết nối */
-const chipOf = (status: string, receivedLabel: string) =>
-  status === 'received' ? receivedLabel : status === 'connected' ? 'Đã kết nối' : undefined
+/** Ngưỡng điểm của nhóm "Phù hợp với bạn" ở tab Phù hợp; thấp hơn nằm sau nút "Xem thêm" */
+const GOOD_SCORE = 60
 
 /** Mốc chip lương / khoảng cách ở thanh tìm */
 const SALARY_STEPS = [25, 30, 35, 40]
@@ -84,7 +85,8 @@ export default function JobseekerMatch() {
   const [priority, setPriority] = useState<CriterionKey[]>(DEFAULT_PRIORITY)
   const [announce, setAnnounce] = useState('')
   const [panelOpen, setPanelOpen] = useState(false)
-  const criteriaBtn = useRef<HTMLButtonElement>(null)
+  // Nút đã mở ngăn tiêu chí (ở thanh tìm hoặc thẻ tóm tắt) — focus trả về đúng nút đó khi đóng
+  const criteriaBtn = useRef<HTMLButtonElement | null>(null)
   const closePanel = useCallback(() => setPanelOpen(false), [])
 
   const [tab, setTab] = useState<TabKey>('fit')
@@ -93,6 +95,8 @@ export default function JobseekerMatch() {
   // Bộ sưu tập: lọc theo mức phù hợp; thẻ đang mở chi tiết (kèm nút gốc để ảnh phóng ra / thu về)
   const [level, setLevel] = useState<LevelKey>('all')
   const [open, setOpen] = useState<{ id: string; origin: HTMLElement } | null>(null)
+  // Tab Phù hợp: nhóm điểm thấp (< 60) chỉ hiện sau khi bấm "Xem thêm"
+  const [showWeak, setShowWeak] = useState(false)
 
   // Chấm điểm lại mỗi khi tiêu chí hoặc thứ tự ưu tiên đổi
   const allJobs = useAllJobs()
@@ -144,7 +148,17 @@ export default function JobseekerMatch() {
   // Lọc theo mức phù hợp áp cho cả danh sách lẫn bộ sưu tập
   const shown = filterByLevel(current, level, (x) => x.outcome.score)
   // Danh sách thẻ sắp xếp lại mượt khi đổi tab / lọc / sắp xếp
-  const flipRef = useFlip<HTMLUListElement>(shown.map((x) => x.job.id))
+  // Tab Phù hợp chia hai nhóm theo điểm (giữ nguyên thứ tự sắp xếp trong nhóm); tab khác một nhóm duy nhất
+  const strong = tab === 'fit' ? shown.filter((x) => x.outcome.score >= GOOD_SCORE) : shown
+  const weak = tab === 'fit' ? shown.filter((x) => x.outcome.score < GOOD_SCORE) : []
+  // Không có việc nào ≥ 60 thì không có gì để "xem thêm": hiện luôn nhóm còn lại
+  const weakOpen = weak.length > 0 && (showWeak || strong.length === 0)
+  const flipRef = useFlip<HTMLUListElement>(strong.map((x) => x.job.id))
+  // Việc nhà tuyển dụng đã quan tâm, chờ người tìm việc đồng ý (cùng trạng thái 'received' của nhãn "Quan tâm bạn")
+  const waitingItems = useMemo(
+    () => lists.fit.filter((x) => statusOf(x.job.id, ME) === 'received').map((x) => ({ job: x.job, score: x.outcome.score })),
+    [lists.fit, statusOf],
+  )
   // Danh mục chưa về từ máy chủ: hiện khung chờ thay vì "Chưa có việc nào"
   const catalogSettled = useCatalogStore((s) => s.settled)
   const waiting = (!catalogSettled && allJobs.length === 0) || !scoresReady
@@ -238,6 +252,12 @@ export default function JobseekerMatch() {
     )
   }
 
+  // Nhãn trạng thái trên ảnh thẻ Bộ sưu tập: chỉ khi có (kết nối > ứng tuyển > nhà tuyển dụng quan tâm > đã lưu)
+  const statusBadge = (jobId: string) => {
+    const st = statusOf(jobId, ME)
+    return st === 'connected' ? 'Đã kết nối' : st === 'sent' ? 'Đã ứng tuyển' : st === 'received' ? 'Quan tâm bạn' : savedJobs.includes(jobId) ? 'Đã lưu' : undefined
+  }
+
   const resetAll = () => {
     setPriority(DEFAULT_PRIORITY)
     setAnnounce('Đã đặt lại thứ tự ưu tiên')
@@ -256,6 +276,66 @@ export default function JobseekerMatch() {
     setLevel('all')
   }
 
+  // Một nhóm việc ở chế độ Bộ sưu tập hoặc Danh sách; `heading` chỉ có khi tab Phù hợp chia nhóm
+  const renderGroup = (items: typeof shown, flip: typeof flipRef | undefined, heading?: string) => {
+    if (items.length === 0) return null
+    const body = gallery ? (
+      <MatchGallery
+        items={items.map((x) => ({ id: x.job.id, photo: x.job.photo, ...x }))}
+        label={heading ? `${heading}, dạng bộ sưu tập` : 'Danh sách việc dạng bộ sưu tập'}
+        itemLabel={({ job, outcome }) => {
+          const st = statusBadge(job.id)
+          return `${job.title}, ${companyOf(job.companyId).name}, phù hợp ${outcome.score}%${st ? `, ${st}` : ''}. Mở chi tiết`
+        }}
+        renderCaption={({ job, outcome }) => {
+          const r = fitReasons(outcome)
+          return (
+            <GalleryCaption
+              title={job.title}
+              subtitle={`${companyOf(job.companyId).name} · ${job.district}`}
+              meta={job.shiftLabel}
+              score={outcome.score}
+              reasons={r.ok}
+              missing={r.missing}
+            />
+          )
+        }}
+        onOpen={(item, origin) => setOpen({ id: item.id, origin })}
+        action={({ job }) => (
+          <GalleryAction
+            status={statusOf(job.id, ME)}
+            name={job.title}
+            convKey={`${job.id}|${ME}`}
+            onPrimary={() => apply(job)}
+            labels={{ none: 'Ứng tuyển ngay', sent: 'Đã ứng tuyển' }}
+          />
+        )}
+        badgeOf={(x) => statusBadge(x.job.id)}
+        save={{
+          isSaved: (x) => savedJobs.includes(x.job.id),
+          label: (x, saved) => `${saved ? 'Bỏ lưu' : 'Lưu'} việc ${x.job.title}`,
+          onToggle: (x) => toggleSavedJob(x.job.id),
+        }}
+        hiddenId={open?.id ?? null}
+      />
+    ) : (
+      <ul ref={flip} className="grid gap-4 md:grid-cols-2">
+        {items.map(({ job, outcome }) => (
+          <li key={job.id} data-flip-key={job.id} className="min-w-0">
+            <JobCard job={job} outcome={outcome} actions={jobActions(job)} />
+          </li>
+        ))}
+      </ul>
+    )
+    if (!heading) return body
+    return (
+      <section aria-label={heading} className="mt-8 first:mt-0">
+        <h2 className="mb-4 font-display text-lg font-semibold text-page-fg">{heading}</h2>
+        {body}
+      </section>
+    )
+  }
+
   // Hàng điều khiển nằm giữa tablist và tabpanel
   const toolbar = (
     <div className="flex text-sm">
@@ -268,6 +348,17 @@ export default function JobseekerMatch() {
     <MatchFrame
       title="Việc hợp với bạn, xếp theo điều bạn coi trọng"
       intro="Tiêu chí lấy sẵn từ hồ sơ. Đổi lương, khoảng cách hoặc thứ tự ưu tiên, danh sách tính lại ngay."
+      aside={
+        <CriteriaSummary
+          layout="bar"
+          slotCount={base.slots.length}
+          maxDistanceKm={maxDistanceKm}
+          salaryMinK={salaryMinK}
+          jobTypes={jobTypes}
+          skillCount={base.skills.length}
+          onEdit={(btn) => { criteriaBtn.current = btn; setPanelOpen(true) }}
+        />
+      }
       search={
           <MatchSearchBar
             query={query}
@@ -284,12 +375,11 @@ export default function JobseekerMatch() {
             )}
             action={(floating) => (
               <button
-                ref={floating ? undefined : criteriaBtn}
                 type="button"
                 aria-expanded={panelOpen}
                 aria-controls="match-criteria"
                 aria-haspopup="dialog"
-                onClick={() => setPanelOpen(true)}
+                onClick={(e) => { if (!floating) criteriaBtn.current = e.currentTarget; setPanelOpen(true) }}
                 className={cn(BTN_PRIMARY, BTN_SM)}
               >
                 <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
@@ -342,6 +432,11 @@ export default function JobseekerMatch() {
           />
       }
     >
+          <WaitingBand
+            items={waitingItems}
+            onAccept={apply}
+            onView={(job, origin) => setOpen({ id: job.id, origin })}
+          />
           <Tabs
             toolbar={toolbar}
             idPrefix="jobs"
@@ -356,6 +451,7 @@ export default function JobseekerMatch() {
             onChange={(id) => {
               setTab(id as TabKey)
               setLevel('all')
+              setShowWeak(false)
             }}
           >
             {waiting ? (
@@ -386,33 +482,18 @@ export default function JobseekerMatch() {
                 }
               />
               </div>
-            ) : gallery ? (
-              <MatchGallery
-                items={shown.map((x) => ({ id: x.job.id, photo: x.job.photo, ...x }))}
-                label="Danh sách việc dạng bộ sưu tập"
-                itemLabel={({ job, outcome }) => `${job.title}, ${companyOf(job.companyId).name}, phù hợp ${outcome.score}%. Mở chi tiết`}
-                renderCaption={({ job, outcome }) => (
-                  <GalleryCaption
-                    title={job.title}
-                    subtitle={`${companyOf(job.companyId).name} · ${job.district}`}
-                    meta={job.shiftLabel}
-                    score={outcome.score}
-                    reasons={okReasons(outcome.results)}
-                    chip={chipOf(statusOf(job.id, ME), 'Quan tâm bạn')}
-                  />
-                )}
-                onOpen={(item, origin) => setOpen({ id: item.id, origin })}
-                scoreOf={(x) => x.outcome.score}
-                hiddenId={open?.id ?? null}
-              />
             ) : (
-              <ul ref={flipRef} className="grid gap-4 md:grid-cols-2">
-                {shown.map(({ job, outcome }) => (
-                  <li key={job.id} data-flip-key={job.id} className="min-w-0">
-                    <JobCard job={job} outcome={outcome} actions={jobActions(job)} />
-                  </li>
-                ))}
-              </ul>
+              <>
+                {renderGroup(strong, flipRef, tab === 'fit' && weak.length > 0 ? 'Phù hợp với bạn' : undefined)}
+                {weak.length > 0 && !weakOpen && (
+                  <div className="mt-6 flex justify-center">
+                    <button type="button" onClick={() => setShowWeak(true)} className={cn(BTN_SECONDARY, BTN_SM)}>
+                      Xem thêm {weak.length} việc ít phù hợp hơn
+                    </button>
+                  </div>
+                )}
+                {weakOpen && renderGroup(weak, undefined, 'Ít phù hợp hơn')}
+              </>
             )}
           </Tabs>
     </MatchFrame>

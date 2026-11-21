@@ -51,7 +51,7 @@ const SHOWN = ["schedule", "near", "match"];
 const DETAIL: Record<string, { detail: string; steps: string[] }> = {
   schedule: {
     detail:
-      "Bạn đánh dấu các buổi rảnh trong tuần: sáng, chiều, tối từ thứ Hai tới Chủ nhật. Workmate so từng ca của tin tuyển dụng với lịch đó và chỉ đưa lên những việc nằm gọn trong giờ bạn rảnh.",
+      "Bạn đánh dấu các buổi rảnh trong tuần: sáng, chiều, tối, khuya từ thứ Hai tới Chủ nhật. Workmate so từng ca của tin tuyển dụng với lịch đó và chỉ đưa lên những việc nằm gọn trong giờ bạn rảnh.",
     steps: [
       "Chọn buổi rảnh trong hồ sơ",
       "Xem điểm phù hợp trên từng tin",

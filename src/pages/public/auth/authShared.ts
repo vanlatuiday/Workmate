@@ -93,3 +93,8 @@ export function useFieldTouch(root: RefObject<HTMLElement>) {
   }
   return { touch, show, submit }
 }
+
+/** Trang vào sau khi đăng nhập (khi không có trang đang xem dở): người tìm việc / nhà tuyển dụng → Kết nối, còn lại → trang chủ */
+export function loginHome(role: string): string {
+  return role === 'jobseeker' || role === 'recruiter' ? '/match' : '/'
+}

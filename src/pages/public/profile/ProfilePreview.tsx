@@ -13,7 +13,7 @@ export default function ProfilePreview({ api }: { api: ProfileApi }) {
   const { isPublic } = usePublicProfile()
   const jobTypes = JOB_TYPES.filter((t) => profile.jobTypes.includes(t.value)).map((t) => t.label)
   return (
-    <div data-lenis-prevent className="rounded-card border border-page-line bg-page-surface p-5 xl:max-h-[calc(100svh-8rem)] xl:overflow-y-auto">
+    <div data-lenis-prevent className="day-card rounded-card border border-page-line bg-page-surface p-5 xl:max-h-[calc(100svh-8rem)] xl:overflow-y-auto">
       <p className="text-sm text-page-muted">Nhà tuyển dụng sẽ thấy</p>
       <div className="mt-4 flex items-center gap-4">
         <Avatar name={profile.fullName} url={profile.avatarUrl} show={profile.showAvatar} className="h-16 w-16 text-xl" />

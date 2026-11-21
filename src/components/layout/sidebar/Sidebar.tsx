@@ -479,7 +479,7 @@ export default function Sidebar({ role, variant, onClose, glass = false }: Props
         </nav>
 
         {glass ? (
-          <SidebarGlassFooter collapsed={collapsed} onNavigate={finish} tip={(l) => tip.bind(l)} />
+          <SidebarGlassFooter role={role} collapsed={collapsed} onNavigate={finish} tip={(l) => tip.bind(l)} />
         ) : (
           <SidebarUser config={config} collapsed={collapsed} onNavigate={finish} tip={(l) => tip.bind(l)} />
         )}

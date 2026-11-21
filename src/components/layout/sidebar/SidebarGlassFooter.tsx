@@ -5,8 +5,12 @@ import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { PRESS } from '@utils/ui'
 import calendarArt from '@assets/images/home/hero-art-calendar.webp'
+import briefcaseArt from '@assets/images/home/hero-art-briefcase.webp'
+import type { SidebarRole } from './config'
 
 type Props = {
+  /** Nhà tuyển dụng: thẻ mời đăng ca mới; còn lại: thẻ cập nhật lịch rảnh */
+  role?: SidebarRole
   collapsed: boolean
   onNavigate?: () => void
   tip: (label: string) => Record<string, unknown>
@@ -18,9 +22,10 @@ const FADE = 'transition-[opacity,visibility] duration-200 motion-reduce:transit
  * Chân thanh bên bản kính xanh (dashboard người tìm việc, 2026-11-21): thẻ mời cập nhật lịch rảnh + Đăng xuất.
  * Thay SidebarUser; tên/email người dùng đã có ở menu tài khoản trên header. Thu gọn: ẩn thẻ, Đăng xuất còn icon.
  */
-export default function SidebarGlassFooter({ collapsed, onNavigate, tip }: Props) {
+export default function SidebarGlassFooter({ role, collapsed, onNavigate, tip }: Props) {
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
+  const recruiter = role === 'recruiter'
   return (
     <div className="flex-shrink-0 p-3">
       <div
@@ -31,11 +36,11 @@ export default function SidebarGlassFooter({ collapsed, onNavigate, tip }: Props
           collapsed ? 'invisible max-h-0 overflow-hidden border-transparent py-0 opacity-0' : 'visible max-h-72 opacity-100 delay-150',
         )}
       >
-        <img src={calendarArt} alt="" width={96} height={96} loading="lazy" className="mx-auto h-20 w-20 select-none object-contain" />
-        <p className="mt-1 font-display text-sm font-semibold text-page-fg">Cập nhật lịch rảnh</p>
-        <p className="mt-0.5 text-xs text-page-muted">để nhận việc phù hợp hơn!</p>
+        <img src={recruiter ? briefcaseArt : calendarArt} alt="" width={96} height={96} loading="lazy" className="mx-auto h-20 w-20 select-none object-contain" />
+        <p className="mt-1 font-display text-sm font-semibold text-page-fg">{recruiter ? 'Đăng ca mới' : 'Cập nhật lịch rảnh'}</p>
+        <p className="mt-0.5 text-xs text-page-muted">{recruiter ? 'để tìm người rảnh đúng ca' : 'để nhận việc phù hợp hơn!'}</p>
         <Link
-          to="/ho-so#lich-ranh"
+          to={recruiter ? '/dang-tin' : '/ho-so#lich-ranh'}
           tabIndex={collapsed ? -1 : 0}
           onClick={onNavigate}
           className={cn(
@@ -44,7 +49,7 @@ export default function SidebarGlassFooter({ collapsed, onNavigate, tip }: Props
             FOCUS,
           )}
         >
-          Cập nhật ngay <span aria-hidden="true" className="ml-1">→</span>
+          {recruiter ? 'Đăng tin' : 'Cập nhật ngay'} <span aria-hidden="true" className="ml-1">→</span>
         </Link>
       </div>
       <button

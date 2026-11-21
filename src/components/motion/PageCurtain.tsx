@@ -2,8 +2,8 @@ import { useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { create } from 'zustand'
 import { gsap, useGSAP } from '@utils/gsap'
-import { useReducedMotion } from '@hooks/useReducedMotion'
 import { cn } from '@utils/cn'
+import { isDayPath } from '@components/layout/dayContext'
 
 /** Hướng màn: 'up' = trượt từ dưới lên (mở trang chi tiết), 'down' = phủ từ trên xuống (trang cá nhân, như menu) */
 export type CurtainDirection = 'up' | 'down'
@@ -19,28 +19,16 @@ type Request = {
 }
 
 /**
- * Màu tấm màn theo nền của trang đích: trang chủ và Trang cá nhân nền than chì,
- * các trang công khai khác nền ngà. Dùng chung cho mọi kiểu chuyển trang.
+ * Màu tấm màn theo nền của trang đích (cập nhật 2026-11-22 theo nền mới):
+ * trang chủ → xanh abyss; trang ban ngày (Việc làm, Công ty, Kết nối…) → nền day + bầu trời xanh nhạt (.curtain-day);
+ * /ca-nhan, /ho-so → than chì như cũ; trang công khai còn lại → ngà.
  */
 export function curtainColors(to: string) {
   const path = to.split(/[?#]/)[0]
-  return path === '/' || path === '/ca-nhan' || path === '/ho-so' ? 'bg-wm-charcoal text-wm-ivory' : 'bg-wm-ivory text-wm-charcoal'
-}
-
-/**
- * Đường kẻ đậm ở hai mép tấm màn — chỉ hiện khi trang đi và trang đến cùng màu nền
- * (màn cùng màu trang thì gần như không thấy mép). Màu kẻ ngược màu màn.
- * Đặt bên trong tấm màn (phần tử cha cần `relative`/`fixed`).
- */
-export function CurtainEdges({ from, to }: { from: string; to: string }) {
-  if (curtainColors(from) !== curtainColors(to)) return null
-  const line = curtainColors(to).startsWith('bg-wm-charcoal') ? 'bg-wm-ivory' : 'bg-wm-charcoal'
-  return (
-    <>
-      <span className={cn('absolute inset-x-0 top-0 h-[3px]', line)} />
-      <span className={cn('absolute inset-x-0 bottom-0 h-[3px]', line)} />
-    </>
-  )
+  if (path === '/') return 'bg-wm-abyss text-wm-ivory'
+  if (path === '/ca-nhan' || path === '/ho-so') return 'bg-wm-charcoal text-wm-ivory'
+  if (isDayPath(path)) return 'curtain-day text-wm-abyss'
+  return 'bg-wm-ivory text-wm-charcoal'
 }
 
 const useCurtain = create<{
@@ -55,10 +43,10 @@ const useCurtain = create<{
 }))
 
 /** Giữ màn sau khi đổi trang (giây) — đủ cho trang mới dựng xong phía sau màn */
-const HOLD = 0.55
+const HOLD = 0.3
 /** Từ lúc trang mới mount tới khi màn bắt đầu kéo lên — dưới màn, trang cũ được gỡ ngay
     (xem PageTransition) nên trang mới mount ngay lúc đổi route, ≈ HOLD */
-const CURTAIN_REVEAL_DELAY = 0.55
+const CURTAIN_REVEAL_DELAY = 0.35
 
 /** Màn chuyển cảnh (mở chi tiết, Trang cá nhân) đang chạy? Khi đó PageTransition tự nhường. */
 export function isCurtainActive() {
@@ -79,11 +67,11 @@ export function useCurtainDelay() {
  */
 export function useCurtainNavigate() {
   const navigate = useNavigate()
-  const play = useCurtain((s) => s.play)
-  const reduced = useReducedMotion()
-  return (to: string, title: string, state?: unknown, direction: CurtainDirection = 'up') => {
-    if (reduced) navigate(to, { state })
-    else play(title, direction, () => navigate(to, { state }), to)
+  // Chủ dự án 2026-11-22: bỏ tấm màn + chữ giữa màn — đổi trang thẳng, PageTransition lo phần mờ/hiện
+  // cho mượt và nhanh. Giữ chữ ký hàm (title, direction) để nơi gọi không phải đổi.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  return (to: string, _title?: string, state?: unknown, _direction?: CurtainDirection) => {
+    navigate(to, { state })
   }
 }
 
@@ -137,12 +125,12 @@ export default function PageCurtain() {
         .timeline({ onComplete: finish })
         .set(panel, { yPercent: from, visibility: 'visible' })
         .set(title, { yPercent: 60, opacity: 0 })
-        .to(panel, { yPercent: 0, duration: 0.55, ease: 'power3.inOut' })
-        .to(title, { yPercent: 0, opacity: 1, duration: 0.4, ease: 'power3.out' }, '-=0.15')
+        .to(panel, { yPercent: 0, duration: 0.42, ease: 'power3.inOut' })
+        .to(title, { yPercent: 0, opacity: 1, duration: 0.3, ease: 'power3.out' }, '-=0.2')
         // Màn đã phủ kín → đổi trang phía sau
         .call(req.onCovered)
-        .to(title, { yPercent: -40, opacity: 0, duration: 0.3, ease: 'power2.in' }, `+=${HOLD - 0.3}`)
-        .to(panel, { yPercent: -from, duration: 0.65, ease: 'power3.inOut' }, '-=0.05')
+        .to(title, { yPercent: -30, opacity: 0, duration: 0.22, ease: 'power2.in' }, `+=${HOLD - 0.2}`)
+        .to(panel, { yPercent: -from, duration: 0.5, ease: 'power3.inOut' }, '-=0.05')
         .set(panel, { visibility: 'hidden' })
     },
     { dependencies: [req?.id] },
@@ -154,11 +142,10 @@ export default function PageCurtain() {
       aria-hidden
       className={cn('invisible fixed inset-0 z-[90] grid place-items-center', curtainColors(req?.to ?? '/'))}
     >
-      {req && <CurtainEdges from={req.from} to={req.to} />}
       {/* Màn kéo xuống (Trang cá nhân) không hiện chữ — kéo xong là thấy nội dung, như mọi lần đổi trang */}
       <p
         ref={titleRef}
-        className="max-w-[18ch] px-6 text-center font-display text-display-sm font-semibold"
+        className="max-w-[22ch] px-6 text-center font-display text-3xl font-semibold md:text-4xl"
       >
         {req?.direction === 'up' ? req.title : ''}
       </p>

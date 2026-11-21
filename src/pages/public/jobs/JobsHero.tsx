@@ -18,7 +18,7 @@ type Props = {
 export default function JobsHero({ title, fact, stats, children }: Props) {
   return (
     <>
-      <PageCover level="md" title={title} fact={fact}>
+      <PageCover level="md" centered title={title} fact={fact}>
         {children}
       </PageCover>
       <p className="sr-only" role="status" aria-live="polite">

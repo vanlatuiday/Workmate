@@ -1,4 +1,4 @@
-import { Link, matchPath, useLocation, useOutlet } from 'react-router-dom'
+import { Link, useLocation, useOutlet } from 'react-router-dom'
 import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Briefcase } from 'lucide-react'
 import { AnimatePresence } from 'motion/react'
@@ -21,7 +21,7 @@ import DetailSkeleton from '@components/discover/detail/DetailSkeleton'
 import DustField from '@components/motion/DustField'
 import FadeIn from '@components/motion/FadeIn'
 import DayBackdrop from '@components/layout/DayBackdrop'
-import { DayContext } from '@components/layout/dayContext'
+import { DayContext, DAY_PATHS, NON_DAY_PATHS, matchesAny } from '@components/layout/dayContext'
 
 /** Link nhỏ trong footer */
 const FOOT_LINK = `link-underline rounded-control hover:text-page-fg ${FOCUS}`
@@ -62,16 +62,7 @@ function AuthOutlet() {
  * Trang công khai "ban ngày" (chủ dự án duyệt 2026-11-21): nền sáng xanh + DayBackdrop + chân trang abyss.
  * Danh sách đóng: trang chủ, đăng nhập, /ca-nhan, /ho-so, /tin-nhan… KHÔNG nằm ở đây (xem NON_DAY_PATHS).
  */
-const DAY_PATHS = [
-  '/viec-lam', '/viec-lam/:id', '/cong-ty', '/cong-ty/:id', '/match', '/nha-tuyen-dung', '/gioi-thieu',
-  '/lien-he', '/ho-tro', '/cam-nang', '/cam-nang/:slug', '/dieu-khoan', '/bao-mat',
-]
-/** Trang còn lại trong PublicLayout giữ kiểu cũ. Đường dẫn không thuộc cả hai danh sách = 404 → ban ngày */
-const NON_DAY_PATHS = [
-  '/', '/ca-nhan', '/trang-ca-nhan', '/ho-so', '/tin-nhan', '/thong-bao', '/lich-phong-van', '/dang-tin',
-  '/vi-tri/:id', '/ung-vien/:id', '/xem-thu',
-]
-const matchesAny = (list: string[], pathname: string) => list.some((p) => matchPath({ path: p, end: true }, pathname))
+// DAY_PATHS / NON_DAY_PATHS / matchesAny: dayContext.ts (dùng chung với màn chuyển trang)
 
 /** id của menu phủ — nút hamburger trong header trỏ tới bằng aria-controls */
 const MENU_ID = 'site-menu'
@@ -230,7 +221,6 @@ export default function PublicLayout() {
             <p>© 2026 Workmate. Bảo lưu mọi quyền.</p>
             <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               <li><Link to="/gioi-thieu" className={FOOT_LINK}>Giới thiệu</Link></li>
-              <li><Link to="/cong-ty" className={FOOT_LINK}>Công ty</Link></li>
               <li><Link to="/dieu-khoan" className={FOOT_LINK}>Điều khoản</Link></li>
               <li><Link to="/bao-mat" className={FOOT_LINK}>Bảo mật</Link></li>
             </ul>

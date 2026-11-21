@@ -25,6 +25,7 @@ const SESSIONS = [
   { id: 0, label: 'Sáng' },
   { id: 1, label: 'Chiều' },
   { id: 2, label: 'Tối' },
+  { id: 3, label: 'Khuya' },
 ]
 const SALARY_CAPS = [30, 35, 40, 50]
 

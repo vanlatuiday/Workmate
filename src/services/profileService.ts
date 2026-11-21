@@ -12,16 +12,26 @@ import type { JobType } from '@/types'
 interface ProfileResponse extends Omit<SeekerProfile, 'salaryMin'> {
   salaryMinK: number
   avatarUrl: string | null
+  coverUrl: string | null
   updatedAt: string
 }
-type ProfileBody = Partial<Omit<ProfileResponse, 'avatarUrl' | 'updatedAt'>>
+type ProfileBody = Partial<Omit<ProfileResponse, 'avatarUrl' | 'coverUrl' | 'updatedAt'>>
 
 const SAVE_DELAY = 700
 
+// Máy chủ cũ chưa có các trường mới -> dùng giá trị mặc định
+const GENDERS = ['nam', 'nu', 'khac']
 const fromServer = (r: ProfileResponse): SeekerProfile => ({
-  fullName: r.fullName, phone: r.phone, intro: r.intro, about: r.about, showAvatar: r.showAvatar, published: r.published,
+  fullName: r.fullName, phone: r.phone,
+  headline: r.headline ?? '',
+  birthDate: r.birthDate ?? null,
+  gender: GENDERS.includes(r.gender as string) ? r.gender : null,
+  showPersonal: r.showPersonal ?? false,
+  skillLevels: r.skillLevels ?? {},
+  hobbies: r.hobbies ?? [],
+  intro: r.intro, about: r.about, showAvatar: r.showAvatar, published: r.published,
   area: r.area, jobTypes: r.jobTypes as JobType[], salaryMin: r.salaryMinK * 1000, maxDistanceKm: r.maxDistanceKm,
-  skills: r.skills, experience: r.experience, availability: r.availability,
+  skills: r.skills, experience: (r.experience ?? []).map((e) => ({ ...e, bullets: e.bullets ?? [] })), availability: r.availability,
   availableFrom: r.availableFrom ?? null,
 })
 
@@ -31,7 +41,7 @@ function toBody(patch: Partial<SeekerProfile>): ProfileBody {
     ...rest,
     ...(salaryMin !== undefined && { salaryMinK: Math.max(0, Math.round(salaryMin / 1000)) }),
     // Dòng kinh nghiệm đang gõ dở (chưa có chữ nào) vẫn gửi để giữ đúng thứ tự và id
-    ...(experience && { experience: experience.map(({ id, title, company, period }) => ({ id, title, company, period })) }),
+    ...(experience && { experience: experience.map(({ id, title, company, period, bullets }) => ({ id, title, company, period, bullets: bullets ?? [] })) }),
   }
 }
 
@@ -43,6 +53,8 @@ let timer: ReturnType<typeof setTimeout> | null = null
 let inflight: Promise<void> = Promise.resolve()
 /** Tăng mỗi lần đổi tài khoản: phản hồi của tài khoản cũ về muộn thì bỏ */
 let generation = 0
+/** Tránh phản hồi nạp hồ sơ cũ ghi đè ảnh vừa lưu. */
+let coverVersion = 0
 
 async function flush(): Promise<void> {
   if (timer) { clearTimeout(timer); timer = null }
@@ -72,6 +84,8 @@ export function queueProfileSave(patch: Partial<SeekerProfile>): void {
 /** Nạp hồ sơ của người đang đăng nhập; tài khoản khác / khách → về hồ sơ mẫu trên máy */
 export async function loadProfile(): Promise<void> {
   const gen = ++generation
+  const coverGen = coverVersion
+  const { user, token } = useAuthStore.getState()
   pending = {}
   if (timer) { clearTimeout(timer); timer = null }
   const store = useProfileStore.getState()
@@ -81,7 +95,10 @@ export async function loadProfile(): Promise<void> {
   }
   try {
     const res = await api.get<ProfileResponse>('/seeker/profile')
-    if (gen === generation) store.replace(fromServer(res.data), res.data.avatarUrl)
+    if (gen === generation && useAuthStore.getState().token === token) {
+      store.replace(fromServer(res.data), res.data.avatarUrl)
+      if (coverGen === coverVersion) store.setCoverUrl(res.data.coverUrl ?? null, user?.id ?? null)
+    }
   } catch {
     /* mất kết nối: giữ bản đang có trên máy */
   }
@@ -102,6 +119,24 @@ export async function uploadAvatar(file: File): Promise<string | null> {
 }
 
 registerProfileSync({ save: queueProfileSave, uploadAvatar, active: syncsWithServer, reload: loadProfile })
+
+/** Lưu hoặc gỡ ảnh bìa của chính người tìm việc. Không cập nhật giao diện nếu đã đổi tài khoản. */
+export async function savePersonalCover(file: File | null): Promise<void> {
+  const { user, token } = useAuthStore.getState()
+  if (user?.role !== 'jobseeker' || !token) throw new Error('Bạn cần đăng nhập bằng tài khoản người tìm việc.')
+  let res
+  if (file) {
+    const form = new FormData()
+    form.append('file', file)
+    res = await api.post<{ coverUrl: string }>('/seeker/profile/cover', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+  } else {
+    res = await api.delete<{ coverUrl: null }>('/seeker/profile/cover')
+  }
+  if (useAuthStore.getState().token === token) {
+    coverVersion++
+    useProfileStore.getState().setCoverUrl(res.data.coverUrl, user.id)
+  }
+}
 
 // Đóng tab khi vừa gõ xong: gửi nốt phần chưa lưu (keepalive để trình duyệt không hủy giữa chừng)
 if (typeof window !== 'undefined') {

@@ -24,14 +24,23 @@ export const PROFILE_DEFAULT = {
   jobTypes: ['part-time', 'event'] as JobType[],
   salaryMin: 25000,
   maxDistanceKm: 5,
+  headline: 'Nhân viên phục vụ',
   skills: ['Giao tiếp khách hàng', 'Pha chế cơ bản', 'Excel', 'Tiếng Anh giao tiếp'],
+  skillLevels: { 'Giao tiếp khách hàng': 4, 'Pha chế cơ bản': 4, Excel: 3, 'Tiếng Anh giao tiếp': 3 } as Record<string, number>,
+  hobbies: ['Đọc sách', 'Nấu ăn'],
   experience: [
-    { id: 'kn-1', title: 'Nhân viên phục vụ', company: 'Quán Cà Phê Hẻm Nhỏ', period: '06/2025 – 01/2026' },
-    { id: 'kn-2', title: 'Cộng tác viên sự kiện', company: 'Công ty Sự kiện Mây Trắng', period: '2024 – 2025' },
+    {
+      id: 'kn-1', title: 'Nhân viên phục vụ', company: 'Quán Cà Phê Hẻm Nhỏ', period: '06/2025 – 01/2026',
+      bullets: ['Đón khách, ghi order và phục vụ đồ uống ca tối', 'Pha chế các món cơ bản, giữ quầy gọn gàng', 'Phối hợp với đồng nghiệp lúc đông khách'],
+    },
+    {
+      id: 'kn-2', title: 'Cộng tác viên sự kiện', company: 'Công ty Sự kiện Mây Trắng', period: '2024 – 2025',
+      bullets: ['Đón tiếp và hướng dẫn khách tại sự kiện', 'Hỗ trợ dựng và dọn khu vực trưng bày'],
+    },
   ],
 }
 
 export const DAY_SHORT = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'] as const
-export const SESSIONS = ['Sáng', 'Chiều', 'Tối'] as const
+export const SESSIONS = ['Sáng', 'Chiều', 'Tối', 'Khuya'] as const
 /** Lịch rảnh mẫu (hạt giống của profileStore): khóa `${chỉ số ngày}-${chỉ số buổi}` được bật */
 export const AVAILABILITY_DEFAULT = ['0-2', '1-2', '2-2', '3-2', '4-2', '5-0', '5-1', '6-0', '6-1']

@@ -31,7 +31,6 @@ import HomePage from '@pages/public/HomePage'
 const loadJobsPage = () => import('@pages/public/JobsPage')
 const JobsPage = lazy(loadJobsPage)
 const JobDetailPage = lazy(() => import('@pages/public/JobDetailPage'))
-const CompaniesPage = lazy(() => import('@pages/public/CompaniesPage'))
 const CompanyDetailPage = lazy(() => import('@pages/public/CompanyDetailPage'))
 const PositionDetailPage = lazy(() => import('@pages/public/PositionDetailPage'))
 const BlogPage = lazy(() => import('@pages/public/BlogPage'))
@@ -40,7 +39,6 @@ const AuthPage = lazy(loadAuthPage)
 const PersonalPage = lazy(() => import('@pages/public/PersonalPage'))
 const MatchPage = lazy(() => import('@pages/public/MatchPage'))
 const MessagesPage = lazy(() => import('@pages/public/MessagesPage'))
-const NotificationsPage = lazy(() => import('@pages/public/NotificationsPage'))
 const SchedulePage = lazy(() => import('@pages/public/SchedulePage'))
 const PostJobPage = lazy(() => import('@pages/public/PostJobPage'))
 const ProfilePage = lazy(() => import('@pages/public/ProfilePage'))
@@ -91,6 +89,7 @@ const AdminConfig = lazy(() => import('@pages/admin/Config'))
 
 // Guards
 import ProtectedRoute from '@components/common/ProtectedRoute'
+import RequireLogin from '@components/common/RequireLogin'
 import OnboardingGate, { GateSkeleton, useOnboardingRedirect } from '@components/common/OnboardingGate'
 const OnboardingPage = lazy(() => import('@pages/recruiter/onboarding/OnboardingPage'))
 const CandidateProfile = lazy(() => import('@pages/recruiter/CandidateProfile'))
@@ -152,9 +151,13 @@ export default function App() {
       <Route element={<PublicLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/viec-lam" element={<JobsPage />} />
-        <Route path="/viec-lam/:id" element={<JobDetailPage />} />
-        <Route path="/cong-ty" element={<CompaniesPage />} />
-        <Route path="/cong-ty/:id" element={<CompanyDetailPage />} />
+        {/* Trang danh sách công ty đã bỏ (chủ dự án 2026-11-22) — link cũ chuyển về Việc làm; chi tiết /cong-ty/:id vẫn giữ */}
+        <Route path="/cong-ty" element={<Navigate to="/viec-lam" replace />} />
+        {/* Trang chi tiết: khách phải đăng nhập (xong quay lại đúng trang) */}
+        <Route element={<RequireLogin />}>
+          <Route path="/viec-lam/:id" element={<JobDetailPage />} />
+          <Route path="/cong-ty/:id" element={<CompanyDetailPage />} />
+        </Route>
         <Route path="/cam-nang" element={<BlogPage />} />
         {/* Đăng nhập / quên mật khẩu / đăng ký: cùng MỘT thẻ AuthPage (giữ nguyên khi chuyển qua lại) */}
         <Route path="/dang-nhap" element={<AuthPage />} />
@@ -163,7 +166,8 @@ export default function App() {
         <Route path="/ca-nhan" element={<PersonalPage />} />
         <Route path="/match" element={<MatchPage />} />
         <Route path="/tin-nhan" element={<MessagesPage />} />
-        <Route path="/thong-bao" element={<NotificationsPage />} />
+        {/* Liên kết cũ: trang thông báo riêng đã bỏ, chỉ xem qua nút chuông. */}
+        <Route path="/thong-bao" element={<Navigate to="/ca-nhan" replace />} />
         <Route path="/lich-phong-van" element={<SchedulePage />} />
         <Route path="/gioi-thieu" element={<AboutPage />} />
         <Route path="/nha-tuyen-dung" element={<ForRecruitersPage />} />

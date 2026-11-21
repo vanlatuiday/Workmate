@@ -1,7 +1,7 @@
 // DỮ LIỆU MẪU cho /match — thay bằng API khi có backend.
 // Công ty lấy từ COMPANIES (/viec-lam), hồ sơ người tìm việc từ PROFILE_DEFAULT,
 // vị trí của doanh nghiệp từ MOCK_JOBS j1–j4 (bổ sung yêu cầu chấm điểm ở đây, không sửa mockData).
-// Ca làm là khóa `${ngày 0–6}-${buổi 0–2}` (T2…CN × Sáng/Chiều/Tối); lương quy ra nghìn đồng/giờ.
+// Ca làm là khóa `${ngày 0–6}-${buổi 0–3}` (T2…CN × Sáng/Chiều/Tối/Khuya); lương quy ra nghìn đồng/giờ.
 import { COMPANIES, type DiscoverCompany } from '@pages/public/jobs/data'
 import { AVAILABILITY_DEFAULT, PROFILE_DEFAULT } from '@pages/jobseeker/mockData'
 import { getSeekerCriteria, useProfileStore } from '@context/profileStore'
@@ -191,6 +191,8 @@ export interface MatchCandidate {
   criteria: SeekerCriteria
   /** Ảnh minh họa không lộ mặt: tay, dụng cụ, góc làm việc hợp nghề của ứng viên */
   photo: Photo
+  /** Ảnh CV của ứng viên (máy chủ chỉ trả khi họ bật hiện ảnh); null/thiếu → dùng ảnh mặc định */
+  avatarUrl?: string | null
 }
 
 const ready = (from: string): Availability => ({ kind: 'ready', from })

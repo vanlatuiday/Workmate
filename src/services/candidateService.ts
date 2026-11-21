@@ -16,6 +16,8 @@ interface ServerCandidate {
   working: boolean
   /** Ngày có thể bắt đầu (YYYY-MM-DD); null = ngay */
   availableFrom?: string | null
+  /** Chỉ có khi ứng viên bật hiện ảnh */
+  avatarUrl?: string | null
   criteria: SeekerCriteria
 }
 
@@ -31,7 +33,7 @@ const toCandidate = (c: ServerCandidate): MatchCandidate => ({
   id: c.id, positionId: '*', name: c.name, area: c.area, distanceKm: c.distanceKm,
   summary: c.summary || 'Chưa có giới thiệu',
   availability: c.working ? { kind: 'working' } : isFutureStart(c.availableFrom) ? { kind: 'ready', from: startLabel(c.availableFrom, true).replace('từ ', '') } : { kind: 'ready' },
-  criteria: c.criteria, photo: photoOf(c.id),
+  criteria: c.criteria, photo: photoOf(c.id), avatarUrl: c.avatarUrl ?? null,
 })
 
 export async function loadCandidates() {
@@ -50,8 +52,13 @@ export async function loadAdminSeekers() {
 export interface CandidateProfile extends ServerCandidate {
   connected: boolean
   about: string
-  avatarUrl: string | null
-  experience: { id: string; title: string; company: string; period: string }[]
+  headline?: string
+  skillLevels?: Record<string, number>
+  hobbies?: string[]
+  /** Chỉ có khi ứng viên bật hiện ngày sinh / giới tính */
+  birthDate?: string | null
+  gender?: 'nam' | 'nu' | 'khac' | null
+  experience: { id: string; title: string; company: string; period: string; bullets?: string[] }[]
   fullArea?: string
   phone?: string
   hasCv?: boolean

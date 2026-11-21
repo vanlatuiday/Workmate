@@ -39,15 +39,17 @@ export const SECTIONS = [
   { id: 'kinh-nghiem', label: 'Kinh nghiệm' },
   { id: 'lich-ranh', label: 'Lịch rảnh' },
   { id: 'mong-muon', label: 'Mong muốn' },
+  { id: 'so-thich', label: 'Sở thích' },
   { id: 've-ban', label: 'Về bạn' },
 ] as const
 
-/** Phần nào đã xong: mọi mục của phần đó trong `checklist` đã điền (cùng tiêu chí với %); "Về bạn" không tính vào % nên xét có nội dung */
+/** Phần nào đã xong: mọi mục của phần đó trong `checklist` đã điền (cùng tiêu chí với %); "Sở thích"/"Về bạn" không tính vào % nên xét có nội dung */
 export function sectionStatus(p: ProfileDraft): { id: string; label: string; done: boolean }[] {
   const items = checklist(p)
   return SECTIONS.map((s) => {
     const own = items.filter((i) => i.section === s.id)
-    return { ...s, done: own.length ? own.every((i) => i.done) : p.about.trim().length > 0 }
+    const filled = s.id === 'so-thich' ? p.hobbies.length > 0 : p.about.trim().length > 0
+    return { ...s, done: own.length ? own.every((i) => i.done) : filled }
   })
 }
 
@@ -85,11 +87,29 @@ export function useProfileDraft() {
   }, [update])
 
   const removeSkill = useCallback((s: string) => {
-    update({ skills: cur().skills.filter((x) => x !== s) })
+    const levels = Object.fromEntries(Object.entries(cur().skillLevels).filter(([k]) => k !== s))
+    update({ skills: cur().skills.filter((x) => x !== s), skillLevels: levels })
+  }, [update])
+
+  /** Mức 1–5 của một kỹ năng; bấm lại đúng mức đang chọn = bỏ mức */
+  const setSkillLevel = useCallback((s: string, level: number) => {
+    const { [s]: old, ...rest } = cur().skillLevels
+    update({ skillLevels: old === level ? rest : { ...rest, [s]: level } })
+  }, [update])
+
+  const addHobby = useCallback((h: string) => {
+    const v = h.trim().slice(0, 40)
+    const hobbies = cur().hobbies
+    if (!v || hobbies.length >= 10 || hobbies.some((x) => x.toLowerCase() === v.toLowerCase())) return
+    update({ hobbies: [...hobbies, v] })
+  }, [update])
+
+  const removeHobby = useCallback((h: string) => {
+    update({ hobbies: cur().hobbies.filter((x) => x !== h) })
   }, [update])
 
   const addExperience = useCallback(() => {
-    update({ experience: [...cur().experience, { id: `kn-${Date.now()}`, title: '', company: '', period: '' }] })
+    update({ experience: [...cur().experience, { id: `kn-${Date.now()}`, title: '', company: '', period: '', bullets: [] }] })
   }, [update])
 
   const updateExperience = useCallback((id: string, patch: Partial<ExperienceItem>) => {
@@ -111,7 +131,7 @@ export function useProfileDraft() {
   )
 
   return {
-    profile, suggestions, sections, set, toggleCell, toggleJobType, addSkill, removeSkill,
+    profile, suggestions, sections, set, toggleCell, toggleJobType, addSkill, removeSkill, setSkillLevel, addHobby, removeHobby,
     addExperience, updateExperience, removeExperience, setAvatarFile, percent, missing,
   }
 }

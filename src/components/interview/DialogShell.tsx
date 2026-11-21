@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { lockScroll } from '@components/floating/scrollLock'
 
 type Props = { titleId: string; title: string; subtitle?: string; onClose: () => void; children: ReactNode }
 
@@ -21,8 +22,8 @@ export default function DialogShell({ titleId, title, subtitle, onClose, childre
     closeRef.current?.focus({ preventScroll: true })
     const html = document.documentElement
     const gap = window.innerWidth - html.clientWidth
-    const prev = { overflow: html.style.overflow, paddingRight: html.style.paddingRight }
-    html.style.overflow = 'hidden'
+    const prevPadding = html.style.paddingRight
+    const unlockScroll = lockScroll()
     if (gap > 0) html.style.paddingRight = `${gap}px`
 
     const onKey = (e: KeyboardEvent) => {
@@ -52,14 +53,14 @@ export default function DialogShell({ titleId, title, subtitle, onClose, childre
     const back = originRef.current
     return () => {
       document.removeEventListener('keydown', onKey, true)
-      html.style.overflow = prev.overflow
-      html.style.paddingRight = prev.paddingRight
+      unlockScroll()
+      html.style.paddingRight = prevPadding
       if (back?.isConnected) back.focus({ preventScroll: true })
     }
   }, [])
 
   return createPortal(
-    <div data-lenis-prevent className="fixed inset-0 z-[70] flex items-end justify-center md:items-center md:p-8">
+    <div data-lenis-prevent className="fixed inset-0 z-[100] flex items-end justify-center md:items-center md:p-8">
       <div aria-hidden="true" onClick={onClose} className="absolute inset-0 bg-wm-charcoal/40" />
       <div
         ref={panelRef}

@@ -8,6 +8,7 @@ import { useReducedMotion } from '@hooks/useReducedMotion'
 import { getSmoothScroll, scrollToY } from '@hooks/useSmoothScroll'
 import HeroFeatureCards from './HeroFeatureCards'
 import HeroSideArt, { HeroSparkle } from './HeroSideArt'
+import HeroSkyline, { HeroSkyStreaks } from './HeroSkyline'
 import HomeSearchForm from './HomeSearchForm'
 import RollText from '@components/motion/RollText'
 import Magnetic from '@components/motion/Magnetic'
@@ -111,7 +112,8 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
   // Quyết định một lần lúc mount: mở ở banner thay vì logo? (Back/Forward thì để RouteScroll trả về chỗ cũ)
   const navigationType = useNavigationType()
   const [locationKey] = useState(useLocation().key)
-  const [startAtBanner] = useState(() => introSeen() && navigationType !== 'POP')
+  // Đã đăng nhập: luôn mở thẳng hero (kể cả tải lại trang). Khách: chỉ bỏ màn mở đầu khi đã xem trong phiên này và không phải quay lại/tải lại
+  const [startAtBanner] = useState(() => !!useAuthStore.getState().user || (introSeen() && navigationType !== 'POP'))
   // Chỉ nhảy lần đầu dựng timeline (đổi vai trò dựng lại timeline thì không nhảy nữa)
   const startedAtBanner = useRef(false)
   useEffect(() => {
@@ -482,6 +484,10 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
               />
             </div>
 
+            {/* Vệt sáng cong trên trời + dải thành phố đáy hero (sau chữ, thẻ và nút chuột) */}
+            <HeroSkyStreaks />
+            <HeroSkyline />
+
             {/* Ảnh 3D hai bên (trống cho tới khi có ảnh — xem heroArt trong content.ts) */}
             <HeroSideArt />
 
@@ -599,7 +605,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
             </div>
 
             {/* Hàng thẻ tính năng kính: nằm trọn trong hero, cách mép dưới một khoảng. Chỉ từ lg */}
-            <div data-depth="-12" className="hidden lg:[@media(min-height:820px)]:block w-full mt-11 pb-[72px]">
+            <div data-depth="-12" className="relative hidden lg:[@media(min-height:820px)]:block w-full mt-11 pb-[72px]">
               <HeroFeatureCards audience={audience} />
             </div>
 

@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 
-/** Mục lục dính bên trái (chỉ từ lg): chấm đặc = phần đã xong, viền = còn việc; phần đang xem được tô đậm. */
-export default function SectionIndex({ sections, reduced }: { sections: { id: string; label: string; done: boolean }[]; reduced: boolean }) {
+/** Mục lục dính bên trái (chỉ từ xl): chấm đặc = phần đã xong, viền = còn việc; phần đang xem được tô đậm. */
+export default function SectionIndex({ sections, reduced, label = 'Các phần của hồ sơ' }: { sections: { id: string; label: string; done: boolean }[]; reduced: boolean; label?: string }) {
   const [active, setActive] = useState(sections[0]?.id ?? '')
 
   // Phần đang xem: phần đầu tiên (theo thứ tự trang) đang nằm trong dải ngay dưới header
@@ -34,7 +34,7 @@ export default function SectionIndex({ sections, reduced }: { sections: { id: st
   }
 
   return (
-    <nav aria-label="Các phần của hồ sơ" className="hidden lg:sticky lg:top-24 lg:row-span-2 lg:block lg:self-start">
+    <nav aria-label={label} className="hidden xl:sticky xl:top-24 xl:row-span-2 xl:block xl:self-start">
       <ul className="space-y-0.5">
         {sections.map((s) => (
           <li key={s.id}>

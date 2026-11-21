@@ -1,18 +1,16 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { startLabel } from '@utils/format'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { gsap } from '@utils/gsap'
-import { JOB_TYPES } from '@constants/index'
-import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { BTN_ICON, BTN_SECONDARY, BTN_SM } from '@utils/ui'
-import { usePublicProfile } from '@hooks/usePublicProfile'
-import Avatar from './Avatar'
-import { fmtMoney, type ProfileApi } from './useProfileDraft'
+import { useAuthStore } from '@context/authStore'
+import { ScaledCv, toCvData } from '@components/cv/CvPanel'
+import type { CvMode } from '@components/cv/CvSheet'
+import type { ProfileApi } from './useProfileDraft'
 
-/** Nút "Xem bản nhà tuyển dụng thấy": bấm thì nút lật 3D một vòng rồi mở khung xem trước. */
-export default function PreviewDock({ api }: { api: ProfileApi }) {
+/** Nút xem trước (mặc định "Xem bản nhà tuyển dụng thấy"): bấm thì nút lật 3D một vòng rồi mở khung có tờ CV. */
+export default function PreviewDock({ api, mode = 'recruiter', label = 'Xem bản nhà tuyển dụng thấy', className }: { api: ProfileApi; mode?: CvMode; label?: string; className?: string }) {
   const reduced = useReducedMotion()
   const [open, setOpen] = useState(false)
   const btnRef = useRef<HTMLButtonElement>(null)
@@ -31,23 +29,22 @@ export default function PreviewDock({ api }: { api: ProfileApi }) {
         onClick={openPreview}
         aria-haspopup="dialog"
         data-cursor="Xem trước"
-        className={`${BTN_SECONDARY} ${BTN_SM}`}
+        className={`${BTN_SECONDARY} ${BTN_SM} ${className ?? ''}`}
       >
-        Xem bản nhà tuyển dụng thấy
+        {label}
       </button>
       {open && (
-        <PreviewModal api={api} reduced={reduced} onClosed={() => { setOpen(false); btnRef.current?.focus({ preventScroll: true }) }} />
+        <PreviewModal api={api} mode={mode} reduced={reduced} onClosed={() => { setOpen(false); btnRef.current?.focus({ preventScroll: true }) }} />
       )}
     </>
   )
 }
 
-type ModalProps = { api: ProfileApi; reduced: boolean; onClosed: () => void }
+type ModalProps = { api: ProfileApi; mode: CvMode; reduced: boolean; onClosed: () => void }
 
-/** Khung lớn giữa màn hình — hồ sơ như doanh nghiệp thấy (không có SĐT/email). */
-function PreviewModal({ api, reduced, onClosed }: ModalProps) {
-  const { profile, percent } = api
-  const { isPublic } = usePublicProfile()
+/** Khung giữa màn hình chứa tờ CV (bản nhà tuyển dụng: không có SĐT/email). */
+function PreviewModal({ api, mode, reduced, onClosed }: ModalProps) {
+  const email = useAuthStore((s) => s.user?.email)
   const titleId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -91,8 +88,6 @@ function PreviewModal({ api, reduced, onClosed }: ModalProps) {
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prev }
   }, [])
 
-  const jobTypeLabels = JOB_TYPES.filter((t) => profile.jobTypes.includes(t.value)).map((t) => t.label)
-
   return createPortal(
     <div ref={rootRef} data-lenis-prevent className="fixed inset-0 z-[70] flex items-center justify-center p-4 md:p-14">
       <div data-pv-backdrop aria-hidden onClick={() => requestClose.current()} className="absolute inset-0 bg-wm-charcoal/40" />
@@ -101,51 +96,13 @@ function PreviewModal({ api, reduced, onClosed }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="theme-ivory relative max-h-[88svh] w-full max-w-2xl overflow-y-auto rounded-card border border-page-line bg-wm-ivory p-6 text-wm-charcoal md:p-10"
+        className="theme-ivory relative max-h-[88svh] w-full max-w-xl overflow-y-auto rounded-card border border-page-line bg-wm-ivory p-5 text-wm-charcoal md:p-8"
       >
         <button ref={closeRef} type="button" onClick={() => requestClose.current()} aria-label="Đóng" className={`${BTN_ICON} absolute right-4 top-4`}>
           <X className="h-4 w-4" aria-hidden />
         </button>
-        <p className="text-sm text-page-muted">Bản nhà tuyển dụng nhìn thấy</p>
-        <div className="mt-5 flex items-center gap-4">
-          <Avatar name={profile.fullName} url={profile.avatarUrl} show={profile.showAvatar} className="h-20 w-20 text-2xl" />
-          <div>
-            <h2 id={titleId} className="font-display text-2xl font-semibold md:text-3xl">{profile.fullName || 'Chưa có tên'}</h2>
-            <p className="text-sm text-page-muted">{profile.area} · {isPublic ? 'Đang công khai' : 'Chưa công khai'} · hoàn thiện {percent}%</p>
-          </div>
-        </div>
-        {profile.intro && <p className="mt-6 leading-relaxed">{profile.intro}</p>}
-
-        <p className="mt-8 text-sm text-page-muted">Có thể bắt đầu: <span className="text-page-fg">{startLabel(profile.availableFrom)}</span></p>
-
-        <h3 className="mt-8 text-sm font-medium text-page-muted">Lịch rảnh ({profile.availability.length} ca/tuần)</h3>
-        <ul className="mt-2 flex flex-wrap gap-2">
-          {DAY_SHORT.map((d, di) => {
-            const ses = SESSIONS.filter((_, si) => profile.availability.includes(`${di}-${si}`))
-            return ses.length ? <li key={d} className="rounded-full border border-page-edge px-3 py-1 text-sm">{d}: {ses.join(', ')}</li> : null
-          })}
-        </ul>
-
-        <h3 className="mt-8 text-sm font-medium text-page-muted">Kỹ năng</h3>
-        <ul className="mt-2 flex flex-wrap gap-2">
-          {profile.skills.map((s) => <li key={s} className="rounded-full border border-page-edge px-3 py-1 text-sm">{s}</li>)}
-        </ul>
-
-        <h3 className="mt-8 text-sm font-medium text-page-muted">Kinh nghiệm</h3>
-        <ul className="mt-2 space-y-2">
-          {profile.experience.map((e) => (
-            <li key={e.id}><span className="font-medium">{e.title}</span><span className="text-page-muted">: {[e.company, e.period].filter(Boolean).join(', ')}</span></li>
-          ))}
-        </ul>
-
-        <h3 className="mt-8 text-sm font-medium text-page-muted">Mong muốn</h3>
-        <p className="mt-2 text-sm">
-          Từ {fmtMoney(profile.salaryMin)}/giờ · trong {profile.maxDistanceKm} km · {jobTypeLabels.join(', ') || 'chưa chọn loại việc'}
-        </p>
-
-        {profile.about && (<><h3 className="mt-8 text-sm font-medium text-page-muted">Giới thiệu thêm</h3><p className="mt-2 text-sm leading-relaxed">{profile.about}</p></>)}
-
-        <p className="mt-8 rounded-control border border-page-line px-4 py-3 text-sm text-page-muted">Liên hệ mở sau khi hai bên kết nối.</p>
+        <p id={titleId} className="mb-4 pr-10 text-sm text-page-muted">{mode === 'recruiter' ? 'Bản nhà tuyển dụng nhìn thấy' : 'CV của bạn'}</p>
+        <ScaledCv data={toCvData(api.profile, email)} mode={mode} />
       </div>
     </div>,
     document.body,

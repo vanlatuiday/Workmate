@@ -34,13 +34,13 @@ function PageFallback() {
 }
 
 /**
- * Khung "xanh kính" cho dashboard người tìm việc (/tim-viec/*, chủ dự án 2026-11-21; DESIGN.md → Dashboard người tìm việc).
+ * Khung "xanh kính" cho dashboard người tìm việc (/tim-viec/*) và nhà tuyển dụng (/tuyen-dung/*; sidebarRole + menuLabel đổi theo vai trò), chủ dự án 2026-11-21; DESIGN.md → Dashboard người tìm việc).
  * Khác DashboardShell (ngà, dùng cho nhà tuyển dụng / quản trị — giữ nguyên): trang cuộn theo cửa sổ,
  * trên cùng là header công khai (SiteHeader, viên kính nổi, thu nhỏ khi cuộn), thanh bên kính xanh dính bên trái (md+),
  * dưới md dùng ngăn kéo mở bằng nút "Menu khu tìm việc". `.theme-abyss` đổi biến --page-* sang chữ ngà trên xanh
  * nên các trang con tự đổi màu; lớp `.jd-root` (index.css) ghi đè các kính ngà cũ. Nền tĩnh, không hiệu ứng theo cuộn.
  */
-export default function GlassDashboardShell({ sidebarRole }: { sidebarRole: SidebarRole }) {
+export default function GlassDashboardShell({ sidebarRole, menuLabel = 'Menu khu tìm việc' }: { sidebarRole: SidebarRole; menuLabel?: string }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
@@ -114,7 +114,7 @@ export default function GlassDashboardShell({ sidebarRole }: { sidebarRole: Side
               className={cn('jd-card mb-4 inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-medium text-page-fg md:hidden', FOCUS)}
             >
               <PanelLeft className="h-4 w-4 text-wm-cyan" aria-hidden="true" />
-              Menu khu tìm việc
+              {menuLabel}
             </button>
             <Suspense fallback={<PageFallback />}>
               {/* key theo route → mỗi trang mới hiện dần + trượt lên rất nhẹ (dash-enter, index.css) */}

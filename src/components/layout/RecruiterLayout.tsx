@@ -1,10 +1,6 @@
-import DashboardShell from './DashboardShell'
+import GlassDashboardShell from './GlassDashboardShell'
 
+/** Khu nhà tuyển dụng dùng khung xanh kính như khu tìm việc (2026-11-22); quản trị vẫn dùng DashboardShell ngà */
 export default function RecruiterLayout() {
-  return (
-    <DashboardShell
-      sidebarRole="recruiter" roleLabel="Nhà tuyển dụng"
-      searchHref={(q) => `/tuyen-dung/tim-ung-vien?q=${encodeURIComponent(q)}`} searchPlaceholder="Tìm ứng viên…"
-    />
-  )
+  return <GlassDashboardShell sidebarRole="recruiter" menuLabel="Menu khu tuyển dụng" />
 }

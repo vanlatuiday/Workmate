@@ -7,27 +7,33 @@ import { photoSrcSet, photoUrl, type Photo } from '../types'
 const EASE = [0.22, 1, 0.36, 1] as const
 
 /**
- * Màn đầu trang chi tiết: tên rất lớn ở cuối màn đầu, căn phải, trượt vào từ bên phải;
- * ảnh bìa trồi lên từ dưới, trễ hơn một nhịp. Mọi độ trễ cộng thêm thời gian màn chuyển cảnh.
+ * Đầu trang chi tiết: một khối căn trái cùng mép với nội dung bên dưới
+ * (quay lại → nhãn nhỏ → tên → mô tả một dòng → hàng thông tin nhanh),
+ * rồi ảnh bìa thấp hơn kèm chú thích nguồn ảnh. Độ trễ cộng thêm thời gian màn chuyển cảnh.
  */
 export default function DetailHero({
   back,
   eyebrow,
   title,
+  tagline,
+  facts,
   photo,
 }: {
   back: ReactNode
   eyebrow: string
   title: string
+  /** Mô tả ngắn một dòng dưới tên */
+  tagline?: string
+  /** Hàng huy hiệu/số liệu nhỏ dưới mô tả */
+  facts?: ReactNode
   photo: Photo
 }) {
   const reduced = useReducedMotion()
   const curtain = useCurtainDelay()
 
   return (
-    // overflow-x-clip: tên đang trượt từ ngoài mép phải không làm trang cuộn ngang
-    <header className="overflow-x-clip">
-      <div className="shell flex min-h-0 flex-col justify-between pt-8 md:min-h-[calc(44svh-4rem)] md:pt-10">
+    <header>
+      <div className="shell pt-8 md:pt-10">
         <m.div
           {...(reduced
             ? {}
@@ -38,7 +44,7 @@ export default function DetailHero({
               })}
         >
           <div>{back}</div>
-          <p className="eyebrow mt-8 text-page-muted">
+          <p className="eyebrow mt-6 text-page-muted">
             {/* Gạch trang trí: ẩn ở mobile vì nhãn dài xuống dòng sẽ làm gạch lệch giữa khối chữ */}
             <span className="hidden h-px w-8 flex-shrink-0 bg-page-line sm:block" />
             {eyebrow}
@@ -47,36 +53,53 @@ export default function DetailHero({
 
         {/* leading ≥ 1.05 để không cắt dấu tiếng Việt */}
         <m.h1
-          className="mt-8 max-w-full break-words pb-4 text-left md:ml-auto md:mt-12 md:text-right font-display text-display-md font-semibold leading-[1.08] tracking-[-0.03em] md:max-w-[16ch]"
+          className="mt-4 max-w-[22ch] break-words pb-2 text-left font-display text-display-md font-semibold leading-[1.08] tracking-[-0.03em]"
           {...(reduced
             ? {}
             : {
-                initial: { opacity: 0, x: '12vw' },
-                animate: { opacity: 1, x: 0 },
+                initial: { opacity: 0, y: 24 },
+                animate: { opacity: 1, y: 0 },
                 transition: { duration: 1, ease: EASE, delay: curtain },
               })}
         >
           {title}
         </m.h1>
+
+        {(tagline || facts) && (
+          <m.div
+            className="mt-3"
+            {...(reduced
+              ? {}
+              : {
+                  initial: { opacity: 0 },
+                  animate: { opacity: 1 },
+                  transition: { duration: 0.8, ease: EASE, delay: curtain + 0.4 },
+                })}
+          >
+            {tagline && <p className="max-w-2xl text-base leading-relaxed md:text-lg">{tagline}</p>}
+            {facts && <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">{facts}</div>}
+          </m.div>
+        )}
       </div>
 
-      <div className="shell mt-4 md:mt-6">
+      <div className="shell mt-6 md:mt-8">
         <div className="overflow-hidden rounded-control bg-page-surface">
           <m.img
             src={photoUrl(photo.id, 1400)}
             srcSet={photoSrcSet(photo.id)}
             sizes="(min-width: 1440px) 1312px, 92vw"
             alt={photo.alt}
-            className="aspect-[4/3] w-full object-cover md:aspect-[21/9]"
+            className="aspect-[16/9] w-full object-cover lg:aspect-[21/9]"
             {...(reduced
               ? {}
               : {
-                  initial: { opacity: 0, y: 120 },
+                  initial: { opacity: 0, y: 60 },
                   animate: { opacity: 1, y: 0 },
                   transition: { duration: 1, ease: EASE, delay: curtain + 0.15 },
                 })}
           />
         </div>
+        <p className="mt-2 text-xs text-page-muted">Ảnh minh họa từ Unsplash.</p>
       </div>
     </header>
   )

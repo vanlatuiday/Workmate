@@ -2,7 +2,7 @@
 // Cùng đối tượng/hiệu ứng với Messenger: chỉ người tìm việc / nhà tuyển dụng đã đăng nhập; chỉ dùng transform/opacity.
 // Popup là dialog: bẫy focus, Esc đóng, trả focus về nơi đã mở nó; lúc đóng vẫn ở trong DOM nhưng `invisible`.
 import { useEffect, useRef } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { Bell, X } from 'lucide-react'
 import { CONTENT_CLOSE, CONTENT_OPEN, FOCUSABLE, PANEL_CLOSE, PANEL_OPEN } from '@components/floating/panelMotion'
 import { lockScroll } from '@components/floating/scrollLock'
@@ -14,8 +14,10 @@ import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useUnreadCount, type Side } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
-import { BTN_ICON, LINK } from '@utils/ui'
-import NotificationList, { MarkAllReadButton } from './NotificationList'
+import { BTN_ICON } from '@utils/ui'
+import { MarkAllReadButton } from './NotificationList'
+import NotificationBoard from './NotificationBoard'
+import '@components/floating/communicationTheme.css'
 
 const STORAGE_KEY = 'workmate-notify-pos'
 // Mặc định trùng chỗ nút tin nhắn (góc dưới phải); nút này rank 1 nên tự nhường, nằm ngay trên nút tin nhắn
@@ -81,7 +83,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
       }
       const panel = panelRef.current
       if (e.key !== 'Tab' || !panel) return
-      const items = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => !el.hasAttribute('disabled'))
+      const items = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => !el.hasAttribute('disabled') && el.getClientRects().length > 0)
       if (items.length === 0) return
       const firstEl = items[0]
       const last = items[items.length - 1]
@@ -130,7 +132,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
       <div
         hidden={inShell}
         className={cn(
-          'theme-ivory fixed left-0 top-0 z-[60] !bg-transparent', // theme-ivory tự tô nền ngà → bỏ để chỉ còn nút tròn
+          'communication-theme fixed left-0 top-0 z-[60] !bg-transparent',
           // Thả tay thì trượt về mép; đang kéo thì bám theo con trỏ ngay
           animate && !dragging && 'transition-transform duration-base ease-editorial motion-reduce:transition-none',
         )}
@@ -154,7 +156,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
             aria-label={unread > 0 ? `Thông báo, ${unread} chưa đọc` : 'Thông báo'}
             style={{ touchAction: compact ? 'auto' : 'none', width: SIZE, height: SIZE }}
             className={cn(
-              'flex items-center justify-center rounded-full bg-page-fg text-page-bg ring-1 ring-wm-ivory/40 hover:ring-2 hover:ring-wm-ivory/70 md:cursor-grab md:active:cursor-grabbing',
+              'flex items-center justify-center rounded-full bg-page-fg text-page-bg ring-1 ring-wm-day/40 hover:ring-2 hover:ring-wm-day/70 md:cursor-grab md:active:cursor-grabbing',
               'transition-transform duration-fast hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100',
               FOCUS,
             )}
@@ -177,13 +179,13 @@ function CenterInner({ viewer }: { viewer: Side }) {
         aria-hidden="true"
         onClick={closeCenter}
         className={cn(
-          'fixed inset-0 z-[85] bg-wm-charcoal/20 backdrop-blur-md transition-opacity duration-slow ease-editorial will-change-[opacity] motion-reduce:transition-none',
+          'fixed inset-0 z-[85] bg-wm-abyss/20 backdrop-blur-md transition-opacity duration-slow ease-editorial will-change-[opacity] motion-reduce:transition-none',
           open ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       />
 
-      {/* Popup: giữa màn hình (mobile gần kín chiều ngang) */}
-      <div ref={wrapRef} className="pointer-events-none fixed inset-3 z-[85] flex items-center justify-center sm:inset-0">
+      {/* Desktop rộng để đọc nội dung; điện thoại dùng trọn màn hình. */}
+      <div ref={wrapRef} className="pointer-events-none fixed inset-0 z-[85] flex items-center justify-center">
         <div
           ref={panelRef}
           role="dialog"
@@ -194,8 +196,8 @@ function CenterInner({ viewer }: { viewer: Side }) {
           data-lenis-prevent
           style={{ transition: reduced ? 'none' : open ? PANEL_OPEN : PANEL_CLOSE }}
           className={cn(
-            'theme-ivory flex max-h-full w-full flex-col overflow-hidden rounded-md border border-page-line bg-page-bg text-page-fg outline-none will-change-transform',
-            'sm:max-h-[70vh] sm:w-[380px]',
+            'communication-theme flex h-full w-full flex-col overflow-hidden bg-page-bg text-page-fg outline-none will-change-transform',
+            'sm:h-[min(780px,88dvh)] sm:w-[min(640px,calc(100vw-3rem))] sm:rounded-lg sm:border sm:border-page-line lg:w-[min(1040px,calc(100vw-4rem))]',
             open ? 'pointer-events-auto visible scale-100 opacity-100' : 'invisible scale-[0.15] opacity-0',
           )}
         >
@@ -203,29 +205,24 @@ function CenterInner({ viewer }: { viewer: Side }) {
             className={cn('flex min-h-0 flex-1 flex-col', open ? 'opacity-100' : 'opacity-0')}
             style={{ transition: reduced ? 'none' : open ? CONTENT_OPEN : CONTENT_CLOSE }}
           >
-            <div className="flex items-center justify-between gap-4 px-4 pb-2 pt-4">
-              <h2 className="font-display text-xl font-semibold text-page-fg">Thông báo</h2>
+            <div className="notification-titlebar grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-3 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5">
+              <span aria-hidden="true" className="flex h-11 w-11 items-center justify-center"><Bell className="h-5 w-5" /></span>
+              <h2 className="text-center font-display text-xl font-semibold text-page-fg">Thông báo</h2>
               <button
                 ref={closeRef}
                 type="button"
                 onClick={closeCenter}
                 aria-label="Đóng thông báo"
-                className={BTN_ICON}
+                className={cn(BTN_ICON, 'h-11 w-11 bg-wm-day/10 hover:bg-wm-day/20')}
               >
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
-            <div className="px-4 pb-3">
-              <MarkAllReadButton viewer={viewer} />
+            <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-page-line px-4 py-3 sm:px-5">
+              <p className="text-sm text-page-muted">{unread > 0 ? <><strong className="font-semibold text-page-fg">{unread}</strong> thông báo chưa đọc</> : 'Cập nhật hoạt động của bạn'}</p>
+              <MarkAllReadButton viewer={viewer} compact className="min-h-11" />
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4" data-lenis-prevent>
-              <NotificationList viewer={viewer} compact onNavigate={closeCenter} />
-            </div>
-            <div className="border-t border-page-line px-4 py-3 text-center">
-              <Link to="/thong-bao" onClick={closeCenter} className={cn(LINK, 'text-sm font-medium underline')}>
-                Xem mọi thông báo
-              </Link>
-            </div>
+            {open && <NotificationBoard viewer={viewer} open={open} onNavigate={closeCenter} />}
           </div>
         </div>
       </div>

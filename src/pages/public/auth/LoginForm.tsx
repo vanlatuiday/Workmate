@@ -9,7 +9,7 @@ import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
 import { BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import { AuthField, ErrorBox, Item, RoleSwitch, ShowPassButton, Stagger, SubmitButton, TEXT_LINK, type AuthRole } from './shared'
-import { AUTH_PATHS, loginEmailError, useFieldTouch, useFocusFirst, type AuthFormProps } from './authShared'
+import { AUTH_PATHS, loginEmailError, loginHome, useFieldTouch, useFocusFirst, type AuthFormProps } from './authShared'
 
 /*
  * Đăng nhập — gọi backend thật (authService.login); chỉ còn 3 nút đăng nhập nhanh là của bản demo.
@@ -60,8 +60,9 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
     // Thẻ mờ đi xong mới đổi trang
     await leave()
     setUser(res.user, res.token)
-    // Quay lại trang đang xem dở nếu vai trò này được vào; còn lại về trang chủ (khu làm việc chỉ là nơi tổng hợp)
-    navigate(from && canVisit(res.user.role, from) ? from : '/', { replace: true })
+    // Quay lại trang đang xem dở nếu vai trò này được vào; còn lại: người tìm việc / nhà tuyển dụng vào thẳng
+    // trang Kết nối (/match — chủ dự án 2026-11-22), quản trị về trang chủ
+    navigate(from && canVisit(res.user.role, from) ? from : loginHome(res.user.role), { replace: true })
   }
 
   const handleSubmit = (e: React.FormEvent) => {

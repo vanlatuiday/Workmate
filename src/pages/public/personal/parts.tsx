@@ -60,7 +60,7 @@ export function PlainList({ items }: { items: string[] }) {
 }
 
 /**
- * Lưới tuần 7 ngày x 3 buổi. `on` = tập khóa "ngày-buổi" đang bật.
+ * Lưới tuần 7 ngày x 4 buổi. `on` = tập khóa "ngày-buổi" đang bật.
  * Mỗi ô có nhãn chữ cho trình đọc màn hình; màu chỉ là phần hiển thị.
  */
 export function WeekGrid({ on, sample }: { on: ReadonlySet<string>; sample?: boolean }) {

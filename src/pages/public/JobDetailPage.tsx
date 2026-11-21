@@ -165,7 +165,7 @@ export default function JobDetailPage() {
   )
 
   return (
-    <article className="pb-section-sm">
+    <article className="pb-10 md:pb-14">
       <DetailHero
         back={<BackLink />}
         eyebrow={`${company.name} · ${jobTypeLabel(job.jobType)}`}
@@ -229,7 +229,6 @@ export default function JobDetailPage() {
           </TextBlock>
         )}
 
-        <p className="text-xs text-page-muted">Ảnh minh họa từ Unsplash.</p>
         {role && (
           <div>
             <ReportButton target="job" targetId={job.id} name={job.title} />

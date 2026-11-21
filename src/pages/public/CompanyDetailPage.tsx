@@ -4,6 +4,9 @@ import { useCompanyStore } from '@context/companyStore'
 import { useAuthStore } from '@context/authStore'
 import { useCatalogStore } from '@context/catalogStore'
 import { useSettingsStore } from '@context/settingsStore'
+import { Star } from 'lucide-react'
+import { BTN_ACCENT, BTN_SECONDARY } from '@utils/ui'
+import { reviewStats, useCompanyReviews } from '@services/connectionService'
 import { Facts, PrimaryLink, TextLink } from '@components/discover/parts'
 import DetailHero from '@components/discover/detail/DetailHero'
 import DetailLayout from '@components/discover/detail/DetailLayout'
@@ -11,7 +14,7 @@ import DetailNotFound from '@components/discover/detail/NotFound'
 import DetailSkeleton from '@components/discover/detail/DetailSkeleton'
 import BackLink from '@components/discover/detail/BackLink'
 import JobLinks from '@components/discover/detail/JobLinks'
-import { ImageBlock, TagList, TextBlock } from '@components/discover/detail/DetailBlocks'
+import { CheckList, ImageBlock, TextBlock } from '@components/discover/detail/DetailBlocks'
 import { CompanyReviews } from '@components/hire'
 import Reveal from '@components/motion/Reveal'
 import { findCompany } from './jobs/data'
@@ -28,6 +31,7 @@ export default function CompanyDetailPage() {
   const myPageHidden = useSettingsStore((s) => isOwner && s.bySide.recruiter.visibility === 'hidden')
   const hiddenPage = !!useCatalogStore((s) => s.companies.find((c) => c.id === id)?.hidden) && !isOwner && role !== 'admin'
 
+  const rating = reviewStats(useCompanyReviews(id ?? ''))
   const taxValid = useCatalogStore((s) => s.companies.find((c) => c.id === id)?.taxValid)
   const catalogSettled = useCatalogStore((s) => s.settled)
 
@@ -54,33 +58,60 @@ export default function CompanyDetailPage() {
   const jobs = jobsOfCompany(company.id)
   const isGuest = !role
 
+  const sizeLabel = `${company.size.replace(/(\d)-(\d)/g, '$1–$2')} người`
+  const toJobs = () => {
+    const el = document.getElementById('viec-dang-tuyen')
+    if (!el) return
+    el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })
+  }
+
   const aside = (
-    <>
-      <CompanyLogo name={company.name} logoUrl={company.logoUrl} className="mb-4 h-16 w-16 text-lg" />
-      <TaxValidBadge valid={taxValid} className="mb-3 inline-block" />
-      <p className="max-w-sm text-base md:text-lg leading-relaxed">{company.tagline}</p>
+    <div className="day-card rounded-card border border-page-line p-5">
+      <div className="flex items-center gap-3">
+        <CompanyLogo name={company.name} logoUrl={company.logoUrl} className="h-10 w-10 shrink-0 text-sm" />
+        <p className="min-w-0 font-display text-base font-semibold leading-tight">{company.name}</p>
+      </div>
       <Facts
+        dense
         rows={[
           ['Lĩnh vực', company.industry],
           ['Địa điểm', `${company.district}, Đà Nẵng`],
-          ['Quy mô', `${company.size} người`],
-          ['Đang tuyển', `${jobs.length} vị trí`],
+          ['Quy mô', sizeLabel],
         ]}
       />
-      <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">
-        {isGuest && <PrimaryLink accent to="/dang-ky?role=jobseeker">Đăng ký để ứng tuyển</PrimaryLink>}
-        {role === 'jobseeker' && <PrimaryLink accent to="/tim-viec/phu-hop">Xem việc phù hợp với tôi</PrimaryLink>}
-        <TextLink to="/viec-lam">Xem các công ty khác</TextLink>
+      <div className="mt-5 flex flex-col items-start gap-4">
+        {jobs.length > 0 ? (
+          <button type="button" onClick={toJobs} className={BTN_ACCENT}>
+            Xem {jobs.length} việc đang tuyển
+          </button>
+        ) : (
+          <Link to="/viec-lam" className={BTN_SECONDARY}>Xem việc làm khác</Link>
+        )}
+        {role === 'jobseeker' && <TextLink to="/tim-viec/phu-hop">Xem việc phù hợp với tôi</TextLink>}
+        {jobs.length > 0 && <TextLink to="/viec-lam">Xem việc làm khác</TextLink>}
       </div>
-    </>
+    </div>
   )
 
   return (
-    <article className="pb-section-sm">
+    <article className="pb-10 md:pb-14">
       <DetailHero
         back={<BackLink />}
         eyebrow={`${company.industry} · ${company.district}`}
         title={company.name}
+        tagline={company.tagline}
+        facts={
+          <>
+            <TaxValidBadge valid={taxValid} />
+            {jobs.length > 0 && <span className="text-page-muted">{jobs.length} việc đang tuyển</span>}
+            {rating.count > 0 && (
+              <span className="tnum inline-flex items-center gap-1 text-page-muted">
+                <Star className="h-3.5 w-3.5 fill-current text-page-fg" aria-hidden="true" />
+                {rating.average.toFixed(1).replace('.', ',')} ({rating.count} đánh giá)
+              </span>
+            )}
+          </>
+        }
         photo={company.cover}
       />
 
@@ -95,12 +126,12 @@ export default function CompanyDetailPage() {
         </TextBlock>
 
         <TextBlock title="Môi trường làm việc">
-          <TagList items={company.environment} />
+          <CheckList items={company.environment} />
         </TextBlock>
 
         {company.more && <ImageBlock photo={company.more} />}
 
-        <TextBlock title="Việc đang tuyển">
+        <TextBlock title={`Việc đang tuyển (${jobs.length})`} id="viec-dang-tuyen">
           <JobLinks jobs={jobs} />
         </TextBlock>
 
@@ -121,10 +152,6 @@ export default function CompanyDetailPage() {
             </div>
           </Reveal>
         )}
-
-        <p className="text-xs text-page-muted">
-          Ảnh minh họa từ Unsplash.
-        </p>
       </DetailLayout>
     </article>
   )

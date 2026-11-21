@@ -1,14 +1,17 @@
 import type { ReactNode } from 'react'
-import { Lock } from 'lucide-react'
+import { Check, Lock } from 'lucide-react'
 import Reveal from '@components/motion/Reveal'
 import { photoSrcSet, photoUrl, type Photo } from '../types'
 
 /** Khối chữ trong dòng nội dung — tự hiện khi cuộn tới. */
-export function TextBlock({ title, children }: { title: string; children: ReactNode }) {
+export function TextBlock({ title, children, id }: { title: string; children: ReactNode; id?: string }) {
   return (
+    // scroll-mt: chừa chỗ cho header nổi khi cuộn tới khối này
     <Reveal>
-      <h2 className="font-display text-xl font-semibold leading-tight tracking-[-0.02em] md:text-2xl">{title}</h2>
-      <div className="mt-4">{children}</div>
+      <div id={id} className="scroll-mt-28">
+        <h2 className="font-display text-xl font-semibold leading-tight tracking-[-0.02em] md:text-2xl">{title}</h2>
+        <div className="mt-4">{children}</div>
+      </div>
     </Reveal>
   )
 }
@@ -45,6 +48,20 @@ export function TagList({ items, strong = false }: { items: string[]; strong?: b
           }
         >
           {strong && <Lock className="h-3 w-3" aria-hidden="true" />}
+          {e}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** Danh sách câu đầy đủ, mỗi dòng một ý kèm dấu tick nhỏ. */
+export function CheckList({ items }: { items: string[] }) {
+  return (
+    <ul className="space-y-3">
+      {items.map((e) => (
+        <li key={e} className="flex items-start gap-3 text-base leading-relaxed">
+          <Check className="mt-1 h-4 w-4 shrink-0 text-page-muted" aria-hidden="true" />
           {e}
         </li>
       ))}

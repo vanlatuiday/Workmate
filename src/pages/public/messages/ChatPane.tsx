@@ -176,8 +176,8 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
 
   return (
     <FadeIn className="flex h-full min-h-0 flex-col">
-      <header className="flex items-center gap-2 border-b border-page-line pb-3">
-        <button type="button" onClick={onBack} aria-label="Quay lại danh sách" className={cn(BTN_ICON, hideBackOnWide && 'md:hidden')}>
+      <header className="flex items-center gap-2 border-b border-page-line pb-4">
+        <button type="button" onClick={onBack} aria-label="Quay lại danh sách" className={cn(BTN_ICON, 'h-11 w-11', hideBackOnWide && 'lg:hidden')}>
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         </button>
         <ChatAvatar initials={info.initials} url={info.avatarUrl} contain={viewer === 'seeker'} className="h-9 w-9 text-sm" />
@@ -185,7 +185,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
           <h2 className="truncate text-sm font-semibold text-page-fg">{info.name}</h2>
           <p className="truncate text-xs text-page-muted">{info.subtitle}</p>
         </div>
-        <Link to={info.profileHref} className={cn(LINK, 'shrink-0 text-sm')}>
+        <Link to={info.profileHref} className={cn(LINK, 'inline-flex min-h-11 shrink-0 items-center px-2 text-xs sm:text-sm')}>
           {info.profileLabel}
         </Link>
       </header>
@@ -200,7 +200,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
         </div>
       )}
 
-      <div ref={scrollRef} data-lenis-prevent className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain py-5" role="log" aria-live="polite" aria-label="Nội dung cuộc trò chuyện" onWheel={markScrolled} onTouchMove={markScrolled} onPointerDown={markScrolled}>
+      <div ref={scrollRef} data-lenis-prevent className="messenger-scroll min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain py-5 pl-1 pr-2" role="log" aria-live="polite" aria-label="Nội dung cuộc trò chuyện" onWheel={markScrolled} onTouchMove={markScrolled} onPointerDown={markScrolled}>
         {hasOlder && (
           <div ref={topRef} className="flex justify-center">
             <button type="button" onClick={loadOlder} disabled={loadingOlder} className={cn(BTN_SECONDARY, BTN_SM)}>
@@ -231,7 +231,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
             <div className={cn('flex flex-col', mine ? 'items-end' : 'items-start')}>
               <p
                 className={cn(
-                  'max-w-[80%] whitespace-pre-wrap break-words px-4 py-2.5 text-sm leading-relaxed',
+                  'max-w-[85%] whitespace-pre-wrap break-words px-4 py-3 text-sm leading-relaxed sm:max-w-[80%]',
                   mine ? 'rounded-card rounded-br-control bg-page-fg text-page-bg' : 'rounded-card rounded-bl-control border border-page-line bg-page-surface text-page-fg',
                 )}
               >
@@ -262,21 +262,21 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
         )}
       </div>
 
-      <div className="border-t border-page-line pt-3">
+      <div className="border-t border-page-line pt-4">
         <div className={cn('-mx-1 mb-3 flex snap-x snap-proximity gap-2 overflow-x-auto px-1 py-1', NO_SCROLLBAR)}>
           {quickReplies.map(({ text: q }) => (
             <button
               key={q}
               type="button"
               onClick={() => send(q)}
-              className={cn(CHIP, CHIP_OFF, 'shrink-0 snap-start px-3 py-1.5 text-xs')}
+              className={cn(CHIP, CHIP_OFF, 'min-h-11 shrink-0 snap-start px-3 py-1.5 text-xs')}
             >
               {q}
             </button>
           ))}
         </div>
         <div className="flex items-end gap-2">
-          <label className="flex-1">
+          <label className="min-w-0 flex-1">
             <span className="sr-only">Soạn tin nhắn</span>
             <textarea
               ref={inputRef}
@@ -293,7 +293,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
               onKeyDown={onKeyDown}
               placeholder="Nhập tin nhắn…"
               title="Enter để gửi, Shift+Enter xuống dòng"
-              className={cn('block w-full resize-none overflow-y-hidden rounded-card border border-page-edge bg-page-bg px-4 py-2.5 text-sm text-page-fg placeholder:text-page-muted', NO_SCROLLBAR, FOCUS)}
+              className={cn('block min-h-11 w-full resize-none overflow-y-hidden rounded-card border border-page-edge bg-page-bg px-4 py-2.5 text-sm text-page-fg placeholder:text-page-muted', NO_SCROLLBAR, FOCUS)}
             />
           </label>
           <button
@@ -301,11 +301,12 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
             aria-label="Gửi tin nhắn"
             disabled={!draft.trim()}
             onClick={() => send(draft)}
-            className={cn(BTN_ICON, 'border-accent bg-accent text-accent-fg hover:brightness-110 disabled:cursor-default disabled:opacity-50 disabled:hover:brightness-100 disabled:active:scale-100')}
+            className={cn(BTN_ICON, 'h-11 w-11 border-accent bg-accent text-accent-fg hover:brightness-110 disabled:cursor-default disabled:opacity-50 disabled:hover:brightness-100 disabled:active:scale-100')}
           >
             <SendHorizontal aria-hidden="true" className="h-4 w-4" />
           </button>
         </div>
+        <p className="mt-2 hidden text-xs text-page-muted lg:block">Enter để gửi · Shift + Enter để xuống dòng</p>
       </div>
     </FadeIn>
   )
