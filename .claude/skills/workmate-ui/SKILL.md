@@ -69,7 +69,7 @@ useGSAP(() => {
 }, { scope: ref, dependencies: [reduced] })
 ```
 
-- Import GSAP **chỉ** từ `@utils/gsap`. Chữ cần tách từ: dùng `MaskedWords`.
+- Import GSAP **chỉ** từ `@utils/gsap`. Chữ cần tách từ: dùng `TextReveal` (MaskedWords đã xóa 2026-11-21).
 - Tween bắt đầu giữa một timeline có ScrollTrigger: đặt trạng thái đầu bằng `gsap.set()`
   bên ngoài timeline, trong timeline dùng `.to()` (fromTo sẽ mất trạng thái đầu khi refresh).
 - Selector chuỗi trong `useGSAP` bị giới hạn trong `scope`; phần tử ngoài scope (header) phải `document.querySelector`.

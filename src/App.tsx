@@ -11,9 +11,16 @@ import { useCvStore } from '@context/cvStore'
 
 // Layouts
 import PublicLayout from '@components/layout/PublicLayout'
-import JobseekerLayout from '@components/layout/JobseekerLayout'
-import RecruiterLayout from '@components/layout/RecruiterLayout'
-import AdminLayout from '@components/layout/AdminLayout'
+// Khung dashboard tải khi cần (khách lần đầu vào web không phải tải kèm 3 khung dashboard)
+const JobseekerLayout = lazy(() => import('@components/layout/JobseekerLayout'))
+const RecruiterLayout = lazy(() => import('@components/layout/RecruiterLayout'))
+const AdminLayout = lazy(() => import('@components/layout/AdminLayout'))
+/** Nền chờ khi khung dashboard đang tải: cùng màu nền dashboard, không nháy trắng */
+const DashFallback = (
+  <div role="status" aria-live="polite" className="theme-ivory min-h-screen bg-page-bg">
+    <span className="sr-only">Đang tải…</span>
+  </div>
+)
 
 // Public pages: trang chủ nạp sẵn (khung hình đầu tiên + intro GSAP không chờ thêm request);
 // các trang còn lại tải theo nhu cầu, Suspense nằm trong PublicLayout (không làm trống header/footer).
@@ -174,7 +181,7 @@ export default function App() {
 
       {/* Jobseeker routes */}
       <Route element={<ProtectedRoute role="jobseeker" />}>
-        <Route element={<JobseekerLayout />}>
+        <Route element={<Suspense fallback={DashFallback}><JobseekerLayout /></Suspense>}>
           <Route path="/tim-viec" element={<JobseekerDashboard />} />
           <Route path="/tim-viec/phu-hop" element={<RecommendedJobs />} />
           <Route path="/tim-viec/da-luu" element={<SavedJobs />} />
@@ -194,7 +201,7 @@ export default function App() {
         {/* Form bắt đầu: toàn trang, ngoài khung dashboard; nhà tuyển dụng chưa xong form bị đưa về đây */}
         <Route path="/tuyen-dung/bat-dau" element={<Suspense fallback={<GateSkeleton />}><OnboardingPage /></Suspense>} />
         <Route element={<OnboardingGate />}>
-        <Route element={<RecruiterLayout />}>
+        <Route element={<Suspense fallback={DashFallback}><RecruiterLayout /></Suspense>}>
           <Route path="/tuyen-dung" element={<RecruiterDashboard />} />
           <Route path="/tuyen-dung/dang-tin" element={<Navigate to="/dang-tin" replace />} />
           <Route path="/tuyen-dung/tin-dang" element={<JobListings />} />
@@ -212,7 +219,7 @@ export default function App() {
 
       {/* Admin routes */}
       <Route element={<ProtectedRoute role="admin" />}>
-        <Route element={<AdminLayout />}>
+        <Route element={<Suspense fallback={DashFallback}><AdminLayout /></Suspense>}>
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/nguoi-dung" element={<AdminUsers />} />
           <Route path="/admin/nha-tuyen-dung" element={<AdminRecruiters />} />

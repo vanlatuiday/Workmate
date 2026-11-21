@@ -106,11 +106,10 @@ export default function PublicLayout() {
   const profileTo = user ? PERSONAL_HREF : '/dang-nhap'
 
   return (
-    // Nền khung: xanh rất đậm (abyss) cho mọi trang công khai (2026-11-20, chủ dự án: chuyển trang là một khối màu
-    // liền mạch, không chớp trắng). Lúc trang cũ mờ đi / trang mới hiện dần, thứ lộ ra phía sau là khối xanh này —
-    // cùng tông với bìa xanh và nền trang chủ. Không gắn class theme lên khung, chỉ đổi màu nền.
+    // Nền khung theo loại trang: trang chủ abyss, trang ban ngày day, trang ngà (cá nhân, tin nhắn…) ivory.
+    // Header không còn nền (2026-11-21) nên dải 72px dưới header lộ màu khung — phải trùng màu trang, không thì thành vạch xanh.
     // Trang ban ngày: khung màu day (DayBackdrop nằm trên khung, dưới nội dung) nên chuyển giữa các trang ban ngày không chớp màu khác.
-    <div className={cn('min-h-screen flex flex-col', bare ? 'bg-wm-night' : day ? 'bg-wm-day' : 'bg-wm-abyss')}>
+    <div className={cn('min-h-screen flex flex-col', bare ? 'bg-wm-night' : day ? 'bg-wm-day' : dark ? 'bg-wm-abyss' : 'bg-wm-ivory')}>
       {day && <DayBackdrop />}
       {bare ? (
         // Trang đăng nhập toàn màn hình: chỉ giữ logo (cùng kiểu header mới) để về trang chủ

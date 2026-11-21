@@ -369,7 +369,7 @@ Không dùng bóng đổ trên trang công khai (trừ thẻ trên nền sáng �
 ## Components
 
 Component dùng lại được (xem code trước khi viết mới):
-- **Chuyển động**: `Reveal` (hiện khi cuộn tới, một lần), `TextReveal` (chữ trồi theo từ, một lần), `MaskedWords` (chữ trong mặt nạ cho GSAP điều khiển theo cuộn, đảo ngược được), `RollText` (chữ cuộn khi hover — cha phải có class `group`), `Magnetic` (nút hút theo chuột), `CustomCursor`.
+- **Chuyển động**: `Reveal` (hiện khi cuộn tới, một lần), `TextReveal` (chữ trồi theo từ, một lần), `RollText` (chữ cuộn khi hover — cha phải có class `group`), `Magnetic` (nút hút theo chuột), `CustomCursor`.
 - **Bố cục**: `PublicLayout` (header + footer), `MenuOverlay`, `RouteScroll`.
 
 **Nút và chip (2026-11-12)** — chỉ dùng hằng trong `src/utils/ui.ts`, không tự định nghĩa trong trang:
@@ -470,6 +470,5 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
 
 - **[giả định]** Thang `title/body/body-sm` ghi theo cách code đang dùng class Tailwind mặc định; chưa có token riêng.
 - **[giả định]** Trạng thái lỗi/thành công của form chưa được thiết kế cho bảng màu này (không có đỏ/xanh). Khi cần, ưu tiên biểu tượng + chữ thay vì chỉ màu, và hỏi chủ dự án trước khi thêm màu ngữ nghĩa.
-- Màu trong shader nền intro (`HeroCanvas.tsx`) ghi trực tiếp dưới dạng số thực theo charcoal/graphite/ivory — đổi bảng màu thì sửa cả ở đó.
 - Skill `frontend-design` liệt kê “nền kem gần #F4F1EA” và “nhãn in hoa phía trên mọi tiêu đề” là dấu hiệu giao diện do AI tạo. Ivory `#FAF4EA` và `.eyebrow` là lựa chọn có chủ đích của chủ dự án — giữ nguyên ở các trang khác, nhưng dùng eyebrow tiết chế ở trang mới. **Trang chủ đã bỏ eyebrow trên tiêu đề section (2026-11-20).**
-- `HeroCanvas.tsx` (shader nền intro cũ) không còn dùng ở trang chủ từ 2026-11-19 (màn mở đầu dùng nền xanh + vòm sáng).
+- `HeroCanvas.tsx` (shader nền intro cũ) đã xóa 2026-11-21 (không còn dùng từ 2026-11-19).

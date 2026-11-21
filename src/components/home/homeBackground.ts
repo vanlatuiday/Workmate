@@ -1,6 +1,6 @@
-import loopUrl from '@assets/images/home-bg-loop.jpg'
+import loopUrl from '@assets/images/home-bg-loop.webp'
 import beamUrl from '@assets/images/home-bg-beam.png'
-import waveUrl from '@assets/images/home-bg-wave.png'
+import waveUrl from '@assets/images/home-bg-wave.webp'
 import tokens from '@/styles/tokens.json'
 
 /**
@@ -48,7 +48,7 @@ export const beamBgStyle = {
 
 /**
  * Khối giữa (② → hết trang): tia sáng ở chính giữa, to nhỏ lượn sóng, hai bên tối dần cho có chiều sâu.
- * Ảnh home-bg-wave.png = hàng tia sáng giãn ngang theo sóng, một chu kỳ = HOME_BG_WAVE, lặp liền mạch.
+ * Ảnh home-bg-wave.webp = hàng tia sáng giãn ngang theo sóng, một chu kỳ = HOME_BG_WAVE, lặp liền mạch.
  * Đầu ảnh (y = 0) đúng bằng hàng tia sáng → khớp với đoạn nối dưới hero.
  */
 export const HOME_BG_WAVE = '150svh'
