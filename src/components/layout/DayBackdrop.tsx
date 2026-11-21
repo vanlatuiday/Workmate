@@ -102,6 +102,10 @@ export default function DayBackdrop() {
             'radial-gradient(ellipse 52% 64% at 50% 52%, color-mix(in srgb, var(--wm-day) 70%, transparent), color-mix(in srgb, var(--wm-day) 0%, transparent) 82%)',
         }}
       />
+      {/* Nối với trang chủ (chủ dự án 2026-11-21, mức B): mép trên/dưới + góc ngả azure nhẹ, cột sáng xanh ngọc mờ
+          ở giữa và sao xanh rất mờ — đứng yên, giữa trang vẫn sáng để đọc chữ (index.css → .day-sky) */}
+      <div className="day-sky absolute inset-0" />
+      <div className="day-sky-stars absolute inset-0" />
     </div>
   )
 }

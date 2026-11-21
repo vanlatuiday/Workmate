@@ -1,16 +1,17 @@
 // Mảnh dùng chung của trang /match: khung trang, tabs, hàng ✓/✗, thẻ vị trí, vòng chữ tắt.
 // Trang yên tĩnh như dashboard: không chuyển động cuộn, chỉ đổi màu viền/nền khi hover.
 import { useRef, type KeyboardEvent, type ReactNode } from 'react'
-import { ArrowDownRight, Check, LayoutGrid, List, X } from 'lucide-react'
+import { Check, Clock, LayoutGrid, List, X } from 'lucide-react'
 import MatchScore from '@components/dashboard/MatchScore'
 import { Initials } from '@components/discover/detail/DetailBlocks'
 import CompanyLogo from '@components/common/CompanyLogo'
 import type { MatchView } from '@context/matchStore'
 import { cn } from '@utils/cn'
 import { CHIP } from '@utils/ui'
-import PageCover, { COVER_GLASS, DarkPageBody } from '@components/common/PageCover'
+import PageCover, { COVER_EDGE, COVER_GLASS, DarkPageBody } from '@components/common/PageCover'
 import { CRITERION_LABELS, type CriterionResult, type MatchOutcome } from './score'
 import { companyOf, type MatchJob } from './data'
+import { fitTone } from './gallery/MatchGallery'
 
 /** Nút dùng chung — re-export từ bộ nút của site để các màn hình ngoài /match vẫn import được */
 export { BTN_PRIMARY, BTN_SECONDARY } from '@utils/ui'
@@ -32,7 +33,8 @@ export function MatchFrame({ title, intro, search, children }: { title: string; 
         {search}
       </PageCover>
       <DarkPageBody>
-        <section className="shell py-section-sm" aria-label="Kết quả kết nối">
+        {/* Cùng lề ngang với bìa (COVER_EDGE) để tiêu đề, bộ lọc, tab và lưới thẳng một mép */}
+        <section className={cn(COVER_EDGE, 'pb-section-sm pt-2')} aria-label="Kết quả kết nối">
           {children}
         </section>
       </DarkPageBody>
@@ -112,6 +114,8 @@ export function Tabs({
 
   return (
     <div>
+      {/* Tab bên trái, công cụ (chế độ xem) bên phải; hẹp thì xuống dòng */}
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
       <div role="tablist" aria-label={label} onKeyDown={onKeyDown} className={cn('flex flex-wrap gap-2', center && 'justify-center')}>
         {tabs.map((t) => {
           const on = t.id === value
@@ -128,12 +132,14 @@ export function Tabs({
               onClick={() => onChange(t.id)}
               className={cn(CHIP, 'min-h-11', on ? DARK_CHIP_ON : DARK_CHIP_OFF)}
             >
-              {t.label} (<span className="tnum">{t.count}</span>)
+              {t.label}
+              <span className="tnum rounded-full bg-[color-mix(in_srgb,currentColor_16%,transparent)] px-1.5 text-xs leading-5">{t.count}</span>
             </button>
           )
         })}
       </div>
       {toolbar}
+      </div>
       <div role="tabpanel" id={`${idPrefix}-panel`} aria-labelledby={`${idPrefix}-tab-${value}`} className="mt-6">
         {children}
       </div>
@@ -187,9 +193,8 @@ export function JobCard({ job, outcome, actions }: { job: MatchJob; outcome: Mat
       <div className="grid grid-cols-[auto_1fr] items-start gap-x-4 gap-y-3 sm:grid-cols-[auto_1fr_auto]">
         <CompanyLogo name={company.name} logoUrl={company.logoUrl} decorative />
         <div className="min-w-0">
-          <h3 className="font-display text-lg font-medium text-page-fg">
-            {job.title} <span className="font-normal text-page-muted">· {company.name}</span>
-          </h3>
+          <h3 className="font-display text-lg font-medium text-page-fg">{job.title}</h3>
+          <p className="text-sm text-page-muted">{company.name}</p>
           <p className="mt-1 text-sm text-page-muted">
             {job.district} · cách {job.distanceKm} km · {job.salaryLabel} · {job.shiftLabel}
           </p>
@@ -264,19 +269,64 @@ export function filterByLevel<T>(items: T[], level: LevelKey, scoreOf: (item: T)
 
 // ─── Chữ dưới ảnh của Bộ sưu tập ────────────────────────────────────────────
 
-/** Tiêu đề + điểm + mũi tên, phụ đề, rồi đường kẻ dưới. Nằm trong nút của thẻ nên chỉ dùng thẻ span. */
-export function GalleryCaption({ title, subtitle, score, chip }: { title: string; subtitle: string; score: number; chip?: string }) {
+/**
+ * Thân thẻ Bộ sưu tập: tiêu đề, dòng phụ mờ, ca làm, thanh phù hợp, tối đa 3 lý do ✓, chip trạng thái.
+ * Nằm trong nút của thẻ nên chỉ dùng thẻ span.
+ */
+export function GalleryCaption({
+  title,
+  subtitle,
+  meta,
+  score,
+  reasons,
+  chip,
+}: {
+  title: string
+  subtitle: string
+  /** Ca làm / thời gian (có biểu tượng đồng hồ) */
+  meta?: string
+  score: number
+  /** Các lý do đạt (đã lọc), hiện tối đa 3 */
+  reasons?: string[]
+  chip?: string
+}) {
+  const value = Math.round(Math.min(100, Math.max(0, score)))
+  const tone = fitTone(value)
   return (
-    <span className="block border-b border-page-line pb-4">
-      <span className="flex items-baseline justify-between gap-4">
-        <span className="font-display text-lg font-medium text-page-fg">{title}</span>
-        <span className="flex shrink-0 items-center gap-1 text-page-fg">
-          <span className="tnum text-sm">{Math.round(score)}%</span>
-          <ArrowDownRight className="h-4 w-4" aria-hidden="true" />
+    <span className="flex flex-1 flex-col">
+      <span className="block font-display text-base font-semibold leading-snug text-page-fg">{title}</span>
+      <span className="mt-0.5 block text-sm text-page-muted">{subtitle}</span>
+      {meta && (
+        <span className="mt-2 flex items-center gap-1.5 text-sm text-page-fg">
+          <Clock className="h-4 w-4 shrink-0 text-page-muted" aria-hidden="true" />
+          {meta}
+        </span>
+      )}
+      {/* Độ phù hợp: số to + nhãn mức + thanh dày, màu theo mức (fitTone) */}
+      <span className="mt-3 block" role="img" aria-label={`Độ phù hợp ${value}%, ${tone.label}`}>
+        <span className="flex items-baseline justify-between gap-2">
+          <span className={cn('tnum font-display text-2xl font-semibold leading-none', tone.text)}>{value}%</span>
+          <span className={cn('text-xs font-semibold', tone.text)}>{tone.label}</span>
+        </span>
+        <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-page-line" aria-hidden="true">
+          <span className={cn('block h-full rounded-full', tone.bar)} style={{ width: `${value}%` }} />
         </span>
       </span>
-      <span className="mt-1 block text-sm text-page-muted">{subtitle}</span>
-      {chip && <span className="mt-2 inline-block rounded-full border border-page-line px-2.5 py-0.5 text-xs text-page-fg">{chip}</span>}
+      {reasons && reasons.length > 0 && (
+        <span className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-page-fg">
+          {reasons.slice(0, 3).map((r) => (
+            <span key={r} className="inline-flex items-center gap-1.5">
+              <Check className="h-4 w-4 shrink-0" aria-hidden="true" />
+              {r}
+            </span>
+          ))}
+        </span>
+      )}
+      {chip && <span className="mt-3 inline-block self-start rounded-full border border-page-line px-2.5 py-0.5 text-xs text-page-fg">{chip}</span>}
     </span>
   )
 }
+
+/** Các lý do đạt (✓) của một kết quả chấm điểm, dùng cho GalleryCaption */
+export const okReasons = (results: CriterionResult[], noteOf: (r: CriterionResult) => string = (r) => r.note) =>
+  results.filter((r) => r.ok).slice(0, 3).map(noteOf)

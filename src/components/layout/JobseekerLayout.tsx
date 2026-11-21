@@ -1,10 +1,6 @@
-import DashboardShell from './DashboardShell'
+import GlassDashboardShell from './GlassDashboardShell'
 
+/** Khu người tìm việc dùng khung xanh kính (2026-11-21); nhà tuyển dụng / quản trị vẫn dùng DashboardShell ngà */
 export default function JobseekerLayout() {
-  return (
-    <DashboardShell
-      sidebarRole="seeker" roleLabel="Người tìm việc"
-      searchHref={(q) => `/viec-lam?q=${encodeURIComponent(q)}`} searchPlaceholder="Tìm việc làm…"
-    />
-  )
+  return <GlassDashboardShell sidebarRole="seeker" />
 }

@@ -8,7 +8,6 @@ import ConsiderButton from '@components/application/ConsiderButton'
 import { EmptyState, MatchScore, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
 import { CONNECTED_MESSAGE, expressInterest, markApplicationViewed, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
-import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { candidateHref } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
@@ -16,13 +15,13 @@ import { COVER_GLASS } from '@components/common/PageCover'
 import { LIGHT_CARD_VARS } from '@components/home/homeBackground'
 import { FOCUS } from '@utils/focus'
 import { availabilityLabel, useCandidates, usePositions, type MatchCandidate, type MatchPosition } from './data'
-import CurvedGallery from './gallery/CurvedGallery'
+import MatchGallery from './gallery/MatchGallery'
 import MatchSearchBar, { BarSelect, ChipReset, LevelMenu } from './MatchSearchBar'
 import ReportButton from '@components/report/ReportButton'
 import MatchDetail from './MatchDetail'
 import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
-  Avatar, CheckList, filterByLevel, foldMatches, GalleryCaption, MatchFrame, personInitials, Tabs, ViewToggle,
+  Avatar, CheckList, filterByLevel, foldMatches, GalleryCaption, MatchFrame, okReasons, personInitials, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
 import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
@@ -77,8 +76,6 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
   const view = useMatchStore((s) => s.view)
   const setView = useMatchStore((s) => s.setView)
   const gallery = view === 'gallery'
-  // Lenis chỉ chạy ở Bộ sưu tập (canvas WebGL cần cuộn mượt đồng bộ); chế độ Danh sách giữ cuộn thường
-  useSmoothScroll(gallery)
   // /match?job=<id> chọn sẵn vị trí; id không có trong tin của công ty (hoặc đã ẩn) thì về vị trí đầu như cũ
   const [params] = useSearchParams()
   const [positionId, setPositionId] = useState(() => {
@@ -273,10 +270,10 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
       </p>
       </>}
     >
-      <div className="mx-auto max-w-6xl">
+      <div>
         <Tabs
           toolbar={
-            <div className="mt-4 flex">
+            <div className="flex">
               <ViewToggle value={view} onChange={setView} />
             </div>
           }
@@ -323,7 +320,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
             />
             </div>
           ) : gallery ? (
-            <CurvedGallery
+            <MatchGallery
               items={shown.map((x) => ({ id: x.key, photo: x.c.photo, ...x }))}
               label="Danh sách ứng viên dạng bộ sưu tập"
               itemLabel={({ c, outcome }) => `${c.name}, phù hợp ${outcome.score}%. Mở chi tiết`}
@@ -332,11 +329,13 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
                   title={c.name}
                   subtitle={`${c.summary} · ${c.area}`}
                   score={outcome.score}
+                  reasons={okReasons(outcome.results, recruiterNote)}
                   chip={(() => { const st = statusOf(position.id, c.id); return st === 'received' ? 'Quan tâm bạn' : st === 'connected' ? 'Đã kết nối' : undefined })()}
                 />
               )}
               onOpen={(item, origin) => setOpen({ id: item.id, origin })}
-              hiddenId={open?.id ?? null}
+              scoreOf={(x) => x.outcome.score}
+                hiddenId={open?.id ?? null}
             />
           ) : (
             <ul ref={flipRef} className="grid gap-4 md:grid-cols-2">

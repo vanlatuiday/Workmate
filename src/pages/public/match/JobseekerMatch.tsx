@@ -7,7 +7,6 @@ import InterviewAction from '@components/interview/InterviewAction'
 import { EmptyState } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
 import { CONNECTED_MESSAGE, APPLICATION_STAGE_LABEL, expressInterest, ME, useApplicationStages, usePairStatuses, useOnNewConnection, withdrawInterest } from '@services/connectionService'
-import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { JOB_TYPES } from '@constants/index'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
 import { cn } from '@utils/cn'
@@ -21,17 +20,17 @@ import { useSeekerCriteria } from '@context/profileStore'
 import { useAllJobs } from '@pages/public/jobs/catalog'
 import { reweight, useSeekerMatches } from '@services/matchingService'
 import { findAnyJob } from '@pages/public/jobs/lookup'
-import CurvedGallery from './gallery/CurvedGallery'
+import MatchGallery from './gallery/MatchGallery'
 import CriteriaDrawer from './CriteriaDrawer'
 import MatchSearchBar, { BarSelect, ChipReset, FilterMenu, LevelMenu } from './MatchSearchBar'
 import ReportButton from '@components/report/ReportButton'
 import MatchDetail from './MatchDetail'
 import { CriterionBars, DetailSection, FactTiles, ImproveHint, TagList } from './detailParts'
 import {
-  filterByLevel, foldMatches, GalleryCaption, JobCard, MatchFrame, Tabs, ViewToggle,
+  filterByLevel, foldMatches, GalleryCaption, JobCard, MatchFrame, okReasons, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
-import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
+import { BTN_DANGER, BTN_GHOST, BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { SkeletonCards } from '@components/dashboard/Skeleton'
 import { useFlip } from '@hooks/useFlip'
 import {
@@ -76,8 +75,6 @@ export default function JobseekerMatch() {
     if (findAnyJob(c.jobId)) notifySuccess(CONNECTED_MESSAGE)
   })
   const gallery = view === 'gallery'
-  // Lenis chỉ chạy ở Bộ sưu tập (canvas WebGL cần cuộn mượt đồng bộ); chế độ Danh sách giữ cuộn thường
-  useSmoothScroll(gallery)
 
   // Tiêu chí chỉnh tại chỗ, khởi tạo từ hồ sơ (profileStore); không ghi ngược lên hồ sơ
   const base = useSeekerCriteria()
@@ -196,9 +193,7 @@ export default function JobseekerMatch() {
         )}
         {status === 'received' && (
           <>
-            <span className="inline-flex items-center rounded-full border border-page-line px-3 py-1 text-xs text-page-muted">
-              Nhà tuyển dụng đã quan tâm bạn
-            </span>
+            <span className="inline-flex items-center px-1 text-xs text-page-muted">Nhà tuyển dụng đã quan tâm bạn</span>
             <button type="button" onClick={() => { apply(job); close?.(true) }} className={cn(BTN_PRIMARY, BTN_SM)}>
               Đồng ý kết nối<span className="sr-only"> {job.title}</span>
             </button>
@@ -231,12 +226,12 @@ export default function JobseekerMatch() {
             <InterviewAction viewer="seeker" jobId={job.id} seekerId={ME} />
           </>
         )}
-        <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={cn(BTN_SECONDARY, BTN_SM)}>
+        <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={cn(BTN_GHOST, BTN_SM)}>
           <PopIcon icon={Bookmark} on={saved} />
           {saved ? 'Đã lưu' : 'Lưu'}
           <span className="sr-only"> {job.title}</span>
         </button>
-        <Link to={`/cong-ty/${job.companyId}`} className={cn(BTN_SECONDARY, BTN_SM)}>
+        <Link to={`/cong-ty/${job.companyId}`} className={cn(BTN_GHOST, BTN_SM)}>
           Xem công ty<span className="sr-only"> {companyOf(job.companyId).name}</span>
         </Link>
       </>
@@ -263,7 +258,7 @@ export default function JobseekerMatch() {
 
   // Hàng điều khiển nằm giữa tablist và tabpanel
   const toolbar = (
-    <div className="mt-4 flex text-sm">
+    <div className="flex text-sm">
       <ViewToggle value={view} onChange={setView} />
     </div>
   )
@@ -392,23 +387,24 @@ export default function JobseekerMatch() {
               />
               </div>
             ) : gallery ? (
-              <div className="mx-auto max-w-6xl">
-              <CurvedGallery
+              <MatchGallery
                 items={shown.map((x) => ({ id: x.job.id, photo: x.job.photo, ...x }))}
                 label="Danh sách việc dạng bộ sưu tập"
                 itemLabel={({ job, outcome }) => `${job.title}, ${companyOf(job.companyId).name}, phù hợp ${outcome.score}%. Mở chi tiết`}
                 renderCaption={({ job, outcome }) => (
                   <GalleryCaption
                     title={job.title}
-                    subtitle={`${companyOf(job.companyId).name} · ${job.district} · ${job.salaryLabel}`}
+                    subtitle={`${companyOf(job.companyId).name} · ${job.district}`}
+                    meta={job.shiftLabel}
                     score={outcome.score}
+                    reasons={okReasons(outcome.results)}
                     chip={chipOf(statusOf(job.id, ME), 'Quan tâm bạn')}
                   />
                 )}
                 onOpen={(item, origin) => setOpen({ id: item.id, origin })}
+                scoreOf={(x) => x.outcome.score}
                 hiddenId={open?.id ?? null}
               />
-              </div>
             ) : (
               <ul ref={flipRef} className="grid gap-4 md:grid-cols-2">
                 {shown.map(({ job, outcome }) => (

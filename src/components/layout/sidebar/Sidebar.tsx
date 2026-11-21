@@ -11,6 +11,7 @@ import { useLiquid } from './useLiquid'
 import { useSidebarCollapsed } from './useSidebarCollapsed'
 import { useSidebarTip } from './SidebarTip'
 import SidebarUser from './SidebarUser'
+import SidebarGlassFooter from './SidebarGlassFooter'
 
 type Props = {
   role: SidebarRole
@@ -18,6 +19,8 @@ type Props = {
   variant: 'desktop' | 'drawer'
   /** Đóng ngăn kéo (drawer) / báo đã điều hướng */
   onClose?: () => void
+  /** Bản kính xanh của dashboard người tìm việc: bỏ logo (đã có trên header), chân là thẻ lịch rảnh + Đăng xuất */
+  glass?: boolean
 }
 
 // Hiện/ẩn chữ khi thu gọn: mờ đi rồi mới ẩn; khi mở rộng chờ thanh nở bớt rồi mới hiện
@@ -43,7 +46,7 @@ function scrollToId(id: string, reduced: boolean) {
   window.setTimeout(go, 0)
 }
 
-export default function Sidebar({ role, variant, onClose }: Props) {
+export default function Sidebar({ role, variant, onClose, glass = false }: Props) {
   const config = SIDEBAR_CONFIG[role]
   const isDrawer = variant === 'drawer'
   const [storedCollapsed, setCollapsed] = useSidebarCollapsed()
@@ -332,7 +335,8 @@ export default function Sidebar({ role, variant, onClose }: Props) {
     >
       <div aria-hidden="true" className="sb-glass absolute inset-0 rounded-[28px]" />
       <div className="relative flex h-full flex-col overflow-hidden rounded-[28px]">
-        {/* Logo cũ: Briefcase trong ô tròn + Workmate + phụ đề theo vai trò */}
+        {/* Logo cũ: Briefcase trong ô tròn + Workmate + phụ đề theo vai trò. Bản kính xanh trên desktop: header đã có logo */}
+        {glass && !isDrawer ? <div aria-hidden="true" className="h-4 flex-shrink-0" /> : (
         <div className="flex h-[76px] flex-shrink-0 items-center px-4">
           <Link
             to="/"
@@ -360,6 +364,7 @@ export default function Sidebar({ role, variant, onClose }: Props) {
             </button>
           )}
         </div>
+        )}
 
         {/* Tìm trang */}
         <div
@@ -473,7 +478,11 @@ export default function Sidebar({ role, variant, onClose }: Props) {
           </div>
         </nav>
 
-        <SidebarUser config={config} collapsed={collapsed} onNavigate={finish} tip={(l) => tip.bind(l)} />
+        {glass ? (
+          <SidebarGlassFooter collapsed={collapsed} onNavigate={finish} tip={(l) => tip.bind(l)} />
+        ) : (
+          <SidebarUser config={config} collapsed={collapsed} onNavigate={finish} tip={(l) => tip.bind(l)} />
+        )}
       </div>
 
       {/* Nút thu gọn/mở rộng: tròn nhỏ ở mép phải phía trên, xoay 180° khi thu gọn */}
