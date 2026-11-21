@@ -14,20 +14,12 @@ export const homeMedia = {
   blocks: {
     schedule: { id: '1435527173128-983b87201f4d', alt: 'Cuốn sổ lịch mở trên bàn làm việc' },
     near: { id: '1476973422084-e0fa66ff9456', alt: 'Bản đồ giấy cắm ghim đánh dấu địa điểm' },
-    match: { id: '1521791136064-7986c2920216', alt: 'Hai người bắt tay nhau trong buổi gặp' },
+    /** Hai người chạm hai điện thoại vào nhau ở quán: "kết nối rồi mới trò chuyện" (Unsplash License, thay ảnh bắt tay 2026-11-21) */
+    match: { id: '1571867424488-4565932edb41', alt: 'Hai người đưa hai chiếc điện thoại lại gần nhau để kết nối' },
     guide: { id: '1434030216411-0b793f4b4173', alt: 'Người đang viết tay vào cuốn sổ trên bàn gỗ' },
     /** Hai khối cho nhà tuyển dụng (dùng lại ảnh lịch và bản đồ) */
     slots: { id: '1435527173128-983b87201f4d', alt: 'Cuốn sổ lịch mở trên bàn làm việc' },
     nearby: { id: '1476973422084-e0fa66ff9456', alt: 'Bản đồ giấy cắm ghim đánh dấu địa điểm' },
-  },
-
-  /** Ô nhóm ngành ở "Khám phá theo nhóm" */
-  categories: {
-    pha_che: { id: '1495474472287-4d71bcdd2085', alt: 'Hai bàn tay cầm hai ly latte có hình lá trên bàn gỗ' },
-    ban_hang: { id: '1441986300917-64674bd600d8', alt: 'Cửa hàng quần áo với kệ gỗ và đèn treo' },
-    giao_hang: { id: '1526367790999-0150786686a2', alt: 'Người giao hàng đạp xe với thùng hàng sau lưng trên phố nhỏ' },
-    phuc_vu: { id: '1517248135467-4c7edcad34c4', alt: 'Phòng ăn nhà hàng với bàn gỗ và đèn vàng' },
-    kho: { id: '1586528116311-ad8dd3c8310d', alt: 'Kho hàng với các kệ cao xếp đầy thùng hàng' },
   },
 
   /** Ô nhóm kỹ năng ở "Tìm ứng viên theo nhóm" (ngoài các ảnh nhóm ngành ở trên) */

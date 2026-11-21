@@ -1,6 +1,6 @@
 import { useState, type Ref } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, MapPin } from 'lucide-react'
+import { Search, MapPin, Send } from 'lucide-react'
 
 import RollText from '@components/motion/RollText'
 import { cn } from '@utils/cn'
@@ -40,12 +40,11 @@ export default function HomeSearchForm({ inputRef, size = 'md', className }: Pro
       role="search"
       className={cn(
         `flex flex-col sm:flex-row sm:items-center p-1.5 rounded-card sm:rounded-full
-         border border-wm-ivory/40 bg-wm-ivory/10 backdrop-blur-xl backdrop-saturate-150
-         shadow-[inset_0_1px_0_color-mix(in_srgb,var(--wm-ivory)_45%,transparent),inset_0_0_18px_color-mix(in_srgb,var(--wm-ivory)_8%,transparent),0_8px_24px_-8px_color-mix(in_srgb,var(--wm-charcoal)_45%,transparent)]
-         transition-[transform,background-color,border-color,box-shadow] duration-300
-         hover:bg-wm-ivory/20 hover:border-wm-ivory/60 hover:-translate-y-0.5 motion-reduce:transform-none
-         hover:shadow-[inset_0_1px_0_color-mix(in_srgb,var(--wm-ivory)_60%,transparent),inset_0_0_18px_color-mix(in_srgb,var(--wm-ivory)_12%,transparent),0_14px_32px_-8px_color-mix(in_srgb,var(--wm-charcoal)_60%,transparent)]
-         focus-within:border-wm-ivory/80 focus-within:ring-2 focus-within:ring-wm-ivory/50`,
+         border border-wm-cyan/40 bg-wm-abyss/45 backdrop-blur-xl backdrop-saturate-150
+         shadow-[inset_0_1px_0_color-mix(in_srgb,var(--wm-ivory)_30%,transparent),0_0_32px_-6px_color-mix(in_srgb,var(--wm-cyan)_40%,transparent)]
+         transition-[transform,border-color,box-shadow] duration-300
+         hover:border-wm-cyan/70 hover:-translate-y-0.5 motion-reduce:transform-none
+         focus-within:border-wm-cyan focus-within:ring-2 focus-within:ring-wm-cyan/50`,
         className,
       )}
     >
@@ -89,13 +88,14 @@ export default function HomeSearchForm({ inputRef, size = 'md', className }: Pro
       <button
         type="submit"
         className={cn(
-          `group mt-1.5 sm:mt-0 sm:ml-1.5 min-h-11 rounded-full bg-accent text-accent-fg font-semibold text-sm py-3
+          `group mt-1.5 sm:mt-0 sm:ml-1.5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-wm-cyan text-wm-abyss font-semibold text-sm py-3
            hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100
            transition-[filter,transform] duration-300
-           focus-visible:!outline-wm-ivory focus-visible:!outline-offset-[-4px]`,
+           focus-visible:!outline-wm-ivory focus-visible:!outline-offset-2`,
           sm ? 'px-6' : 'px-8',
         )}
       >
+        <Send className="h-4 w-4" aria-hidden />
         <RollText>Tìm việc</RollText>
       </button>
     </form>

@@ -24,7 +24,7 @@ export interface ShiftRow {
 
 /** Chỉ số thứ trong tuần theo dữ liệu: 0 = Thứ Hai … 6 = Chủ nhật */
 const dayIndexOf = (d: Date) => (d.getDay() + 6) % 7
-const DAY_SHORT = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
+export const DAY_SHORT = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
 
 const pad = (n: number) => String(n).padStart(2, '0')
 export const timeRange = (s: SessionIndex) => `${pad(SESSION_HOURS[s].start)}:00–${pad(SESSION_HOURS[s].end)}:00`
@@ -55,4 +55,15 @@ export function shiftsOf(jobs: MatchJob[], now: Date, allowed?: ReadonlySet<stri
     }
   }
   return rows.sort((a, b) => a.start.getTime() - b.start.getTime() || a.job.distanceKm - b.job.distanceKm).slice(0, limit)
+}
+
+/** Thứ trong tuần của ca: 0 = T2 … 6 = CN (khớp chip ngày ở bộ lọc) */
+export const dayOfRow = (r: ShiftRow) => Number(r.slot.split('-')[0])
+/** Nhãn thứ ngắn của ca, vd. "T7" */
+export const dayShort = (r: ShiftRow) => DAY_SHORT[dayOfRow(r)]
+
+/** Lọc ca theo buổi (null = mọi buổi) và thứ (null = cả tuần); giữ nguyên thứ tự */
+export function filterShifts(rows: ShiftRow[], session: SessionIndex | null, day: number | null): ShiftRow[] {
+  if (session === null && day === null) return rows
+  return rows.filter((r) => (session === null || r.session === session) && (day === null || dayOfRow(r) === day))
 }

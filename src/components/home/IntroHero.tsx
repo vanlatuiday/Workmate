@@ -1,12 +1,13 @@
 import { Fragment, forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { Link, useLocation, useNavigationType } from 'react-router-dom'
-import { ArrowDown, ArrowUpRight } from 'lucide-react'
+import { ArrowDown, ArrowUpRight, ChevronDown, Flame, Sparkles } from 'lucide-react'
 
 import { gsap, ScrollTrigger, useGSAP } from '@utils/gsap'
 import { setInitialScroll } from '@components/common/RouteScroll'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { getSmoothScroll, scrollToY } from '@hooks/useSmoothScroll'
-import HeroRoleCards from './HeroRoleCards'
+import HeroFeatureCards from './HeroFeatureCards'
+import HeroSideArt, { HeroSparkle } from './HeroSideArt'
 import HomeSearchForm from './HomeSearchForm'
 import RollText from '@components/motion/RollText'
 import Magnetic from '@components/motion/Magnetic'
@@ -15,8 +16,6 @@ import { useAuthStore } from '@context/authStore'
 import { heroCopy, heroTags } from './content'
 import { HOME_BG_FALLBACK, HOME_GLASS_DARK, heroBgStyle } from './homeBackground'
 import { HomeBgLayers } from './HomeBackdrop'
-
-// Tách riêng để shader không nằm trong bundle chính
 
 export type IntroHeroHandle = {
   /** Cuộn tới chỗ thanh tìm kiếm đã hiện đủ rồi đặt con trỏ vào ô từ khóa. */
@@ -221,7 +220,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
           0.38,
         )
         .to('[data-hero-item]', { opacity: 1, y: 0, duration: 0.3, stagger: 0.06, ease: 'power2.out' }, 0.42)
-        // 3 thẻ vai trò nổi lên lần lượt, sau cùng
+        // 3 thẻ tính năng nổi lên lần lượt, sau cùng
         .to('[data-hero-card]', { opacity: 1, y: 0, duration: 0.24, stagger: 0.08, ease: 'power2.out' }, 0.62)
         // Giữ một nhịp cho người dùng đọc trước khi lớp sticky nhả ra
         .to({}, { duration: 0.1 })
@@ -419,6 +418,16 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
     }
   }, [reduced])
 
+  // Nút chuột cuộn: trôi mượt tới section liền sau hero (Lenis nếu đang chạy, không thì cuộn gốc; giảm chuyển động → nhảy thẳng)
+  const scrollToNext = () => {
+    const next = wrapRef.current?.nextElementSibling
+    if (!(next instanceof HTMLElement)) return
+    const lenis = getSmoothScroll()
+    if (reduced) next.scrollIntoView({ behavior: 'auto' })
+    else if (lenis) lenis.scrollTo(next, { duration: 1.2, force: true })
+    else next.scrollIntoView({ behavior: 'smooth' })
+  }
+
   return (
     <section
       ref={wrapRef}
@@ -450,7 +459,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
         <div data-hero-stage className="relative w-full">
           <div
             data-hero-item
-            className="relative flex min-h-[100svh] flex-col items-center overflow-hidden"
+            className="relative flex min-h-[100svh] flex-col items-center overflow-hidden lg:justify-center"
           >
             {/* Quầng xanh đậm rất nhẹ sau chữ: vệt sáng xanh ngọc ở giữa nền làm chữ trắng nhạt đi */}
             <div
@@ -473,35 +482,60 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
               />
             </div>
 
+            {/* Ảnh 3D hai bên (trống cho tới khi có ảnh — xem heroArt trong content.ts) */}
+            <HeroSideArt />
+
             {/* Khối chữ chiếm phần còn lại phía trên hàng thẻ, căn giữa */}
-            <div className="relative shell flex w-full flex-1 flex-col items-center justify-center pt-24 lg:pt-20 pb-16 lg:pb-4 text-center text-wm-ivory">
-              <p data-hero-item className="text-sm font-medium tracking-normal text-wm-mist">
+            <div className="relative shell flex w-full flex-1 flex-col items-center justify-center pt-24 lg:flex-none lg:pt-4 pb-16 lg:pb-0 text-center text-wm-ivory">
+              <p
+                data-hero-item
+                className="inline-flex items-center gap-2 rounded-full border border-wm-ivory/20 bg-wm-ivory/10 px-4 py-2 text-sm font-medium text-wm-ivory backdrop-blur-md"
+              >
+                <Sparkles className="h-4 w-4 text-wm-cyan" aria-hidden />
                 Nền tảng việc làm linh hoạt
               </p>
 
               <div data-hero-title data-depth="10">
+               <div className="relative mx-auto w-fit max-w-full">
+                {/* Hai sao ở góc tiêu đề (ngoài khung chữ, không đè chữ) */}
+                <HeroSparkle size={14} className="-left-7 top-1 hidden md:block" delay={0.4} duration={3.4} />
+                <HeroSparkle size={10} tone="cyan" className="-right-8 bottom-[38%] hidden md:block" delay={1.5} duration={2.8} />
                 {/* Một h1 duy nhất: câu đầy đủ cho trình đọc màn hình, hai dòng chữ lớn (từng từ có data-word cho intro) ẩn khỏi nó */}
                 <h1
                   className="font-display font-semibold mt-4 md:mt-6 mx-auto text-wm-ivory leading-[1.04] tracking-[-0.035em] text-[clamp(2.5rem,min(7.2vw,9.2svh),6.5rem)]"
                   // Không dùng text-shadow: mặt nạ overflow-hidden quanh từng từ cắt bóng thành ô chữ nhật — quầng sáng nằm ở lớp riêng phía sau
                 >
                   <span className="sr-only">{copy.title}</span>
-                  {copy.titleLines.map((line) => (
-                    <span key={line} aria-hidden className="block">
-                      {line.split(' ').map((word, i, arr) => (
-                        <Fragment key={`${word}-${i}`}>
-                          {/* pb/-mb: nới đáy mặt nạ để dấu tiếng Việt không bị cắt */}
-                          <span className="inline-block overflow-hidden align-bottom pb-[0.12em] -mb-[0.12em]">
-                            <span data-word className="inline-block">
-                              {word}
-                            </span>
+                  {copy.titleLines.map((line, li) => {
+                    const words = line.split(' ').map((word, i, arr) => (
+                      <Fragment key={`${word}-${i}`}>
+                        {/* pb/-mb: nới đáy mặt nạ để dấu tiếng Việt không bị cắt; dòng nghiêng chừa thêm bên phải */}
+                        <span className={`inline-block overflow-hidden align-bottom pb-[0.12em] -mb-[0.12em]${li === 1 ? ' hero-italic-word' : ''}`}>
+                          <span data-word className="inline-block">
+                            {word}
                           </span>
-                          {i < arr.length - 1 && ' '}
-                        </Fragment>
-                      ))}
-                    </span>
-                  ))}
+                        </span>
+                        {i < arr.length - 1 && ' '}
+                      </Fragment>
+                    ))
+                    return li === 1 ? (
+                      // Dòng 2: xanh ngọc, nghiêng + nét vẽ tay bên dưới (cùng kiểu StatementSection)
+                      <span key={line} aria-hidden className="block">
+                        <span className="relative inline-block whitespace-nowrap italic text-wm-cyan">
+                          {words}
+                          <svg aria-hidden viewBox="0 0 220 12" preserveAspectRatio="none" className="absolute -bottom-[0.14em] left-0 h-[0.12em] min-h-2 w-full text-wm-cyan">
+                            <path d="M2 8 C 40 2, 90 10, 140 5 S 200 3, 218 6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+                          </svg>
+                        </span>
+                      </span>
+                    ) : (
+                      <span key={line} aria-hidden className="block">
+                        {words}
+                      </span>
+                    )
+                  })}
                 </h1>
+               </div>
               </div>
 
               {/* Điện thoại: bỏ đoạn dẫn để cả khối vừa một màn hình */}
@@ -518,24 +552,31 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                 <HomeSearchForm inputRef={keywordRef} />
               </div>
 
-              <ul data-hero-item className="flex flex-wrap justify-center gap-2 mt-4" aria-label="Ngành nghề phổ biến">
-                {heroTags.map((tag) => (
-                  <li key={tag}>
-                    <Link
-                      to={`/viec-lam?keyword=${encodeURIComponent(tag)}`}
-                      className={`flex min-h-11 items-center text-xs text-wm-ivory border border-wm-ivory/40 ${HOME_GLASS_DARK} rounded-full px-3 py-1.5
-                                 hover:bg-wm-ivory hover:text-wm-charcoal focus-visible:bg-wm-ivory focus-visible:text-wm-charcoal
-                                 active:scale-[0.97] motion-reduce:active:scale-100 transition-[color,background-color,transform] duration-300`}
-                    >
-                      {tag}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <div data-hero-item className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                <p id="hero-tags-label" className="mr-1 inline-flex items-center gap-1.5 text-sm font-semibold text-wm-ivory">
+                  <Flame className="h-4 w-4 text-wm-apricot" aria-hidden />
+                  Tìm nhiều:
+                </p>
+                <ul aria-labelledby="hero-tags-label" className="flex flex-wrap justify-center gap-2">
+                  {heroTags.map((tag) => (
+                    <li key={tag}>
+                      <Link
+                        to={`/viec-lam?keyword=${encodeURIComponent(tag)}`}
+                        className={`flex min-h-11 items-center text-xs text-wm-ivory border border-wm-ivory/40 ${HOME_GLASS_DARK} rounded-full px-3.5 py-1.5
+                                   hover:bg-wm-ivory hover:text-wm-charcoal focus-visible:bg-wm-ivory focus-visible:text-wm-charcoal
+                                   active:scale-[0.97] motion-reduce:active:scale-100 transition-[color,background-color,transform] duration-300`}
+                      >
+                        {tag}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
               </>
               )}
 
               {/* Lối đi theo vai trò: bên dưới ô tìm việc, hoặc thay cho nó */}
+              {copy.actions.length > 0 && (
               <div data-hero-item className={copy.search ? 'flex flex-wrap justify-center gap-3 mt-5 md:mt-6' : 'flex flex-wrap justify-center gap-3 mt-8 md:mt-12'}>
                 {copy.actions.map((a, i) => (
                   <Magnetic key={a.href}>
@@ -553,13 +594,27 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                   </Magnetic>
                 ))}
               </div>
+              )}
               </div>
             </div>
 
-            {/* Hàng thẻ xem trước: nằm trọn trong hero, cách mép dưới một khoảng. Chỉ từ lg */}
-            <div data-depth="-12" className="hidden lg:[@media(min-height:820px)]:block w-full pb-10">
-              <HeroRoleCards />
+            {/* Hàng thẻ tính năng kính: nằm trọn trong hero, cách mép dưới một khoảng. Chỉ từ lg */}
+            <div data-depth="-12" className="hidden lg:[@media(min-height:820px)]:block w-full mt-11 pb-[72px]">
+              <HeroFeatureCards audience={audience} />
             </div>
+
+            {/* Chuột cuộn: cùng điều kiện với hàng thẻ (lg + cao >= 820px) để không đè thẻ; hiện cùng nội dung hero (cha là data-hero-item) */}
+            <button
+              type="button"
+              aria-label="Cuộn xuống mục tiếp theo"
+              onClick={scrollToNext}
+              className="group absolute bottom-3 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-0.5 rounded-full p-2 text-wm-ivory/80 transition-colors hover:text-wm-ivory focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wm-ivory lg:[@media(min-height:820px)]:flex"
+            >
+              <span aria-hidden className="relative block h-[34px] w-[22px] rounded-full border-[1.5px] border-wm-ivory/80">
+                <span className="hero-mouse-dot absolute left-1/2 top-[7px] block h-1.5 w-[3px] -translate-x-1/2 rounded-full bg-wm-ivory" />
+              </span>
+              <ChevronDown aria-hidden className="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
 

@@ -16,8 +16,24 @@ import {
 import { homeMedia } from "./homeMedia";
 import { homeSections, homeSectionsByRole } from "./content";
 import { useHomeRole, type HomeRole } from "./homeData";
-import { LIGHT_CARD_VARS } from "./homeBackground";
+import LightCurves from './LightCurves'
 import FeatureJobChip, { type ChipJob } from "./FeatureJobChip";
+import scheduleArt from "@assets/images/home-feature-schedule.webp";
+import nearArt from "@assets/images/home-feature-near.webp";
+import matchArt from "@assets/images/home-feature-match.webp";
+
+/**
+ * Hình minh họa nền trong suốt (chủ dự án 2026-11-21, references/themota — ảnh tạm, chủ dự án sẽ làm lại cho
+ * khớp web): đặt thẳng trên nền xanh, không khung, không bo góc. Khối không có hình riêng (vai nhà tuyển dụng)
+ * dùng ảnh chụp với mép tan dần vào nền.
+ */
+const ART: Record<string, { src: string; alt: string }> = {
+  schedule: { src: scheduleArt, alt: "Minh họa màn hình chọn lịch rảnh trong tuần trên Workmate" },
+  near: { src: nearArt, alt: "Minh họa danh sách việc gần bạn kèm khoảng cách và bản đồ" },
+  match: { src: matchArt, alt: "Minh họa khung trò chuyện sau khi kết nối: các bước ứng tuyển, tin nhắn với nhà tuyển dụng và chọn lịch phỏng vấn" },
+};
+/** Mặt nạ tan mép cho ảnh chụp (không có nền trong suốt) để không thành khối chữ nhật trên nền */
+const PHOTO_FADE = "photo-fade";
 
 /** Đích của nút trong từng khối */
 const HREF: Record<string, string> = {
@@ -152,7 +168,7 @@ function useChipJobs(blocks: Block[], role: HomeRole): (ChipJob | null)[] {
 }
 
 /**
- * Section ③ — "Workmate giúp bạn thế nào": một tấm kính tối, trái là danh sách 2–3 mục, phải là MỘT khung ảnh lớn
+ * Section ③ — "Workmate giúp bạn thế nào": không khung bao (2026-11-21), trái là danh sách 2–3 mục, phải là hình minh họa nổi trên nền
  * (chủ dự án 2026-11-20, theo taste skill "ví dụ 1": thay danh sách chồng dính — không có gì chạy theo cuộn).
  * Rê chuột / focus / bấm một mục → mục đó mở ra (đoạn giới thiệu + 3 bước + nút), ảnh bên phải đổi mờ chéo
  * 0,3 s (chỉ opacity). Rê ảnh: phóng 1.02 trong khung. Ô kính việc thật nằm gọn trong góc ảnh.
@@ -182,10 +198,13 @@ export default function FeatureBlocksSection() {
   return (
     <section
       data-theme="night"
-      className="relative z-10 px-4 pb-section-sm pt-section-sm md:px-[max(16px,2.5vw)]"
+      className="relative isolate z-10 overflow-x-clip px-4 pb-section-sm pt-section-sm md:px-[max(16px,2.5vw)]"
       aria-label={recruiter ? homeSectionsByRole.recruiter.blocksLabel : "Workmate giúp bạn thế nào"}
     >
-      <div className="grid overflow-hidden rounded-card border border-wm-ivory/20 bg-wm-abyss/55 shadow-[0_30px_80px_-40px_var(--wm-night)] backdrop-blur-[16px] backdrop-saturate-150 lg:min-h-[min(80svh,720px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+      {/* Dải cong sáng sau hình (cùng kiểu mục "Workmate ghép việc…") */}
+      <LightCurves side="right" />
+      {/* Không khung bao (chủ dự án 2026-11-21): chữ và hình nằm thẳng trên nền sao */}
+      <div className="grid lg:min-h-[min(80svh,720px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-center">
         {/* Trái: danh sách */}
         <ul className="flex flex-col justify-center gap-2 p-4 sm:p-6 lg:p-10">
           {blocks.map((b, i) => {
@@ -198,7 +217,7 @@ export default function FeatureBlocksSection() {
                   onPointerEnter={(e) => e.pointerType === "mouse" && setActive(i)}
                   className={cn(
                     "relative rounded-card border p-5 transition-colors duration-300",
-                    open ? "border-wm-ivory/30 bg-wm-ivory/[0.07]" : "border-transparent hover:bg-wm-ivory/[0.04]",
+                    open ? "border-transparent bg-wm-ivory/[0.05]" : "border-transparent hover:bg-wm-ivory/[0.04]",
                   )}
                 >
                   {/* Vạch sáng mép trái cho mục đang mở */}
@@ -213,7 +232,7 @@ export default function FeatureBlocksSection() {
                   >
                     <span className="min-w-0">
                       <span className="block text-xs font-medium text-wm-ivory/70">{b.label}</span>
-                      <span className={cn("mt-1 block font-display text-2xl font-semibold leading-tight lg:text-3xl", open ? "text-wm-ivory" : "text-wm-ivory/60")}>
+                      <span className={cn("mt-1 block font-display text-2xl font-semibold leading-tight lg:text-3xl", open ? "text-wm-ivory" : "text-wm-ivory/75")}>
                         {b.title}
                       </span>
                     </span>
@@ -245,8 +264,10 @@ export default function FeatureBlocksSection() {
                         <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
                       </Link>
                       {/* Điện thoại / máy tính bảng: ảnh của mục ngay dưới chữ */}
-                      {photo && (
-                        <div className="relative mt-5 aspect-[16/10] overflow-hidden rounded-card lg:hidden">
+                      {ART[b.id] ? (
+                        <img src={ART[b.id].src} alt={ART[b.id].alt} width={1400} height={788} loading="lazy" decoding="async" className="mt-5 h-auto w-full lg:hidden" />
+                      ) : photo && (
+                        <div className={cn("relative mt-5 aspect-[16/10] lg:hidden", PHOTO_FADE)}>
                           <img src={photoUrl(photo.id, 900)} srcSet={photoSrcSet(photo.id)} sizes="100vw" alt={photo.alt} width={900} height={563} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                         </div>
                       )}
@@ -258,40 +279,46 @@ export default function FeatureBlocksSection() {
           })}
         </ul>
 
-        {/* Phải: một khung ảnh, các ảnh chồng lên nhau và đổi mờ chéo theo mục đang mở */}
-        <div className="group/photo relative hidden overflow-hidden lg:block">
+        {/* Phải: hình của mục đang mở, nổi thẳng trên nền; đổi mục → hình cũ mờ đi, hình mới hiện dần và trôi lên nhẹ */}
+        <div className="relative hidden lg:block lg:aspect-[16/10]">
           {blocks.map((b, i) => {
+            const art = ART[b.id];
             const photo = photoOf(b);
-            if (!photo) return null;
-            return (
+            if (!art && !photo) return null;
+            const on = i === active;
+            const motion = reduced ? "" : "transition-[opacity,transform] duration-500 ease-out";
+            const state = on ? "opacity-100 translate-y-0" : "pointer-events-none opacity-0 translate-y-3";
+            return art ? (
               <img
                 key={b.id}
-                src={photoUrl(photo.id, 1400)}
-                srcSet={photoSrcSet(photo.id)}
+                src={art.src}
+                width={1400}
+                height={788}
+                alt={on ? art.alt : ""}
+                aria-hidden={!on}
+                loading="lazy"
+                decoding="async"
+                className={cn("absolute inset-0 h-full w-full object-contain", motion, state)}
+              />
+            ) : (
+              <img
+                key={b.id}
+                src={photoUrl(photo!.id, 1400)}
+                srcSet={photoSrcSet(photo!.id)}
                 sizes="55vw"
                 width={1400}
                 height={1050}
-                alt={i === active ? photo.alt : ""}
-                aria-hidden={i !== active}
+                alt={on ? photo!.alt : ""}
+                aria-hidden={!on}
                 loading="lazy"
                 decoding="async"
-                className={cn(
-                  "absolute inset-0 h-full w-full object-cover",
-                  fade,
-                  !reduced && "transition-[opacity,transform] duration-500 group-hover/photo:scale-[1.02]",
-                  i === active ? "opacity-100" : "opacity-0",
-                )}
+                className={cn("absolute inset-0 h-full w-full object-cover", PHOTO_FADE, motion, state)}
               />
             );
           })}
-          {/* Mép trái ảnh hòa vào tấm kính */}
-          <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-wm-abyss/60 to-transparent" />
-          {/* Ô việc thật của mục đang mở, gọn trong góc ảnh (chữ than chì trên kính sáng) */}
-          {chips[active] && (
-            <div className={cn(LIGHT_CARD_VARS)}>
-              <FeatureJobChip item={chips[active]!} />
-            </div>
-          )}
+          {/* Ô việc thật của mục đang mở (chữ than chì trên kính sáng) */}
+          {/* Ô việc thật: kính trắng xanh cùng tông hình, nằm dưới mép trái hình — không che vòng sáng */}
+          {chips[active] && <FeatureJobChip item={chips[active]!} />}
         </div>
       </div>
     </section>

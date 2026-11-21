@@ -1,3 +1,5 @@
+import heroArtCalendar from '@assets/images/home/hero-art-calendar.webp'
+import heroArtBriefcase from '@assets/images/home/hero-art-briefcase.webp'
 /** Nội dung trang chủ — sửa tại đây, không cần đụng vào các component. */
 
 export const heroTags = ['Pha chế', 'Bán hàng', 'Marketing', 'Giao hàng', 'Phục vụ']
@@ -67,7 +69,7 @@ export const heroCopy: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin', Her
     titleLines: ['Hôm nay bạn muốn', 'làm việc gì?'],
     lead: 'Gợi ý dựa trên lịch rảnh, vị trí và kỹ năng trong hồ sơ của bạn.',
     search: true,
-    actions: [{ label: 'Xem việc phù hợp với tôi', href: '/tim-viec/phu-hop' }],
+    actions: [],
   },
   recruiter: {
     title: 'Bạn đang thiếu vị trí nào?',
@@ -211,24 +213,37 @@ export const homeSections = {
   sampleNote: 'Dữ liệu minh họa',
   /** Ghi chú dữ liệu mẫu DUY NHẤT của trang chủ (taste skill: không lặp ghi chú mẫu) — đặt ở phần cuối */
   demoNotice: 'Việc làm, doanh nghiệp và hồ sơ trên trang là dữ liệu minh họa, chưa phải tin tuyển dụng thật.',
-  /** Câu nhấn ở giữa trang (StatementSection): từng từ sáng dần theo cuộn */
-  statement: 'Workmate ghép việc theo lịch rảnh, quãng đường và chỉ kết nối khi cả hai bên cùng muốn.',
-  /** 3 tiêu chí bên phải câu nhấn (StatementSection). `word`: từ trong câu mà khi sáng tới thì mục này sáng theo */
+  /** Phần câu nhấn giữa trang (StatementSection): nhãn, tiêu đề (đoạn nhấn màu cyan ở giữa), mô tả và nút theo vai trò */
+  statementEyebrow: { lead: 'Kết nối cơ hội', tail: 'Kiến tạo tương lai' },
+  statementTitle: { lead: 'Workmate ghép việc theo lịch rảnh, quãng đường và chỉ kết nối khi ', em: 'cả hai bên', tail: ' cùng muốn.' },
+  statementSub: {
+    guest: 'Tìm việc dễ dàng, linh hoạt thời gian, kết nối đúng người, đúng cơ hội.',
+    jobseeker: 'Tìm việc dễ dàng, linh hoạt thời gian, kết nối đúng người, đúng cơ hội.',
+    recruiter: 'Đăng ca dễ dàng, gặp đúng người rảnh đúng ca, kết nối khi cả hai cùng muốn.',
+  },
+  statementButtons: {
+    guest: { primary: { label: 'Tìm việc ngay', href: '/viec-lam' }, secondary: { label: 'Đăng tuyển ngay', href: '/dang-ky?role=recruiter' } },
+    jobseeker: { primary: { label: 'Tìm việc ngay', href: '/viec-lam' }, secondary: { label: 'Sửa lịch rảnh', href: '/ho-so#lich-ranh' } },
+    recruiter: { primary: { label: 'Đăng tuyển ngay', href: '/dang-tin' }, secondary: { label: 'Xem ứng viên phù hợp', href: '/match' } },
+  },
+  statementDeskAlt: 'Bàn làm việc với laptop, cây xanh, ly cà phê và sổ tay',
+  statementChip: { suffix: 'ca đang tuyển', line2: 'tuần này' },
+  /** 3 tiêu chí bên phải (StatementSection) */
   statementCriteria: {
     guest: [
-      { key: 'lich', word: 'rảnh,', title: 'Lịch rảnh', body: 'Chọn các buổi bạn đi làm được trong tuần.', cta: { label: 'Khai lịch rảnh', href: '/dang-ky?role=jobseeker' } },
-      { key: 'duong', word: 'đường', title: 'Quãng đường', body: 'Đặt khoảng cách tối đa từ nhà tới chỗ làm.', cta: { label: 'Đặt quãng đường', href: '/dang-ky?role=jobseeker' } },
-      { key: 'ketnoi', word: 'kết', title: 'Kết nối', body: 'Hai bên cùng quan tâm thì kênh chat riêng mới mở.', cta: { label: 'Xem cách kết nối', href: '/match' } },
+      { key: 'lich', title: 'Lịch rảnh', body: 'Chọn các buổi bạn đi làm được trong tuần.', cta: { label: 'Khai lịch rảnh', href: '/dang-ky?role=jobseeker' } },
+      { key: 'duong', title: 'Quãng đường', body: 'Đặt khoảng cách tối đa từ nhà tới chỗ làm.', cta: { label: 'Đặt quãng đường', href: '/dang-ky?role=jobseeker' } },
+      { key: 'ketnoi', title: 'Kết nối', body: 'Hai bên cùng quan tâm thì kênh chat riêng mới mở.', cta: { label: 'Xem cách kết nối', href: '/match' } },
     ],
     jobseeker: [
-      { key: 'lich', word: 'rảnh,', title: 'Lịch rảnh', body: 'Cập nhật buổi rảnh để gợi ý luôn khớp lịch.', cta: { label: 'Sửa lịch rảnh', href: '/tim-viec/ho-so#lich-ranh' } },
-      { key: 'duong', word: 'đường', title: 'Quãng đường', body: 'Đổi khu vực và khoảng cách bạn muốn đi làm.', cta: { label: 'Sửa quãng đường', href: '/tim-viec/ho-so#thong-tin' } },
-      { key: 'ketnoi', word: 'kết', title: 'Kết nối', body: 'Nhà tuyển dụng đồng ý thì kênh chat với bạn mở ra.', cta: { label: 'Xem việc đã ứng tuyển', href: '/match' } },
+      { key: 'lich', title: 'Lịch rảnh', body: 'Cập nhật buổi rảnh để gợi ý luôn khớp lịch.', cta: { label: 'Sửa lịch rảnh', href: '/ho-so#lich-ranh' } },
+      { key: 'duong', title: 'Quãng đường', body: 'Đổi khu vực và khoảng cách bạn muốn đi làm.', cta: { label: 'Sửa quãng đường', href: '/ho-so#mong-muon' } },
+      { key: 'ketnoi', title: 'Kết nối', body: 'Nhà tuyển dụng đồng ý thì kênh chat với bạn mở ra.', cta: { label: 'Xem việc đã ứng tuyển', href: '/match' } },
     ],
     recruiter: [
-      { key: 'lich', word: 'rảnh,', title: 'Ca làm', body: 'Khai đúng ca cần người, Workmate tìm người rảnh ca đó.', cta: { label: 'Khai ca làm', href: '/dang-tin' } },
-      { key: 'duong', word: 'đường', title: 'Khu vực', body: 'Ứng viên được gợi ý theo quãng đường tới cửa hàng.', cta: { label: 'Chọn khu vực tuyển', href: '/dang-tin' } },
-      { key: 'ketnoi', word: 'kết', title: 'Kết nối', body: 'Quan tâm ứng viên, hai bên đồng ý thì chat mở.', cta: { label: 'Xem ứng viên phù hợp', href: '/match' } },
+      { key: 'lich', title: 'Ca làm', body: 'Khai đúng ca cần người, Workmate tìm người rảnh ca đó.', cta: { label: 'Khai ca làm', href: '/dang-tin' } },
+      { key: 'duong', title: 'Khu vực', body: 'Ứng viên được gợi ý theo quãng đường tới cửa hàng.', cta: { label: 'Chọn khu vực tuyển', href: '/dang-tin' } },
+      { key: 'ketnoi', title: 'Kết nối', body: 'Quan tâm ứng viên, hai bên đồng ý thì chat mở.', cta: { label: 'Xem ứng viên phù hợp', href: '/match' } },
     ],
   },
   urgent: { title: 'Việc đang tuyển gấp', all: { label: 'Xem việc tuyển gấp', href: '/viec-lam' } },
@@ -370,59 +385,114 @@ export const homeSectionsByRole = {
   },
 }
 
-/* ── Thẻ xem trước theo vai trò ở đáy hero — dữ liệu minh họa, không phải tin thật ── */
-export const heroPreview = {
-  note: 'Dữ liệu minh họa',
-  jobseeker: {
-    label: 'Ứng viên',
-    title: 'Việc hợp với bạn',
-    rows: [
-      { initial: 'G', title: 'Pha chế ca tối', company: 'Quán Gió Sông Hàn', district: 'Sơn Trà', fit: 92 },
-      { initial: 'N', title: 'Thu ngân cuối tuần', company: 'Nhóm Dịch Vụ Sông Hàn', district: 'Hải Châu', fit: 87 },
-      { initial: 'B', title: 'Bán hàng cuối tuần', company: 'Cửa hàng Biển Xanh', district: 'Hải Châu', fit: 81 },
-    ],
+/* ── 3 thẻ tính năng kính ở đáy hero, theo vai trò (khách và ứng viên cùng một bộ) ── */
+export type HeroFeature = {
+  /** Khóa biểu tượng — IntroHero/HeroFeatureCards ánh xạ sang lucide */
+  icon: 'target' | 'calendar' | 'users' | 'briefcase' | 'userCheck' | 'shield' | 'fileCheck' | 'building'
+  title: string
+  body: string
+  link: { label: string; href: string }
+}
+
+const connectFeature: HeroFeature = {
+  icon: 'users',
+  title: 'Kết nối khi cả hai cùng muốn',
+  body: 'Hai bên cùng quan tâm thì kênh chat riêng mới mở.',
+  link: { label: 'Xem cách kết nối', href: '/match' },
+}
+
+const guestFeatures: HeroFeature[] = [
+  {
+    icon: 'target',
+    title: 'Việc làm phù hợp',
+    body: 'Gợi ý theo lịch rảnh, vị trí và kỹ năng của bạn.',
+    link: { label: 'Xem việc phù hợp', href: '/dang-ky?role=jobseeker' },
   },
-  recruiter: {
-    label: 'Nhà tuyển dụng',
-    title: 'Ứng viên phù hợp',
-    initials: 'ƯV',
-    name: 'Ứng viên mẫu',
-    role: 'Pha chế · 1 năm kinh nghiệm',
-    skills: ['Pha chế', 'Giao tiếp', 'Ca tối'],
-    week: [
-      { day: 'T2', free: false },
-      { day: 'T3', free: true },
-      { day: 'T4', free: false },
-      { day: 'T5', free: true },
-      { day: 'T6', free: true },
-      { day: 'T7', free: true },
-      { day: 'CN', free: true },
-    ],
-    fit: 88,
+  {
+    icon: 'calendar',
+    title: 'Quản lý lịch rảnh',
+    body: 'Cập nhật buổi rảnh, gợi ý tự khớp theo lịch mới.',
+    link: { label: 'Cập nhật lịch', href: '/dang-ky?role=jobseeker' },
   },
-  admin: {
-    label: 'Quản trị',
-    title: 'Tin đã kiểm duyệt',
-    rows: ['Quán Gió Sông Hàn', 'Cửa hàng Biển Xanh', 'Nhóm Dịch Vụ Sông Hàn'],
-    footer: 'Chỉ hiện tin của doanh nghiệp đã xác minh',
-  },
+  connectFeature,
+]
+
+export const heroFeatures: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin', HeroFeature[]> = {
+  guest: guestFeatures,
+  jobseeker: [
+    { ...guestFeatures[0], link: { label: 'Xem việc phù hợp', href: '/tim-viec/phu-hop' } },
+    { ...guestFeatures[1], link: { label: 'Cập nhật lịch', href: '/ho-so#lich-ranh' } },
+    connectFeature,
+  ],
+  recruiter: [
+    {
+      icon: 'briefcase',
+      title: 'Đăng ca tuyển dụng',
+      body: 'Khai đúng ca cần người, Workmate tìm người rảnh ca đó.',
+      link: { label: 'Đăng ca', href: '/dang-tin' },
+    },
+    {
+      icon: 'userCheck',
+      title: 'Ứng viên phù hợp',
+      body: 'Ứng viên được gợi ý theo ca, khu vực và kỹ năng.',
+      link: { label: 'Xem ứng viên', href: '/tuyen-dung/tim-ung-vien' },
+    },
+    {
+      icon: 'users',
+      title: 'Kết nối khi cả hai cùng muốn',
+      body: 'Quan tâm ứng viên, hai bên đồng ý thì chat mở.',
+      link: { label: 'Xem kết nối', href: '/match' },
+    },
+  ],
+  admin: [
+    {
+      icon: 'shield',
+      title: 'Xác minh doanh nghiệp',
+      body: 'Duyệt hồ sơ công ty đang chờ xác minh.',
+      link: { label: 'Xác minh hồ sơ', href: '/admin/xac-minh' },
+    },
+    {
+      icon: 'fileCheck',
+      title: 'Kiểm duyệt tin',
+      body: 'Xem các tin tuyển dụng cần kiểm tra.',
+      link: { label: 'Kiểm duyệt tin', href: '/admin/kiem-duyet' },
+    },
+    {
+      icon: 'building',
+      title: 'Nhà tuyển dụng',
+      body: 'Theo dõi doanh nghiệp và người dùng mới.',
+      link: { label: 'Xem nhà tuyển dụng', href: '/admin/nha-tuyen-dung' },
+    },
+  ],
+}
+
+/**
+ * Ảnh 3D hai bên hero (PNG/WebP nền trong suốt) — chủ dự án sẽ gửi sau.
+ * Thêm ảnh: đặt file vào `src/assets/` (hoặc `public/`), import rồi gán, ví dụ
+ *   import calendar3d from '@assets/hero-calendar.webp'
+ *   left: { src: calendar3d, alt: '' }
+ * `null` = không dựng gì. Chỉ hiện từ lg, trang trí (aria-hidden), nằm trong lề hai bên nên không đè chữ.
+ */
+export const heroArt: { left: null | { src: string; alt: string }; right: null | { src: string; alt: string } } = {
+  left: { src: heroArtCalendar, alt: '' },
+  right: { src: heroArtBriefcase, alt: '' },
 }
 
 /**
  * Bảng ca "đang cần người" (dưới hero): chữ theo vai trò. Quản trị xem như khách.
- * `empty` nhận tên tab (Hôm nay / Ngày mai / Cuối tuần) ở dạng chữ thường.
+ * `empty`  nhận tên tab (Hôm nay / Ngày mai / Cuối tuần) ở dạng chữ thường.
  */
 export const shiftBoardCopy = {
   guest: {
     title: 'Ca đang cần người tuần này',
-    link: { label: 'Xem việc theo ca', href: '/viec-lam' },
+    link: { label: 'Xem mọi ngành nghề', href: '/viec-lam' },
     apply: 'Ứng tuyển',
     applied: 'Đã ứng tuyển',
     emptyLink: 'Xem việc theo ca',
   },
   jobseeker: {
     title: 'Ca khớp lịch rảnh của bạn tuần này',
-    link: { label: 'Xem việc theo ca', href: '/viec-lam' },
+    link: { label: 'Xem mọi ngành nghề', href: '/viec-lam' },
     apply: 'Ứng tuyển',
     applied: 'Đã ứng tuyển',
     emptyLink: 'Xem việc theo ca',
@@ -434,17 +504,22 @@ export const shiftBoardCopy = {
     emptyLink: 'Đăng tin tuyển người',
     emptyHref: '/dang-tin',
   },
+  subtitle: 'Chọn ngành nghề phù hợp với thời gian bạn có thể làm',
+  recruiterSubtitle: 'Lọc theo buổi và ngày để xem ca còn thiếu người',
+  filters: { session: 'Buổi làm', day: 'Ngày làm', allSessions: 'Tất cả', allWeek: 'Cả tuần' },
+  emptyFiltered: 'Chưa có ca nào vào buổi/ngày này. Thử chọn buổi hoặc ngày khác.',
+  resetFilters: 'Đặt lại bộ lọc',
   note: 'Dữ liệu minh họa, chưa phải tin tuyển dụng thật',
   carouselLabel: 'Các nghề đang cần người',
   prevLabel: 'Xem nghề trước',
   nextLabel: 'Xem nghề tiếp theo',
-  moreLabel: 'Xem thêm nghề',
   fitLabel: (n: number) => `${n}% hợp`,
   freeLabel: (n: number) => (n === 0 ? 'Chưa có ứng viên rảnh ca này' : `${n} ứng viên rảnh ca này`),
   /** Thẻ ngành */
-  catStats: (shifts: number, companies: number) => `${shifts} ca · ${companies} doanh nghiệp đang cần người`,
-  catEarliest: (when: string) => `Sớm nhất: ${when}`,
-  catHint: 'Xem doanh nghiệp',
+  catShifts: 'ca đang tuyển',
+  catCompanies: (n: number) => `${n} doanh nghiệp`,
+  catEarliest: (when: string) => `Ca gần nhất: ${when}`,
+  catHint: 'Xem ca làm',
   listTitle: (cat: string) => `Doanh nghiệp tuyển ${cat.toLowerCase()}`,
   close: 'Đóng',
   closeLabel: (cat: string) => `Đóng danh sách ${cat.toLowerCase()}`,

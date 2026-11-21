@@ -1,136 +1,200 @@
-import { useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CalendarDays, MapPin, MessagesSquare, ArrowRight } from 'lucide-react'
+import { ArrowRight, Briefcase, CalendarDays, MapPin, MessagesSquare, Search, Sparkles, TrendingUp, Users, type LucideIcon } from 'lucide-react'
 
+import deskImg from '@assets/images/home/home-desk.webp'
+import { useAllJobs } from '@pages/public/jobs/catalog'
+import type { MatchJob } from '@pages/public/match/data'
+import { useCompanyStore } from '@context/companyStore'
+import { useCompanyJobs } from '@services/adminService'
 import { gsap, useGSAP } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { cn } from '@utils/cn'
 import { homeSections } from './content'
 import { useHomeRole } from './homeData'
+import { shiftsOf } from './shiftBoard'
 
 const ICONS = { lich: CalendarDays, duong: MapPin, ketnoi: MessagesSquare } as const
+const BTN_ICONS: Record<string, LucideIcon> = { 'Tìm việc ngay': Search, 'Đăng tuyển ngay': Briefcase, 'Sửa lịch rảnh': CalendarDays, 'Xem ứng viên phù hợp': Users }
 
 /**
- * Câu nhấn giữa trang (word-highlight): bên trái là câu, từng từ sáng dần từ mờ → ngà theo tiến trình cuộn
- * (cuộn ngược thì tối lại). Bên phải 3 tiêu chí của câu (lịch rảnh · quãng đường · kết nối — khớp 3 mục của phần bên dưới): mỗi mục sáng lên
- * đúng lúc từ của nó trong câu sáng tới — cùng một timeline, không phải khoảnh khắc thứ ba. Nút của mục dẫn
- * theo vai trò (khách → đăng ký, ứng viên → đúng mục trong hồ sơ, NTD → đăng tin).
- * Chỉ đổi opacity. Chữ là văn bản thật. Giảm chuyển động: mọi thứ sáng sẵn, không có ScrollTrigger.
+ * Câu nhấn giữa trang, bố cục 3 vùng (chữ · ảnh bàn làm việc · 3 thẻ tiêu chí). Nền có vài dải cong sáng riêng của section.
+ * Chuyển động: khi section vào khung nhìn, các phần hiện dần nhẹ một lần theo thứ tự (opacity + y nhỏ); ảnh bàn và
+ * nhãn nghiêng lơ lửng rất chậm. Trạng thái mặc định (CSS) là hiện sẵn: GSAP dùng `from` trong matchMedia nên
+ * lỗi JS hay giảm chuyển động đều không làm mất nội dung. Số trên nhãn lấy từ cùng nguồn với bảng ca (shiftsOf).
  */
 export default function StatementSection() {
   const ref = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
   const role = useHomeRole()
-  const words = homeSections.statement.split(' ')
   const criteria = homeSections.statementCriteria[role]
-  const STEP = 0.7 // khoảng lệch giữa hai từ trong timeline
+  const btns = homeSections.statementButtons[role]
+  const chipN = useWeekShiftCount(role)
 
   useGSAP(
     () => {
-      const els = gsap.utils.toArray<HTMLElement>('[data-word]', ref.current)
-      if (!els.length) return
       const mm = gsap.matchMedia()
       mm.add('(prefers-reduced-motion: no-preference)', () => {
-        const tl = gsap.timeline({
-          defaults: { ease: 'none' },
-          // Sáng trọn khi giữa section tới giữa màn hình (taste: khoảnh khắc ở trạng thái hoàn chỉnh khi section đứng giữa màn)
-          scrollTrigger: { trigger: ref.current, start: 'top 85%', end: 'center 55%', scrub: 0.4 },
-        })
-        // Mỗi từ mất một "khe" tiến trình, các khe chồng nhẹ cho mượt
-        tl.fromTo(els, { opacity: 0.22 }, { opacity: 1, duration: 1, stagger: STEP }, 0)
-        // Mục bên phải sáng đúng lúc từ của nó sáng
-        criteria.forEach((c) => {
-          const at = Math.max(0, words.indexOf(c.word)) * STEP
-          tl.fromTo(`[data-crit="${c.key}"]`, { opacity: 0.45 }, { opacity: 1, duration: 1 }, at)
-          tl.fromTo(gsap.utils.toArray(`[data-crit-glow="${c.key}"]`, ref.current), { opacity: 0 }, { opacity: 1, duration: 1 }, at)
+        const items = gsap.utils.toArray<HTMLElement>('[data-reveal]', ref.current)
+        if (items.length) {
+          gsap.from(items, {
+            opacity: 0,
+            y: 18,
+            duration: 0.7,
+            ease: 'power2.out',
+            stagger: 0.12,
+            scrollTrigger: { trigger: ref.current, start: 'top 70%', once: true },
+          })
+        }
+        // Lơ lửng rất chậm (chỉ khi cho phép chuyển động)
+        gsap.utils.toArray<HTMLElement>('[data-float]', ref.current).forEach((el, i) => {
+          gsap.to(el, { y: i % 2 ? 6 : -6, duration: 5 + i * 1.3, ease: 'sine.inOut', yoyo: true, repeat: -1 })
         })
       })
       return () => mm.revert()
     },
-    { scope: ref, dependencies: [reduced, role] },
+    { scope: ref, dependencies: [reduced, role, chipN > 0] },
   )
 
   return (
     <section
       ref={ref}
       data-theme="night"
-      className="relative z-10 grid min-h-[85svh] px-4 md:px-[max(16px,2.5vw)] items-center gap-10 py-section-sm lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-20"
+      className="relative z-10 flex min-h-[85svh] items-center overflow-hidden px-4 py-section-sm md:px-[max(16px,2.5vw)]"
       aria-labelledby="home-statement-title"
     >
-      <h2
-        id="home-statement-title"
-        className="max-w-[22ch] text-balance font-display text-display-sm font-semibold text-wm-ivory"
-      >
-        {words.map((w, i) => (
-          <span key={i} data-word className={reduced ? undefined : 'opacity-[0.22]'}>
-            {w}
-            {i < words.length - 1 ? ' ' : ''}
-          </span>
-        ))}
-      </h2>
+      {/* Dải cong sáng nền (trang trí), mờ dần ở mép trên/dưới để hòa vào nền sao */}
+      <div aria-hidden className="stmt-curves pointer-events-none absolute inset-0">
+        <span className="stmt-curve stmt-curve-a" />
+        <span className="stmt-curve stmt-curve-b" />
+        <span className="stmt-curve stmt-curve-c" />
+      </div>
 
-      <ul className="grid w-full gap-4 lg:max-w-[38rem] lg:justify-self-end" aria-label="Ba tiêu chí ghép việc">
-        {criteria.map((c) => {
-          const Icon = ICONS[c.key as keyof typeof ICONS]
-          return (
-            <li key={c.key} data-crit={c.key} className={cn(!reduced && 'opacity-[0.45]')}>
-              {/* Cả thẻ là một liên kết: nhấc 2px + viền sáng khi rê chuột/focus; chữ hành động nhỏ ở dưới */}
-              <Link
-                to={c.cta.href}
-                className={cn(
-                  'group relative grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-3 overflow-hidden rounded-card border border-wm-ivory/25 p-5',
-                  'bg-wm-abyss/60 shadow-[0_24px_60px_-28px_var(--wm-night)] backdrop-blur-xl backdrop-saturate-150',
-                  // Viền sáng mảnh ở mép trên như mặt kính
-                  'before:pointer-events-none before:absolute before:inset-x-5 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-wm-ivory/60 before:to-transparent',
-                  'transition-[transform,border-color] duration-500 ease-editorial hover:-translate-y-0.5 hover:border-wm-ivory/50',
-                  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wm-ivory motion-reduce:transform-none',
-                  'sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center',
-                )}
-              >
-                {/* Vạch sáng cạnh trái khi mục được "bật" theo câu */}
-                <span
-                  aria-hidden
-                  data-crit-glow={c.key}
+      <div className="relative grid w-full gap-10 md:grid-cols-2 lg:grid-cols-[minmax(0,38fr)_minmax(0,26fr)_minmax(0,36fr)] lg:gap-8">
+        {/* Cột chữ */}
+        <div className="relative z-10 md:col-span-2 lg:col-span-1 lg:self-center">
+          <p
+            data-reveal
+            className="inline-flex flex-wrap items-center gap-x-2.5 gap-y-1 rounded-full border border-wm-ivory/20 bg-wm-ivory/10 px-4 py-2 text-sm backdrop-blur-md"
+          >
+            <Sparkles className="h-4 w-4 text-wm-cyan" aria-hidden />
+            <span className="text-wm-ivory/80">{homeSections.statementEyebrow.lead}</span>
+            <span aria-hidden className="text-wm-ivory/60">•</span>
+            <span className="text-wm-cyan">{homeSections.statementEyebrow.tail}</span>
+          </p>
+          <h2
+            id="home-statement-title"
+            data-reveal
+            className="mt-6 max-w-[20ch] text-balance font-display text-display-sm font-semibold text-wm-ivory"
+          >
+            {homeSections.statementTitle.lead}
+            <span className="relative inline-block whitespace-nowrap text-wm-cyan">
+              {homeSections.statementTitle.em}
+              <svg aria-hidden viewBox="0 0 220 12" preserveAspectRatio="none" className="absolute -bottom-2 left-0 h-2.5 w-full text-wm-cyan">
+                <path d="M2 8 C 40 2, 90 10, 140 5 S 200 3, 218 6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
+            </span>
+            {homeSections.statementTitle.tail}
+          </h2>
+          <p data-reveal className="mt-6 max-w-[34ch] text-lg text-wm-ivory/85">
+            {homeSections.statementSub[role]}
+          </p>
+          <div data-reveal className="mt-8 flex flex-wrap gap-3">
+            {([btns.primary, btns.secondary] as const).map((b, i) => {
+              const Icon = BTN_ICONS[b.label]
+              return (
+                <Link key={b.label} to={b.href} className={i === 0 ? 'stmt-btn stmt-btn-primary' : 'stmt-btn stmt-btn-ghost'}>
+                  {Icon && <Icon className="h-5 w-5" aria-hidden />}
+                  {b.label}
+                  {i === 0 && <ArrowRight className="h-4 w-4" aria-hidden />}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Ảnh bàn làm việc (đã có sẵn bệ sáng + nét lấp lánh trong ảnh). ≥lg: ảnh to, lấn sang trái và chui một phần
+            dưới cột thẻ bên phải; thẻ kính có backdrop-blur nên phần ảnh phía sau bị làm mờ → cảm giác chiều sâu */}
+        <figure className="relative z-0 mx-auto w-full max-w-[30rem] self-center md:max-w-[36rem] lg:-ml-[45%] lg:-mr-[75%] lg:w-auto lg:max-w-none">
+          <div data-reveal className="relative">
+            <div data-float>
+              <img src={deskImg} alt={homeSections.statementDeskAlt} width={1400} height={927} loading="lazy" decoding="async" className="relative h-auto w-full" />
+            </div>
+          </div>
+          {chipN > 0 && (
+            <div data-reveal className="absolute -bottom-3 left-0 z-10 w-max sm:bottom-[4%] lg:left-[8%]" style={{ rotate: '-6deg' }}>
+              <div data-float className="stmt-chip flex items-center gap-3 rounded-card border border-wm-ivory/25 bg-wm-abyss/55 px-4 py-3 backdrop-blur-xl">
+                <span className="flex h-10 w-10 items-center justify-center rounded-control border border-wm-cyan/40 bg-wm-cyan/15">
+                  <Briefcase className="h-5 w-5 text-wm-ivory" aria-hidden />
+                </span>
+                <span className="font-display text-base font-semibold leading-tight text-wm-ivory">
+                  <span className="tnum">{chipN}</span> {homeSections.statementChip.suffix}
+                  <br />
+                  {homeSections.statementChip.line2}
+                </span>
+                <TrendingUp className="h-5 w-5 text-wm-cyan" aria-hidden />
+              </div>
+            </div>
+          )}
+        </figure>
+
+        {/* 3 thẻ tiêu chí */}
+        <ul className="relative z-10 grid w-full content-center gap-4" aria-label="Ba tiêu chí ghép việc">
+          {criteria.map((c) => {
+            const Icon = ICONS[c.key as keyof typeof ICONS]
+            return (
+              <li key={c.key} data-reveal>
+                {/* Cả thẻ là một liên kết: nhấc 2px + viền sáng hơn khi rê chuột/focus */}
+                <Link
+                  to={c.cta.href}
                   className={cn(
-                    'pointer-events-none absolute inset-0 rounded-card ring-1 ring-inset ring-wm-cyan/60',
-                    'bg-[radial-gradient(120%_90%_at_0%_50%,color-mix(in_srgb,var(--wm-cyan)_18%,transparent),transparent_60%)]',
-                    !reduced && 'opacity-0',
+                    'shift-card group relative grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-3 rounded-card border border-wm-cyan/35 bg-wm-abyss/55 p-4 backdrop-blur-xl backdrop-saturate-150',
+                    'transition-[transform,border-color] duration-500 ease-editorial hover:-translate-y-0.5 hover:border-wm-cyan/70 focus-visible:-translate-y-0.5 focus-visible:border-wm-cyan/70',
+                    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wm-ivory motion-reduce:transform-none',
+                    'xl:grid-cols-[auto_minmax(0,1fr)_auto] xl:items-center',
                   )}
-                />
-                <span
-                  aria-hidden
-                  data-crit-glow={c.key}
-                  className={cn('absolute inset-y-5 left-0 w-[3px] rounded-full bg-wm-cyan', !reduced && 'opacity-0')}
-                />
-                <span className="relative flex h-11 w-11 items-center justify-center rounded-control border border-wm-ivory/25 bg-wm-ivory/10">
-                  <span
-                    aria-hidden
-                    data-crit-glow={c.key}
-                    className={cn('absolute inset-0 rounded-control bg-wm-cyan/20', !reduced && 'opacity-0')}
-                  />
-                  <Icon className="relative h-5 w-5 text-wm-ivory" aria-hidden />
-                </span>
-                <span className="min-w-0">
-                  <span className="block font-display text-lg font-semibold leading-tight text-wm-ivory">{c.title}</span>
-                  <span className="mt-1 block text-sm text-wm-ivory/85">{c.body}</span>
-                  <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-wm-ivory">
-                    <span className="border-b border-transparent transition-colors duration-300 group-hover:border-wm-ivory group-focus-visible:border-wm-ivory">
-                      {c.cta.label}
-                    </span>
-                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transform-none" aria-hidden />
+                >
+                  <span className="flex h-12 w-12 items-center justify-center rounded-control bg-gradient-to-br from-wm-cyan to-wm-azure">
+                    <Icon className="h-6 w-6 text-wm-ivory" aria-hidden />
                   </span>
-                </span>
-                {/* Mảnh giao diện minh họa cho tiêu chí (trang trí, không phải dữ liệu thật) */}
-                <span aria-hidden className="col-span-2 sm:col-span-1 sm:justify-self-end">
-                  <CriterionPreview kind={c.key as keyof typeof ICONS} />
-                </span>
-              </Link>
-            </li>
-          )
-        })}
-      </ul>
+                  <span className="min-w-0">
+                    <span className="block font-display text-lg font-semibold leading-tight text-wm-ivory">{c.title}</span>
+                    <span className="mt-1 block text-sm text-wm-ivory/85">{c.body}</span>
+                    <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-wm-ivory">
+                      <span className="border-b border-transparent transition-colors duration-300 group-hover:border-wm-ivory group-focus-visible:border-wm-ivory">
+                        {c.cta.label}
+                      </span>
+                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transform-none" aria-hidden />
+                    </span>
+                  </span>
+                  {/* Mảnh giao diện minh họa (trang trí, không phải dữ liệu thật) */}
+                  <span aria-hidden className="col-span-2 xl:col-span-1 xl:justify-self-end">
+                    <CriterionPreview kind={c.key as keyof typeof ICONS} />
+                  </span>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
     </section>
   )
+}
+
+/**
+ * Tổng số ca đang cần người trong 7 ngày tới, đúng cách bảng ca tính: khách/ứng viên = mọi việc đang mở,
+ * nhà tuyển dụng = việc đang hiển thị của công ty mình. 0 hoặc chưa có dữ liệu → 0 (ẩn nhãn).
+ */
+function useWeekShiftCount(role: 'guest' | 'jobseeker' | 'recruiter'): number {
+  const all = useAllJobs()
+  const companyId = useCompanyStore((s) => s.id)
+  const companyRows = useCompanyJobs(companyId)
+  const [now] = useState(() => new Date())
+  const jobs: MatchJob[] = useMemo(
+    () => (role === 'recruiter' ? companyRows.filter((r) => r.job.visible).map((r) => r.job) : all),
+    [role, companyRows, all],
+  )
+  return useMemo(() => shiftsOf(jobs, now).length, [jobs, now])
 }
 
 const DAYS = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
@@ -140,13 +204,13 @@ function CriterionPreview({ kind }: { kind: keyof typeof ICONS }) {
   if (kind === 'lich') {
     const free = new Set([1, 3, 5, 6])
     return (
-      <span className="flex gap-1">
+      <span className="flex flex-wrap gap-1">
         {DAYS.map((d, i) => (
           <span
             key={d}
             className={cn(
-              'flex h-8 w-8 items-center justify-center rounded-control text-xs font-semibold',
-              free.has(i) ? 'bg-wm-cyan/25 text-wm-ivory ring-1 ring-wm-cyan/50' : 'bg-wm-ivory/5 text-wm-ivory/50',
+              'flex h-8 w-8 items-center justify-center rounded-control border text-xs font-semibold',
+              free.has(i) ? 'border-wm-cyan bg-wm-cyan/25 text-wm-ivory' : 'border-wm-ivory/25 bg-wm-ivory/5 text-wm-ivory/80',
             )}
           >
             {d}

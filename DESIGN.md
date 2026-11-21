@@ -209,20 +209,31 @@ Chỉ áp dụng cho trang chủ `/`. Các trang khác vẫn theo mục **Hai n�
 
 **Chữ & thẻ trên nền xanh:**
 - Mọi section dưới hero `data-theme="night"` → chữ ngà. Tiêu đề không dùng text-shadow (mặt nạ từng từ cắt bóng thành ô).
-- Thẻ việc, 3 thẻ tính năng, 3 thẻ vai trò ở hero: **kính trắng** (`bg-wm-ivory/75–84` + blur + `LIGHT_CARD_VARS` ghim chữ than chì).
+- Thẻ việc, 3 thẻ tính năng, 3 thẻ tính năng ở hero (đã đổi sang kính tối): **kính trắng** (`bg-wm-ivory/75–84` + blur + `LIGHT_CARD_VARS` ghim chữ than chì).
 - Ô/nhãn/nút nhỏ nằm thẳng trên nền: **kính tối** `HOME_GLASS_DARK` (`bg-wm-night/35` + blur) để chữ ngà đọc được trên vệt cam.
 - Khối tuyển dụng: dải **cam–đào** (`apricot`→`peach`), chữ than chì, nút tối; phóng nhẹ khi cuộn tới.
 - Header: ba cụm kính nổi, không nền toàn chiều rộng (xem mục Header). Màu nhấn trang chủ `tangerine` (người tìm việc vẫn `fern`/`leaf`).
 
-**Hero:** tiêu đề hai dòng lớn + quầng sáng xanh ngọc phía sau; ô tìm kiếm + thẻ ngành giữ nguyên; **3 thẻ vai trò**
-(Ứng viên · Nhà tuyển dụng · Quản trị) chĩa ba hướng (trái nghiêng trái, giữa thẳng, phải nghiêng phải), nổi lên lần lượt,
-lơ lửng, rê chuột thì thẳng lại; chỉ hiện từ `lg` và khi màn cao ≥ 820px. Các lớp (quầng sáng, tiêu đề, ô tìm kiếm, thẻ)
+**Hero (2026-11-21, theo mockup của chủ dự án):** nhãn "Nền tảng việc làm linh hoạt" là **viên kính** (ngà 10% + viền ngà 20% + blur) kèm biểu tượng `Sparkles` cyan.
+Tiêu đề hai dòng lớn + quầng sáng xanh ngọc phía sau; **dòng 2 màu `cyan`, chữ nghiêng** (Plus Jakarta Sans có nạp kiểu nghiêng 600/700) kèm **nét vẽ tay** bên dưới (cùng kiểu StatementSection).
+Ô tìm kiếm là **thanh kính** (`abyss` 45% + viền cyan 40% + quầng cyan nhẹ), hai ô Search/MapPin ngăn bằng vạch mảnh, nút gửi **cyan đặc, chữ `abyss`, biểu tượng `Send`** ("Tìm việc");
+hàng "Tìm nhiều:" (biểu tượng `Flame` màu `apricot`) + các thẻ ngành kính viền (`heroTags`). Không còn nút "Xem việc phù hợp với tôi" dưới hàng thẻ ngành.
+**3 thẻ tính năng kính** (`HeroFeatureCards`, thay 3 thẻ vai trò nghiêng) theo vai trò (`heroFeatures` trong content.ts): `.shift-card` + ô biểu tượng 64px gradient azure→cyan + tiêu đề + mô tả + liên kết có mũi tên + nút tròn
+mũi tên (trang trí); cả thẻ là một `<Link>`. Nổi lên lần lượt trong timeline intro (`data-hero-card`). Chỉ hiện từ `lg` và khi màn cao ≥ 820px.
+**Chỉnh sửa hero (2026-11-21, vòng 2):** thẻ tính năng là **kính xanh trong** (`.hero-fcard`: azure→ocean 74–82%, blur 18px, viền ngà 35%, quầng cyan; không dùng abyss vì ngả tím trên quầng cam; chữ ngà ≥ 5:1 kể cả trên apricot). Ô biểu tượng có khối (`.hero-ftile`: viền sáng trên, quầng góc, bóng đổ). Ô tick kính nghiêng 12° lơ lửng ±5px đè mép phải thẻ giữa (`.hero-tick`, đặt ở `li`, không bắt chuột).
+6 sao 4 cánh lấp lánh rất chậm (`HeroSparkle`: 4 quanh hai ảnh chỉ từ `lg`, 2 ở góc tiêu đề từ `md`; giảm chuyển động thì đứng yên). Nút chuột cuộn (`button`, cuộn mượt tới section sau hero) ở giữa đáy hero, cùng điều kiện hiện với hàng thẻ (lg + cao ≥ 820px); "Cuộn để bắt đầu" thuộc màn mở đầu, không trùng. Khoảng chữ → thẻ ~44px, cả khối căn giữa dọc.
+**Ô ảnh 3D hai bên** (`heroArt` trong content.ts, `HeroSideArt`): để `null` thì không dựng gì; có ảnh thì hiện từ `lg`, trang trí (`aria-hidden`), nằm trong lề hai bên,
+vòng quỹ đạo cyan mảnh sau ảnh, lơ lửng ±8px chậm (tắt khi giảm chuyển động). Các lớp (quầng sáng, tiêu đề, ô tìm kiếm, thẻ)
 trôi nhẹ theo chuột với độ sâu khác nhau (chỉ chuột thật).
 
 **Khoảnh khắc** (theo taste skill, viết lại bằng GSAP; tối đa 2 mỗi trang): ảnh thẻ ca dưới hero "hiện dần" từ xám sang màu
-một lần khi cuộn tới (`ShiftBoardSection`) và câu lớn sáng dần từng chữ (`StatementSection`). Vòng tròn mở khối tuyển dụng đã bỏ (2026-11-20). Không thêm khoảnh khắc thứ ba; chỉ một hiệu ứng theo chuột mỗi trang (đã dùng ở hero).
+một lần khi cuộn tới (`ShiftBoardSection`) và phần câu nhấn `StatementSection` hiện dần nhẹ một lần khi vào khung nhìn (chủ dự án đã duyệt 2026-11-21, thay cho chữ sáng dần từng từ). Vòng tròn mở khối tuyển dụng đã bỏ (2026-11-20). Không thêm khoảnh khắc thứ ba; chỉ một hiệu ứng theo chuột mỗi trang (đã dùng ở hero).
 
-**Rà soát cuối (2026-11-20):** phần dưới hero phủ thêm `abyss` 34% (`.home-page-dim`) và tia sáng "thở" nhẹ hơn (tối đa 22%) — hero là điểm sáng nhất trang. Header: không còn dải nền khi cuộn (2026-11-21), chỉ ba cụm kính. Hai họ thẻ: **kính tối** (`abyss` 55–65% + blur 16px + viền ngà 20–25% + vạch sáng mép trên) cho thông tin — kể cả 3 thẻ vai trò ở hero — và **ảnh có đáy tối** cho việc làm; dải cam–đào là điểm nhấn ấm duy nhất. Chữ nằm trên cột tia sáng phải đặt trong kính tối. Chữ tối thiểu 12px. Các phần dưới hero cùng lề `max(16px, 2.5vw)` và cùng khoảng `py-section-sm`.
+**StatementSection (2026-11-21, làm lại theo mockup):** 3 vùng ở `lg` (chữ ~38% · ảnh bàn làm việc giữa, lấn sang hai bên · 3 thẻ ~36% phía trên ảnh); `md` chữ trên, ảnh + thẻ dưới; điện thoại xếp dọc. Nhãn kính "Kết nối cơ hội • Kiến tạo tương lai", tiêu đề có "cả hai bên" màu `cyan` + nét gạch tay, mô tả và hai nút theo vai trò (nút chính `cyan` chữ `abyss` có quầng; nút phụ viền ngà; lớp `.stmt-btn*`). Ảnh đứng trên bệ sáng mờ; nhãn nghiêng -6° hiện "{N} ca đang tuyển tuần này" (N = số ca 7 ngày tới từ `shiftsOf`, như bảng ca; ẩn khi 0). Thẻ dùng `.shift-card`, icon nền gradient `cyan`→`azure`. Nền: 3 dải cong sáng riêng của section, mask mờ ở mép trên/dưới. Chuyển động: hiện dần lần lượt (opacity + y 18px, ScrollTrigger once), ảnh và nhãn lơ lửng ±6px rất chậm; giảm chuyển động thì hiện sẵn, không tween.
+
+**Thẻ nghề ở "Ca khớp lịch rảnh" (2026-11-21, làm lại theo mockup):** thẻ kính tối (`abyss` 55% + blur 16px + viền `cyan` 35% + quầng `cyan` mềm, class `.shift-card`). Nửa trên là khung ảnh 4:3 (ảnh nghề lấp kín khung, đã nhuộm nhẹ tông xanh; rê chuột/focus thì nhấc 6px); thẻ đang mở bỏ tỉ lệ 4:3 và cao bằng các thẻ đóng. Bên dưới: icon tròn lucide + tên nghề (giữ chỗ 2 dòng), số ca (cyan, `tnum`) + số doanh nghiệp, pill "Ca gần nhất" có icon đồng hồ, nút viền "Xem ca làm" (chỉ nút này mở danh sách doanh nghiệp). Hàng lọc dưới tiêu đề: nhóm kính chọn buổi (Tất cả/Sáng/Chiều/Tối, có icon) + vạch ngăn + chip ngày (Cả tuần, T2 đến CN); mục chọn = nền `cyan` chữ `abyss`; lọc thật, tính lại số ca/doanh nghiệp/ca gần nhất/danh sách từ cùng dữ liệu ca, đổi lọc thì đóng thẻ và đưa băng chuyền về đầu. Nút mũi tên băng chuyền khi bị khóa vẫn có viền ngà 60%. Pill "Ca gần nhất" là kính trong (ngà 15% + viền ngà 25% + blur). Điện thoại: vuốt ngang (thẻ 80% bề rộng, snap, thẻ sau ló mép), bấm "Xem ca làm" thì danh sách nở ngay dưới thẻ.
+
+**Rà soát cuối (2026-11-20):** phần dưới hero phủ thêm `abyss` 34% (`.home-page-dim`) và tia sáng "thở" nhẹ hơn (tối đa 22%) — hero là điểm sáng nhất trang. Header: không còn dải nền khi cuộn (2026-11-21), chỉ ba cụm kính. Hai họ thẻ: **kính tối** (`abyss` 55–65% + blur 16px + viền ngà 20–25% + vạch sáng mép trên) cho thông tin — kể cả 3 thẻ tính năng ở hero — và **ảnh có đáy tối** cho việc làm; dải cam–đào là điểm nhấn ấm duy nhất. Chữ nằm trên cột tia sáng phải đặt trong kính tối. Chữ tối thiểu 12px. Các phần dưới hero cùng lề `max(16px, 2.5vw)` và cùng khoảng `py-section-sm`.
 
 **Việc mới đăng (2026-11-20):** vòng ảnh "rọi đèn" ô giữa (`.nj-slot`: phóng 1.12, viền ngà sáng, vầng xanh ngọc + bóng sàn; ô bên tối/nhạt/mờ nhẹ theo góc), tấm thông tin dạng vé gối lên ảnh giữa (kính `abyss` 60%, lương + ca thành viên nổi, nút ngà đặc), dải chữ nhỏ ~30% với bản lặp chỉ viền chữ, nút dừng dải chữ dạng icon. Section đặt `z-20` để quầng cam của khối tuyển dụng không phủ lên.
 
@@ -472,3 +483,10 @@ Chi tiết cơ chế: xem `prj-context.md` mục 5 và comment trong `components
 - **[giả định]** Trạng thái lỗi/thành công của form chưa được thiết kế cho bảng màu này (không có đỏ/xanh). Khi cần, ưu tiên biểu tượng + chữ thay vì chỉ màu, và hỏi chủ dự án trước khi thêm màu ngữ nghĩa.
 - Skill `frontend-design` liệt kê “nền kem gần #F4F1EA” và “nhãn in hoa phía trên mọi tiêu đề” là dấu hiệu giao diện do AI tạo. Ivory `#FAF4EA` và `.eyebrow` là lựa chọn có chủ đích của chủ dự án — giữ nguyên ở các trang khác, nhưng dùng eyebrow tiết chế ở trang mới. **Trang chủ đã bỏ eyebrow trên tiêu đề section (2026-11-20).**
 - `HeroCanvas.tsx` (shader nền intro cũ) đã xóa 2026-11-21 (không còn dùng từ 2026-11-19).
+
+## Hồ sơ người tìm việc (2026-11-21)
+- **Một trình sửa:** `/ho-so` (`pages/public/ProfilePage.tsx` + `profile/*`). `/tim-viec/ho-so` chỉ chuyển hướng về `/ho-so` và giữ `#neo` (`thong-tin`, `kinh-nghiem`, `lich-ranh`, thêm `ky-nang`, `mong-muon`, `ve-ban`). Mỗi nhóm có `scroll-mt-28`.
+- **Một công tắc công khai:** `hooks/usePublicProfile` (`isPublic = published && visibility === 'public'`); bật ghi cả hai, tắt đặt `published=false` + `visibility='connected'`. Dùng ở dải trạng thái đầu `/ho-so`, Cài đặt và bước 3 của form bắt đầu. Dải đầu trang giữ MỘT `BTN_ACCENT`.
+- **Bố cục:** không còn số 01–07. Mục lục dính (từ lg) + biểu mẫu + xem trước (từ xl; dưới xl xem trước nằm dưới biểu mẫu). Chấm mục lục lấy từ cùng danh sách tiêu chí với %.
+- **Thời gian kinh nghiệm:** hai ô `type="month"` (Từ, Đến) + "Đang làm ở đây". Lưu chuỗi `MM/YYYY – MM/YYYY` hoặc `MM/YYYY – nay`; giá trị cũ ("2024 – 2025") tự đổi khi mở.
+- **Form bắt đầu người tìm việc:** `/tim-viec/bat-dau` (3 bước, ai cũng bỏ qua được), chỉ tự vào sau khi xác nhận email lúc đăng ký.
