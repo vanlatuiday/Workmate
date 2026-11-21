@@ -19,7 +19,7 @@ type Props = {
   /** Trang chủ: header do useHomeHeader + IntroHero điều khiển (data-attribute), màu theo section */
   home: boolean
   /** Bề mặt phía dưới header (useHeaderSurface) — chỉ dùng ngoài trang chủ */
-  surface: 'light' | 'dark'
+  surface: 'light' | 'dark' | 'day'
   menuOpen: boolean
   menuId: string
   onOpenMenu: () => void
@@ -70,11 +70,12 @@ export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu
       data-site-header=""
       // Trang chủ: chỉ gắn 'light' khi khối đang xem là nền sáng (html[data-home-tone], useSectionThemes);
       // khối tối giữ màu theo biến --page-* như cũ
-      data-tone={home ? (homeTone === 'light' ? 'light' : undefined) : surface}
+      data-tone={home ? (homeTone === 'light' ? 'light' : undefined) : surface === 'day' ? 'light' : surface}
+      data-day={!home && surface === 'day' ? '' : undefined}
       className={cn(
         'site-header fixed inset-x-0 top-0 z-40 h-[72px]',
         // Theme đặt biến --page-* cho viền focus, menu thả xuống…; trang chủ dùng biến của :root
-        !home && (surface === 'dark' ? 'theme-night' : 'theme-ivory'),
+        !home && (surface === 'dark' ? 'theme-night' : surface === 'day' ? 'theme-day' : 'theme-ivory'),
       )}
     >
       <div className="hd-inner absolute inset-0">

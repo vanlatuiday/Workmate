@@ -29,10 +29,9 @@ export default function CompaniesPage() {
       {companies.length === 0 && !settled ? (
         <SkeletonCards count={6} image className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3" label="Đang tải danh sách công ty…" />
       ) : (
-      <FadeIn>
       <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {companies.map((c) => (
-          <li key={c.id}>
+        {companies.map((c, i) => (
+          <FadeIn as="li" key={c.id} delay={(i % 3) * 80}>
             <Link to={`/cong-ty/${c.id}`} data-cursor="Xem" className={cn('group block rounded-card', CARD_HOVER, FOCUS)}>
               <div className="aspect-[4/3] overflow-hidden rounded-card border border-page-line bg-page-surface transition-colors duration-base ease-editorial group-hover:border-page-fg motion-reduce:transition-none">
                 <img
@@ -51,10 +50,9 @@ export default function CompaniesPage() {
               <p className="mt-2 text-sm leading-relaxed text-page-muted">{c.tagline}</p>
               <p className="mt-2 text-xs font-medium text-page-fg">{jobsOfCompany(c.id).length ? `${jobsOfCompany(c.id).length} vị trí đang tuyển` : 'Chưa có vị trí đang tuyển'}</p>
             </Link>
-          </li>
+          </FadeIn>
         ))}
       </ul>
-      </FadeIn>
       )}
         </div>
       </IvoryPageBody>

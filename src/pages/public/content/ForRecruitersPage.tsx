@@ -66,23 +66,23 @@ function ProcessSteps({ items }: { items: { title: string; text: string }[] }) {
           {i < items.length - 1 && (
             <span
               aria-hidden="true"
-              className="absolute left-5 top-12 -bottom-8 w-px bg-wm-ivory/20 md:-bottom-auto md:left-14 md:right-[-1.5rem] md:top-5 md:h-px md:w-auto"
+              className="absolute left-5 top-12 -bottom-8 w-px bg-page-line md:-bottom-auto md:left-14 md:right-[-1.5rem] md:top-5 md:h-px md:w-auto"
             >
               <span
                 data-fill
-                className="absolute inset-0 bg-gradient-to-b from-wm-cyan to-wm-ivory md:bg-gradient-to-r"
+                className="absolute inset-0 bg-gradient-to-b from-wm-azure to-page-fg md:bg-gradient-to-r"
               />
             </span>
           )}
-          <span className="tnum relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-wm-ivory/40 bg-wm-abyss font-display text-base font-semibold text-wm-ivory">
+          <span className="tnum relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-page-edge bg-page-bg font-display text-base font-semibold text-page-fg">
             {i + 1}
-            {/* Lớp "sáng": nền ngà, chữ than, quầng cyan */}
+            {/* Lớp "sáng": nền abyss, chữ day, quầng azure */}
             <span
               data-lit
               aria-hidden="true"
-              className="absolute inset-0 flex items-center justify-center rounded-full bg-wm-ivory text-wm-charcoal ring-2 ring-wm-cyan/50"
+              className="absolute inset-0 flex items-center justify-center rounded-full bg-page-fg text-page-bg ring-2 ring-wm-azure/40"
             >
-              <span className="absolute -inset-1 -z-10 rounded-full bg-wm-cyan/30 blur-md" />
+              <span className="absolute -inset-1 -z-10 rounded-full bg-wm-azure/25 blur-md" />
               {i + 1}
             </span>
           </span>
@@ -133,11 +133,11 @@ export default function ForRecruitersPage() {
                     COVER_GLASS,
                     // Thẻ không phải link → không nhấc lên; chỉ viền sáng + vòng cyan + quầng góc + icon sáng
                     'pc-benefit group/b relative overflow-hidden rounded-card p-6 transition-[border-color,box-shadow] duration-[400ms] ease-out',
-                    'hover:border-wm-ivory/45 hover:ring-1 hover:ring-wm-cyan/40 focus-within:border-wm-ivory/45 focus-within:ring-1 focus-within:ring-wm-cyan/40 motion-reduce:transition-none',
+                    'hover:border-page-fg hover:ring-1 hover:ring-wm-azure/30 focus-within:border-page-fg focus-within:ring-1 focus-within:ring-wm-azure/30 motion-reduce:transition-none',
                   )}
                 >
                   <span aria-hidden="true" className="pc-benefit-glow pointer-events-none absolute inset-0" />
-                  <span className="relative flex h-10 w-10 items-center justify-center rounded-full border border-wm-ivory/25 text-page-fg ring-1 ring-transparent transition-[background-color,box-shadow,border-color] duration-[400ms] ease-out group-hover/b:border-transparent group-hover/b:bg-wm-cyan/20 group-hover/b:ring-wm-cyan/50 group-focus-within/b:border-transparent group-focus-within/b:bg-wm-cyan/20 group-focus-within/b:ring-wm-cyan/50 motion-reduce:transition-none">
+                  <span className="relative flex h-10 w-10 items-center justify-center rounded-full border border-page-line text-page-fg ring-1 ring-transparent transition-[background-color,box-shadow,border-color] duration-[400ms] ease-out group-hover/b:border-transparent group-hover/b:bg-wm-azure/10 group-hover/b:ring-wm-azure/40 group-focus-within/b:border-transparent group-focus-within/b:bg-wm-azure/10 group-focus-within/b:ring-wm-azure/40 motion-reduce:transition-none">
                     <b.icon className="h-5 w-5" aria-hidden="true" />
                   </span>
                   <h3 className="relative mt-4 font-display text-lg font-semibold text-page-fg">{b.title}</h3>
@@ -149,7 +149,7 @@ export default function ForRecruitersPage() {
           <Section title="Quy trình">
             <ProcessSteps items={STEPS} />
           </Section>
-          {/* Cuối trang: nút nhấn đã ở bìa nên ở đây dùng nút ngà/viền */}
+          {/* Cuối trang: nút nhấn đã ở bìa nên ở đây dùng nút abyss/viền */}
           <CtaRow>
             {!user ? (
               <>

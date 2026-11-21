@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
 import { cn } from '@utils/cn'
 import { usePageEnterDelay } from '@components/motion/PageTransition'
+import { useIsDay } from '@components/layout/dayContext'
 import { HomeBgLayers } from '@components/home/HomeBackdrop'
 import { beamBgStyle, heroBgStyle, waveBgStyle } from '@components/home/homeBackground'
 
@@ -23,7 +24,8 @@ import { beamBgStyle, heroBgStyle, waveBgStyle } from '@components/home/homeBack
 const EDGE = 'px-4 md:px-[max(16px,2.5vw)]'
 
 /** Kính tối dùng cho thẻ trên nền xanh (cùng công thức thẻ trang chủ) */
-export const COVER_GLASS = 'bg-wm-abyss/60 backdrop-blur-[16px] border border-wm-ivory/20'
+/** Trên trang ban ngày (.theme-day) tự thành kính trắng + viền xanh nhạt (index.css → .cover-glass); dashboard giữ kính tối */
+export const COVER_GLASS = 'cover-glass'
 
 export type CoverRole = 'jobseeker' | 'recruiter' | 'admin'
 
@@ -73,17 +75,21 @@ export default function PageCover(props: Props) {
 function Cover({ level, title, label, lead, fact, actions, children, sheet, className }: Props) {
   const enter = usePageEnterDelay()
   const lg = level === 'lg'
+  const day = useIsDay()
   return (
     <section
-      data-surface="dark"
+      data-surface={day ? 'day' : 'dark'}
       className={cn(
         // Kéo lên dưới header cố định rồi đệm lại đúng 72px
-        'theme-night relative -mt-[72px] flex flex-col justify-end pt-[72px]',
+        day ? 'theme-day' : 'theme-night',
+        'relative -mt-[72px] flex flex-col justify-end pt-[72px]',
         lg ? 'min-h-[58svh] md:min-h-[60svh]' : 'min-h-[max(280px,34svh)]',
         className,
       )}
     >
       {/* Lớp nền: gói trong khung riêng để cắt tràn mà không ảnh hưởng phần tử fixed (viên tìm kiếm thu gọn) */}
+      {/* Trang ban ngày: không lớp nền riêng — DayBackdrop cố định phía sau là nền chung */}
+      {!day && (
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         {lg ? (
           <>
@@ -103,8 +109,9 @@ function Cover({ level, title, label, lead, fact, actions, children, sheet, clas
         {/* Mép dưới tan dần về đúng màu đầu phần nội dung (DarkPageBody bắt đầu cùng màu) — không có vết cắt ngang */}
         {!sheet && <div className="pc-cover-fade absolute inset-x-0 bottom-0 h-3/5" />}
       </div>
+      )}
 
-      <div className={cn('relative', EDGE, lg ? 'pb-10 pt-12 md:pb-14' : 'pb-6 pt-10 md:pb-8', sheet && 'pb-14 md:pb-16')}>
+      <div className={cn('relative', EDGE, lg ? 'pb-10 pt-12 md:pb-14' : 'pb-6 pt-10 md:pb-8', sheet && !day && 'pb-14 md:pb-16')}>
         {label && (
           <p {...rise(enter, 0)} className={cn('pc-rise mb-3 text-sm font-medium text-page-muted')}>
             {label}
@@ -204,6 +211,8 @@ function Strip({ title, lead, breadcrumb, role = 'jobseeker', actions, className
  * tan từ 0 ở đầu nên không tạo vết cắt với bìa; .pc-body-fade phủ lên cùng chỗ nối.
  */
 export function DarkPageBody({ className, children }: { join?: boolean; className?: string; children: ReactNode }) {
+  // Trang ban ngày: khung trong suốt, nền do DayBackdrop lo
+  if (useIsDay()) return <div data-surface="day" className={cn('relative min-h-[40svh] flex-1', className)}>{children}</div>
   return (
     <div data-surface="dark" className={cn('theme-night relative min-h-[40svh] flex-1', className)}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -225,6 +234,7 @@ export function DarkPageBody({ className, children }: { join?: boolean; classNam
  * Bìa có `sheet` đã đệm đáy đủ nên nội dung bìa không bị tấm che.
  */
 export function IvoryPageBody({ className, children }: { className?: string; children: ReactNode }) {
+  if (useIsDay()) return <div data-surface="day" className={cn('relative min-h-[40svh] flex-1', className)}>{children}</div>
   return (
     <div
       data-surface="light"

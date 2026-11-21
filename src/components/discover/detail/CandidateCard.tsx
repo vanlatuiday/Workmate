@@ -12,7 +12,7 @@ export default function CandidateCard({ c, score, slots, jobId }: { c: MatchCand
   const matched = slots.filter((s) => c.criteria.slots.includes(s)).length
   return (
     <Reveal>
-      <article className="rounded-card border border-page-line bg-page-bg p-6 md:p-8">
+      <article className="day-card rounded-card border border-page-line bg-page-bg p-6 md:p-8">
         <div className="flex items-center gap-4">
           <Initials text={initialsOf(c.name)} />
           <div className="min-w-0">

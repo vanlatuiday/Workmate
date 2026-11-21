@@ -26,6 +26,7 @@ Thứ tự ưu tiên khi các nguồn khác nhau: yêu cầu của người dùn
   bg-page-surface border-page-edge` — tự khớp mọi section.
 - Phần luôn một màu cố định: `wm-*` (Tailwind) hoặc `THEMES` (TS). Không viết hex trong component.
 - Màu mới → thêm vào `src/styles/tokens.json`, tính tương phản (chữ ≥ 4.5:1, viền ô nhập ≥ 3:1), cập nhật `DESIGN.md`.
+- Trang công khai ban ngày (`/viec-lam`, `/cong-ty`, `/match`, `/gioi-thieu`…): nền sáng `day` + `DayBackdrop`, chữ abyss, chân trang abyss — xem DESIGN.md → "Nền ban ngày cho trang công khai (2026-11-21)"; ngoại lệ được duyệt với quy tắc gradient/glow bên dưới.
 - Không (trừ trang chủ — xem mục trên): màu bão hòa, gradient màu, glow, bóng đổ, `#000`/`#fff`, modifier `/opacity` trên `page-*`.
 
 ## Trang chủ nền xanh (2026-11-19, chủ dự án duyệt)

@@ -40,7 +40,7 @@ export default function NotFoundPage() {
               <Link
                 to={r.to}
                 className={cn(
-                  'inline-flex max-w-full flex-col rounded-card border border-page-line px-4 py-3 transition-colors hover:border-page-fg',
+                  'day-card inline-flex max-w-full flex-col rounded-card border border-page-line px-4 py-3 transition-colors hover:border-page-fg',
                   FOCUS,
                 )}
               >

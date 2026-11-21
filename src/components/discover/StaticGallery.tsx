@@ -41,7 +41,7 @@ export default function StaticGallery<T extends GalleryItem>({ items, label, int
               <div className="relative isolate -mt-14 ml-3 md:-mt-20 md:ml-auto md:mr-6 md:max-w-lg">
                 {/* Quầng cyan mờ phía sau thẻ cho thẻ nổi khỏi nền (tĩnh) */}
                 <div aria-hidden="true" className="jobs-card-halo pointer-events-none absolute -inset-3 -z-10 opacity-35" />
-                <div className="relative rounded-card border border-wm-ivory/20 bg-wm-abyss/65 p-5 text-page-fg ring-1 ring-wm-cyan/35 backdrop-blur-[16px] md:p-6">
+                <div className="day-gcard relative rounded-card border border-wm-ivory/20 bg-wm-abyss/65 p-5 text-page-fg ring-1 ring-wm-cyan/35 backdrop-blur-[16px] md:p-6">
                   {renderDetail(item)}
                 </div>
               </div>

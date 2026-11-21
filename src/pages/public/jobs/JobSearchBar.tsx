@@ -3,12 +3,13 @@ import { ChevronDown, MapPin, Search, SlidersHorizontal, X } from 'lucide-react'
 import { JOB_TYPES } from '@constants/index'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
+import { COVER_GLASS } from '@components/common/PageCover'
 import { BTN_PRIMARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { formatHourlyFromK } from '@utils/format'
 import { DISTRICTS, EMPTY_FILTERS, hasFilters, type JobFilters } from './catalog'
 
-/** Kính tối trên nền xanh (cùng công thức thẻ trang chủ) */
-const DARK_GLASS = 'bg-wm-abyss/60 backdrop-blur-[16px] border border-wm-ivory/20'
+/** Kính trên bìa: tối trên nền xanh, trắng 85% ở trang ban ngày (index.css → .cover-glass) */
+const DARK_GLASS = COVER_GLASS
 const SALARY_STEPS = [25, 30, 35, 40]
 /** Header trang thường cao 4rem + viền 1px */
 const HEADER_PX = 65
@@ -238,8 +239,9 @@ export default function JobSearchBar({
         role="group"
         aria-label="Lọc nhanh"
         className={cn(
-          'mt-3 flex gap-1.5 overflow-x-auto pb-1 sm:max-w-4xl sm:flex-wrap sm:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-          inCover ? 'sm:justify-start' : '-mx-6 px-6 sm:mx-auto sm:justify-center sm:px-0',
+          'mt-3 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          // Trong bìa: luôn một dòng, cuộn ngang khi tràn, mờ dần mép phải
+          inCover ? 'chip-row-mask pr-10 sm:justify-start' : '-mx-6 px-6 sm:mx-auto sm:max-w-4xl sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0',
         )}
       >
         {JOB_TYPES.map((t) => (
@@ -253,7 +255,7 @@ export default function JobSearchBar({
             className={cn(
               CHIP,
               'relative shrink-0 cursor-pointer py-1 pl-3 pr-8 text-xs focus-within:ring-2 focus-within:ring-page-fg',
-              filters.minSalaryK ? CHIP_ON : cn(CHIP_OFF, 'bg-wm-abyss/60 backdrop-blur-[16px]'),
+              filters.minSalaryK ? CHIP_ON : cn(CHIP_OFF, COVER_GLASS),
             )}
           >
             <span className="sr-only">Mức lương</span>
@@ -360,7 +362,7 @@ function Chip({ pressed, onClick, glass = false, children }: { pressed: boolean;
         'shrink-0 px-3 py-1 text-xs',
         pressed ? CHIP_ON : CHIP_OFF,
         // Bản nổi trên ảnh: chip chưa chọn có nền kính để chữ đọc được
-        glass && !pressed && 'bg-wm-abyss/60 backdrop-blur-[16px]',
+        glass && !pressed && COVER_GLASS,
       )}
     >
       {children}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export type Surface = 'light' | 'dark'
+export type Surface = 'light' | 'dark' | 'day'
 
 /** Chiều cao header (h-16). Đường dò nằm ngay dưới mép header. */
 const HEADER_H = 64
@@ -19,12 +19,14 @@ const LINE = 2
  * cầu, đổi route) được bắt bằng MutationObserver trên <main>, gộp theo rAF. Trang chủ có logic riêng
  * (useHomeHeader / useSectionThemes) nên `enabled=false` ở đó.
  */
-export function useHeaderSurface(enabled: boolean): Surface {
-  const [surface, setSurface] = useState<Surface>('light')
+export function useHeaderSurface(enabled: boolean, day = false): Surface {
+  // Trang ban ngày (DayBackdrop): mọi nền sáng (kể cả không đánh dấu) cho header kính xanh-trắng; khối 'dark' vẫn thắng
+  const base: Surface = day ? 'day' : 'light'
+  const [surface, setSurface] = useState<Surface>(base)
 
   useEffect(() => {
     if (!enabled) {
-      setSurface('light')
+      setSurface(base)
       return
     }
     const hits = new Set<HTMLElement>() // các khối đang chạm đường dò
@@ -38,7 +40,7 @@ export function useHeaderSurface(enabled: boolean): Surface {
       for (const el of hits) {
         if (!top || top.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) top = el
       }
-      setSurface(top?.dataset.surface === 'dark' ? 'dark' : 'light')
+      setSurface(top?.dataset.surface === 'dark' ? 'dark' : base)
     }
 
     const build = () => {
@@ -97,7 +99,7 @@ export function useHeaderSurface(enabled: boolean): Surface {
       io?.disconnect()
       window.removeEventListener('resize', onResize)
     }
-  }, [enabled])
+  }, [enabled, base])
 
   return surface
 }

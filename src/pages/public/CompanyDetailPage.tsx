@@ -86,7 +86,7 @@ export default function CompanyDetailPage() {
 
       <DetailLayout aside={aside}>
         {myPageHidden && (
-          <p className="rounded-card border border-page-line p-4 text-sm text-page-muted">
+          <p className="day-card rounded-card border border-page-line p-4 text-sm text-page-muted">
             Trang này đang ẩn với người khác. <Link to="/tuyen-dung/cai-dat" className="text-page-fg underline underline-offset-4">Đổi trong Cài đặt</Link>
           </p>
         )}
@@ -110,7 +110,7 @@ export default function CompanyDetailPage() {
 
         {isGuest && (
           <Reveal>
-            <div className="rounded-card border border-page-line p-6 md:p-8">
+            <div className="day-card rounded-card border border-page-line p-6 md:p-8">
               <h2 className="font-display text-xl md:text-2xl font-semibold leading-tight tracking-[-0.02em]">
                 Chọn vai trò để bắt đầu
               </h2>

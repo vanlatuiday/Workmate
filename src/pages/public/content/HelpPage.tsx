@@ -88,7 +88,7 @@ export default function HelpPage() {
         </div>
 
         <aside className="lg:col-span-4">
-          <div className="rounded-card border border-page-line p-6 lg:sticky lg:top-28">
+          <div className="day-card rounded-card border border-page-line p-6 lg:sticky lg:top-28">
             <span className="flex h-10 w-10 items-center justify-center rounded-full border border-page-line text-page-fg">
               <MessageCircle className="h-5 w-5" aria-hidden="true" />
             </span>

@@ -16,9 +16,10 @@ import { companyOf, type MatchJob } from './data'
 export { BTN_PRIMARY, BTN_SECONDARY } from '@utils/ui'
 
 /** Chip/tab đang chọn trên nền xanh: nền ngà, chữ than chì (tab không phải hành động chính nên không dùng màu nhấn) */
-export const DARK_CHIP_ON = 'border-wm-ivory bg-wm-ivory font-medium text-wm-charcoal'
+/** Ban ngày: nền abyss, chữ day (index.css → .chip-inv) */
+export const DARK_CHIP_ON = 'chip-inv font-medium'
 /** Chip/tab chưa chọn: kính tối, chữ ngà */
-export const DARK_CHIP_OFF = `${COVER_GLASS} text-page-fg hover:border-wm-ivory`
+export const DARK_CHIP_OFF = `${COVER_GLASS} chip-off-dark text-page-fg`
 
 /**
  * Khung chung của /match: bìa xanh cấp md (tiêu đề + câu dẫn + `search` = thanh tìm / chọn vị trí / dòng tiêu chí)

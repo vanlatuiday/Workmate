@@ -246,6 +246,21 @@ tiêu đề section không là câu hỏi (riêng tiêu đề hero giữ câu h�
 - **Tấm ngà (2026-11-20, đang thử; đã bỏ ánh màu vai trò vì không hiệu quả):** `<PageCover sheet>` bỏ lớp tan dần `.pc-cover-fade` (đáy bìa giữ abyss, mép gọn) và nội dung bọc bằng `IvoryPageBody` (tấm ngà bo góc trên `rounded-lg`, kéo lên 24px, `data-surface="light"`) — sửa vết chuyển xanh → ngà bị đục. Thử ở `/cong-ty`.
 - **Hiệu ứng:** thẻ không có liên kết chỉ sáng viền/icon/góc khi rê (không nhấc); thẻ có liên kết nhấc 2px. `/nha-tuyen-dung` có 1 khoảnh khắc: đường nối "Quy trình" sáng dần, vòng số sáng khi đường chạm tới (dọc trên điện thoại). `/viec-lam`: thẻ chi tiết viền + quầng xanh ngọc, công ty đang xem có vạch sáng. Khu quản lý: chỉ hiệu ứng khi rê (ô số liệu, dòng việc phù hợp).
 
+### Nền ban ngày cho trang công khai (2026-11-21, chủ dự án duyệt)
+
+**Thay quy tắc bìa xanh + nội dung tối (20/11) cho các trang dưới đây.** Trang chủ, đăng nhập/đăng ký, dashboard, `/ca-nhan`, `/ho-so`, `/tin-nhan`, `/thong-bao`, `/lich-phong-van`, `/dang-tin`, `/vi-tri/:id`, `/ung-vien/:id`, `/xem-thu` giữ nguyên. Đây là ngoại lệ có chủ đích (chủ dự án duyệt) với quy tắc "không gradient/glow ngoài trang chủ" của workmate-ui.
+- **Danh sách trang** (`DAY_PATHS` trong `PublicLayout`): `/viec-lam`, `/viec-lam/:id`, `/cong-ty`, `/cong-ty/:id`, `/match`, `/nha-tuyen-dung`, `/gioi-thieu`, `/lien-he`, `/ho-tro`, `/cam-nang`, `/cam-nang/:slug`, `/dieu-khoan`, `/bao-mat` và 404 (đường dẫn không thuộc danh sách trang giữ kiểu cũ).
+- **Màu:** token mới `day` #F5F8FE (nền), `day-tint` #E8F0FC (mặt ô nhập/thẻ), chữ `abyss` #05155E. `.theme-day`: `--page-muted` abyss 76% (4,76:1 trên điểm xanh nhất #99CAFC của ảnh nền; chữ chính 9,6:1), `--page-line` abyss 13%, `--page-edge` abyss 40%.
+- **Nền `DayBackdrop`** (`components/layout/DayBackdrop.tsx`, ảnh `assets/images/page-bg-day.webp`): cố định, sau nội dung; MỘT lớp ảnh nhòe trên mọi dạng màn hình; độ nhòe (~14px trên màn) và giảm bão hòa 0.85 đã **làm sẵn trong file ảnh** (512×768, ~4KB) — không dùng CSS `filter` vì lớp này được phóng theo cuộn, filter sẽ phải vẽ lại mỗi khung hình; `opacity: 0.6` trên nền `day` (đã làm dịu theo góp ý 21/11: bản đầu saturate 1.15, opacity 1 bị chói), tràn `-60px` để mép nhòe không lộ. Lớp "sương" trắng ở giữa: `radial-gradient(ellipse 52% 64% at 50% 52%, day 70%, trong suốt 82%)`.
+- **Nhịp cuộn (GSAP + ScrollTrigger, chỉ transform):** mở trong 1,6 chiều cao màn đầu (ảnh scaleX 1→1,12, scaleY 1→1,38; sương scaleX 1→1,35), giữ, rồi khép về ~15% trong 1,6 màn cuối; làm mượt 0,6s. Giảm chuyển động → tĩnh.
+- **Chân trang:** nền abyss + chữ ngà + hạt bụi (`.theme-abyss`); ngay trên là đoạn hoàng hôn ~190px (`.day-dusk`: azure 0 → azure 16% → ocean 62% → abyss 92% → abyss) kéo `-mt-10`.
+- **Một màu nút chính:** trên trang ban ngày `BTN_ACCENT` hiện abyss (chữ day); màu vai trò chỉ còn ở chi tiết nhỏ (thanh điểm phù hợp, chấm). Nút nổi tin nhắn/thông báo cũng abyss (`html[data-day]`, DayBackdrop đặt). Thẻ chờ trong bộ ảnh công ty ẩn hẳn (chỉ thẻ đang xem hiện).
+- **Header:** kính `day` 70% + blur 14px + viền abyss 6%; mục đang mở nền abyss, chữ `day` (`data-day` trên `.site-header`, `useHeaderSurface` trả `'day'`).
+- **Link chữ:** `text-accent-ink` = abyss trên nền ban ngày (xanh lá/đất nung chỉ đạt 3,0–4,3:1); hover gạch chân cách 4px. Nút `bg-accent` giữ màu vai trò.
+- **Thẻ:** trắng + viền mảnh + bóng nhẹ; thẻ mờ (ghost) = xanh nhạt `azure` 6% + viền abyss 8%, không bóng (`.day-ghost`); không quầng `jobs-card-halo`. `COVER_GLASS` = kính trắng 85% + viền `page-line`.
+- **Bìa/thân trang:** `PageCover` lg/md nhận kiểu sáng (không lớp nền, chữ abyss) khi nằm trong trang ban ngày (`DayContext`); `DarkPageBody`/`IvoryPageBody` thành khung trong suốt. Dashboard `/tim-viec/match`, `/tuyen-dung/match` dùng chung các thành phần này nên vẫn giữ kiểu tối cũ. `strip` không đổi.
+- **Hiện dần khi cuộn:** `FadeIn` trong trang ban ngày trồi 28px, 800ms, so le nhẹ; giảm chuyển động → hiện ngay.
+
 ### Header (QUY TẮC CỐ ĐỊNH — chủ dự án chốt 2026-11-16)
 Áp cho MỌI trang có thanh trên cùng (PublicLayout → `SiteHeader`), kể cả trang chủ. Không đổi khi chưa hỏi chủ dự án.
 - **Hình thức**: cố định trên cùng, cao 72px, lề ngang 24 / 40 / 56px (điện thoại / md / lg). **Không nền, không viền** ở mọi vị trí cuộn:

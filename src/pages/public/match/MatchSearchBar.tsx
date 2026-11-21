@@ -187,7 +187,7 @@ export default function MatchSearchBar({ query, onQueryChange, placeholder, sear
       <div
         aria-hidden="true"
         className={cn(
-          'fixed inset-0 z-30 bg-wm-abyss/50 backdrop-blur-sm transition-opacity duration-base motion-reduce:transition-none',
+          'day-scrim fixed inset-0 z-30 bg-wm-abyss/50 backdrop-blur-sm transition-opacity duration-base motion-reduce:transition-none',
           expanded ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       />

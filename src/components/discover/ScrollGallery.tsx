@@ -139,6 +139,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
           // Thẻ không ở giữa: không nhận chuột/bàn phím, ẩn khỏi trình đọc màn hình
           const isCenter = ad < 0.5
           el.toggleAttribute('inert', !isCenter)
+          el.dataset.center = String(isCenter) // ban ngày: thẻ giữa trắng, thẻ còn lại mờ (index.css → .day-gcard)
           el.setAttribute('aria-hidden', String(!isCenter))
           const content = contents.current[i]
           if (content) content.style.opacity = String(Math.max(0, 1 - ad * 2.5))
@@ -262,8 +263,8 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                       className={cn(
                         'relative flex w-full items-baseline gap-3 text-left leading-snug transition-[color,opacity,transform] duration-base ease-out motion-reduce:transition-none',
                         i === active
-                          ? 'translate-x-1 font-display text-lg font-semibold text-wm-ivory' // đang xem: to + sáng hơn
-                          : 'text-sm text-page-muted hover:text-wm-ivory', // 82% ngà: ≥ 4,5:1 trên nền xanh
+                          ? 'translate-x-1 font-display text-lg font-semibold text-page-fg' // đang xem: to + sáng hơn
+                          : 'text-sm text-page-muted hover:text-page-fg', // chữ phụ ≥ 4,5:1 trên cả nền xanh lẫn nền ban ngày
                       )}
                     >
                       {/* Vạch cyan 3px ở mép trái mục đang xem (lấn vào lề trái pl-4 của <ol>) */}
@@ -363,7 +364,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                     cards.current[i] = el
                   }}
                   data-lenis-prevent
-                  className="col-start-1 row-start-1 w-full overflow-y-auto overscroll-contain rounded-card border border-wm-ivory/20 bg-wm-abyss/65 p-5 text-page-fg ring-1 ring-wm-cyan/35 backdrop-blur-[16px] will-change-transform [scrollbar-width:thin]"
+                  className="day-gcard col-start-1 row-start-1 w-full overflow-y-auto overscroll-contain rounded-card border border-wm-ivory/20 bg-wm-abyss/65 p-5 text-page-fg ring-1 ring-wm-cyan/35 backdrop-blur-[16px] will-change-transform [scrollbar-width:thin]"
                 >
                   <div
                     ref={(el) => {

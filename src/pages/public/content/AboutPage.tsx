@@ -19,7 +19,7 @@ const fold = (s: string) =>
 
 const CATEGORIES = Array.from(new Set(ABOUT_POSTS.map((p) => p.category)))
 
-const CARD = 'rounded-card border border-page-line p-6'
+const CARD = 'day-card rounded-card border border-page-line p-6'
 const SIDE_TITLE = 'font-display text-lg font-semibold text-page-fg'
 
 /**

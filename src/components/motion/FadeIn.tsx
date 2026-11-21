@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ElementType, type ReactNode } from 'react'
 import { cn } from '@utils/cn'
+import { useIsDay } from '@components/layout/dayContext'
 
 type Props = {
   children: ReactNode
@@ -7,6 +8,8 @@ type Props = {
   delay?: number
   className?: string
   as?: ElementType
+  /** Kiểu trang ban ngày (trồi 28px, 800ms). Mặc định tự bật khi nằm trong trang ban ngày của PublicLayout */
+  day?: boolean
 }
 
 /**
@@ -15,7 +18,9 @@ type Props = {
  * Giảm chuyển động / trình duyệt cũ / chưa chạy JS: hiện ngay, không ẩn nội dung.
  * Trang chủ có hiệu ứng riêng (GSAP) — không dùng component này ở đó.
  */
-export default function FadeIn({ children, delay = 0, className, as: Tag = 'div' }: Props) {
+export default function FadeIn({ children, delay = 0, className, as: Tag = 'div', day }: Props) {
+  const inDay = useIsDay()
+  const slow = day ?? inDay
   const ref = useRef<HTMLElement>(null)
   // Mặc định đã hiện: chỉ ẩn khi chắc chắn sẽ có observer làm hiện lại
   const [state, setState] = useState<'idle' | 'hidden' | 'shown'>('idle')
@@ -37,7 +42,20 @@ export default function FadeIn({ children, delay = 0, className, as: Tag = 'div'
       { rootMargin: '0px 0px -8% 0px' },
     )
     io.observe(el)
-    return () => io.disconnect()
+    // Lúc mount trang mới có thể còn đang trong hiệu ứng chuyển trang (vị trí chưa đúng) nên observer có thể
+    // không báo lại cho phần tử đã nằm trong khung nhìn → kiểm tra lại sau khi chuyển trang xong
+    const recheck = () => {
+      const b = el.getBoundingClientRect()
+      if (b.top < window.innerHeight && b.bottom > 0) {
+        setState('shown')
+        io.disconnect()
+      }
+    }
+    const timers = [700, 1400].map((ms) => window.setTimeout(recheck, ms))
+    return () => {
+      io.disconnect()
+      timers.forEach(window.clearTimeout)
+    }
   }, [])
 
   return (
@@ -45,8 +63,8 @@ export default function FadeIn({ children, delay = 0, className, as: Tag = 'div'
       ref={ref}
       style={state === 'shown' && delay ? { transitionDelay: `${delay}ms` } : undefined}
       className={cn(
-        state !== 'idle' && 'transition-[opacity,transform] duration-slow ease-editorial motion-reduce:transition-none',
-        state === 'hidden' && 'translate-y-3 opacity-0',
+        state !== 'idle' && 'transition-[opacity,transform] ease-editorial motion-reduce:transition-none', slow ? 'duration-[800ms]' : 'duration-slow',
+        state === 'hidden' && (slow ? 'translate-y-7 opacity-0' : 'translate-y-3 opacity-0'),
         className,
       )}
     >

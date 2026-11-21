@@ -108,11 +108,138 @@
   background-color: var(--page-bg);
   color: var(--page-fg);
 }
+/* Theme "ban ngày" cho trang công khai nền sáng xanh (DESIGN.md → Nền ban ngày, 2026-11-21): chữ abyss trên nền #F5F8FE.
+   KHÔNG đặt nền (trong suốt) để lộ DayBackdrop phía sau. Link chữ (text-accent-ink) đổi sang abyss vì xanh lá/đất nung
+   chỉ đạt 3,0–4,3:1 trên nền này; nút bg-accent giữ màu vai trò. */
+.theme-day {
+  --page-bg: var(--wm-day);
+  --page-fg: var(--wm-abyss);
+  --page-muted: color-mix(in srgb, var(--wm-abyss) 76%, var(--wm-day));
+  --page-line: color-mix(in srgb, var(--wm-abyss) 13%, var(--wm-day));
+  --page-surface: var(--wm-day-tint);
+  --page-edge: color-mix(in srgb, var(--wm-abyss) 40%, var(--wm-day));
+  --accent-ink: var(--wm-abyss);
+  color: var(--page-fg);
+  color-scheme: light;
+}
+.theme-day a[class*='text-accent-ink']:hover { text-decoration: underline; text-underline-offset: 4px; }
+/* Chân trang ban ngày: nền abyss, chữ ngà (như theme-night nhưng xanh đậm thay vì đen ấm) */
+.theme-abyss {
+  --page-bg: var(--wm-abyss);
+  --page-fg: var(--wm-ivory);
+  --page-surface: color-mix(in srgb, var(--page-fg) 5%, var(--page-bg));
+  --page-edge: color-mix(in srgb, var(--page-fg) 60%, var(--page-bg));
+  --page-muted: color-mix(in srgb, var(--page-fg) 78%, var(--page-bg));
+  --page-line: color-mix(in srgb, var(--page-fg) 18%, var(--page-bg));
+  background-color: var(--page-bg);
+  color: var(--page-fg);
+}
+/* Đoạn chuyển hoàng hôn trước chân trang: tan từ nền sáng vào abyss */
+.day-dusk {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--wm-azure) 0%, transparent) 0%,
+    color-mix(in srgb, var(--wm-azure) 16%, transparent) 30%,
+    color-mix(in srgb, var(--wm-ocean) 62%, transparent) 62%,
+    color-mix(in srgb, var(--wm-abyss) 92%, transparent) 86%,
+    var(--wm-abyss) 100%
+  );
+}
+/* Kính ban ngày cho ô tìm kiếm/thẻ trên bìa (COVER_GLASS). Mặc định (dashboard /match) vẫn là kính tối. */
+.cover-glass {
+  background-color: color-mix(in srgb, var(--wm-abyss) 60%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in srgb, var(--wm-ivory) 20%, transparent);
+}
+.theme-day .cover-glass {
+  background-color: rgb(255 255 255 / 0.85);
+  border-color: var(--page-line);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--wm-abyss) 6%, transparent);
+  color: var(--page-fg);
+}
+/* Thẻ thông tin ban ngày (chỉ có tác dụng trong .theme-day nên gắn ở đâu cũng an toàn): trắng + viền mảnh + bóng nhẹ (chữ lấy từ text-page-fg/muted của .theme-day) */
+.theme-day .day-card {
+  background-color: rgb(255 255 255);
+  border: 1px solid var(--page-line);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--wm-abyss) 5%, transparent),
+    0 12px 32px -14px color-mix(in srgb, var(--wm-abyss) 22%, transparent);
+  color: var(--page-fg);
+}
+/* Chip/viên ban ngày: trắng 85% + viền page-line; đang chọn = abyss + chữ day */
+.day-chip {
+  background-color: rgb(255 255 255 / 0.85);
+  border: 1px solid var(--page-line);
+  color: var(--page-fg);
+}
+.day-chip:hover { border-color: var(--page-fg); }
+.day-chip-on {
+  background-color: var(--wm-abyss);
+  border: 1px solid var(--wm-abyss);
+  color: var(--wm-day);
+}
+/* Chip "đảo" trên kính: đang chọn = ngà đặc chữ than (nền tối); ban ngày = abyss đặc chữ day */
+.chip-inv {
+  border-color: var(--wm-ivory);
+  background-color: var(--wm-ivory);
+  color: var(--wm-charcoal);
+}
+.theme-day .chip-inv {
+  border-color: var(--wm-abyss);
+  background-color: var(--wm-abyss);
+  color: var(--wm-day);
+}
+/* Chip kính chưa chọn: rê chuột viền sáng lên (ngà trên nền tối, chữ trang trên nền ban ngày) */
+.chip-off-dark:hover { border-color: var(--wm-ivory); }
+.theme-day .chip-off-dark:hover { border-color: var(--page-fg); }
+/* Hàng chip một dòng cuộn ngang, mờ dần mép phải */
+.chip-row-mask {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+}
+/* Thẻ chi tiết của bộ sưu tập /viec-lam ban ngày: ghi đè kính tối (nền, viền, vòng cyan, nhòe) bằng thẻ trắng;
+   thẻ không ở giữa (data-center=false) thành ghost. */
+.theme-day .day-gcard {
+  background-color: rgb(255 255 255);
+  border-color: var(--page-line);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--wm-abyss) 5%, transparent),
+    0 12px 32px -14px color-mix(in srgb, var(--wm-abyss) 22%, transparent);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.theme-day .day-gcard { transition: opacity 0.4s ease; }
+/* Thẻ chờ (công ty trước/sau) không có nội dung → ẩn hẳn trên nền ban ngày, chỉ còn thẻ đang xem */
+.theme-day .day-gcard[data-center='false'] { opacity: 0; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .theme-day .day-gcard { transition: none; } }
+/* Nền ban ngày: nút nhấn chính (BTN_ACCENT) dùng abyss — một màu nút chính trên trang; màu vai trò giữ ở chi tiết nhỏ (thanh điểm, chấm) */
+.theme-day [class*='bg-accent'][class*='border-accent'] {
+  background-color: var(--wm-abyss);
+  border-color: var(--wm-abyss);
+  color: var(--wm-day);
+}
+/* Nút nổi tin nhắn / thông báo (ngoài <main>): abyss thay than chì trên trang ban ngày */
+html[data-day] [data-floating] > button {
+  background-color: var(--wm-abyss);
+  color: var(--wm-day);
+  --tw-ring-color: color-mix(in srgb, var(--wm-day) 60%, transparent);
+}
+/* Lớp phủ sau thanh tìm nổi: ban ngày phủ màu day thay vì abyss; vòng focus cách nền day */
+.theme-day .day-scrim { background-color: color-mix(in srgb, var(--wm-day) 60%, transparent); }
+.theme-day .cover-glass:focus-within { --tw-ring-offset-color: var(--wm-day); }
+/* Thẻ mờ (ghost): xanh nhạt, không bóng */
+.day-ghost {
+  background-color: color-mix(in srgb, var(--wm-azure) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wm-abyss) 8%, transparent);
+}
+
 /* Bề mặt TỐI (DESIGN.md → Hai nền): màu nhấn và màu trạng thái chuyển sang bản dành cho nền tối
    (tokens.json → roles.*.accent-dark*; --danger / --warning-ink sáng hơn). Nhờ vậy BTN_ACCENT, text-accent-ink,
    text-danger… đặt trong khối tối tự đúng màu, không cần class riêng. .surface-dark dùng khi chỉ cần hoán đổi
    mà không đổi nền trang (vd. thẻ tối đặt trên nền sáng). */
 .theme-night,
+.theme-abyss,
 .theme-charcoal,
 .surface-dark {
   --accent: var(--accent-dark);
@@ -885,6 +1012,28 @@ html[data-page='home'] .hd-inner {
   .site-header[data-tone='light'] .hd-burger:hover { transform: none; }
 }
 
+/* Header trên nền ban ngày (data-day, đặt cùng data-tone="light"): kính xanh-trắng + viền mảnh; mục đang mở nền abyss */
+.site-header[data-day] {
+  --nav-active-bg: var(--wm-abyss);
+  --nav-active-text: var(--wm-day);
+  --nav-text: color-mix(in srgb, var(--wm-abyss) 78%, var(--wm-day));
+  --nav-text-hover: var(--wm-abyss);
+  --nav-hover-bg: color-mix(in srgb, var(--wm-abyss) 6%, transparent);
+  --h-fg: var(--wm-abyss);
+  --h-link: color-mix(in srgb, var(--wm-abyss) 78%, var(--wm-day));
+  --h-link-hover: var(--wm-abyss);
+  --h-btn-bg: var(--wm-abyss);
+  --h-btn-fg: var(--wm-day);
+  --h-btn-chip: var(--wm-day);
+  --h-btn-arrow: var(--wm-abyss);
+}
+.site-header[data-day] .hd-inner {
+  background: rgb(245 248 254 / 0.7);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  border-bottom: 1px solid color-mix(in srgb, var(--wm-abyss) 6%, transparent);
+}
+
 /* Trang chủ nền xanh (homeBackground.ts) — chủ dự án 2026-11-19:
    - Header: trong suốt ở đầu trang; cuộn quá 80px (data-scrolled) thì có nền kính xanh đậm để chữ menu
      không chồng lên nội dung. Chỉ đổi nền, không đổi chuyển động của header.
@@ -1107,6 +1256,10 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
 .pc-benefit-glow {
   background: radial-gradient(ellipse 60% 60% at 0% 0%, color-mix(in srgb, var(--wm-cyan) 22%, transparent), transparent 70%);
 }
+/* Ban ngày: quầng góc xanh azure nhạt trên nền trắng */
+.theme-day .pc-benefit-glow {
+  background: radial-gradient(ellipse 60% 60% at 0% 0%, color-mix(in srgb, var(--wm-azure) 9%, transparent), transparent 70%);
+}
 @media (prefers-reduced-motion: reduce) {
   .pc-benefit .pc-benefit-glow { transition: none; }
 }
@@ -1116,3 +1269,4 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
   background: radial-gradient(closest-side, var(--wm-cyan), transparent 80%);
   filter: blur(28px);
 }
+.theme-day .jobs-card-halo { display: none; }
