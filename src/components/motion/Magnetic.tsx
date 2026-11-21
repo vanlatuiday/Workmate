@@ -1,5 +1,5 @@
 import { useRef, type ReactNode } from 'react'
-import { motion, useSpring } from 'motion/react'
+import { m, useSpring } from 'motion/react'
 import { useMediaQuery, FINE_POINTER } from '@hooks/useMediaQuery'
 import { cn } from '@utils/cn'
 
@@ -22,7 +22,7 @@ export default function Magnetic({ children, strength = 0.3, className }: Props)
   if (!enabled) return <div className={cn('inline-block', className)}>{children}</div>
 
   return (
-    <motion.div
+    <m.div
       ref={ref}
       className={cn('inline-block', className)}
       style={{ x, y }}
@@ -40,6 +40,6 @@ export default function Magnetic({ children, strength = 0.3, className }: Props)
       }}
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }

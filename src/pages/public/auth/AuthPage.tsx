@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ComponentType } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion, useAnimationControls, useMotionValue, useSpring } from 'motion/react'
+import { AnimatePresence, m, useAnimationControls, useMotionValue, useSpring } from 'motion/react'
 import { ArrowLeft, MapPin, Wallet } from 'lucide-react'
 import { useCatalogStore } from '@context/catalogStore'
 import { useAuthStore } from '@context/authStore'
@@ -146,7 +146,7 @@ function AuthCard() {
         {/* popLayout: nội dung cũ được tách ra (absolute) và mờ đi CÙNG LÚC nội dung mới hiện lên
             → hai lớp nhòe chồng nhau, không có khoảnh khắc thẻ trống như mode="wait" */}
         <AnimatePresence mode="popLayout" initial={false}>
-          <motion.div
+          <m.div
             key={`${kind}-${mode}`}
             className="w-full"
             initial={{ opacity: 0, x: shift, filter: blur }}
@@ -154,7 +154,7 @@ function AuthCard() {
             exit={{ opacity: 0, x: shift, filter: blur, transition: swapTransition }}
           >
             {kind === 'form' ? <Form {...formProps} /> : <WelcomeBlock mode={mode} />}
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
     )
@@ -183,7 +183,7 @@ function AuthCard() {
         Về trang chủ
       </Link>
 
-      <motion.div
+      <m.div
         ref={cardRef}
         animate={controls}
         onPointerMove={finePointer && isDesktop ? onCardMove : undefined}
@@ -192,7 +192,7 @@ function AuthCard() {
       >
         {/* Vệt sáng trắng nhẹ theo chuột — dời bằng transform, nằm dưới nội dung */}
         {finePointer && isDesktop && (
-          <motion.div
+          <m.div
             aria-hidden
             className="auth-sheen pointer-events-none absolute left-0 top-0 rounded-full"
             style={{ width: SHEEN, height: SHEEN, x: sheenX, y: sheenY, opacity: sheenOpacity }}
@@ -202,7 +202,7 @@ function AuthCard() {
         {isDesktop ? (
           <div className="relative grid min-h-[620px] grid-cols-2">
             {/* Đường chia nghiêng: nghiêng cố định, dời sang vị trí mới bằng transform khi hai nửa đổi chỗ */}
-            <motion.div
+            <m.div
               aria-hidden
               initial={false}
               animate={{ x: formLeft ? 28 : -28 }}
@@ -213,7 +213,7 @@ function AuthCard() {
             {/* Hai nửa khác vai trò nên khác bề mặt (frontend-design: tương phản có chủ đích): nửa form giữ kính tối
                 trầm để nhập liệu; nửa chào mừng là một tấm sáng hơn — xanh biển có tia sáng xanh ngọc và ánh cam ở đáy
                 như hero trang chủ. Tấm này trượt sang nửa kia cùng nhịp với đường chia khi hai nửa đổi chỗ. */}
-            <motion.div
+            <m.div
               aria-hidden
               initial={false}
               animate={{ x: formLeft ? '100%' : '0%' }}
@@ -228,7 +228,7 @@ function AuthCard() {
             <div aria-hidden className="auth-welcome-panel pointer-events-none absolute inset-x-0 top-0 -z-10 h-24" />
             <MobileWelcome mode={mode} />
             <AnimatePresence mode="wait" initial={false} custom={dir}>
-              <motion.div
+              <m.div
                 key={mode}
                 custom={dir}
                 variants={{
@@ -243,11 +243,11 @@ function AuthCard() {
                 className="mt-6"
               >
                 <Form {...formProps} />
-              </motion.div>
+              </m.div>
             </AnimatePresence>
           </div>
         )}
-      </motion.div>
+      </m.div>
     </div>
   )
 }

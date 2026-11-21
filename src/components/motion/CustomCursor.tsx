@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useMotionValue, useSpring } from 'motion/react'
+import { m, useMotionValue, useSpring } from 'motion/react'
 import { useMediaQuery, FINE_POINTER } from '@hooks/useMediaQuery'
 
 type Variant = 'default' | 'link' | 'label' | 'hidden'
@@ -104,7 +104,7 @@ function Cursor() {
     <>
       {/* Chấm bám sát — ẩn khi vòng đang hiện nhãn để không đè lên chữ */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-[101]">
-        <motion.div
+        <m.div
           className="absolute left-0 top-0 w-1.5 h-1.5 rounded-full bg-page-fg"
           style={{ x, y, translateX: '-50%', translateY: '-50%' }}
           animate={{ opacity: hidden || variant === 'label' ? 0 : 1 }}
@@ -114,7 +114,7 @@ function Cursor() {
 
       {/* Vòng trôi theo sau */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-[100]">
-        <motion.div
+        <m.div
           className="absolute left-0 top-0 flex items-center justify-center rounded-full border
                      text-xs font-medium
                      transition-[background-color,border-color] duration-300"
@@ -127,13 +127,13 @@ function Cursor() {
           }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
         >
-          <motion.span
+          <m.span
             animate={{ opacity: variant === 'label' ? 1 : 0 }}
             transition={{ duration: 0.2 }}
           >
             {label}
-          </motion.span>
-        </motion.div>
+          </m.span>
+        </m.div>
       </div>
     </>
   )

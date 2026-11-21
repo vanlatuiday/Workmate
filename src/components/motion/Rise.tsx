@@ -1,6 +1,6 @@
 // Hiện dần khi cuộn tới, chạy lại cả khi cuộn lên (tách từ trang Giới thiệu, dùng chung).
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { motion, useInView } from 'motion/react'
+import { m, useInView } from 'motion/react'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 
 type RiseFrom = { x?: number; y?: number; scale?: number }
@@ -44,7 +44,7 @@ export default function Rise({
 
   const hidden = { opacity: 0, x: from.x ?? 0, y: (from.y ?? 0) * side, scale: from.scale ?? 1 }
   return (
-    <motion.div
+    <m.div
       ref={ref}
       className={className}
       initial={hidden}
@@ -53,6 +53,6 @@ export default function Rise({
       transition={shown ? { duration, delay, ease: [0.22, 1, 0.36, 1] } : { duration: 0 }}
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }

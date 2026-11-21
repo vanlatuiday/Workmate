@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { X } from 'lucide-react'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useExperienceStore } from '@context/experienceStore'
@@ -78,7 +78,7 @@ export default function MenuOverlay({ id, open, onClose, items, actions }: Props
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <m.div
           ref={panelRef}
           id={id}
           role="dialog"
@@ -106,7 +106,7 @@ export default function MenuOverlay({ id, open, onClose, items, actions }: Props
             <ul>
               {items.map((item, i) => (
                 <li key={item.href} className="overflow-hidden">
-                  <motion.div
+                  <m.div
                     initial={{ y: '110%' }}
                     animate={{ y: 0 }}
                     exit={{ y: '110%' }}
@@ -131,13 +131,13 @@ export default function MenuOverlay({ id, open, onClose, items, actions }: Props
                         <RollText>{item.label}</RollText>
                       </span>
                     </Link>
-                  </motion.div>
+                  </m.div>
                 </li>
               ))}
             </ul>
           </nav>
 
-          <motion.div
+          <m.div
             className="flex w-full shrink-0 flex-wrap items-center gap-3 px-5 pb-10 md:px-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -178,8 +178,8 @@ export default function MenuOverlay({ id, open, onClose, items, actions }: Props
                 Chất lượng <span className="text-wm-ivory">{quality === 'high' ? 'Cao' : 'Thấp'}</span>
               </button>
             )}
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>
   )

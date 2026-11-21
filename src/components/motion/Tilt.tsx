@@ -1,5 +1,5 @@
 import { useRef, type ReactNode } from 'react'
-import { motion, useSpring, useTransform } from 'motion/react'
+import { m, useSpring, useTransform } from 'motion/react'
 import { useMediaQuery, FINE_POINTER } from '@hooks/useMediaQuery'
 import { cn } from '@utils/cn'
 
@@ -41,7 +41,7 @@ function TiltBox({ children, max, shift, className }: Required<Omit<Props, 'chil
   const my = useTransform(py, (v) => -v * shift)
 
   return (
-    <motion.div
+    <m.div
       ref={ref}
       // Biến CSS để ảnh con đọc được mà không cần bọc thêm component
       style={{ rotateX, rotateY, transformPerspective: 800, '--tilt-x': mx, '--tilt-y': my } as never}
@@ -57,6 +57,6 @@ function TiltBox({ children, max, shift, className }: Required<Omit<Props, 'chil
       }}
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }

@@ -26,7 +26,7 @@ export default defineConfig({
           if (!id.includes('node_modules')) return undefined
           if (/node_modules\/(react|react-dom|react-router|react-router-dom|scheduler)\//.test(id)) return 'vendor-react'
           if (/node_modules\/(gsap|@gsap|lenis)\//.test(id)) return 'vendor-gsap'
-          if (/node_modules\/(motion|motion-dom|motion-utils|framer-motion)\//.test(id)) return 'vendor-motion'
+          // motion: KHÔNG gộp cứng vào một chunk — để Rollup tách phần lõi (m, hook) khỏi bộ tính năng domMax tải sau qua LazyMotion
           return undefined
         },
       },

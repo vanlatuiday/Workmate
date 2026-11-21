@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -22,7 +22,7 @@ export default function HeaderNav({ links, className }: { links: MenuItem[]; cla
 
   const pill = (key: string) =>
     target === key ? (
-      <motion.span
+      <m.span
         layoutId="hd-pill"
         aria-hidden="true"
         className="hd-pill"

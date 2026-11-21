@@ -2,7 +2,7 @@
 // tiêu đề lớn + đoạn giới thiệu bên phải, lưới 2 cột thẻ ảnh lớn.
 // Chuyển động: thẻ trồi lên khi vào khung (Rise, chạy lại khi cuộn ngược), ảnh trong thẻ trôi chậm hơn thẻ (parallax).
 import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'motion/react'
+import { m, useScroll, useTransform } from 'motion/react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { photoSrcSet, photoUrl } from '@components/discover/types'
@@ -34,7 +34,7 @@ function ArticleCard({ a, index }: { a: Article; index: number }) {
           <div
             className={`h-full w-full transition-transform duration-base ease-editorial motion-reduce:transition-none [@media(hover:hover)]:group-hover:scale-[1.03] motion-reduce:group-hover:scale-100`}
           >
-            <motion.img
+            <m.img
               src={photoUrl(a.photoId, 960)}
               srcSet={photoSrcSet(a.photoId)}
               sizes="(min-width: 768px) 46vw, 100vw"

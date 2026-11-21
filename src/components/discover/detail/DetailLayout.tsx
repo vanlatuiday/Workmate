@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useCurtainDelay } from '@components/motion/PageCurtain'
 
@@ -13,7 +13,7 @@ export default function DetailLayout({ aside, children }: { aside: ReactNode; ch
 
   return (
     <div className="shell mt-14 grid gap-12 md:mt-20 lg:grid-cols-12 lg:gap-16">
-      <motion.aside
+      <m.aside
         className="lg:sticky lg:top-24 lg:col-span-4 lg:self-start"
         {...(reduced
           ? {}
@@ -24,7 +24,7 @@ export default function DetailLayout({ aside, children }: { aside: ReactNode; ch
             })}
       >
         {aside}
-      </motion.aside>
+      </m.aside>
       <div className="flex flex-col gap-14 md:gap-20 lg:col-span-8">{children}</div>
     </div>
   )

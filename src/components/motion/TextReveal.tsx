@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 
 type Props = {
@@ -44,7 +44,7 @@ export default function TextReveal({
   // Không đặt whileInView trên từng từ: từ nằm dưới mặt nạ overflow-hidden nên
   // IntersectionObserver coi như vô hình — chỉ chạy được khi may mắn còn ló ra
   // một mép mỏng (phụ thuộc line-height), dòng cao hơn là chữ kẹt mãi không hiện.
-  const MotionTag = motion[Tag]
+  const MotionTag = m[Tag]
 
   const trigger = hold
     ? { animate: 'hidden' }
@@ -64,7 +64,7 @@ export default function TextReveal({
             {/* pb-[0.12em]/-mb-[0.12em]: nới đáy mặt nạ để dấu và nét thòng
                 không bị overflow-hidden cắt mất, mà không làm giãn dòng. */}
             <span className="inline-block overflow-hidden align-bottom pb-[0.12em] -mb-[0.12em]">
-              <motion.span
+              <m.span
                 className="inline-block"
                 custom={i}
                 variants={{
@@ -80,7 +80,7 @@ export default function TextReveal({
                 }}
               >
                 {word}
-              </motion.span>
+              </m.span>
             </span>
             {/* Khoảng trắng nằm ngoài mặt nạ: đặt trong inline-block thì
                 trình duyệt cắt bỏ khoảng trắng cuối và các từ dính liền nhau */}

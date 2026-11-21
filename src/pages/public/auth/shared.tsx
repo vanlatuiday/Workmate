@@ -1,6 +1,6 @@
 import { forwardRef, type ReactNode } from 'react'
 import { Link, type LinkProps } from 'react-router-dom'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { AlertCircle, ArrowLeft, ArrowRight, Building2, Eye, EyeOff, Loader2, Search, type LucideIcon } from 'lucide-react'
 import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
@@ -144,20 +144,20 @@ export const AuthField = forwardRef<HTMLInputElement, FieldProps>(function AuthF
 export function Stagger({ delay = 0, className, children }: { delay?: number; className?: string; children: ReactNode }) {
   const reduced = useReducedMotion()
   return (
-    <motion.div
+    <m.div
       className={className}
       initial={reduced ? false : 'hidden'}
       animate="show"
       variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06, delayChildren: delay } } }}
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }
 
 export function Item({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <motion.div
+    <m.div
       className={className}
       variants={{
         hidden: { opacity: 0, y: 8 },
@@ -165,7 +165,7 @@ export function Item({ className, children }: { className?: string; children: Re
       }}
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }
 

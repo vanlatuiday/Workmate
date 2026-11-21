@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useCurtainDelay } from '@components/motion/PageCurtain'
 import { photoSrcSet, photoUrl, type Photo } from '../types'
@@ -28,7 +28,7 @@ export default function DetailHero({
     // overflow-x-clip: tên đang trượt từ ngoài mép phải không làm trang cuộn ngang
     <header className="overflow-x-clip">
       <div className="shell flex min-h-0 flex-col justify-between pt-8 md:min-h-[calc(44svh-4rem)] md:pt-10">
-        <motion.div
+        <m.div
           {...(reduced
             ? {}
             : {
@@ -43,10 +43,10 @@ export default function DetailHero({
             <span className="hidden h-px w-8 flex-shrink-0 bg-page-line sm:block" />
             {eyebrow}
           </p>
-        </motion.div>
+        </m.div>
 
         {/* leading ≥ 1.05 để không cắt dấu tiếng Việt */}
-        <motion.h1
+        <m.h1
           className="mt-8 max-w-full break-words pb-4 text-left md:ml-auto md:mt-12 md:text-right font-display text-display-md font-semibold leading-[1.08] tracking-[-0.03em] md:max-w-[16ch]"
           {...(reduced
             ? {}
@@ -57,12 +57,12 @@ export default function DetailHero({
               })}
         >
           {title}
-        </motion.h1>
+        </m.h1>
       </div>
 
       <div className="shell mt-4 md:mt-6">
         <div className="overflow-hidden rounded-control bg-page-surface">
-          <motion.img
+          <m.img
             src={photoUrl(photo.id, 1400)}
             srcSet={photoSrcSet(photo.id)}
             sizes="(min-width: 1440px) 1312px, 92vw"

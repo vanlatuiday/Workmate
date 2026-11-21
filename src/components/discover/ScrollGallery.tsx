@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, m } from 'motion/react'
 import { ArrowDown, ArrowUp } from 'lucide-react'
 import { gsap, useGSAP } from '@utils/gsap'
 import type { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -285,7 +285,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                 <div className="flex items-end gap-2">
                   <span className="relative block h-[1.06em] overflow-hidden font-display text-display-sm font-semibold leading-[1.06] tnum">
                     <AnimatePresence mode="popLayout" initial={false}>
-                      <motion.span
+                      <m.span
                         key={active}
                         className="block"
                         initial={{ y: '100%' }}
@@ -294,7 +294,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                         transition={{ duration: 0.5, ease: EASE }}
                       >
                         {pad(active + 1)}
-                      </motion.span>
+                      </m.span>
                     </AnimatePresence>
                   </span>
                   <span className="pb-1.5 text-sm text-page-muted tnum">/ {pad(n)}</span>
@@ -399,7 +399,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
               <div className="flex items-end gap-3">
                 <span className="relative block h-[1.06em] overflow-hidden font-display text-display-sm font-semibold leading-[1.06] tnum">
                   <AnimatePresence mode="popLayout" initial={false}>
-                    <motion.span
+                    <m.span
                       key={active}
                       className="block"
                       initial={{ y: '100%' }}
@@ -408,7 +408,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                       transition={{ duration: 0.5, ease: EASE }}
                     >
                       {pad(active + 1)}
-                    </motion.span>
+                    </m.span>
                   </AnimatePresence>
                 </span>
                 <span className="pb-2 text-sm text-page-muted tnum">/ {pad(n)}</span>
@@ -473,7 +473,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
 
           <div className="relative z-[110] self-center">
             <AnimatePresence mode="wait" initial={false}>
-              <motion.div
+              <m.div
                 key={current.id}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -481,7 +481,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                 transition={{ duration: 0.3, ease: EASE }}
               >
                 {renderDetail(current)}
-              </motion.div>
+              </m.div>
             </AnimatePresence>
           </div>
         </div>
