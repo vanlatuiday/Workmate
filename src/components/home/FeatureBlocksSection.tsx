@@ -31,6 +31,9 @@ const ART: Record<string, { src: string; alt: string }> = {
   schedule: { src: scheduleArt, alt: "Minh họa màn hình chọn lịch rảnh trong tuần trên Workmate" },
   near: { src: nearArt, alt: "Minh họa danh sách việc gần bạn kèm khoảng cách và bản đồ" },
   match: { src: matchArt, alt: "Minh họa khung trò chuyện sau khi kết nối: các bước ứng tuyển, tin nhắn với nhà tuyển dụng và chọn lịch phỏng vấn" },
+  // Nhà tuyển dụng dùng chung 2 ảnh minh họa của bên tìm việc (chủ dự án 2026-11-22) thay cho ảnh chụp
+  slots: { src: scheduleArt, alt: "Minh họa bảng chọn buổi trong tuần: tô ca cần người, Workmate tìm người rảnh đúng các ca đó" },
+  nearby: { src: nearArt, alt: "Minh họa danh sách gần đây kèm khoảng cách và bản đồ quanh cửa hàng" },
 };
 /** Mặt nạ tan mép cho ảnh chụp (không có nền trong suốt) để không thành khối chữ nhật trên nền */
 const PHOTO_FADE = "photo-fade";

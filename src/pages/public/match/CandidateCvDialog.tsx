@@ -12,7 +12,8 @@ type Props = {
   seekerId: string
   /** Tên viết tắt từ danh sách — hiện ngay trên thanh đầu khi hồ sơ đang nạp */
   name: string
-  score: number
+  /** Điểm phù hợp; bỏ trống = không hiện vòng điểm */
+  score?: number
   /** Thẻ vừa bấm — trả focus về đây khi đóng */
   origin: HTMLElement | null
   onClosed: () => void
@@ -97,7 +98,7 @@ export default function CandidateCvDialog({ seekerId, name, score, origin, onClo
             <p className="text-xs font-medium text-page-muted">CV ứng viên</p>
             <h2 id="candidate-cv-title" className="truncate font-display text-xl font-semibold text-page-fg">{profile?.name ?? name}</h2>
           </div>
-          <ScoreRing value={Math.round(score)} />
+          {score !== undefined && <ScoreRing value={Math.round(score)} />}
           <button ref={closeRef} type="button" onClick={close} aria-label="Đóng" className={cn(BTN_ICON, 'order-last sm:order-none')}>
             <X className="h-4 w-4" aria-hidden="true" />
           </button>

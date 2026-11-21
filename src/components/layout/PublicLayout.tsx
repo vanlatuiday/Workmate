@@ -82,6 +82,9 @@ export default function PublicLayout() {
   // Trang ban ngày (thay kiểu bìa xanh + nội dung tối 20/11 cho các trang này): nền DayBackdrop, chân trang abyss + đoạn hoàng hôn
   const day = !bare && (matchesAny(DAY_PATHS, location.pathname) || !matchesAny(NON_DAY_PATHS, location.pathname))
   const nightFooter = location.pathname === '/ca-nhan'
+  // Trang cá nhân (/ca-nhan, /ung-vien/:id) dùng nền trời xanh như trang ban ngày → chân trang giống trang ban ngày
+  // (đoạn hoàng hôn + abyss), chủ dự án 2026-11-22
+  const dayFooter = day || location.pathname === '/ca-nhan' || location.pathname.startsWith('/ung-vien/')
   // Trang chủ có header riêng (useHomeHeader). Trang khác: header tự sáng/tối theo khối đang nằm dưới nó
   // (khối đánh dấu data-surface="dark|light" — hook useHeaderSurface); không có khối đánh dấu thì ngà như cũ.
   const headerSurface = useHeaderSurface(!dark && !bare, day)
@@ -161,18 +164,18 @@ export default function PublicLayout() {
       <PageCurtain />
 
       {/* Đoạn hoàng hôn: nền sáng tan dần vào abyss của chân trang (chỉ trang ban ngày) */}
-      {day && <div aria-hidden="true" className="day-dusk pointer-events-none relative -mt-10 h-[190px]" />}
+      {dayFooter && <div aria-hidden="true" className="day-dusk pointer-events-none relative -mt-10 h-[190px]" />}
 
       {/* Footer (ẩn ở các trang đăng nhập toàn màn hình) */}
       {!bare && (
       <footer
-        data-surface={nightFooter ? 'dark' : undefined}
+        data-surface={nightFooter || dayFooter ? 'dark' : undefined}
         className={cn(
           'border-t bg-page-bg border-page-line',
-          day ? 'theme-abyss relative overflow-hidden border-transparent' : nightFooter ? 'theme-night relative overflow-hidden' : !dark && 'theme-ivory',
+          dayFooter ? 'theme-abyss relative overflow-hidden border-transparent' : nightFooter ? 'theme-night relative overflow-hidden' : !dark && 'theme-ivory',
         )}
       >
-        {(nightFooter || day) && <DustField density="low" />}
+        {(nightFooter || dayFooter) && <DustField density="low" />}
         {/* relative z-10: chữ footer nằm trên lớp hạt của trang chủ (canvas z-[5]); nền footer
             không positioned nên vẫn nằm dưới hạt */}
         <div className="shell py-section-sm relative z-10">

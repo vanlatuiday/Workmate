@@ -1,45 +1,90 @@
-import FadeIn from '@components/motion/FadeIn'
-import { SkeletonList } from '@components/dashboard'
-import { notifyError } from '@utils/feedback'
+import { SkeletonList, MatchScore } from '@components/dashboard'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Check, Download, FileText } from 'lucide-react'
-import { MatchScore } from '@components/dashboard'
-import { Facts } from '@components/discover/parts'
-import { TextBlock, TagList } from '@components/discover/detail/DetailBlocks'
-import DetailLayout from '@components/discover/detail/DetailLayout'
+import { ArrowLeft, Check, FileText, MapPin, Phone, Target, UserRound } from 'lucide-react'
 import DetailNotFound from '@components/discover/detail/NotFound'
-import { HireAction, SeekerReviews } from '@components/hire'
+import { HireAction } from '@components/hire'
+import { useSeekerReviews } from '@services/connectionService'
 import InterviewAction from '@components/interview/InterviewAction'
 import MessageLink from '@components/messenger/MessageLink'
 import ReportButton from '@components/report/ReportButton'
 import ConsiderButton from '@components/application/ConsiderButton'
-import { JOB_TYPES } from '@constants/index'
 import { useCatalogStore, type CatalogJob } from '@context/catalogStore'
 import { useCompanyStore } from '@context/companyStore'
 import { useConnectionStore } from '@context/connectionStore'
-import { personInitials } from '@pages/public/match/parts'
+import { ScoreRing } from '@pages/public/match/parts'
+import CandidateCvDialog from '@pages/public/match/CandidateCvDialog'
 import { useCandidateMatches } from '@services/matchingService'
-import { EmptyNote, WeekGrid } from '@pages/public/personal/parts'
-import { apiErrorMessage } from '@services/authService'
-import { candidateCvUrl, fetchCandidateProfile, type CandidateProfile as Profile } from '@services/candidateService'
+import { EmptyNote } from '@pages/public/personal/parts'
+import { Card } from '@pages/public/personal/personalPrototypeParts'
+import { SeekerProfileCards, type SeekerCardData } from '@pages/public/personal/SeekerProfileSections'
+import '@pages/public/personal/personalPrototype.css'
+import { fetchCandidateProfile, type CandidateProfile as Profile } from '@services/candidateService'
 import { expressInterest, markApplicationViewed, usePairStatuses, withdrawInterest } from '@services/connectionService'
+import { isFutureStart } from '@utils/format'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
-import { startLabel } from '@utils/format'
+import cover from '@assets/images/personal-cover-preview.webp'
+import backdrop from '@assets/images/page-bg-jobs-preview.webp'
+import avatarDefault from '@assets/images/avatar-default.webp'
 
-/** Mở CV ở tab mới. Mở tab trước khi chờ máy chủ để trình duyệt không chặn cửa sổ bật lên */
-async function openCv(seekerId: string, download: boolean) {
-  const tab = window.open('', '_blank')
-  try {
-    const url = await candidateCvUrl(seekerId, download)
-    if (tab) tab.location.href = url
-    else window.location.href = url
-  } catch (err) {
-    tab?.close()
-    notifyError(apiErrorMessage(err, 'Chưa mở được CV, vui lòng thử lại.'))
-  }
+/**
+ * Nút hành động theo trạng thái giữa doanh nghiệp và ứng viên ở một tin.
+ * `compact` (khu đầu trang, khung CV): nhãn ngắn, kết nối rồi chỉ còn "Nhắn tin".
+ */
+function JobActions({ job, profile, compact }: { job: CatalogJob; profile: Profile; compact?: boolean }) {
+  const status = usePairStatuses('recruiter')(job.id, profile.id)
+  return (
+    <>
+      {status === 'none' && (
+        <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={() => expressInterest('recruiter', job.id, profile.id)}>
+          {compact ? 'Quan tâm ứng viên' : 'Quan tâm'}<span className="sr-only"> cho vị trí {job.title}</span>
+        </button>
+      )}
+      {status === 'received' && (job.visible ? (
+        <>
+          <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={() => expressInterest('recruiter', job.id, profile.id)}>
+            Đồng ý kết nối<span className="sr-only"> cho vị trí {job.title}</span>
+          </button>
+          <ConsiderButton jobId={job.id} seekerId={profile.id} className={cn(BTN_SECONDARY, BTN_SM)} srLabel={`cho vị trí ${job.title}`} />
+        </>
+      ) : (
+        <p className="text-sm text-page-muted">Ứng viên đã ứng tuyển. Mở lại tin để đồng ý kết nối.</p>
+      ))}
+      {status === 'sent' && (
+        <>
+          {compact ? (
+            <button type="button" disabled className={cn(BTN_SECONDARY, BTN_SM)}>
+              <Check className="h-4 w-4" aria-hidden="true" />
+              Đã quan tâm
+            </button>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-sm text-page-muted">
+              <Check className="h-4 w-4" aria-hidden="true" />
+              Đã quan tâm, chờ phản hồi
+            </span>
+          )}
+          <button type="button" onClick={() => withdrawInterest('recruiter', job.id, profile.id)} className={`rounded-control px-1 text-xs text-page-muted underline underline-offset-4 hover:text-page-fg ${FOCUS}`}>
+            Rút<span className="sr-only"> quan tâm vị trí {job.title}</span>
+          </button>
+        </>
+      )}
+      {status === 'connected' && (
+        <>
+          <MessageLink convKey={`${job.id}|${profile.id}`} className={cn(BTN_SECONDARY, BTN_SM)}>
+            Nhắn tin<span className="sr-only"> về vị trí {job.title}</span>
+          </MessageLink>
+          {!compact && (
+            <>
+              <InterviewAction viewer="recruiter" jobId={job.id} seekerId={profile.id} />
+              <HireAction viewer="recruiter" jobId={job.id} seekerId={profile.id} />
+            </>
+          )}
+        </>
+      )}
+    </>
+  )
 }
 
 /** Một tin của công ty: độ phù hợp với ứng viên này và việc có thể làm tiếp */
@@ -50,7 +95,7 @@ function JobRow({ job, profile, score }: { job: CatalogJob; profile: Profile; sc
     if (status === 'received') markApplicationViewed(job.id, profile.id)
   }, [status, job.id, profile.id])
   return (
-    <li className="py-5">
+    <li className="py-5 first:pt-4 last:pb-0">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="font-medium text-page-fg">{job.title}</p>
@@ -59,57 +104,25 @@ function JobRow({ job, profile, score }: { job: CatalogJob; profile: Profile; sc
         {score !== undefined && <MatchScore score={score} />}
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        {status === 'none' && (
-          <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={() => expressInterest('recruiter', job.id, profile.id)}>
-            Quan tâm<span className="sr-only"> cho vị trí {job.title}</span>
-          </button>
-        )}
-        {status === 'received' && (job.visible ? (
-          <>
-            <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={() => expressInterest('recruiter', job.id, profile.id)}>
-              Đồng ý kết nối<span className="sr-only"> cho vị trí {job.title}</span>
-            </button>
-            <ConsiderButton jobId={job.id} seekerId={profile.id} className={cn(BTN_SECONDARY, BTN_SM)} srLabel={`cho vị trí ${job.title}`} />
-          </>
-        ) : (
-          <p className="text-sm text-page-muted">Ứng viên đã ứng tuyển. Mở lại tin để đồng ý kết nối.</p>
-        ))}
-        {status === 'sent' && (
-          <>
-            <span className="inline-flex items-center gap-1.5 text-sm text-page-muted">
-              <Check className="h-4 w-4" aria-hidden="true" />
-              Đã quan tâm, chờ phản hồi
-            </span>
-            <button type="button" onClick={() => withdrawInterest('recruiter', job.id, profile.id)} className={`rounded-control px-1 text-xs text-page-muted underline underline-offset-4 hover:text-page-fg ${FOCUS}`}>
-              Rút<span className="sr-only"> quan tâm vị trí {job.title}</span>
-            </button>
-          </>
-        )}
-        {status === 'connected' && (
-          <>
-            <MessageLink convKey={`${job.id}|${profile.id}`} className={cn(BTN_SECONDARY, BTN_SM)}>
-              Nhắn tin<span className="sr-only"> về vị trí {job.title}</span>
-            </MessageLink>
-            <InterviewAction viewer="recruiter" jobId={job.id} seekerId={profile.id} />
-            <HireAction viewer="recruiter" jobId={job.id} seekerId={profile.id} />
-          </>
-        )}
+        <JobActions job={job} profile={profile} />
       </div>
     </li>
   )
 }
 
-/** /ung-vien/:id — hồ sơ ứng viên nhà tuyển dụng được xem. Máy chủ quyết định phần nào được gửi về. */
+/** /ung-vien/:id — trang cá nhân của ứng viên (chỉ xem) cho nhà tuyển dụng. Máy chủ quyết định phần nào được gửi về. */
 export default function CandidateProfile() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [state, setState] = useState<'loading' | 'ready' | 'missing' | 'error'>('loading')
+  const [cvOpen, setCvOpen] = useState<{ origin: HTMLElement | null } | null>(null)
   // Vừa kết nối thì nạp lại để mở họ tên đầy đủ, số điện thoại, CV
   const connected = useConnectionStore((s) => s.connections.some((c) => c.seekerId === id))
   const companyId = useCompanyStore((s) => s.id)
   const allJobs = useCatalogStore((s) => s.jobs)
   const statusOf = usePairStatuses('recruiter')
+  const reviews = useSeekerReviews(id)
   // Điểm với từng tin của công ty do máy chủ tính
   const { ready: scoresReady, outcomeOf } = useCandidateMatches(allJobs.filter((j) => j.companyId === companyId).map((j) => j.id))
 
@@ -120,6 +133,12 @@ export default function CandidateProfile() {
       .catch((err: { response?: { status?: number } }) => { if (alive) setState(err.response?.status === 404 ? 'missing' : 'error') })
     return () => { alive = false }
   }, [id, connected])
+
+  // Header trang cá nhân dùng bảng màu sáng riêng (cùng /ca-nhan)
+  useEffect(() => {
+    document.documentElement.dataset.personalPreview = ''
+    return () => { delete document.documentElement.dataset.personalPreview }
+  }, [])
 
   if (state === 'missing') {
     return <DetailNotFound title="Hồ sơ này không hiển thị" text="Ứng viên đã để hồ sơ ở chế độ riêng tư hoặc đường dẫn không còn đúng." />
@@ -136,130 +155,107 @@ export default function CandidateProfile() {
     .filter((j) => j.companyId === companyId && (j.visible || statusOf(j.id, profile.id) !== 'none'))
     .map((job) => ({ job, score: outcomeOf(job.id, profile.id)?.score }))
     .sort((a, b) => (b.score ?? -1) - (a.score ?? -1))
-  const typeLabels = profile.criteria.jobTypes.map((t) => JOB_TYPES.find((j) => j.value === t)?.label ?? t)
-
-  const aside = (
-    <>
-      {profile.avatarUrl ? (
-        <img src={profile.avatarUrl} alt={`Ảnh đại diện của ${profile.name}`} className="h-20 w-20 rounded-full border border-page-line object-cover" />
-      ) : (
-        <span aria-hidden="true" className="grid h-20 w-20 place-items-center rounded-full border border-page-line bg-page-surface font-display text-xl font-semibold">
-          {personInitials(profile.name)}
-        </span>
-      )}
-      {profile.summary && <p className="mt-5 max-w-sm text-base leading-relaxed md:text-lg">{profile.summary}</p>}
-      <Facts
-        rows={[
-          ['Tình trạng', profile.working ? 'Đang đi làm' : 'Sẵn sàng'],
-          ['Bắt đầu', startLabel(profile.availableFrom)],
-          ['Khu vực', profile.fullArea || profile.area || 'Chưa nêu'],
-          ['Cách công ty', `${profile.distanceKm.toLocaleString('vi-VN')} km`],
-          ['Lương mong muốn', `từ ${profile.criteria.salaryMinK}.000đ/giờ`],
-          ['Đi làm trong', `${profile.criteria.maxDistanceKm} km`],
-        ]}
-      />
-      <section aria-label="Liên hệ" className="mt-6">
-        {profile.connected ? (
-          <>
-            <p className="text-sm text-page-muted">Số điện thoại</p>
-            {profile.phone
-              ? <a href={`tel:${profile.phone}`} className={`mt-1 inline-block rounded-control font-display text-lg font-semibold ${FOCUS}`}>{profile.phone}</a>
-              : <p className="mt-1 text-sm">Ứng viên chưa cập nhật</p>}
-            {profile.hasCv ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button type="button" className={cn(BTN_SECONDARY, BTN_SM)} onClick={() => void openCv(profile.id, false)}>
-                  <FileText className="h-4 w-4" aria-hidden="true" />
-                  Xem CV
-                </button>
-                <button type="button" className={cn(BTN_SECONDARY, BTN_SM)} onClick={() => void openCv(profile.id, true)}>
-                  <Download className="h-4 w-4" aria-hidden="true" />
-                  Tải CV
-                </button>
-              </div>
-            ) : (
-              <p className="mt-4 text-sm text-page-muted">Ứng viên chưa tải CV lên.</p>
-            )}
-          </>
-        ) : (
-          <p className="rounded-card border border-page-line p-4 text-sm text-page-muted">
-            Họ tên đầy đủ, số điện thoại và CV sẽ hiện sau khi hai bên kết nối.
-          </p>
-        )}
-      </section>
-      <div className="mt-6"><ReportButton target="seeker" targetId={profile.id} name={profile.name} /></div>
-    </>
-  )
+  const best = jobs[0]
+  const area = profile.fullArea || profile.area
+  const data: SeekerCardData = {
+    area,
+    jobTypes: profile.criteria.jobTypes,
+    availableFrom: isFutureStart(profile.availableFrom) ? profile.availableFrom : null,
+    salaryMinK: profile.criteria.salaryMinK,
+    availability: profile.criteria.slots,
+    skills: profile.criteria.skills,
+    skillLevels: profile.skillLevels,
+    hobbies: profile.hobbies,
+    about: profile.about || profile.summary,
+    experience: profile.experience.map((e) => ({ ...e, bullets: e.bullets ?? [] })),
+  }
+  const quiet = 'personal-preview-edit-link'
 
   return (
-    <article className="pb-section-sm">
-      <header className="shell pt-10 md:pt-14">
-        <button type="button" onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/match'))} className={`inline-flex items-center gap-2 rounded-control text-sm text-page-muted transition-colors duration-fast hover:text-page-fg ${FOCUS}`}>
+    <div className="personal-preview theme-day relative isolate min-h-[calc(100svh-72px)] overflow-hidden text-page-fg" data-surface="light">
+      <div aria-hidden className="personal-preview-backdrop pointer-events-none absolute inset-0 -z-10" style={{ backgroundImage: `url(${backdrop})` }} />
+      <div className="mx-auto max-w-[1328px] px-4 pb-12 pt-6 sm:px-6 lg:px-10 lg:pt-7">
+        <button type="button" onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/match'))} className={`mb-3 inline-flex items-center gap-2 rounded-control text-sm text-page-muted transition-colors duration-fast hover:text-page-fg ${FOCUS}`}>
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Quay lại
         </button>
-        <p className="eyebrow mt-8 flex text-page-muted">Hồ sơ ứng viên</p>
-        <h1 className="mt-4 font-display text-display-sm font-semibold text-page-fg">{profile.name}</h1>
-      </header>
+        <header className="personal-preview-cover relative overflow-hidden rounded-card">
+          <img src={cover} alt="" width={1800} height={600} className="absolute inset-0 h-full w-full object-cover object-right" decoding="async" />
+          <div aria-hidden className="personal-preview-cover-veil absolute inset-0" />
+          <div className="relative flex flex-col items-center gap-5 px-6 py-7 text-center sm:flex-row sm:px-8 sm:text-left lg:gap-7 lg:py-8">
+            <img src={profile.avatarUrl || avatarDefault} alt={`Ảnh đại diện của ${profile.name}`} className="personal-preview-avatar h-28 w-28 shrink-0 rounded-full object-cover lg:h-36 lg:w-36" />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 sm:justify-start">
+                <h1 className="min-w-0 max-w-full break-words font-display text-2xl font-bold tracking-tight sm:text-3xl lg:text-[34px]">{profile.name}</h1>
+                <span className="personal-preview-chip">Ứng viên</span>
+              </div>
+              {profile.headline && <p className="mt-2 break-words text-sm font-medium">{profile.headline}</p>}
+              <p className="mt-3 inline-flex items-center gap-2 text-sm"><MapPin aria-hidden className="h-4 w-4 text-wm-ocean" />{area || 'Chưa nêu khu vực'}</p>
+              <div className="mt-3 flex flex-col items-center gap-x-6 gap-y-2 text-sm sm:flex-row sm:flex-wrap sm:items-start">
+                <p className="flex items-center gap-2"><UserRound aria-hidden className="h-4 w-4 shrink-0 text-wm-ocean" />{profile.working ? 'Đang đi làm' : 'Sẵn sàng nhận việc'}</p>
+                {profile.connected ? (
+                  <p className="flex items-center gap-2"><Phone aria-hidden className="h-4 w-4 shrink-0 text-wm-ocean" />
+                    {profile.phone ? <a href={`tel:${profile.phone}`} className={`rounded-control font-medium ${FOCUS}`}>{profile.phone}</a> : 'Ứng viên chưa cập nhật số điện thoại'}
+                  </p>
+                ) : (
+                  <p className="flex items-center gap-2 text-page-muted"><Phone aria-hidden className="h-4 w-4 shrink-0 text-wm-ocean" />Họ tên đầy đủ và số điện thoại hiện sau khi hai bên kết nối</p>
+                )}
+              </div>
+            </div>
+            <div className="flex shrink-0 flex-col items-center gap-3 sm:items-start">
+              {best && best.score !== undefined && (
+                <div className="flex items-center gap-3">
+                  <ScoreRing value={Math.round(best.score)} />
+                  <p className="min-w-0 max-w-[14rem] text-left text-xs leading-5 text-page-muted">Phù hợp nhất với tin <span className="font-medium text-page-fg">{best.job.title}</span></p>
+                </div>
+              )}
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                {best && <JobActions job={best.job} profile={profile} compact />}
+                <button type="button" className={cn(BTN_SECONDARY, BTN_SM, quiet)} onClick={(e) => setCvOpen({ origin: e.currentTarget })}>
+                  <FileText aria-hidden className="h-3.5 w-3.5" />Xem CV
+                </button>
+                <ReportButton target="seeker" targetId={profile.id} name={profile.name} />
+              </div>
+              {best && <p className="max-w-[20rem] text-xs text-page-muted">Cho tin: {best.job.title}</p>}
+            </div>
+          </div>
+        </header>
 
-      <DetailLayout aside={aside}>
-        <TextBlock title="Phù hợp với tin của bạn">
-          {!scoresReady && jobs.length ? (
-            <SkeletonList rows={2} label="Đang tính độ phù hợp…" />
-          ) : jobs.length ? (
-            <ul className="divide-y divide-page-line border-y border-page-line">
-              {jobs.map(({ job, score }) => <JobRow key={job.id} job={job} profile={profile} score={score} />)}
-            </ul>
-          ) : (
-            <EmptyNote invite={{ to: '/dang-tin', label: 'Đăng tin tuyển dụng' }}>Công ty chưa có tin đang hiển thị để so với hồ sơ này.</EmptyNote>
-          )}
-        </TextBlock>
-
-        <TextBlock title="Về ứng viên">
-          {profile.about
-            ? <p className="whitespace-pre-line text-base leading-relaxed md:text-lg">{profile.about}</p>
-            : <EmptyNote>Ứng viên chưa viết phần giới thiệu.</EmptyNote>}
-        </TextBlock>
-
-        <TextBlock title="Kỹ năng">
-          {profile.criteria.skills.length ? <TagList items={profile.criteria.skills} /> : <EmptyNote>Ứng viên chưa nêu kỹ năng.</EmptyNote>}
-        </TextBlock>
-
-        <FadeIn>
-        <TextBlock title="Kinh nghiệm">
-          {profile.experience.length ? (
-            <ol className="space-y-4 border-l border-page-line pl-5">
-              {profile.experience.map((e) => (
-                <li key={e.id} className="relative">
-                  <span aria-hidden="true" className="absolute -left-[25px] top-2 h-2 w-2 rounded-full bg-page-fg" />
-                  <p className="font-medium">{e.title}</p>
-                  <p className="text-sm text-page-muted">{[e.company, e.period].filter(Boolean).join(' · ')}</p>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <EmptyNote>Ứng viên chưa nêu kinh nghiệm.</EmptyNote>
-          )}
-        </TextBlock>
-        </FadeIn>
-
-        <FadeIn>
-        <TextBlock title="Lịch rảnh trong tuần">
-          <WeekGrid on={new Set(profile.criteria.slots)} />
-        </TextBlock>
-        </FadeIn>
-
-        <FadeIn>
-        <TextBlock title="Loại việc mong muốn">
-          {typeLabels.length ? <TagList items={typeLabels} /> : <EmptyNote>Ứng viên chưa nêu loại việc.</EmptyNote>}
-        </TextBlock>
-        </FadeIn>
-
-        <FadeIn><SeekerReviews seekerId={profile.id} /></FadeIn>
-
-        <p className="text-sm text-page-muted">
+        <div className="personal-preview-grid mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.95fr)]">
+          <SeekerProfileCards
+            viewer
+            data={data}
+            reviews={reviews}
+            details={[{ icon: MapPin, label: 'Cách công ty', value: `${profile.distanceKm.toLocaleString('vi-VN')} km` }, { icon: Target, label: 'Đi làm trong bán kính', value: `${profile.criteria.maxDistanceKm} km` }]}
+            rightTop={
+              <Card title="Phù hợp với tin của bạn" icon={Target}>
+                {!scoresReady && jobs.length ? (
+                  <SkeletonList rows={2} label="Đang tính độ phù hợp…" />
+                ) : jobs.length ? (
+                  <ul className="mt-2 divide-y divide-page-line">
+                    {jobs.map(({ job, score }) => <JobRow key={job.id} job={job} profile={profile} score={score} />)}
+                  </ul>
+                ) : (
+                  <div className="mt-4"><EmptyNote invite={{ to: '/dang-tin', label: 'Đăng tin tuyển dụng' }}>Công ty chưa có tin đang hiển thị để so với hồ sơ này.</EmptyNote></div>
+                )}
+              </Card>
+            }
+          />
+        </div>
+        <p className="mt-5 text-center text-xs leading-relaxed text-page-muted">
           Tìm thêm người khác ở <Link to="/tuyen-dung/tim-ung-vien" className={`rounded-control text-page-fg underline underline-offset-4 ${FOCUS}`}>Tìm ứng viên</Link>.
         </p>
-      </DetailLayout>
-    </article>
+      </div>
+      {cvOpen && (
+        <CandidateCvDialog
+          seekerId={profile.id}
+          name={profile.name}
+          score={best?.score}
+          origin={cvOpen.origin}
+          onClosed={() => setCvOpen(null)}
+          actions={() => best && <JobActions job={best.job} profile={profile} compact />}
+        />
+      )}
+    </div>
   )
 }
