@@ -373,30 +373,20 @@ html[data-onboarding] [data-floating] {
   pointer-events: none;
 }
 
-/* Header trang chủ (useHomeHeader đặt data-header / data-header-hidden lên <html>):
+/* Header trang chủ (useHomeHeader đặt data-header lên <html>):
    - Đang ở banner ('hero'): chỉ còn logo + nút menu, không nền, chữ ngà trên ảnh tối.
-   - Qua banner ('full'): đủ header; cuộn xuống trượt khuất, cuộn lên hiện lại.
-   Chỉ transform/opacity; tắt chuyển động thì khối @media phía trên đã làm chúng tức thì. */
-[data-site-header] {
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-html[data-header-hidden] [data-site-header] {
-  transform: translateY(-100%);
-}
+   - Qua banner ('full'): đủ header; header không còn ẩn — cuộn xuống thì thu nhỏ (html[data-header-compact],
+     xem khối "Header mới" phía dưới). Chỉ transform/opacity. */
 html[data-header='hero'] [data-site-header] {
   /* Đặt lại cả muted vì muted được tính sẵn từ --page-fg ở :root */
   --page-fg: var(--wm-ivory);
   --page-muted: var(--wm-mist);
 }
-[data-site-header] [data-header-bg],
 [data-site-header] [data-header-item] {
   transition:
     opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     visibility 0.35s;
-}
-html[data-header='hero'] [data-header-bg] {
-  opacity: 0;
 }
 html[data-header='hero'] [data-header-item]:not([data-header-menu]),
 html[data-intro] [data-header-item] {
@@ -599,12 +589,19 @@ html[data-page='home'] :focus-visible {
   --h-btn-chip: var(--page-bg);
   --h-btn-arrow: var(--page-fg);
 }
+/* Trang chủ (không data-tone, cả trang nền xanh đêm): viên menu/tài khoản cùng kính xanh đậm như viên logo —
+   kính ngà 12% chìm mất trên vùng cam/sáng của nền (2026-11-21) */
+html[data-page='home'] .site-header:not([data-tone]) {
+  --h-glass: color-mix(in srgb, var(--wm-abyss) 55%, transparent);
+  --h-glass-line: color-mix(in srgb, var(--wm-ivory) 20%, transparent);
+}
 .site-header[data-tone='dark'] {
   --h-fg: #f3efe6;
   --h-link: rgba(255, 255, 255, 0.7);
   --h-link-hover: #fff;
-  --h-glass: rgba(255, 255, 255, 0.12); /* kính đậm hơn để header rõ hơn */
-  --h-glass-line: rgba(255, 255, 255, 0.1);
+  /* Kính xanh đậm như viên logo (2026-11-21): kính trắng 12% chìm mất trên vùng cam/sáng của nền trang chủ */
+  --h-glass: color-mix(in srgb, var(--wm-abyss) 55%, transparent);
+  --h-glass-line: color-mix(in srgb, var(--wm-ivory) 20%, transparent);
   --h-active: rgba(255, 255, 255, 0.16);
   --h-bg: rgba(10, 15, 13, 0.7);
   --h-bg-line: rgba(255, 255, 255, 0.06);
@@ -646,32 +643,60 @@ html[data-page='home'] .hd-inner {
   from { opacity: 0; }
 }
 
-/* Thanh nội dung (72px): cuộn quá 80px thì nhích lên 6px, nền co còn 60px bằng scaleY */
-.hd-bar {
-  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+/* Header KHÔNG có nền toàn chiều rộng (chủ dự án 2026-11-21): chỉ ba cụm kính nổi — viên logo, viên menu, cụm tài khoản.
+   Hàng giữ nguyên 72px (header cố định, nội dung trang không xê dịch); "thu nhỏ" = scale các cụm quanh mép trên. */
+.site-header {
+  pointer-events: none; /* khoảng trống giữa các cụm để click xuyên xuống trang */
 }
-.site-header[data-scrolled] .hd-bar {
-  transform: translateY(-6px);
+.hd-cluster {
+  pointer-events: auto;
+  transform-origin: center top;
+  transition: transform 0.3s ease-out;
 }
-.hd-bg {
-  display: none; /* chủ dự án 2026-11-15: header không có nền — chỉ logo + hai viên thuốc */
-  background-color: var(--h-bg);
-  border-bottom: 1px solid var(--h-bg-line);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
+.hd-logo {
+  position: relative;
+  isolation: isolate;
+  margin-left: -14px;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  transform-origin: left top;
+}
+.hd-cluster-c { transform-origin: center top; }
+.hd-cluster-r { transform-origin: right top; }
+/* Thu nhỏ: ~0,86 và nhích lên 6px để các cụm cách mép trên ~8px (hàng thấy được ~56px) */
+html[data-header-compact] .hd-cluster {
+  transform: translateY(-6px) scale(0.86);
+}
+/* Viên kính của logo: lớp giả để chỉ đổi opacity. Màu theo tông (--lp-*), hiện khi cuộn quá 40px;
+   màn mở đầu trang chủ (logo còn bay giữa màn hình) thì không có. */
+.site-header {
+  --lp-bg: color-mix(in srgb, var(--wm-abyss) 55%, transparent);
+  --lp-line: color-mix(in srgb, var(--wm-ivory) 20%, transparent);
+  --lp-shadow: 0 6px 18px color-mix(in srgb, var(--wm-abyss) 18%, transparent);
+}
+.site-header[data-tone='light'] {
+  --lp-bg: var(--nav-bg);
+  --lp-line: var(--nav-border);
+  --lp-shadow: var(--nav-shadow);
+}
+.hd-logo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--lp-bg);
+  border: 1px solid var(--lp-line);
+  box-shadow: var(--lp-shadow);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(16px) saturate(1.3);
   opacity: 0;
-  transform-origin: top;
-  transition:
-    opacity 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
-    transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: opacity 0.3s ease-out;
+  pointer-events: none;
 }
-.site-header[data-scrolled] .hd-bg {
-  opacity: 1;
-  transform: scaleY(0.8333); /* 60 / 72 */
-}
-@supports not (backdrop-filter: blur(1px)) {
-  .hd-bg { background-color: color-mix(in srgb, var(--h-bg) 96%, transparent); }
-}
+.site-header[data-scrolled] .hd-logo::before { opacity: 1; }
+html[data-intro] .hd-logo::before,
+html[data-header='hero'] .hd-logo::before { opacity: 0; }
 
 /* Chữ Workmate + chấm xanh đập nhẹ như nhịp tim */
 .hd-wordmark {
@@ -842,8 +867,8 @@ html[data-page='home'] .hd-inner {
   .hd-dot,
   .hd-dot::after { animation: none; }
   [data-site-header],
-  .hd-bar,
-  .hd-bg,
+  .hd-cluster,
+  .hd-logo::before,
   .hd-btn,
   .hd-btn__arrow,
   .hd-label::after,
@@ -852,7 +877,7 @@ html[data-page='home'] .hd-inner {
   .hd-btn:hover .hd-btn__arrow { transform: none; }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .hd-bg { background-color: var(--page-bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .hd-logo::before { background: var(--page-bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
   .hd-glass { -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 
@@ -1012,8 +1037,10 @@ html[data-page='home'] .hd-inner {
   .site-header[data-tone='light'] .hd-burger:hover { transform: none; }
 }
 
-/* Header trên nền ban ngày (data-day, đặt cùng data-tone="light"): kính xanh-trắng + viền mảnh; mục đang mở nền abyss */
+/* Header trên nền ban ngày (data-day, đặt cùng data-tone="light"): kính trắng 75% + viền abyss 8%; mục đang mở nền abyss */
 .site-header[data-day] {
+  --nav-bg: rgb(255 255 255 / 0.75);
+  --nav-border: color-mix(in srgb, var(--wm-abyss) 8%, transparent);
   --nav-active-bg: var(--wm-abyss);
   --nav-active-text: var(--wm-day);
   --nav-text: color-mix(in srgb, var(--wm-abyss) 78%, var(--wm-day));
@@ -1027,24 +1054,10 @@ html[data-page='home'] .hd-inner {
   --h-btn-chip: var(--wm-day);
   --h-btn-arrow: var(--wm-abyss);
 }
-.site-header[data-day] .hd-inner {
-  background: rgb(245 248 254 / 0.7);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
-  backdrop-filter: blur(14px) saturate(1.3);
-  border-bottom: 1px solid color-mix(in srgb, var(--wm-abyss) 6%, transparent);
-}
 
 /* Trang chủ nền xanh (homeBackground.ts) — chủ dự án 2026-11-19:
-   - Header: trong suốt ở đầu trang; cuộn quá 80px (data-scrolled) thì có nền kính xanh đậm để chữ menu
-     không chồng lên nội dung. Chỉ đổi nền, không đổi chuyển động của header.
+   - Header: không có nền toàn chiều rộng (2026-11-21) — chỉ ba cụm kính nổi.
    - Màu nhấn cam sáng hơn cho hợp nền xanh (chỉ vai trò mặc định; người tìm việc giữ xanh lá). */
-html[data-page='home'] .site-header[data-scrolled] [data-header-bg] {
-  /* abyss đậm + bão hòa thấp: trên vùng cam không còn ngả tím (taste skill: không tím) */
-  background: color-mix(in srgb, var(--wm-abyss) 82%, transparent);
-  -webkit-backdrop-filter: blur(18px) saturate(1.05);
-  backdrop-filter: blur(18px) saturate(1.05);
-  border-bottom: 1px solid color-mix(in srgb, var(--wm-ivory) 14%, transparent);
-}
 html[data-page='home']:not([data-role='seeker']),
 html[data-page='home']:not([data-role='seeker']) .theme-night,
 html[data-page='home']:not([data-role='seeker']) .theme-charcoal,

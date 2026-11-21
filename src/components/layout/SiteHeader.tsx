@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
 import { ROLE_AREAS } from '@constants/roles'
@@ -9,7 +9,6 @@ import { useUnreadCount, useUnreadMessages } from '@services/connectionService'
 import { useCurtainNavigate } from '@components/motion/PageCurtain'
 import { PERSONAL_HREF } from '@pages/public/personal/links'
 import { useHeaderScroll } from '@hooks/useHeaderScroll'
-import { useHeaderPeek } from '@hooks/useHeaderPeek'
 import AccountMenu from '@components/layout/AccountMenu'
 import HeaderNav from '@components/layout/HeaderNav'
 import Wordmark from '@components/layout/Wordmark'
@@ -30,16 +29,16 @@ type Props = {
  *   trái: chấm xanh + Workmate · giữa: menu trong viên kính · phải: Đăng nhập / tài khoản
  * Dưới 768px: chỉ còn logo + nút hamburger (mở MenuOverlay toàn màn hình).
  * Trang chủ giữ các data-attribute mà index.css / IntroHero / useHomeHeader dựa vào:
- *   data-site-header, data-brand-logo, data-header-item, data-header-menu, data-header-bg.
+ *   data-site-header, data-brand-logo, data-header-item, data-header-menu.
+ * Ba cụm kính nổi (logo / menu / tài khoản) tự co lại khi cuộn xuống (useHeaderScroll); không có nền toàn chiều rộng.
  */
 export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu }: Props) {
   const { user, logout } = useAuthStore()
   const headerRef = useRef<HTMLElement>(null)
   const homeTone = useHomeTone(home)
-  // Trang chủ: useHomeHeader lo ẩn/hiện; ở đây chỉ co lại + nền khi cuộn
-  useHeaderScroll(headerRef, !home)
-  // Header đang ẩn: đưa chuột lên sát mép trên thì hiện lại (mọi trang, kể cả trang chủ)
-  useHeaderPeek(headerRef)
+  // Thu nhỏ khi cuộn xuống / mở rộng khi cuộn lên, rê chuột, đổi route (mọi trang, kể cả trang chủ)
+  const { pathname } = useLocation()
+  useHeaderScroll(headerRef, pathname)
 
   // Tin nhắn / thông báo chưa đọc (gọi hook luôn; admin không có hội thoại → 0)
   const unreadAsSeeker = useUnreadMessages()
@@ -79,18 +78,17 @@ export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu
       )}
     >
       <div className="hd-inner absolute inset-0">
-        {/* Nền kính: ẩn ở đầu trang (trong suốt), hiện khi cuộn. Lớp ngoài do trang chủ ẩn khi còn ở banner */}
-        <div data-header-bg={item} aria-hidden="true" className="pointer-events-none absolute inset-0">
-        </div>
-
         <div className="hd-bar relative grid h-[72px] grid-cols-[1fr_auto_1fr] items-center gap-x-4 px-6 md:px-10 lg:px-14">
-          <Wordmark home={home} className="justify-self-start" />
-
-          <div data-header-item={item} className="hidden lg:block">
-            <HeaderNav links={navLinks} className="flex" />
+          {/* Viên kính riêng của logo (hiện khi cuộn); lề âm bù padding để logo không lệch chỗ */}
+          <div className="hd-logo hd-cluster justify-self-start">
+            <Wordmark home={home} />
           </div>
 
-          <div className="col-start-3 flex items-center justify-end gap-3">
+          <div data-header-item={item} className="hidden lg:block">
+            <HeaderNav links={navLinks} className="hd-cluster hd-cluster-c flex" />
+          </div>
+
+          <div className="hd-cluster hd-cluster-r col-start-3 flex items-center justify-self-end gap-3">
             <div data-header-item={item} className="hidden items-center gap-3 whitespace-nowrap lg:flex">
               {user && area ? (
                 <AccountMenu

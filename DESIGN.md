@@ -212,7 +212,7 @@ Chỉ áp dụng cho trang chủ `/`. Các trang khác vẫn theo mục **Hai n�
 - Thẻ việc, 3 thẻ tính năng, 3 thẻ vai trò ở hero: **kính trắng** (`bg-wm-ivory/75–84` + blur + `LIGHT_CARD_VARS` ghim chữ than chì).
 - Ô/nhãn/nút nhỏ nằm thẳng trên nền: **kính tối** `HOME_GLASS_DARK` (`bg-wm-night/35` + blur) để chữ ngà đọc được trên vệt cam.
 - Khối tuyển dụng: dải **cam–đào** (`apricot`→`peach`), chữ than chì, nút tối; phóng nhẹ khi cuộn tới.
-- Header khi cuộn quá 80px: kính `ocean` 58% + blur. Màu nhấn trang chủ `tangerine` (người tìm việc vẫn `fern`/`leaf`).
+- Header: ba cụm kính nổi, không nền toàn chiều rộng (xem mục Header). Màu nhấn trang chủ `tangerine` (người tìm việc vẫn `fern`/`leaf`).
 
 **Hero:** tiêu đề hai dòng lớn + quầng sáng xanh ngọc phía sau; ô tìm kiếm + thẻ ngành giữ nguyên; **3 thẻ vai trò**
 (Ứng viên · Nhà tuyển dụng · Quản trị) chĩa ba hướng (trái nghiêng trái, giữa thẳng, phải nghiêng phải), nổi lên lần lượt,
@@ -222,7 +222,7 @@ trôi nhẹ theo chuột với độ sâu khác nhau (chỉ chuột thật).
 **Khoảnh khắc** (theo taste skill, viết lại bằng GSAP; tối đa 2 mỗi trang): ảnh thẻ ca dưới hero "hiện dần" từ xám sang màu
 một lần khi cuộn tới (`ShiftBoardSection`) và câu lớn sáng dần từng chữ (`StatementSection`). Vòng tròn mở khối tuyển dụng đã bỏ (2026-11-20). Không thêm khoảnh khắc thứ ba; chỉ một hiệu ứng theo chuột mỗi trang (đã dùng ở hero).
 
-**Rà soát cuối (2026-11-20):** phần dưới hero phủ thêm `abyss` 34% (`.home-page-dim`) và tia sáng "thở" nhẹ hơn (tối đa 22%) — hero là điểm sáng nhất trang. Header khi cuộn: kính `abyss` 82%, bão hòa thấp (không ngả tím trên vùng cam). Hai họ thẻ: **kính tối** (`abyss` 55–65% + blur 16px + viền ngà 20–25% + vạch sáng mép trên) cho thông tin — kể cả 3 thẻ vai trò ở hero — và **ảnh có đáy tối** cho việc làm; dải cam–đào là điểm nhấn ấm duy nhất. Chữ nằm trên cột tia sáng phải đặt trong kính tối. Chữ tối thiểu 12px. Các phần dưới hero cùng lề `max(16px, 2.5vw)` và cùng khoảng `py-section-sm`.
+**Rà soát cuối (2026-11-20):** phần dưới hero phủ thêm `abyss` 34% (`.home-page-dim`) và tia sáng "thở" nhẹ hơn (tối đa 22%) — hero là điểm sáng nhất trang. Header: không còn dải nền khi cuộn (2026-11-21), chỉ ba cụm kính. Hai họ thẻ: **kính tối** (`abyss` 55–65% + blur 16px + viền ngà 20–25% + vạch sáng mép trên) cho thông tin — kể cả 3 thẻ vai trò ở hero — và **ảnh có đáy tối** cho việc làm; dải cam–đào là điểm nhấn ấm duy nhất. Chữ nằm trên cột tia sáng phải đặt trong kính tối. Chữ tối thiểu 12px. Các phần dưới hero cùng lề `max(16px, 2.5vw)` và cùng khoảng `py-section-sm`.
 
 **Việc mới đăng (2026-11-20):** vòng ảnh "rọi đèn" ô giữa (`.nj-slot`: phóng 1.12, viền ngà sáng, vầng xanh ngọc + bóng sàn; ô bên tối/nhạt/mờ nhẹ theo góc), tấm thông tin dạng vé gối lên ảnh giữa (kính `abyss` 60%, lương + ca thành viên nổi, nút ngà đặc), dải chữ nhỏ ~30% với bản lặp chỉ viền chữ, nút dừng dải chữ dạng icon. Section đặt `z-20` để quầng cam của khối tuyển dụng không phủ lên.
 
@@ -255,31 +255,31 @@ tiêu đề section không là câu hỏi (riêng tiêu đề hero giữ câu h�
 - **Nhịp cuộn (GSAP + ScrollTrigger, chỉ transform):** mở trong 1,6 chiều cao màn đầu (ảnh scaleX 1→1,12, scaleY 1→1,38; sương scaleX 1→1,35), giữ, rồi khép về ~15% trong 1,6 màn cuối; làm mượt 0,6s. Giảm chuyển động → tĩnh.
 - **Chân trang:** nền abyss + chữ ngà + hạt bụi (`.theme-abyss`); ngay trên là đoạn hoàng hôn ~190px (`.day-dusk`: azure 0 → azure 16% → ocean 62% → abyss 92% → abyss) kéo `-mt-10`.
 - **Một màu nút chính:** trên trang ban ngày `BTN_ACCENT` hiện abyss (chữ day); màu vai trò chỉ còn ở chi tiết nhỏ (thanh điểm phù hợp, chấm). Nút nổi tin nhắn/thông báo cũng abyss (`html[data-day]`, DayBackdrop đặt). Thẻ chờ trong bộ ảnh công ty ẩn hẳn (chỉ thẻ đang xem hiện).
-- **Header:** kính `day` 70% + blur 14px + viền abyss 6%; mục đang mở nền abyss, chữ `day` (`data-day` trên `.site-header`, `useHeaderSurface` trả `'day'`).
+- **Header:** ba cụm kính trắng 75% + viền abyss 8% (không dải nền toàn chiều rộng); mục đang mở nền abyss, chữ `day` (`data-day` trên `.site-header`, `useHeaderSurface` trả `'day'`).
 - **Link chữ:** `text-accent-ink` = abyss trên nền ban ngày (xanh lá/đất nung chỉ đạt 3,0–4,3:1); hover gạch chân cách 4px. Nút `bg-accent` giữ màu vai trò.
 - **Thẻ:** trắng + viền mảnh + bóng nhẹ; thẻ mờ (ghost) = xanh nhạt `azure` 6% + viền abyss 8%, không bóng (`.day-ghost`); không quầng `jobs-card-halo`. `COVER_GLASS` = kính trắng 85% + viền `page-line`.
 - **Bìa/thân trang:** `PageCover` lg/md nhận kiểu sáng (không lớp nền, chữ abyss) khi nằm trong trang ban ngày (`DayContext`); `DarkPageBody`/`IvoryPageBody` thành khung trong suốt. Dashboard `/tim-viec/match`, `/tuyen-dung/match` dùng chung các thành phần này nên vẫn giữ kiểu tối cũ. `strip` không đổi.
 - **Hiện dần khi cuộn:** `FadeIn` trong trang ban ngày trồi 28px, 800ms, so le nhẹ; giảm chuyển động → hiện ngay.
 
-### Header (QUY TẮC CỐ ĐỊNH — chủ dự án chốt 2026-11-16)
-Áp cho MỌI trang có thanh trên cùng (PublicLayout → `SiteHeader`), kể cả trang chủ. Không đổi khi chưa hỏi chủ dự án.
-- **Hình thức**: cố định trên cùng, cao 72px, lề ngang 24 / 40 / 56px (điện thoại / md / lg). **Không nền, không viền** ở mọi vị trí cuộn:
-  chỉ có logo cũ (icon cặp + "Workmate") chìm vào nền và hai viên thuốc kính đậm không viền (menu giữa; Đăng nhập / tài khoản bên phải).
-  Chữ 16px in đậm (600), bằng cỡ chữ nội dung. Rê chuột: chỉ **sáng lên** — không gạch chân, không phóng to, viên sáng nằm yên sau trang đang mở.
-  Tự đổi tông theo khối bên dưới (`data-surface`): chữ sáng trên nền tối, chữ tối trên nền kem. Dưới 1024px: chỉ logo + nút 2 gạch.
-  **Trên nền trắng/kem — "kính trắng nổi" (2026-11-16)**: viên menu, chip tài khoản, nút 2 gạch = kính trắng rgba(255,255,255,.72–.8),
-  nhòe 14px, viền rgba(22,24,22,.08–.1), bóng nhiều lớp (cuộn quá 40px thì bóng đậm hơn). Mục thường #4A4D4A weight 500; rê chuột chữ #161816
-  + nền rgba(22,24,22,.05); mục đang mở = viên **#161816** chữ #F6F2E8 weight 600, **trượt 0,4s** sang mục mới khi đổi trang (không trượt
-  theo chuột). Nút tròn rê chuột phóng 1.06. Biến `--nav-*` trong index.css để sau thêm kiểu nền tối. Trang chủ cũng áp kiểu này khi khối đang xem là nền sáng (`html[data-home-tone]` do useSectionThemes ghi). Trên nền tối vẫn như cũ (rê chuột chỉ sáng lên).
-- **Ẩn / hiện**:
-  1. **Cuộn xuống → ẩn.** Luôn luôn — kể cả ngay sau khi bấm logo/link trên header (chuột vẫn ở mép trên, focus chuột còn trên link).
-     Chỉ giữ header lại khi người dùng đang **dùng bàn phím** trong header (`:focus-visible`) hoặc đang **mở menu xổ** (`aria-expanded="true"`).
-  2. **Cuộn lên → hiện.**
-  3. **Di chuột lên sát mép trên (≤ 80px) → hiện** (chỉ chuột/bút; cảm ứng dùng vuốt lên). Việc chuột đang nằm trên header KHÔNG được chặn lệnh ẩn ở (1).
-  4. **Vào trang / bấm từ trang khác về trang chủ → header hiện**; lần tự cuộn tới banner lúc vào trang (≈0,9s) không làm ẩn.
-  5. Trang chủ: trong màn mở đầu chỉ có logo + nút menu; qua màn mở đầu thì áp (1)–(4) ngay, header vừa hiện giữ thêm ~120px cuộn rồi mới cho ẩn.
-- **Code**: `components/layout/SiteHeader.tsx`, `hooks/useHeaderScroll.ts` (trang thường), `components/home/useHomeHeader.ts` (trang chủ),
-  `hooks/useHeaderPeek.ts` (di chuột lên mép trên). Trạng thái ẩn = `html[data-header-hidden]`. Đổi một chỗ phải giữ đúng cả 5 điều trên ở mọi trang.
+### Header (QUY TẮC CỐ ĐỊNH — chủ dự án chốt 2026-11-21, thay quy tắc "ẩn khi cuộn xuống" của 2026-11-16)
+Áp cho MỌI trang có thanh trên cùng (PublicLayout → `SiteHeader`), kể cả trang chủ; thanh trên của dashboard (DashboardShell) không thuộc quy tắc này. Không đổi khi chưa hỏi chủ dự án.
+- **Hình thức — chỉ ba cụm kính nổi, KHÔNG có nền toàn chiều rộng** (không viền đáy, không dải kính chạy hết bề ngang; giữa các cụm thấy nền trang, click xuyên xuống trang):
+  1. **logo** (trái): icon cặp + "Workmate", nằm trong **viên kính riêng** hiện khi cuộn quá 40px (đầu trang để trần; màn mở đầu trang chủ luôn trần);
+  2. **viên menu** (giữa);
+  3. **cụm tài khoản / Đăng nhập** (phải).
+  Cố định trên cùng, hàng cao 72px, lề ngang 24 / 40 / 56px. Chữ 16px in đậm (600). Rê chuột: chỉ **sáng lên**. Dưới 1024px: chỉ viên logo + nút 2 gạch.
+  Tông theo khối bên dưới (`data-surface`):
+  - **nền tối** (trang chủ các khối đêm, bìa tối): kính tối — abyss 55% + nhòe 16px + viền ngà 20%; mục đang mở như cũ;
+  - **nền ban ngày** (`data-day`): kính trắng 75% + viền mảnh abyss 8% + bóng nhiều lớp mềm; mục đang mở = viên abyss chữ `day`;
+  - **nền trắng/kem** (kiểu "kính trắng nổi" 2026-11-16): kính trắng rgba(255,255,255,.72–.8), nhòe 14px, viền rgba(22,24,22,.08–.1), bóng nhiều lớp (cuộn quá 40px thì đậm hơn); mục thường #4A4D4A; mục đang mở = viên #161816 chữ #F6F2E8, trượt 0,4s sang mục mới. Biến `--nav-*` / `--lp-*` (viên logo) trong index.css. Trang chủ áp kiểu này khi khối đang xem sáng (`html[data-home-tone]`).
+- **Co lại thay vì ẩn — header KHÔNG BAO GIỜ ẩn** (trừ màn mở đầu trang chủ: chỉ logo + nút menu):
+  - **Mở rộng** (mặc định): kích thước như trên. **Thu nhỏ** (`html[data-header-compact]`): mỗi cụm `scale(~0,86)` quanh mép trên + nhích lên 6px (còn ~8px cách mép trên, hàng nhìn thấy ~56px), chỉ transform, 0,3s ease-out; giảm chuyển động → đổi tức thì. Phần tử header vẫn cố định 72px nên nội dung trang không xê dịch. Dưới 1024px cũng vậy.
+  1. **Cuộn xuống** (quá 80px, bỏ qua xê dịch < 6px) → thu nhỏ — kể cả khi chuột đang nằm yên trên header hoặc vừa bấm logo/link.
+  2. **Cuộn lên**, hoặc về gần đầu trang (< 80px) → mở rộng.
+  3. **Chuột bước vào header / dải 80px trên cùng** (chỉ chuột/bút) → mở rộng. Chuột rời đi mà hướng cuộn cuối là xuống và còn > 80px → thu nhỏ lại sau ~400ms. Chuột chỉ nằm yên không kéo header mở lại và không chặn lệnh thu nhỏ khi cuộn.
+  4. **Đổi trang** (bấm link header, logo, hay bất kỳ đổi route nào) → trang mới bắt đầu ở trạng thái mở rộng, tới lần cuộn xuống kế tiếp. Trang chủ: lần tự cuộn tới banner lúc vào trang (≈0,9s) không làm thu nhỏ.
+  5. **Focus bàn phím** (`:focus-visible`) trong header hoặc **menu xổ đang mở** (`aria-expanded="true"`) → giữ mở rộng. Focus do bấm chuột KHÔNG tính (bấm logo/link để lại focus trong header; tính nó thì header không bao giờ thu nhỏ nữa — lỗi cũ).
+- **Code**: `components/layout/SiteHeader.tsx` (ba cụm: `.hd-logo`, `.hd-cluster-c`, `.hd-cluster-r`), `hooks/useHeaderScroll.ts` (máy trạng thái, mọi trang kể cả trang chủ), `components/home/useHomeHeader.ts` (chỉ đặt `data-header="hero|full"` cho màn mở đầu). Trạng thái thu nhỏ = `html[data-header-compact]`; "đã cuộn" = `header[data-scrolled]`.
 
 ### Khu quản lý (dashboard) — chủ dự án 2026-11-16
 - Nền khung: **nâu xám ấm `wm-dune` #CFC4B2** (`.dash-bg` trên DashboardShell) để sidebar kính và thẻ nổi rõ. Biến `--page-*` vẫn theo theme kem.
