@@ -53,18 +53,18 @@ const DETAIL: Record<string, { detail: string; steps: string[] }> = {
     detail:
       "Bạn đánh dấu các buổi rảnh trong tuần: sáng, chiều, tối từ thứ Hai tới Chủ nhật. Workmate so từng ca của tin tuyển dụng với lịch đó và chỉ đưa lên những việc nằm gọn trong giờ bạn rảnh.",
     steps: [
-      "Tạo hồ sơ và chọn các buổi rảnh trong tuần",
-      "Xem việc phù hợp, điểm khớp lịch hiện ngay trên từng tin",
-      "Đổi lịch bất cứ lúc nào, gợi ý tự cập nhật theo",
+      "Chọn buổi rảnh trong hồ sơ",
+      "Xem điểm phù hợp trên từng tin",
+      "Cập nhật khi lịch thay đổi",
     ],
   },
   near: {
     detail:
       "Chọn khu vực bạn ở và quãng đường chấp nhận đi làm. Mỗi tin đều ghi rõ khoảng cách; việc nằm ngoài tầm bị trừ điểm phù hợp nên không chen vào danh sách của bạn.",
     steps: [
-      "Chọn quận và bán kính đi làm trong hồ sơ",
+      "Chọn khu vực và bán kính đi làm",
       "Bật lọc “Gần tôi” ở trang Việc làm",
-      "So khoảng cách ngay trên từng tin trước khi ứng tuyển",
+      "So khoảng cách trước khi ứng tuyển",
     ],
   },
   match: {

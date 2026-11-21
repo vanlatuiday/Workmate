@@ -139,7 +139,7 @@ const reloadAll = () =>
 export async function startConnections() {
   const token = useAuthStore.getState().token
   if (token) {
-    connectRealtime(token, {
+    void connectRealtime(token, {
       onReconnect: () => void reloadAll(),
       on: {
         'message:new': onMessage,
@@ -171,7 +171,7 @@ export async function startConnections() {
           typingTimers.set(key, setTimeout(() => setTyping(key, undefined), 3000))
         },
       },
-    })
+    }).catch(() => undefined)
   }
   await reloadAll()
 }

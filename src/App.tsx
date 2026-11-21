@@ -1,13 +1,15 @@
 import { Suspense, lazy, useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import Messenger from '@components/messenger/Messenger'
-import NotificationCenter from '@components/notifications/NotificationCenter'
 import { useAuthStore } from '@context/authStore'
 import { authService } from '@services/authService'
 import { loadCatalog } from '@services/catalogService'
 import { loadProfile } from '@services/profileService'
 import { loadSessionData } from '@services/sessionData'
 import { useCvStore } from '@context/cvStore'
+
+// Khách chưa đăng nhập không cần tải khung chat và thông báo.
+const Messenger = lazy(() => import('@components/messenger/Messenger'))
+const NotificationCenter = lazy(() => import('@components/notifications/NotificationCenter'))
 
 // Layouts
 import PublicLayout from '@components/layout/PublicLayout'
@@ -128,18 +130,19 @@ export default function App() {
     loadSessionData(role)
   }, [userId, role])
 
-  // Sau khi trang chủ rảnh: tải trước hai trang hay vào tiếp theo để lần bấm đầu tiên tức thì
+  // Tải trước khi người dùng hướng tới liên kết, tránh tải trang chưa cần trên mạng di động.
   useEffect(() => {
-    const warm = () => {
-      void loadJobsPage()
-      void loadAuthPage()
+    const warm = (event: Event) => {
+      const link = event.target instanceof Element ? event.target.closest('a[href]') : null
+      if (!(link instanceof HTMLAnchorElement) || link.origin !== window.location.origin) return
+      if (link.pathname === '/viec-lam') void loadJobsPage().catch(() => undefined)
+      if (['/dang-nhap', '/dang-ky', '/quen-mat-khau'].includes(link.pathname)) void loadAuthPage().catch(() => undefined)
     }
-    if (typeof window.requestIdleCallback === 'function') {
-      const id = window.requestIdleCallback(warm, { timeout: 4000 })
-      return () => window.cancelIdleCallback(id)
+    const events = ['pointerover', 'focusin', 'touchstart'] as const
+    for (const event of events) document.addEventListener(event, warm, { passive: true })
+    return () => {
+      for (const event of events) document.removeEventListener(event, warm)
     }
-    const t = window.setTimeout(warm, 2500)
-    return () => window.clearTimeout(t)
   }, [])
 
   return (
@@ -246,10 +249,13 @@ export default function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
-    {/* Tin nhắn nổi: một bản duy nhất cho mọi trang */}
-    <Messenger />
-    {/* Thông báo nổi: nút chuông nằm trên nút tin nhắn */}
-    <NotificationCenter />
+    {/* Hai công cụ của tài khoản tải độc lập, không làm trang hiện tại phải chờ. */}
+    {(role === 'jobseeker' || role === 'recruiter') && (
+      <Suspense fallback={null}>
+        <Messenger />
+        <NotificationCenter />
+      </Suspense>
+    )}
     </>
   )
 }

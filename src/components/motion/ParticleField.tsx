@@ -755,7 +755,8 @@ export default function ParticleField() {
       // nền trang còn đang chuyển từ graphite sang ngà, nếu không hạt sẽ lóe lên giữa chừng.
       const showTarget = bannerDark
         ? 1 - Math.min(1, Math.max(0, (p - SHOW_FADE_FROM) / (1 - SHOW_FADE_FROM)))
-        : y < part2Top ? 0 : bgDark ? 1 : 0
+        // Hạt dưới hero dịu hơn logo để nền thoáng ở vùng đọc nội dung.
+        : y < part2Top ? 0 : bgDark ? 0.3 : 0
       show += (showTarget - show) * (bannerDark ? 1 : kc)
 
       force += (forceTarget - force) * k(MOUSE_FORCE_RATE)

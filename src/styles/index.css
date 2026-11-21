@@ -1021,6 +1021,10 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
     radial-gradient(1px 1px at 317px 151px, var(--wm-ivory), transparent);
   background-size: 229px 211px, 263px 241px, 241px 277px, 283px 199px, 337px 313px, 359px 347px, 389px 331px;
 }
+/* Vùng nội dung trang chủ: sao mờ hơn để chữ và dữ liệu dễ đọc. */
+.home-content .home-stars { opacity: 0.2; }
+.home-district { color-scheme: dark; }
+.home-district option { background: var(--wm-abyss); color: var(--wm-ivory); }
 /* Quầng cam mềm sau phần ⑥: cam → đào → xanh ngọc nhạt → trong suốt (giống chuyển màu của ảnh hero) */
 .home-orange {
   /* Lõi cam nằm sau khối (bị che), phần lộ ra là vầng cam → đào quanh mép khối rồi tan vào xanh */
@@ -1059,11 +1063,9 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--wm-ivory) 18%, transparent);
 }
 
-/* Nền dưới hero trầm lại ~30% (HomePage); hiện dần trong 60svh đầu để chỗ nối hero không bị cắt */
+/* Nền dưới hero dịu dần, tối rõ ở vùng tiêu đề đầu bảng ca; mép nối vẫn trong suốt. */
 .home-page-dim {
-  background: color-mix(in srgb, var(--wm-abyss) 34%, transparent);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 60svh);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 60svh);
+  background: linear-gradient(to bottom, transparent 0, color-mix(in srgb, var(--wm-abyss) 48%, transparent) 12svh, color-mix(in srgb, var(--wm-abyss) 52%, transparent) 60svh);
 }
 /* Tia sáng "thở" dưới hero nhẹ hơn ở hero */
 @media (prefers-reduced-motion: no-preference) {
@@ -1071,8 +1073,12 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
 }
 @keyframes home-bg-breathe-soft {
   0%, 100% { opacity: 0; }
-  50% { opacity: 0.22; }
+  50% { opacity: 0.12; }
 }
+
+/* Viền bắt sáng ở các thẻ nội dung nhẹ hơn hero. */
+.home-content .shift-card::before { opacity: 0.55; }
+.home-content .shift-card::after { opacity: 0.4; }
 
 /* Vòng ảnh "Việc mới đăng" (NewJobsSection): rọi đèn ô ở giữa. --f (1 = mặt trước) và --s (1 = ở bên)
    do vòng lặp render đặt cho từng ô; chỉ transform/filter/opacity. Ô bên: tối + mờ nhẹ như xóa phông. */
@@ -1332,6 +1338,16 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
 .stmt-curves--center .stmt-curve-c { left: -18%; bottom: -20%; width: 60%; height: 60%; }
 
 /* Nền ban ngày nối với trang chủ (DayBackdrop, mức B 2026-11-21): mép xanh azure + cột sáng xanh ngọc + sao mờ */
+.jobs-day-image { inset: 0; background-position: center; }
+@media (max-width: 767px) {
+  .jobs-day-image { background-position: 58% center; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .jobs-day-image { inset: -28px 0; will-change: transform; }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  .jobs-day-image { inset: -16px 0; }
+}
 .day-sky {
   background:
     radial-gradient(ellipse 14% 70% at 50% 40%, color-mix(in srgb, var(--wm-cyan) 22%, transparent), transparent 75%),

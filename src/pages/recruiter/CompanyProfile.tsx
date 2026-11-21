@@ -16,10 +16,11 @@ import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { BTN_ACCENT, BTN_DANGER, BTN_GHOST, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import type { CompanySize } from '@/types'
+import { DANANG_DISTRICTS as DISTRICTS } from '@constants/index'
 
 export const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 
-export const DISTRICTS = ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ', 'Hòa Vang']
+export { DANANG_DISTRICTS as DISTRICTS } from '@constants/index'
 export const SIZES: CompanySize[] = ['1-10', '11-50', '51-200', '201-500', '500+']
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

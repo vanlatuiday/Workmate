@@ -1,9 +1,10 @@
 // Kết nối socket tới máy chủ: nhận tin nhắn, thông báo, thay đổi trên cặp ngay khi có.
-import { io, type Socket } from 'socket.io-client'
+import type { Socket } from 'socket.io-client'
 
 const URL = import.meta.env.VITE_SOCKET_URL ?? String(import.meta.env.VITE_API_URL ?? '').replace(/\/api\/?$/, '')
 
 let socket: Socket | null = null
+let generation = 0
 
 export interface RealtimeHandlers {
   /** Kết nối lại sau khi rớt mạng: có thể đã lỡ sự kiện nên nạp lại dữ liệu */
@@ -11,8 +12,12 @@ export interface RealtimeHandlers {
   on: Record<string, (payload: never) => void>
 }
 
-export function connectRealtime(token: string, handlers: RealtimeHandlers) {
+export async function connectRealtime(token: string, handlers: RealtimeHandlers) {
   disconnectRealtime()
+  const current = generation
+  // Chỉ tải thư viện socket khi tài khoản bắt đầu kết nối; hủy nếu đã đăng xuất/đổi phiên trong lúc chờ.
+  const { io } = await import('socket.io-client')
+  if (current !== generation) return
   let first = true
   socket = io(URL || window.location.origin, { auth: { token }, transports: ['websocket', 'polling'] })
   socket.on('connect', () => {
@@ -23,6 +28,7 @@ export function connectRealtime(token: string, handlers: RealtimeHandlers) {
 }
 
 export function disconnectRealtime() {
+  generation++
   socket?.disconnect()
   socket = null
 }

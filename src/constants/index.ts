@@ -69,3 +69,5 @@ export const APPLICATION_STATUS_LABELS: Record<string, string> = {
 }
 export * from './demoAccounts'
 export * from './roles'
+/** Khu vực đang dùng chung trong hồ sơ công ty và bộ lọc việc làm. */
+export const DANANG_DISTRICTS = ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ', 'Hòa Vang']

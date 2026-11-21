@@ -174,6 +174,7 @@ export default function JobSearchBar({
   }
 
   const active = countFilters(filters)
+  const unsupportedLocation = filters.district && !DISTRICTS.includes(filters.district)
 
   /** Thanh tìm kiếm + chip lọc. `floating`: bản nổi bung ra từ viên — kính mờ đậm hơn để chữ đọc được trên ảnh */
   const panel = (floating: boolean) => (
@@ -218,7 +219,8 @@ export default function JobSearchBar({
                 onChange={(e) => set({ district: e.target.value })}
                 className="w-full cursor-pointer appearance-none bg-transparent pr-6 text-sm text-page-fg outline-none"
               >
-                <option value="">Khu vực</option>
+                <option value="">Đà Nẵng</option>
+                {unsupportedLocation && <option value={filters.district}>{filters.district}</option>}
                 {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
               </select>
               <ChevronDown className="pointer-events-none absolute right-4 h-4 w-4 text-page-muted" aria-hidden="true" />
@@ -233,6 +235,12 @@ export default function JobSearchBar({
           Tìm việc
         </button>
       </form>
+
+      {showDistrict && unsupportedLocation && (
+        <p role="status" className="mt-3 text-sm leading-relaxed text-page-fg">
+          Workmate hiện hỗ trợ các khu vực tại Đà Nẵng. Chưa hỗ trợ địa điểm “{filters.district}”. Chọn lại khu vực để tìm việc.
+        </p>
+      )}
 
       {/* Chip lọc nhanh: điện thoại cuộn ngang, từ sm xuống dòng và căn giữa */}
       <div

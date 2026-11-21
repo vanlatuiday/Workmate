@@ -110,7 +110,7 @@ export default function PublicLayout() {
     // Header không còn nền (2026-11-21) nên dải 72px dưới header lộ màu khung — phải trùng màu trang, không thì thành vạch xanh.
     // Trang ban ngày: khung màu day (DayBackdrop nằm trên khung, dưới nội dung) nên chuyển giữa các trang ban ngày không chớp màu khác.
     <div className={cn('min-h-screen flex flex-col', bare ? 'bg-wm-night' : day ? 'bg-wm-day' : dark ? 'bg-wm-abyss' : 'bg-wm-ivory')}>
-      {day && <DayBackdrop />}
+      {day && <DayBackdrop jobsPreview={location.pathname === '/viec-lam'} />}
       {bare ? (
         // Trang đăng nhập toàn màn hình: chỉ giữ logo (cùng kiểu header mới) để về trang chủ
         <div className="theme-night site-header absolute left-0 top-0 z-40 px-5 py-5 md:px-8" data-tone="dark">

@@ -538,8 +538,8 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                </div>
               </div>
 
-              {/* Điện thoại: bỏ đoạn dẫn để cả khối vừa một màn hình */}
-              <p data-hero-item className="hidden sm:block [@media(max-height:880px)]:!hidden mx-auto mt-5 md:mt-6 max-w-xl text-base md:text-lg text-wm-mist leading-relaxed">
+              {/* Đoạn dẫn luôn hiện để khách trên màn hẹp cũng hiểu phạm vi và cách ghép việc. */}
+              <p data-hero-item className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-wm-ivory/90 sm:text-base md:mt-5 md:text-lg">
                 {copy.lead}
               </p>
 

@@ -3,12 +3,14 @@
 // Đứng riêng để tránh vòng import giữa `jobs/data.ts` và `match/data.ts`.
 import { useCallback } from 'react'
 import type { JobType } from '@/types'
+import { DANANG_DISTRICTS } from '@constants/index'
 import type { DiscoverCompany } from './data'
 import { allCompanies, companyOf, type MatchJob } from '@pages/public/match/data'
 import { getVisibleJobs, useVisibleJobs } from '@services/adminService'
 import { getSeekerCriteria } from '@context/profileStore'
 import { useAuthStore } from '@context/authStore'
 import { useMatchingStore } from '@context/matchingStore'
+import type { CatalogJob } from '@context/catalogStore'
 import { useSeekerMatches } from '@services/matchingService'
 import { scoreMatch, type MatchOutcome } from '@pages/public/match/score'
 
@@ -19,8 +21,8 @@ export type { MatchJob }
  * (cờ `visible` do máy chủ tính).
  * Trong component dùng `useAllJobs()` để tự cập nhật khi quản trị viên thay đổi.
  */
-export const getAllJobs = (): MatchJob[] => getVisibleJobs()
-export const useAllJobs = (): MatchJob[] => useVisibleJobs()
+export const getAllJobs = (): CatalogJob[] => getVisibleJobs()
+export const useAllJobs = (): CatalogJob[] => useVisibleJobs()
 
 /** Việc đang tuyển của một công ty (theo id công ty) */
 export function jobsOfCompany(companyId: string): MatchJob[] {
@@ -75,15 +77,18 @@ export interface JobFilters {
 
 export const EMPTY_FILTERS: JobFilters = { q: '', district: '', type: '', minSalaryK: 0, nearMe: false }
 
-/** Các quận có việc — cho ô chọn quận */
-export const DISTRICTS = [...new Set(getAllJobs().map((j) => j.district))].sort((a, b) => a.localeCompare(b, 'vi'))
+/** Khu vực đang hỗ trợ, khớp với hồ sơ công ty; vẫn chọn được quận chưa có tin. */
+export const DISTRICTS = [...DANANG_DISTRICTS].sort((a, b) => a.localeCompare(b, 'vi'))
 
 /** Đọc bộ lọc từ query. Nhận cả tên tham số cũ của ô tìm kiếm trang chủ / footer (keyword, city, type, nearMe). */
 export function filtersFromParams(p: URLSearchParams): JobFilters {
   const type = (p.get('loai') ?? p.get('type') ?? '') as JobType | ''
   // Ô "địa điểm" ở trang chủ là chữ tự do (vd "hai chau, da nang") → khớp với tên quận nếu có
-  const city = norm(p.get('quan') ?? p.get('city') ?? '')
-  const district = city ? DISTRICTS.find((d) => city.includes(norm(d)) || norm(d).includes(city)) ?? '' : ''
+  const location = (p.get('quan') ?? p.get('city') ?? '').trim()
+  const city = norm(location)
+  const wholeCity = /^(?:(?:thanh pho|tp\.?)\s+)?da nang$/.test(city)
+  // Giữ địa điểm chưa hỗ trợ để trả kết quả rỗng và giải thích, tránh âm thầm bỏ điều kiện.
+  const district = city && !wholeCity ? DISTRICTS.find((d) => city.includes(norm(d)) || norm(d).includes(city)) ?? location : ''
   return {
     q: (p.get('q') ?? p.get('keyword') ?? '').trim(),
     district,

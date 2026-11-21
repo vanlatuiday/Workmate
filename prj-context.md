@@ -1,5 +1,11 @@
 # Workmate — Bối cảnh dự án
 
+> Bản thử nền ngày 22/11/2026. Chủ dự án cho thử ảnh xanh/trắng mới riêng `/viec-lam`, sau đó yêu cầu trôi nhẹ theo cuộn. `DayBackdrop` nhận `jobsPreview` từ `PublicLayout` theo đường dẫn chính xác, dùng ảnh WebP ~13 kB và dịch một lớp ảnh ±24px (mobile ±12px) bằng GSAP, giảm chuyển động giữ tĩnh. Chưa mở rộng sang các trang khác. Chi tiết và yêu cầu chỉnh ảnh trong DESIGN.md.
+
+> Tối ưu tải mã ngày 21/11/2026. Khung chat/thông báo chỉ tải cho người tìm việc và nhà tuyển dụng; thư viện socket tải khi bắt đầu kết nối, hủy lần tải đang chờ nếu đổi phiên/đăng xuất. Trang Việc làm và Đăng nhập được tải trước khi rê chuột, focus hoặc chạm liên kết. Bản build tại thời điểm đo giảm gói chính từ 506,20 xuống 404,97 kB (gzip 166,73 xuống 138,18 kB), hết cảnh báo chunk 500 kB. Chrome đo trang chủ khách sau 10 giây, không tương tác và tắt cache, JavaScript tải từ 1.040 xuống 860 kB, 27 xuống 8 file. Tổng mã tính năng vẫn có trong bản build và được tải khi dùng.
+
+> Rà soát trang chủ ngày 21/11/2026, chủ dự án duyệt mục 1–5. Việc mới đăng xếp theo ngày mới nhất, điện thoại hiện ba thẻ ngang gọn và liên kết xem tiếp. Hero luôn có đoạn giới thiệu ngắn. Ô địa điểm chọn khu vực tại Đà Nẵng, URL cũ có địa điểm chưa hỗ trợ trả danh sách rỗng cùng thông báo. Nền và nội dung giới thiệu được làm dịu, rút gọn theo DESIGN.md.
+
 > Tài liệu cho phiên Claude / người mới vào dự án. Đọc file này trước khi sửa code.
 > Cập nhật lần cuối: 2026-10-30 (hồ sơ lưu, nhận việc, dashboard NTD đọc kho chung) · trước đó 2026-10-23 (dashboard 3 vai trò, liên kết theo vai trò, dọn component cũ). Khi trạng thái tính năng thay đổi, sửa lại mục 3, 6, 7, 8.
 >

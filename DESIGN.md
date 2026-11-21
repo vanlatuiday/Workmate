@@ -237,6 +237,8 @@ một lần khi cuộn tới (`ShiftBoardSection`) và phần câu nhấn `State
 
 **Việc mới đăng (2026-11-20):** vòng ảnh "rọi đèn" ô giữa (`.nj-slot`: phóng 1.12, viền ngà sáng, vầng xanh ngọc + bóng sàn; ô bên tối/nhạt/mờ nhẹ theo góc), tấm thông tin dạng vé gối lên ảnh giữa (kính `abyss` 60%, lương + ca thành viên nổi, nút ngà đặc), dải chữ nhỏ ~30% với bản lặp chỉ viền chữ, nút dừng dải chữ dạng icon. Section đặt `z-20` để quầng cam của khối tuyển dụng không phủ lên.
 
+**Điều chỉnh trang chủ sau rà soát ngày 21/11, chủ dự án duyệt mục 1–5.** Đoạn giới thiệu ngắn luôn hiện trên điện thoại và laptop màn thấp, ghi rõ Đà Nẵng. Ô địa điểm ở hero và cuối trang chọn khu vực trong thành phố. Tiêu đề và các bước giới thiệu rút gọn. Việc mới đăng lấy sáu tin theo ngày đăng giảm dần, dưới 768px hiện ba thẻ ngang gọn cùng liên kết xem tiếp. Nền nội dung phủ abyss tăng dần tới 48% ở 12svh và 52% ở 60svh, tia sáng thở tối đa 12%, sao CSS 20%, hạt WebGL 30% so với trước. Viền bắt sáng của thẻ nội dung giảm nhẹ.
+
 **Chữ (2026-11-20):** nút = động từ + việc ("Xem việc mới đăng", "Đăng tin tuyển người"), không "Xem tất cả"/"Xem chi tiết";
 không câu "X, không phải Y"; không dấu gạch dài "—" trong chữ hiển thị; không nhãn in hoa trên tiêu đề section;
 tiêu đề section không là câu hỏi (riêng tiêu đề hero giữ câu hỏi — chủ dự án chọn).
@@ -258,6 +260,8 @@ tiêu đề section không là câu hỏi (riêng tiêu đề hero giữ câu h�
 - **Hiệu ứng:** thẻ không có liên kết chỉ sáng viền/icon/góc khi rê (không nhấc); thẻ có liên kết nhấc 2px. `/nha-tuyen-dung` có 1 khoảnh khắc: đường nối "Quy trình" sáng dần, vòng số sáng khi đường chạm tới (dọc trên điện thoại). `/viec-lam`: thẻ chi tiết viền + quầng xanh ngọc, công ty đang xem có vạch sáng. Khu quản lý: chỉ hiệu ứng khi rê (ô số liệu, dòng việc phù hợp).
 
 ### Nền ban ngày cho trang công khai (2026-11-21, chủ dự án duyệt)
+
+**Bản thử riêng trang Việc làm (22/11/2026, chủ dự án đồng ý thử).** Chỉ đúng `/viec-lam` dùng `page-bg-jobs-preview.webp` (1672×941, ~13 kB), bản chỉnh bằng imagegen từ ảnh xanh/trắng chủ dự án gửi. Yêu cầu chỉnh ảnh giữ bố cục sáng giữa/trái và dải xanh bên phải, bỏ hai nhãn AI, giảm mật độ/độ sáng sao khoảng 70%, dịu mảng xanh phải khoảng 20%, không thêm chữ hoặc vật thể. `cover` giữ tỷ lệ, mobile căn `58% center`; lớp sương `day` 24% ở vùng giữa giúp đọc chữ. Theo yêu cầu tiếp theo, nền trôi dọc từ +24 xuống −24px theo toàn trang (mobile +12 xuống −12px), GSAP `scrub: 0.35`, chỉ transform một lớp ảnh. Tràn 28px trên desktop/16px trên mobile để mép nền luôn kín; giảm chuyển động giữ nền tĩnh, không giữ lớp compositor riêng. ResizeObserver cập nhật mốc cuối khi danh sách đổi chiều cao, hiệu ứng được gỡ khi đổi trang. Không chồng `.day-sky` hoặc sao CSS lên ảnh. Bộ lọc và thẻ nội dung giữ mặt sáng hiện có. Trang chi tiết việc, công ty và các trang khác giữ nền ban ngày cũ trong khi chờ nhận xét bản thử.
 
 **Thay quy tắc bìa xanh + nội dung tối (20/11) cho các trang dưới đây.** Trang chủ, đăng nhập/đăng ký, dashboard, `/ca-nhan`, `/ho-so`, `/tin-nhan`, `/thong-bao`, `/lich-phong-van`, `/dang-tin`, `/vi-tri/:id`, `/ung-vien/:id`, `/xem-thu` giữ nguyên. Đây là ngoại lệ có chủ đích (chủ dự án duyệt) với quy tắc "không gradient/glow ngoài trang chủ" của workmate-ui.
 - **Danh sách trang** (`DAY_PATHS` trong `PublicLayout`): `/viec-lam`, `/viec-lam/:id`, `/cong-ty`, `/cong-ty/:id`, `/match`, `/nha-tuyen-dung`, `/gioi-thieu`, `/lien-he`, `/ho-tro`, `/cam-nang`, `/cam-nang/:slug`, `/dieu-khoan`, `/bao-mat` và 404 (đường dẫn không thuộc danh sách trang giữ kiểu cũ).

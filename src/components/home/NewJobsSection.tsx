@@ -15,6 +15,8 @@ import { cn } from '@utils/cn'
 import { homeSections, homeSectionsByRole } from './content'
 import { useHomeRole } from './homeData'
 import { HOME_GLASS_DARK } from './homeBackground'
+import { BTN_SECONDARY, CARD_HOVER, PRESS } from '@utils/ui'
+import { FOCUS } from '@utils/focus'
 
 const mine = homeSectionsByRole.recruiter.mine
 
@@ -58,14 +60,14 @@ function Tag({ index, label }: { index: number; label: string }) {
 }
 
 /** Ảnh dọc 4/5 trong khung kính mảnh (đồng bộ với các thẻ kính tối của trang chủ, 2026-11-20) */
-function JobPhoto({ job, alt, className }: { job: MatchJob; alt: string; className?: string }) {
+function JobPhoto({ job, alt, compact = false, className }: { job: MatchJob; alt: string; compact?: boolean; className?: string }) {
   return (
     <div className={cn('rounded-card border border-wm-ivory/25 bg-wm-abyss/40 p-1 shadow-[0_20px_50px_-30px_var(--wm-night)]', className)}>
       <div className="relative aspect-[4/5] overflow-hidden rounded-control bg-wm-abyss">
         <img
-          src={photoUrl(job.photo.id, 480)}
-          srcSet={photoSrcSet(job.photo.id)}
-          sizes="360px"
+          src={photoUrl(job.photo.id, compact ? 240 : 480)}
+          srcSet={compact ? undefined : photoSrcSet(job.photo.id)}
+          sizes={compact ? undefined : '360px'}
           alt={alt}
           width={480}
           height={600}
@@ -119,7 +121,7 @@ function RowLink({ row, label }: { row: Row; label: string }) {
 
 /**
  * Section ④ — vòng 3D (references/p9.mp4) dưới dải chữ chạy ngang, theo nội dung 6 việc nhân đôi
- * thành 12 ô. Khách / người tìm việc / quản trị: việc mới đăng (cuối danh mục, khác "tuyển gấp").
+ * thành 12 ô. Khách / người tìm việc / quản trị: sáu việc mới nhất theo ngày đăng.
  * Nhà tuyển dụng: "Tin của bạn" — tin của công ty demo kèm trạng thái và số người quan tâm; chưa có
  * tin thì chỉ dải chữ + lời mời đăng tin.
  *
@@ -134,7 +136,8 @@ function RowLink({ row, label }: { row: Row; label: string }) {
  * Kéo ngang bằng chuột/cảm ứng vẫn xoay tự do (touch-action: pan-y giữ cuộn dọc). Ngừng thao tác
  * ~150ms thì căn về ô gần nhất.
  * Phím ← →, nút trước/sau: một ô. Khối chữ của việc ở trước chuyển mờ chéo.
- * Điện thoại hoặc giảm chuyển động: dải chữ đứng yên + danh sách dọc.
+ * Điện thoại: ba thẻ ngang gọn và liên kết xem thêm. Giảm chuyển động: dải chữ đứng yên,
+ * màn rộng dùng danh sách tĩnh đủ sáu việc.
  */
 export default function NewJobsSection() {
   const ref = useRef<HTMLElement>(null)
@@ -147,7 +150,9 @@ export default function NewJobsSection() {
   const [active, setActive] = useState(0)
   const role = useHomeRole()
   const recruiter = role === 'recruiter'
-  const jobs = useAllJobs().slice(-6)
+  const jobs = [...useAllJobs()]
+    .sort((a, b) => (Date.parse(b.postedAt) || 0) - (Date.parse(a.postedAt) || 0))
+    .slice(0, 6)
   const rows = useCompanyJobs(useCompanyStore((s) => s.id)).slice(0, 6)
   const numbers = useJobNumbers(rows.map((r) => r.job))
   const copy = recruiter ? mine : homeSections.fresh
@@ -166,6 +171,7 @@ export default function NewJobsSection() {
   const linkLabel = recruiter ? 'Quản lý tin' : 'Xem tin này'
   // Dựng bánh xe ghim hay danh sách tĩnh
   const wheel = wide && !reduced && !empty && count >= 2
+  const mobileItems = items.slice(0, 3)
 
   // Dải chữ chạy ngang + nhích tốc độ theo vận tốc cuộn. Có nút tạm dừng + dừng khi rê chuột (taste skill:
   // thứ gì chạy quá 5 s phải dừng được)
@@ -551,8 +557,39 @@ export default function NewJobsSection() {
             </div>
           </div>
         </>
+      ) : !wide ? (
+        /* Điện thoại: ba thẻ ngang gọn, bấm cả thẻ để mở tin. */
+        <div className="shell">
+          <ul className="mt-6 space-y-3">
+            {mobileItems.map((row) => (
+              <li key={row.job.id}>
+                <Link
+                  to={row.href}
+                  className={cn('group flex items-start gap-3 rounded-card border border-wm-ivory/20 p-3 text-wm-ivory', HOME_GLASS_DARK, PRESS, CARD_HOVER, FOCUS)}
+                >
+                  <JobPhoto job={row.job} alt="" compact className="w-20 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <h3 className="line-clamp-2 font-display text-base font-semibold leading-snug">{row.job.title}</h3>
+                    <p className="mt-1 line-clamp-1 text-xs text-wm-ivory/80">{companyOf(row.job.companyId).name}</p>
+                    <p className="tnum mt-2 text-sm font-semibold text-wm-cyan">{row.job.salaryLabel}</p>
+                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-wm-ivory/80">{row.job.district} · {row.job.shiftLabel}</p>
+                    {row.status && <p className="mt-1 text-xs text-wm-ivory/80">{row.status}</p>}
+                    <span className="mt-2 inline-flex items-center gap-1 text-sm font-medium group-hover:underline">
+                      {linkLabel}<ArrowRight className="h-4 w-4" aria-hidden />
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {count > mobileItems.length && (
+            <Link to={copy.all.href} className={cn(BTN_SECONDARY, 'mt-5 min-h-11 text-wm-ivory')}>
+              {copy.all.label}<ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+          )}
+        </div>
       ) : (
-        /* Điện thoại / giảm chuyển động: danh sách dọc, vạch phân cách mảnh */
+        /* Giảm chuyển động trên màn rộng: giữ danh sách tĩnh có đủ sáu việc. */
         <div className="shell">
           <ul role="list" className="mt-8 space-y-4">
             {items.map((row, i) => (

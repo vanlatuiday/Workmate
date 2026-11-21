@@ -60,21 +60,21 @@ export const heroCopy: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin', Her
   guest: {
     title: 'Bạn đang cần gì hôm nay?',
     titleLines: ['Bạn đang cần gì', 'hôm nay?'],
-    lead: 'Một công việc vừa với lịch sống, hay một người làm đúng ca bạn thiếu. Workmate chỉ kết nối khi cả hai bên cùng phù hợp.',
+    lead: 'Tìm việc theo ca ở Đà Nẵng, phù hợp lịch rảnh của bạn.',
     search: true,
     actions: [{ label: 'Đăng tin tuyển người', href: '/dang-ky?role=recruiter' }],
   },
   jobseeker: {
     title: 'Hôm nay bạn muốn làm việc gì?',
     titleLines: ['Hôm nay bạn muốn', 'làm việc gì?'],
-    lead: 'Gợi ý dựa trên lịch rảnh, vị trí và kỹ năng trong hồ sơ của bạn.',
+    lead: 'Gợi ý việc ở Đà Nẵng theo lịch rảnh, khu vực và kỹ năng của bạn.',
     search: true,
     actions: [],
   },
   recruiter: {
     title: 'Bạn đang thiếu vị trí nào?',
     titleLines: ['Bạn đang thiếu', 'vị trí nào?'],
-    lead: 'Đăng tin với lịch làm và tiêu chí rõ ràng. Workmate gợi ý người rảnh đúng ca, sống gần và đủ kỹ năng.',
+    lead: 'Đăng ca tại Đà Nẵng, nhận gợi ý ứng viên theo lịch rảnh và kỹ năng.',
     search: false,
     actions: [
       { label: 'Đăng tin tuyển dụng', href: '/dang-tin' },
@@ -215,10 +215,10 @@ export const homeSections = {
   demoNotice: 'Việc làm, doanh nghiệp và hồ sơ trên trang là dữ liệu minh họa, chưa phải tin tuyển dụng thật.',
   /** Phần câu nhấn giữa trang (StatementSection): nhãn, tiêu đề (đoạn nhấn màu cyan ở giữa), mô tả và nút theo vai trò */
   statementEyebrow: { lead: 'Kết nối cơ hội', tail: 'Kiến tạo tương lai' },
-  statementTitle: { lead: 'Workmate ghép việc theo lịch rảnh, quãng đường và chỉ kết nối khi ', em: 'cả hai bên', tail: ' cùng muốn.' },
+  statementTitle: { lead: 'Ghép việc hợp lịch, kết nối khi ', em: 'cả hai bên', tail: ' cùng muốn.' },
   statementSub: {
-    guest: 'Tìm việc dễ dàng, linh hoạt thời gian, kết nối đúng người, đúng cơ hội.',
-    jobseeker: 'Tìm việc dễ dàng, linh hoạt thời gian, kết nối đúng người, đúng cơ hội.',
+    guest: 'Xem ca đang tuyển, chọn nơi làm và ứng tuyển khi bạn sẵn sàng.',
+    jobseeker: 'Xem ca đang tuyển, chọn nơi làm và ứng tuyển khi bạn sẵn sàng.',
     recruiter: 'Đăng ca dễ dàng, gặp đúng người rảnh đúng ca, kết nối khi cả hai cùng muốn.',
   },
   statementButtons: {
@@ -252,7 +252,7 @@ export const homeSections = {
       id: 'schedule',
       label: 'Lịch rảnh',
       title: 'Việc tự tìm đến bạn',
-      body: 'Khai lịch rảnh một lần, những ca khớp với giờ học, giờ làm của bạn sẽ được gợi ý.',
+      body: 'Khai lịch rảnh để nhận gợi ý ca phù hợp.',
       cta: 'Tạo hồ sơ',
       detailLabel: 'Xem cách khớp lịch',
     },
@@ -260,7 +260,7 @@ export const homeSections = {
       id: 'near',
       label: 'Gần nhà',
       title: 'Gần nhà, đúng quãng đường',
-      body: 'Đặt bán kính di chuyển bạn chấp nhận, Workmate chỉ hiện việc nằm trong tầm đó.',
+      body: 'Chọn bán kính và xem khoảng cách trước khi ứng tuyển.',
       cta: 'Xem việc gần tôi',
       detailLabel: 'Xem cách tính quãng đường',
     },

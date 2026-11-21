@@ -39,12 +39,12 @@ export function flagsOf(job: MatchJob & { description?: string }, config: System
 }
 
 /** Mọi tin đang hiện công khai (đã duyệt, đang mở, công ty không bị khóa) — đọc tức thời từ danh mục */
-export function getVisibleJobs(): MatchJob[] {
+export function getVisibleJobs(): CatalogJob[] {
   return useCatalogStore.getState().jobs.filter((j) => j.visible)
 }
 
 /** Hook: như getVisibleJobs nhưng tự cập nhật khi danh mục đổi (nạp lại, quản trị duyệt/ẩn/khóa) */
-export function useVisibleJobs(): MatchJob[] {
+export function useVisibleJobs(): CatalogJob[] {
   const jobs = useCatalogStore((s) => s.jobs)
   return useMemo(() => jobs.filter((j) => j.visible), [jobs])
 }

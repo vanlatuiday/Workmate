@@ -82,7 +82,7 @@ export default function HomePage() {
       {/* Nền xanh nối tiếp hero cho cả phần còn lại của trang (homeBackground.ts) */}
       {/* Lớp nền không đặt z-index: nằm dưới hạt (z-[5]) và dưới các phần (mỗi phần là relative z-10) */}
       {/* overflow-clip: cắt phần nền kéo dài lên trên khi nền trôi chậm (không tạo khung cuộn, sticky vẫn chạy) */}
-      <div className="relative overflow-clip">
+      <div className="home-content relative overflow-clip">
         {/* Nền phần dưới hero: đoạn nối (ảnh hero soi gương) → cột tia sáng đồng nhất tới hết trang.
             Cam chỉ ở hero và sau phần ⑥ (RecruiterSection tự mang quầng cam). */}
         <div aria-hidden className="pointer-events-none absolute inset-0">

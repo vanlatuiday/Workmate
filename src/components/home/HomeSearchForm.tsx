@@ -1,9 +1,10 @@
 import { useState, type Ref } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, MapPin, Send } from 'lucide-react'
+import { Search, MapPin, Send, ChevronDown } from 'lucide-react'
 
 import RollText from '@components/motion/RollText'
 import { cn } from '@utils/cn'
+import { DISTRICTS, EMPTY_FILTERS, filtersToParams } from '@pages/public/jobs/catalog'
 
 type Props = {
   /** Gắn vào ô từ khóa (hero dùng cho focusSearch). */
@@ -15,21 +16,19 @@ type Props = {
 
 /**
  * Ô tìm việc dạng viên thuốc kính (từ khóa + địa điểm) dùng ở hero và lời kết.
- * Gửi form → /viec-lam?keyword=…&city=… (cùng tham số ở mọi nơi). Nhãn ô nhập là sr-only
+ * Gửi form → /viec-lam?q=…&quan=… (cùng bộ lọc với trang Việc làm). Nhãn ô nhập là sr-only
  * bọc trong <label> nên không cần id (nhiều form trên một trang vẫn không trùng).
  */
 export default function HomeSearchForm({ inputRef, size = 'md', className }: Props) {
   const [keyword, setKeyword] = useState('')
-  const [location, setLocation] = useState('')
+  const [district, setDistrict] = useState('')
   const navigate = useNavigate()
   const sm = size === 'sm'
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    const params = new URLSearchParams()
-    if (keyword) params.set('keyword', keyword)
-    if (location) params.set('city', location)
-    navigate(`/viec-lam?${params.toString()}`)
+    const params = filtersToParams({ ...EMPTY_FILTERS, q: keyword.trim(), district })
+    navigate(`/viec-lam${params.size ? `?${params}` : ''}`)
   }
 
   const pad = sm ? 'px-4 py-2.5' : 'px-5 py-3.5'
@@ -72,17 +71,17 @@ export default function HomeSearchForm({ inputRef, size = 'md', className }: Pro
         )}
       >
         <MapPin className="w-4 h-4 text-wm-ivory shrink-0" aria-hidden="true" />
-        <span className="sr-only">Địa điểm</span>
-        <input
-          type="text"
-          name="city"
-          autoComplete="address-level2"
-          enterKeyHint="search"
-          placeholder="Địa điểm…"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="flex-1 w-full min-w-0 bg-transparent !outline-none text-base text-wm-ivory placeholder:text-wm-ivory/80"
-        />
+        <span className="sr-only">Khu vực tại Đà Nẵng</span>
+        <select
+          name="quan"
+          value={district}
+          onChange={(e) => setDistrict(e.target.value)}
+          className="home-district min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-base text-wm-ivory outline-none"
+        >
+          <option value="">Đà Nẵng</option>
+          {DISTRICTS.map((area) => <option key={area} value={area}>{area}</option>)}
+        </select>
+        <ChevronDown className="h-4 w-4 shrink-0 text-wm-ivory/80" aria-hidden />
       </label>
 
       <button
