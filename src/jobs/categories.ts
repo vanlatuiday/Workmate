@@ -14,8 +14,8 @@ export const JOB_CATEGORIES = [
   { key: 'le_tan', words: ['le tan', 'don khach', 'buong phong', 'dich vu khach hang'] },
   { key: 'su_kien', words: ['su kien', 'tiec', 'san khau', 'khach moi'] },
   { key: 'hanh_chinh', words: ['hanh chinh', 'van phong', 'nhap lieu', 'tiep nhan don', 'cham soc don hang'] },
-  { key: 'marketing', words: ['marketing', 'noi dung', 'thiet ke', 'truyen thong', 'chien dich'] },
-  { key: 'tro_giang', words: ['tro giang', 'gia su', 'giang', 'hoc vien'] },
+  { key: 'marketing', words: ['marketing', 'noi dung', 'thiet ke', 'truyen thong', 'chien dich', 'tu khoa'] },
+  { key: 'tro_giang', words: ['tro giang', 'gia su', 'giang', 'hoc vien', 'khoa hoc'] },
   { key: 'khac', words: [] as string[] },
 ] as const
 
@@ -25,6 +25,7 @@ export type JobCategory = (typeof JOB_CATEGORY_KEYS)[number]
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase()
 
 export function inferCategory(title: string): JobCategory {
-  const t = norm(title)
-  return JOB_CATEGORIES.find((c) => c.words.some((w) => t.includes(w)))?.key ?? 'khac'
+  // Khớp NGUYÊN TỪ (đệm khoảng trắng hai đầu): "kho" không được khớp "khóa học"
+  const t = ` ${norm(title).replace(/[^a-z0-9]+/g, ' ')} `
+  return JOB_CATEGORIES.find((c) => c.words.some((w) => t.includes(` ${w} `)))?.key ?? 'khac'
 }
