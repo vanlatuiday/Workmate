@@ -132,8 +132,8 @@ const ArchiveItem = forwardRef<HTMLButtonElement, Props>(function ArchiveItem(
           >
             <div className={cn('overflow-hidden rounded-control bg-wm-stone', aspect)}>
               <img
-                src={photoUrl(entry.photo.id, 800)}
-                srcSet={photoSrcSet(entry.photo.id)}
+                src={photoUrl(entry.photo, 800)}
+                srcSet={photoSrcSet(entry.photo)}
                 sizes="(min-width: 1024px) 34vw, (min-width: 768px) 46vw, 90vw"
                 alt={entry.photo.alt}
                 loading="lazy"

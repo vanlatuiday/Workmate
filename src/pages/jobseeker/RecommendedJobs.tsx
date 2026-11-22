@@ -1,6 +1,6 @@
+import JobDetailLink from '@components/jobs/JobDetailLink'
 import CompanyLogo from '@components/common/CompanyLogo'
 import { useId, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { Bookmark, BookmarkCheck, ChevronDown, MapPin, SearchX } from 'lucide-react'
 import { JOB_TYPES } from '@constants/index'
 import { EmptyState, FilterToggle, MatchScore, PageHeader, SkeletonCards } from '@components/dashboard'
@@ -87,12 +87,12 @@ function JobCard({ job, outcome, saved, onToggleSave }: Scored & { saved: boolea
           <PopIcon icon={saved ? BookmarkCheck : Bookmark} on={saved} fill={false} />
           {saved ? 'Đã lưu' : 'Lưu'}
         </button>
-        <Link
-          to={`/viec-lam/${job.id}`}
+        <JobDetailLink
+          jobId={job.id}
           className={cn(BTN_PRIMARY, BTN_SM)}
         >
           Xem việc này
-        </Link>
+        </JobDetailLink>
         <button
           type="button"
           aria-expanded={open}

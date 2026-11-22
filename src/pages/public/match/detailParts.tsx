@@ -26,7 +26,7 @@ export function FactTiles({ items }: { items: Fact[] }) {
   return (
     <ul className="grid grid-cols-2 gap-3">
       {items.map(({ icon: Icon, label, value }) => (
-        <li key={label} className="min-w-0 rounded-card border border-page-line p-4">
+        <li key={label} data-fact-tile className="min-w-0 rounded-card border border-page-line p-4">
           <p className="flex items-center gap-1.5 text-xs text-page-muted">
             <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             {label}

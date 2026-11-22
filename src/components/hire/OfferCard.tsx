@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import JobDetailLink from '@components/jobs/JobDetailLink'
 import { CalendarDays } from 'lucide-react'
 import { StatusBadge } from '@components/dashboard'
 import { describeConversation } from '@pages/public/messages/describe'
@@ -16,9 +16,9 @@ export default function OfferCard({ hire }: { hire: Hire }) {
     <li className="flex flex-col gap-4 py-4 first:pt-0 last:pb-0 lg:flex-row lg:items-center lg:justify-between">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <Link to={`/viec-lam/${hire.jobId}`} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>
+          <JobDetailLink jobId={hire.jobId} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>
             {info.subtitle}
-          </Link>
+          </JobDetailLink>
           <StatusBadge tone="strong">Lời mời nhận việc</StatusBadge>
         </div>
         <p className="mt-1 text-sm text-page-muted">{info.name} · gửi {formatRelativeTime(hire.at)}</p>

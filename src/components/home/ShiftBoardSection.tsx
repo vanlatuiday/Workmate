@@ -1,3 +1,4 @@
+import JobDetailLink from '@components/jobs/JobDetailLink'
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, ChevronLeft, ChevronRight, Clock, LayoutGrid, Moon, MoonStar, Sun, Sunrise, X, type LucideIcon } from 'lucide-react'
@@ -76,7 +77,7 @@ function CompanyRow({ row, role, score, free }: { row: ShiftRow; role: 'guest' |
   return (
     <li className="flex gap-3 rounded-card bg-wm-ivory/10 p-3">
       <img
-        src={company.logoUrl || photoUrl(company.cover.id, 160)}
+        src={company.logoUrl || photoUrl(company.cover, 160)}
         alt={company.logoUrl ? `Logo ${company.name}` : company.cover.alt}
         width={56}
         height={56}
@@ -84,9 +85,9 @@ function CompanyRow({ row, role, score, free }: { row: ShiftRow; role: 'guest' |
         className="h-14 w-14 shrink-0 rounded-control object-cover"
       />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <Link to={`/viec-lam/${job.id}`} className={cn('w-fit rounded-control text-base font-bold leading-snug underline-offset-4 hover:underline', FOCUS)}>
+        <JobDetailLink jobId={job.id} className={cn('w-fit rounded-control text-base font-bold leading-snug underline-offset-4 hover:underline', FOCUS)}>
           {job.title}
-        </Link>
+        </JobDetailLink>
         <p className="text-sm font-medium">{company.name}</p>
         <p className="tnum text-sm">
           {job.salaryLabel} · {job.district} · {String(job.distanceKm).replace('.', ',')} km
@@ -565,8 +566,8 @@ export default function ShiftBoardSection() {
                           ) : (
                             <img
                               data-shift-photo
-                              src={photoUrl(g.cat.photo.id, 640)}
-                              srcSet={photoSrcSet(g.cat.photo.id)}
+                              src={photoUrl(g.cat.photo, 640)}
+                              srcSet={photoSrcSet(g.cat.photo)}
                               sizes="(min-width: 1024px) 20vw, (min-width: 768px) 33vw, 100vw"
                               alt={g.cat.photo.alt}
                               width={640}

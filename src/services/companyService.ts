@@ -3,6 +3,7 @@ import api from './api'
 import { apiErrorMessage } from './authService'
 import { useCompanyStore } from '@context/companyStore'
 import { useCatalogStore } from '@context/catalogStore'
+import type { Photo } from '@components/discover/types'
 
 export const LOGO_MAX_BYTES = 2 * 1024 * 1024
 export const LOGO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
@@ -12,6 +13,21 @@ export function checkLogoFile(file: File): string | null {
   if (!LOGO_TYPES.includes(file.type)) return 'Chỉ nhận ảnh JPG, PNG hoặc WEBP.'
   if (file.size > LOGO_MAX_BYTES) return 'Ảnh lớn hơn 2MB.'
   return null
+}
+
+/** Tải asset cho nháp; không thay ảnh bìa công ty trước khi form được lưu. */
+export async function uploadCompanyImage(file: File): Promise<Photo> {
+  const bad = checkLogoFile(file)
+  if (bad) throw new Error(bad)
+  const form = new FormData()
+  form.append('file', file)
+  try {
+    const res = await api.post<Photo>('/recruiter/company/images', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+    return res.data
+  } catch (err) {
+    if ((err as { response?: { status?: number } }).response?.status === 413) throw new Error('Ảnh lớn hơn 2MB.')
+    throw new Error(apiErrorMessage(err, 'Không tải được ảnh lên. Bạn thử lại nhé.'))
+  }
 }
 
 type LogoResponse = { logoUrl: string | null }

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AlertCircle } from 'lucide-react'
 import CompanyLogo from '@components/common/CompanyLogo'
-import { photoUrl } from '@components/discover/types'
+import PhotoPicker from '@components/common/PhotoPicker'
 import { COVER_CHOICES, useCompanyStore, type CompanyProfile } from '@context/companyStore'
 import { checkLogoFile, uploadCompanyLogo } from '@services/companyService'
 import { cn } from '@utils/cn'
@@ -122,7 +122,7 @@ export function StepName({ draft, set, banned }: StepProps & { banned: string[] 
   )
 }
 
-export function StepIntro({ draft, set, bannedTagline, bannedAbout }: StepProps & { bannedTagline: string[]; bannedAbout: string[] }) {
+export function StepIntro({ draft, set, bannedTagline, bannedAbout, onBusyChange, disabled }: StepProps & { bannedTagline: string[]; bannedAbout: string[]; onBusyChange: (busy: boolean) => void; disabled?: boolean }) {
   return (
     <>
       <Intro>Vài dòng giúp người tìm việc hiểu công ty bạn. Có thể bỏ qua và bổ sung sau ở Hồ sơ công ty.</Intro>
@@ -137,20 +137,7 @@ export function StepIntro({ draft, set, bannedTagline, bannedAbout }: StepProps 
         <div className="-mt-2.5"><BannedNotice banned={bannedAbout} /></div>
         <div>
           <p className="mb-2 text-sm text-page-muted">Ảnh bìa</p>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {COVER_CHOICES.map((c) => {
-              const on = draft.cover.id === c.id
-              return (
-                <li key={c.id}>
-                  <button type="button" aria-pressed={on} onClick={() => set('cover', c)}
-                    className={cn('block w-full overflow-hidden rounded-card border-2 text-left', on ? 'border-page-fg' : 'border-page-line hover:border-page-edge', FOCUS)}>
-                    <img src={photoUrl(c.id, 400)} alt={c.alt} loading="lazy" className="aspect-[4/3] w-full object-cover" />
-                    <span className="sr-only">{on ? 'Đang chọn' : 'Chọn ảnh này'}</span>
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
+          <PhotoPicker value={draft.cover} choices={COVER_CHOICES} onChange={(photo) => set('cover', photo)} onBusyChange={onBusyChange} disabled={disabled} />
         </div>
       </div>
     </>

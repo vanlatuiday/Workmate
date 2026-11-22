@@ -87,8 +87,8 @@ export default function MatchGallery<T extends GalleryItem>({ items, label, rend
                     </div>
                   ) : item.photo && (
                     <img
-                      src={photoUrl(item.photo.id, 960)}
-                      srcSet={photoSrcSet(item.photo.id)}
+                      src={photoUrl(item.photo, 960)}
+                      srcSet={photoSrcSet(item.photo)}
                       sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                       alt={item.photo.alt}
                       loading="lazy"

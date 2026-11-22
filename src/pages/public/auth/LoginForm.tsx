@@ -7,8 +7,8 @@ import { apiErrorMessage, authService } from '@services/authService'
 import { canVisit } from '@constants/roles'
 import { FOCUS } from '@utils/focus'
 import { cn } from '@utils/cn'
-import { BTN_SECONDARY, BTN_SM } from '@utils/ui'
-import { AuthField, ErrorBox, Item, RoleSwitch, ShowPassButton, Stagger, SubmitButton, TEXT_LINK, type AuthRole } from './shared'
+import { BTN_SM } from '@utils/ui'
+import { AUTH_SECONDARY, AuthField, ErrorBox, Item, RoleSwitch, ShowPassButton, Stagger, SubmitButton, TEXT_LINK, type AuthRole } from './shared'
 import { AUTH_PATHS, loginEmailError, loginHome, useFieldTouch, useFocusFirst, type AuthFormProps } from './authShared'
 
 /*
@@ -144,7 +144,7 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
 
         {/* DEMO-ONLY: xóa khi có backend — đăng nhập nhanh bằng tài khoản demo (bắt đầu) */}
         {import.meta.env.DEV && <Item className="mt-4">
-          <div role="group" aria-label="Đăng nhập nhanh bằng tài khoản demo" className="flex flex-wrap items-center justify-center gap-2">
+          <div role="group" aria-label="Đăng nhập nhanh" className="flex flex-wrap items-center justify-center gap-2">
             {DEMO_ACCOUNTS.map((acc) => {
               const Icon = DEMO_ICONS[acc.role]
               const password = acc.password
@@ -155,7 +155,7 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
                   disabled={loading}
                   onClick={() => quickLogin(acc.username, password)}
                   title={`${acc.label} · ${acc.username} · mật khẩu ${password}`}
-                  className={cn(BTN_SECONDARY, BTN_SM)}
+                  className={cn(AUTH_SECONDARY, BTN_SM)}
                 >
                   <Icon className="w-3.5 h-3.5" aria-hidden />
                   {DEMO_LABELS[acc.role]}

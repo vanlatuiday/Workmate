@@ -72,11 +72,11 @@ export default function AuthPage() {
   const { pathname, state } = useLocation()
   if (user && token && (pathname === AUTH_PATHS.login || pathname === AUTH_PATHS.register)) {
     const from = (state as { from?: string } | null)?.from
-    // Người dùng mới vừa xác nhận email ở /dang-ky: nhà tuyển dụng vào form bắt đầu, người tìm việc vào hướng dẫn 3 bước. Phải xử lý ở đây vì
+    // Người dùng mới vừa xác nhận email ở /dang-ky: nhà tuyển dụng vào form bắt đầu, người tìm việc vào trình viết CV. Phải xử lý ở đây vì
     // setUser làm trang này render lại và chuyển hướng TRƯỚC lệnh navigate() trong RegisterForm
     const fallback = pathname !== AUTH_PATHS.register ? loginHome(user.role)
       : user.role === 'recruiter' ? '/tuyen-dung/bat-dau'
-      : user.role === 'jobseeker' ? '/tim-viec/bat-dau' : '/'
+      : user.role === 'jobseeker' ? '/ho-so' : '/'
     return <Navigate to={from && canVisit(user.role, from) ? from : fallback} replace />
   }
   return <AuthCard />
@@ -163,7 +163,7 @@ function AuthCard() {
   }
 
   return (
-    <div className="theme-night relative isolate flex min-h-screen items-center justify-center overflow-hidden px-4 pb-10 pt-24 md:px-8">
+    <div className="auth-brand theme-night relative isolate flex min-h-screen items-center justify-center overflow-hidden px-4 pb-10 pt-24 md:px-8">
       {/* Nền giống hero trang chủ (2026-11-20, chủ dự án yêu cầu "trùng màu trang chủ"): ảnh tia sáng xanh,
           cam ở đáy, tia sáng "thở" (HomeBgLayers) — cũng là thứ để lớp kính làm mờ */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">

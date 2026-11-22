@@ -6,10 +6,10 @@ import DialogShell from './DialogShell'
 import PlaceText from './PlaceText'
 import { fmtSlot, MODE_LABEL } from './format'
 
-type Props = { interview: Interview; onClose: () => void }
+type Props = { interview: Interview; onClose: () => void; className?: string; timeZone?: string }
 
 /** Hộp thoại người tìm việc xem lời mời: chọn một khung giờ để xác nhận, hoặc từ chối. */
-export default function ChooseSlotDialog({ interview: iv, onClose }: Props) {
+export default function ChooseSlotDialog({ interview: iv, onClose, className, timeZone }: Props) {
   const info = describeConversation('seeker', iv.jobId, iv.seekerId)
   const [slot, setSlot] = useState(iv.slots[0])
   const [error, setError] = useState('')
@@ -28,7 +28,7 @@ export default function ChooseSlotDialog({ interview: iv, onClose }: Props) {
   }
 
   return (
-    <DialogShell titleId="choose-title" title={`Lời mời phỏng vấn · ${info.name}`} subtitle={info.subtitle} onClose={onClose}>
+    <DialogShell className={className} titleId="choose-title" title={`Lời mời phỏng vấn · ${info.name}`} subtitle={info.subtitle} onClose={onClose}>
       <div className="space-y-6">
         <fieldset>
           <legend className="text-sm font-medium text-page-fg">Chọn một khung giờ</legend>
@@ -37,7 +37,7 @@ export default function ChooseSlotDialog({ interview: iv, onClose }: Props) {
               <label key={s} className="block cursor-pointer">
                 <input type="radio" name="slot" value={s} checked={slot === s} onChange={() => { setSlot(s); setError('') }} className="peer sr-only" />
                 <span className="block rounded-card border border-page-edge px-4 py-3 text-base font-medium capitalize text-page-fg transition-colors duration-fast peer-checked:border-page-fg peer-checked:bg-page-surface peer-focus-visible:ring-2 peer-focus-visible:ring-page-fg peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-page-bg">
-                  {fmtSlot(s)}
+                  {fmtSlot(s, timeZone)}
                 </span>
               </label>
             ))}

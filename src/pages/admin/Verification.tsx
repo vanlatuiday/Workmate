@@ -48,7 +48,7 @@ function TaxBlock({ v }: { v: AdminVerification }) {
       {same.length > 0 && (
         <p className="mt-2 flex items-start gap-1.5 font-medium text-warning-ink"><AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" /><span className="min-w-0 break-words">Trùng mã với: {same.map((c) => c.name).join(', ')}</span></p>
       )}
-      {lookup?.source === 'mock' && <p className="mt-2 text-xs text-page-muted">Dữ liệu giả lập (chế độ demo)</p>}
+      {lookup?.source === 'mock' && <p className="mt-2 text-xs text-page-muted">Dữ liệu giả lập</p>}
     </div>
   )
 }

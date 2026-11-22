@@ -10,6 +10,7 @@ import { apiErrorMessage } from '@services/authService'
 import { photoUrl } from '@components/discover/types'
 import { COVER_CHOICES, useCompanyStore, type CompanyProfile as Profile } from '@context/companyStore'
 import CompanyLogo from '@components/common/CompanyLogo'
+import PhotoPicker from '@components/common/PhotoPicker'
 import VerificationPanel from './VerificationPanel'
 import { checkLogoFile, removeCompanyLogo, uploadCompanyLogo } from '@services/companyService'
 import { cn } from '@utils/cn'
@@ -155,6 +156,7 @@ export default function CompanyProfile() {
   const [form, setForm] = useState<Profile>(profile)
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({})
   const [saving, setSaving] = useState(false)
+  const [uploadBusy, setUploadBusy] = useState(false)
   const bannedName = useBannedCheck(form.name)
   const bannedTagline = useBannedCheck(form.tagline)
   const bannedAbout = useBannedCheck(form.about)
@@ -171,7 +173,7 @@ export default function CompanyProfile() {
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
-    if (hasBanned) return
+    if (hasBanned || saving || uploadBusy) return
     const next = {
       name: form.name.trim() ? undefined : 'Vui lòng nhập tên công ty.',
       email: EMAIL_RE.test(form.email.trim()) ? undefined : 'Email chưa hợp lệ.',
@@ -190,7 +192,7 @@ export default function CompanyProfile() {
       setSaving(false)
     }
   }
-  const cancel = () => { setForm(profile); setErrors({}) }
+  const cancel = () => { if (saving || uploadBusy) return; setForm(profile); setErrors({}) }
 
   return (
     <div>
@@ -245,20 +247,7 @@ export default function CompanyProfile() {
 
           <FadeIn>
           <Panel title="Ảnh bìa">
-            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {COVER_CHOICES.map((c) => {
-                const on = form.cover.id === c.id
-                return (
-                  <li key={c.id}>
-                    <button type="button" aria-pressed={on} onClick={() => set('cover', c)}
-                      className={cn('block w-full overflow-hidden rounded-card border-2 text-left', on ? 'border-page-fg' : 'border-page-line hover:border-page-edge', FOCUS)}>
-                      <img src={photoUrl(c.id, 400)} alt={c.alt} loading="lazy" className="aspect-[4/3] w-full object-cover" />
-                      <span className="sr-only">{on ? 'Đang chọn' : 'Chọn ảnh này'}</span>
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
+            <PhotoPicker value={form.cover} choices={COVER_CHOICES} onChange={(photo) => set('cover', photo)} onBusyChange={setUploadBusy} disabled={saving} />
           </Panel>
           </FadeIn>
 
@@ -295,8 +284,8 @@ export default function CompanyProfile() {
 
           {/* Thanh hành động */}
           <div className="flex flex-wrap items-center gap-3">
-            <button type="submit" disabled={saving || hasBanned} className={BTN_ACCENT}>{saving ? 'Đang lưu…' : 'Lưu thay đổi'}</button>
-            <button type="button" onClick={cancel} disabled={!dirty} className={BTN_GHOST}>Hủy</button>
+            <button type="submit" disabled={saving || uploadBusy || hasBanned} className={BTN_ACCENT}>{saving ? 'Đang lưu…' : 'Lưu thay đổi'}</button>
+            <button type="button" onClick={cancel} disabled={!dirty || saving || uploadBusy} className={BTN_GHOST}>Hủy</button>
             {hasBanned && <span className="text-sm text-page-muted">Sửa cụm từ không được phép để lưu.</span>}
             {dirty && <span role="status" className="text-sm text-page-muted">Có thay đổi chưa lưu</span>}
           </div>
@@ -307,7 +296,7 @@ export default function CompanyProfile() {
         <aside aria-label="Xem trước" className="lg:sticky lg:top-6 lg:self-start">
           <Panel title="Xem trước">
             <div className="overflow-hidden rounded-card border border-page-line">
-              <img src={photoUrl(form.cover.id, 640)} alt={form.cover.alt} className="aspect-[4/3] w-full object-cover" />
+              <img src={photoUrl(form.cover, 640)} alt={form.cover.alt} className="aspect-[4/3] w-full object-cover" />
               <div className="p-4">
                 <CompanyLogo name={form.name || 'Công ty'} logoUrl={logoUrl} decorative className="mb-3 h-12 w-12 text-sm" />
                 <p className="font-display text-lg font-medium text-page-fg">{form.name || 'Tên công ty'}</p>

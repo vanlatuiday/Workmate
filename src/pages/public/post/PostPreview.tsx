@@ -7,8 +7,7 @@ import { personInitials } from '../match/parts'
 export interface TopCandidate { name: string; score: number }
 
 interface Props {
-  photos: Photo[]
-  photoIndex: number
+  photo: Photo
   title: string
   subtitle: string
   shift: string
@@ -20,12 +19,13 @@ interface Props {
 
 /** Xem trước tin: thẻ như ở Bộ sưu tập + số ứng viên phù hợp cập nhật trực tiếp. */
 const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
-  { photos, photoIndex, title, subtitle, shift, count, total, top, posted },
+  { photo, title, subtitle, shift, count, total, top, posted },
   cardRef,
 ) {
   const reduced = useReducedMotion()
   // Chỉ nạp ảnh đã từng được chọn, tránh tải cả sáu ảnh lớn
-  const [seen, setSeen] = useState<number[]>([photoIndex])
+  const [seen, setSeen] = useState<Photo[]>([photo])
+  const selectedSrc = photoUrl(photo, 600)
   const [shown, setShown] = useState(count)
   const [delta, setDelta] = useState(0)
   const prev = useRef(count)
@@ -46,8 +46,8 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
   }, [title, reduced])
 
   useEffect(() => {
-    setSeen((s) => (s.includes(photoIndex) ? s : [...s, photoIndex]))
-  }, [photoIndex])
+    setSeen((s) => (s.some((p) => photoUrl(p, 600) === selectedSrc) ? s : [...s, photo]))
+  }, [photo, selectedSrc])
 
   // Đếm lên/xuống mượt; giảm chuyển động thì đổi ngay
   useEffect(() => {
@@ -92,13 +92,13 @@ const PostPreview = forwardRef<HTMLDivElement, Props>(function PostPreview(
       {/* Thẻ tin gọn: ảnh, tên, công ty · khu vực · lương, tóm tắt ca */}
       <div ref={cardRef} className="day-card relative overflow-hidden rounded-card border border-page-line bg-page-surface">
         <div className="relative aspect-[16/9] overflow-hidden bg-page-line">
-          {seen.map((i) => (
+          {seen.map((image) => (
             <img
-              key={i}
-              src={photoUrl(photos[i].id, 600)}
-              alt={i === photoIndex ? photos[i].alt : ''}
+              key={photoUrl(image, 600)}
+              src={photoUrl(image, 600)}
+              alt={photoUrl(image, 600) === selectedSrc ? photo.alt : ''}
               className="absolute inset-0 h-full w-full object-cover transition-opacity duration-slow motion-reduce:transition-none"
-              style={{ opacity: i === photoIndex ? 1 : 0 }}
+              style={{ opacity: photoUrl(image, 600) === selectedSrc ? 1 : 0 }}
             />
           ))}
         </div>

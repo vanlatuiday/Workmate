@@ -1,3 +1,4 @@
+import JobDetailLink from '@components/jobs/JobDetailLink'
 import { Link } from 'react-router-dom'
 import { Zap } from 'lucide-react'
 import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
@@ -42,9 +43,9 @@ export default function JobseekerMatch() {
                 <li key={`${p.jobId}|${p.seekerId}`} className="flex flex-col gap-4 py-5 first:pt-0 last:pb-0 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                      <Link to={`/viec-lam/${p.jobId}`} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>
+                      <JobDetailLink jobId={p.jobId} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>
                         {info.subtitle}
-                      </Link>
+                      </JobDetailLink>
                       {!!conv?.unread && <StatusBadge tone="strong">{conv.unread} tin chưa đọc</StatusBadge>}
                     </div>
                     <p className="mt-1 text-sm text-page-muted">{info.name} · kết nối {formatRelativeTime(p.at)}</p>

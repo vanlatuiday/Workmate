@@ -14,6 +14,7 @@ export interface CompanyProfile {
   industry: string
   district: string
   size: CompanySize
+  foundedYear?: number | null
   /** Một câu giới thiệu ngắn (thẻ, danh sách) */
   tagline: string
   /** Giới thiệu đầy đủ */
@@ -27,7 +28,7 @@ export interface CompanyProfile {
   cover: Photo
 }
 
-/** Ảnh bìa có sẵn để chọn (Unsplash) — chưa có chỗ lưu ảnh tải lên */
+/** Ảnh bìa mẫu để chọn bên cạnh chức năng tải ảnh riêng. */
 export const COVER_CHOICES: Photo[] = [
   { id: '1554118811-1e0d58224f24', alt: 'Không gian quán cà phê nhiều cây xanh, quầy pha chế phía sau' },
   { id: '1501339847302-ac426a4a7cbb', alt: 'Biển hiệu chữ CAFE phát sáng trong quán' },
@@ -65,7 +66,7 @@ interface CompanyState {
   loadFailed: boolean
   /** Logo nằm ngoài `profile` để tải logo không làm form đang sửa bị nạp lại */
   logoUrl: string | null
-  /** Địa chỉ nằm ngoài `profile` (chỉ form bắt đầu dùng) để không đổi form hồ sơ */
+  /** Địa chỉ riêng để các form hồ sơ và trang cá nhân đọc cùng dữ liệu máy chủ. */
   address: string
   /** Mã số doanh nghiệp + kết quả tra; nằm ngoài `profile` để lưu mã không làm form hồ sơ nạp lại */
   tax: TaxInfo
@@ -115,8 +116,8 @@ const statusOf = (d: Server) => ({
   nameBanned: d.nameBanned ?? [],
 })
 
-const pick = ({ name, industry, district, size, tagline, about, environment, values, policies, culture, email, phone, cover }: Server): CompanyProfile => ({
-  name, industry, district, size, tagline, about, environment, values, policies, culture, email, phone, cover,
+const pick = ({ name, industry, district, size, foundedYear, tagline, about, environment, values, policies, culture, email, phone, cover }: Server): CompanyProfile => ({
+  name, industry, district, size, foundedYear: foundedYear ?? null, tagline, about, environment, values, policies, culture, email, phone, cover,
 })
 
 /** Bản cho người dùng thật không hiện hồ sơ công ty mẫu trong lúc chờ máy chủ */
@@ -152,7 +153,10 @@ export const useCompanyStore = create<CompanyState>()((set, get) => ({
     set(statusOf(data))
   },
   update: async (patch) => {
+    const mine = epoch
+    const companyId = get().id
     const { data } = await api.patch<Server>('/recruiter/company', patch)
+    if (mine !== epoch || companyId !== get().id) return
     set({ ...statusOf(data), profile: pick(data) })
   },
   saveTaxCode: async (taxCode) => {

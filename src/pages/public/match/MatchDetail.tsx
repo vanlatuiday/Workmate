@@ -270,8 +270,8 @@ export default function MatchDetail({ photo, title, eyebrow, score, origin, onCl
   const titleId = 'match-detail-title'
   const value = Math.round(Math.min(100, Math.max(0, score)))
   const imgProps = {
-    src: photoUrl(photo.id, 960),
-    srcSet: photoSrcSet(photo.id),
+    src: photoUrl(photo, 960),
+    srcSet: photoSrcSet(photo),
     sizes: '(min-width: 768px) 32rem, 90vw',
   }
 
@@ -279,7 +279,7 @@ export default function MatchDetail({ photo, title, eyebrow, score, origin, onCl
     // data-lenis-prevent: Lenis (đang chạy ở chế độ Bộ sưu tập) không nuốt cuộn chuột trong khung này
     <div ref={rootRef} data-lenis-prevent className="fixed inset-0 z-[70] flex items-end justify-center md:items-center md:p-14">
       {/* Nền phủ: bấm ra ngoài thì đóng */}
-      <div data-backdrop aria-hidden onClick={() => requestClose()} className="absolute inset-0 bg-wm-charcoal/40" />
+      <div data-backdrop aria-hidden onClick={() => requestClose()} className="absolute inset-0 bg-wm-abyss/30" />
 
       {/* Khung chính overflow-visible để ảnh chồi ra; mobile là bottom sheet cao tối đa 90svh */}
       <div
@@ -287,7 +287,7 @@ export default function MatchDetail({ photo, title, eyebrow, score, origin, onCl
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="theme-ivory relative flex max-h-[90svh] w-full flex-col rounded-t-card border border-page-line bg-wm-ivory text-wm-charcoal md:grid md:min-h-[34rem] md:max-h-none md:max-w-5xl md:grid-cols-12 md:rounded-card"
+        className="theme-day relative flex max-h-[90svh] w-full flex-col rounded-t-card border border-page-line bg-wm-day text-page-fg [&_[data-fact-tile]]:bg-page-surface [&_[data-bar]]:bg-wm-azure md:grid md:min-h-[34rem] md:max-h-none md:max-w-5xl md:grid-cols-12 md:rounded-card"
       >
         {/* Sân khấu ảnh */}
         <div
@@ -301,9 +301,9 @@ export default function MatchDetail({ photo, title, eyebrow, score, origin, onCl
             className="absolute inset-x-5 -top-6 h-56 md:-left-10 md:-top-10 md:right-6 md:bottom-14 md:inset-x-auto md:h-auto"
           >
             {/* Tấm nền đá lệch xuống-phải, nghiêng ngược: thay cho bóng đổ */}
-            <div ref={plateRef} aria-hidden className="absolute inset-0 rounded-card bg-wm-stone" />
+            <div ref={plateRef} aria-hidden className="absolute inset-0 rounded-card border border-wm-ice bg-wm-day-tint" />
             <div ref={photoRef} className="absolute inset-0">
-              <div className="h-full w-full overflow-hidden rounded-card bg-wm-stone">
+              <div className="h-full w-full overflow-hidden rounded-card bg-wm-day-tint">
                 <img ref={imgRef} {...imgProps} alt={photo.alt} draggable={false} className="h-full w-full object-cover" />
               </div>
             </div>
@@ -312,7 +312,7 @@ export default function MatchDetail({ photo, title, eyebrow, score, origin, onCl
               ref={badgeRef}
               role="img"
               aria-label={`Độ phù hợp ${value}%, ${levelOf(value)}`}
-              className="absolute -right-3 bottom-6 rounded-card bg-wm-charcoal px-5 py-3 text-wm-ivory"
+              className="absolute -right-3 bottom-6 rounded-card bg-wm-ocean px-5 py-3 text-wm-day"
             >
               <p className="tnum font-display text-4xl font-medium leading-none md:text-5xl">{value}%</p>
               <p className="mt-1.5 text-xs">{levelOf(value)}</p>
@@ -330,7 +330,7 @@ export default function MatchDetail({ photo, title, eyebrow, score, origin, onCl
                 type="button"
                 onClick={() => requestClose()}
                 aria-label="Đóng"
-                className={BTN_ICON}
+                className={`${BTN_ICON} h-11 w-11`}
               >
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -344,7 +344,7 @@ export default function MatchDetail({ photo, title, eyebrow, score, origin, onCl
             </div>
 
             {actions && (
-              <div className="flex shrink-0 flex-wrap items-center gap-2 border-t border-page-line bg-page-bg px-6 py-4 md:px-8">
+              <div className="flex shrink-0 flex-wrap items-center gap-2 border-t border-page-line bg-page-surface px-6 py-4 md:px-8">
                 {typeof actions === 'function' ? actions(requestClose) : actions}
               </div>
             )}
@@ -353,7 +353,7 @@ export default function MatchDetail({ photo, title, eyebrow, score, origin, onCl
       </div>
 
       {/* Tấm ảnh bay (fixed): từ thẻ gốc tới chỗ ảnh chồi ra, và ngược lại khi đóng. Ẩn khi không bay. */}
-      <div ref={flyRef} aria-hidden className="pointer-events-none invisible fixed z-20 overflow-hidden rounded-card bg-wm-stone">
+      <div ref={flyRef} aria-hidden className="pointer-events-none invisible fixed z-20 overflow-hidden rounded-card bg-wm-day-tint">
         <img ref={flyImgRef} {...imgProps} alt="" className="h-full w-full object-cover" />
       </div>
     </div>,

@@ -271,7 +271,7 @@ export default function FeatureBlocksSection() {
                         <img src={ART[b.id].src} alt={ART[b.id].alt} width={1400} height={788} loading="lazy" decoding="async" className="mt-5 h-auto w-full lg:hidden" />
                       ) : photo && (
                         <div className={cn("relative mt-5 aspect-[16/10] lg:hidden", PHOTO_FADE)}>
-                          <img src={photoUrl(photo.id, 900)} srcSet={photoSrcSet(photo.id)} sizes="100vw" alt={photo.alt} width={900} height={563} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                          <img src={photoUrl(photo, 900)} srcSet={photoSrcSet(photo)} sizes="100vw" alt={photo.alt} width={900} height={563} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                         </div>
                       )}
                     </div>
@@ -306,8 +306,8 @@ export default function FeatureBlocksSection() {
             ) : (
               <img
                 key={b.id}
-                src={photoUrl(photo!.id, 1400)}
-                srcSet={photoSrcSet(photo!.id)}
+                src={photoUrl(photo!, 1400)}
+                srcSet={photoSrcSet(photo!)}
                 sizes="55vw"
                 width={1400}
                 height={1050}

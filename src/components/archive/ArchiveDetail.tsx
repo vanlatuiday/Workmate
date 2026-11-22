@@ -192,8 +192,8 @@ export default function ArchiveDetail({
         <div data-cover aria-hidden className="pointer-events-none absolute inset-[7px] z-10 overflow-hidden bg-wm-stone">
           <img
             ref={coverImgRef}
-            src={photoUrl(entry.photo.id, 1400)}
-            srcSet={photoSrcSet(entry.photo.id)}
+            src={photoUrl(entry.photo, 1400)}
+            srcSet={photoSrcSet(entry.photo)}
             sizes="(min-width: 768px) 64rem, 100vw"
             alt=""
             className="h-full w-full object-cover saturate-[.7]"
@@ -221,8 +221,8 @@ export default function ArchiveDetail({
               <div className="md:col-span-4">
                 <div className="overflow-hidden rounded-control bg-wm-stone md:sticky md:top-0">
                   <img
-                    src={photoUrl(entry.photo.id, 800)}
-                    srcSet={photoSrcSet(entry.photo.id)}
+                    src={photoUrl(entry.photo, 800)}
+                    srcSet={photoSrcSet(entry.photo)}
                     sizes="(min-width: 768px) 30vw, 90vw"
                     alt={entry.photo.alt}
                     className="aspect-[16/10] w-full object-cover saturate-[.7] md:aspect-[4/5]"

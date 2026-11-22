@@ -245,7 +245,7 @@ export default function JobseekerMatch() {
           {saved ? 'Đã lưu' : 'Lưu'}
           <span className="sr-only"> {job.title}</span>
         </button>
-        <Link to={`/cong-ty/${job.companyId}`} className={cn(BTN_GHOST, BTN_SM)}>
+        <Link to={`/cong-ty/${job.companyId}`} state={{ from: '/match' }} className={cn(BTN_GHOST, BTN_SM)}>
           Xem công ty<span className="sr-only"> {companyOf(job.companyId).name}</span>
         </Link>
       </>

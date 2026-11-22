@@ -1,3 +1,4 @@
+import JobDetailLink from '@components/jobs/JobDetailLink'
 import { Link } from 'react-router-dom'
 import { cn } from '@utils/cn'
 import { CHIP, CHIP_OFF } from '@utils/ui'
@@ -34,9 +35,9 @@ export default function PositionChips({ jobs, moreHref, heading, className, max 
         <ul className="mt-3 flex flex-wrap gap-2">
           {shown.map((j) => (
             <li key={j.id} className="max-w-full">
-              <Link to={`/viec-lam/${j.id}`} className={cn(POSITION_CHIP, 'text-page-fg')}>
+              <JobDetailLink jobId={j.id} className={cn(POSITION_CHIP, 'text-page-fg')}>
                 {j.title} · {salaryShort(j)}
-              </Link>
+              </JobDetailLink>
             </li>
           ))}
           {more && rest > 0 && (

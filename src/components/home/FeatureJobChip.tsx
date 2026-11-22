@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import JobDetailLink from '@components/jobs/JobDetailLink'
 
 import { photoSrcSet, photoUrl } from "@components/discover/types";
 import type { MatchJob } from "@pages/public/jobs/catalog";
@@ -13,14 +13,14 @@ export type ChipJob = { job: MatchJob; tag: string };
 export default function FeatureJobChip({ item }: { item: ChipJob }) {
   const { job, tag } = item;
   return (
-    <Link
-      to={`/viec-lam/${job.id}`}
+    <JobDetailLink
+      jobId={job.id}
       data-cursor="Xem"
       className="feature-chip group/chip absolute bottom-0 left-[6%] flex w-72 items-center gap-3 rounded-card p-2.5 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wm-ivory"
     >
       <img
-        src={photoUrl(job.photo.id, 160)}
-        srcSet={photoSrcSet(job.photo.id)}
+        src={photoUrl(job.photo, 160)}
+        srcSet={photoSrcSet(job.photo)}
         sizes="56px"
         alt=""
         width={56}
@@ -38,6 +38,6 @@ export default function FeatureJobChip({ item }: { item: ChipJob }) {
           {job.salaryLabel}
         </span>
       </span>
-    </Link>
+    </JobDetailLink>
   );
 }

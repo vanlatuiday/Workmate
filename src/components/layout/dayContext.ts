@@ -12,11 +12,11 @@ export const useIsDay = () => useContext(DayContext)
 /** Trang ban ngày (nền sáng xanh, DayBackdrop). Danh sách dùng chung cho PublicLayout và màn chuyển trang. */
 export const DAY_PATHS = [
   '/viec-lam', '/viec-lam/:id', '/cong-ty', '/cong-ty/:id', '/match', '/nha-tuyen-dung', '/gioi-thieu',
-  '/lien-he', '/ho-tro', '/cam-nang', '/cam-nang/:slug', '/dieu-khoan', '/bao-mat', '/ho-so', '/dang-tin',
+  '/lien-he', '/ho-tro', '/cam-nang', '/cam-nang/:slug', '/dieu-khoan', '/bao-mat', '/ho-so', '/dang-tin', '/lich-phong-van',
 ]
 /** Trang còn lại trong PublicLayout giữ kiểu cũ. Đường dẫn không thuộc cả hai danh sách = 404 → ban ngày */
 export const NON_DAY_PATHS = [
-  '/', '/ca-nhan', '/trang-ca-nhan', '/tin-nhan', '/lich-phong-van',
+  '/', '/ca-nhan', '/trang-ca-nhan', '/tin-nhan',
   '/vi-tri/:id', '/ung-vien/:id', '/xem-thu',
 ]
 export const matchesAny = (list: string[], pathname: string) => list.some((p) => matchPath({ path: p, end: true }, pathname))

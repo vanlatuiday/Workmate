@@ -1,3 +1,4 @@
+import JobDetailLink from '@components/jobs/JobDetailLink'
 import CompanyLogo from '@components/common/CompanyLogo'
 import { Link } from 'react-router-dom'
 import { notifySuccess } from '@utils/feedback'
@@ -69,9 +70,9 @@ export default function SavedJobs() {
                 <li key={job.id} data-flip-key={job.id} className="flex flex-col gap-4 py-5 first:pt-0 last:pb-0 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                      <Link to={`/viec-lam/${job.id}`} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>
+                      <JobDetailLink jobId={job.id} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>
                         {job.title}
-                      </Link>
+                      </JobDetailLink>
                       <StatusBadge tone={st.tone}>{st.label}</StatusBadge>
                     </div>
                     <p className="mt-1 text-sm text-page-muted flex items-center gap-2">

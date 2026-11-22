@@ -1,3 +1,4 @@
+import JobDetailLink from '@components/jobs/JobDetailLink'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Bookmark, BarChart3, Briefcase, CalendarCheck, CalendarDays, ClipboardList, History, MapPin, Sparkles, UserRound, Zap } from 'lucide-react'
 import CompanyLogo from '@components/common/CompanyLogo'
@@ -134,9 +135,9 @@ export default function JobseekerDashboard() {
                   {jobs.map(({ job, outcome }) => (
                     <li key={job.id} className="group/row -mx-3 flex flex-col gap-3 rounded-control px-3 py-4 transition-colors duration-base ease-out hover:bg-page-fg/5 focus-within:bg-page-fg/5 motion-reduce:transition-none sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
-                        <Link to={`/viec-lam/${job.id}`} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>
+                        <JobDetailLink jobId={job.id} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>
                           {job.title}
-                        </Link>
+                        </JobDetailLink>
                         <p className="mt-1 flex items-center gap-2 text-sm text-page-muted">
                           <CompanyLogo name={companyOf(job.companyId).name} logoUrl={companyOf(job.companyId).logoUrl} decorative className="h-5 w-5 text-[9px]" />
                           {companyOf(job.companyId).name}

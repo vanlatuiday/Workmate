@@ -1,5 +1,7 @@
 // Danh sách bên trong cửa sổ thông báo nổi.
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { flushSync } from 'react-dom'
+import { jobDetailHref } from '@components/jobs/jobDetailHref'
 import { BriefcaseBusiness, CalendarCheck, CalendarPlus, CalendarX, CheckCheck, Handshake, Heart, HeartHandshake, Hourglass, Sparkles, Star, Undo2, UserCheck, UserX, type LucideIcon } from 'lucide-react'
 import { useMessengerStore } from '@context/messengerStore'
 import ChatAvatar from '@pages/public/messages/ChatAvatar'
@@ -53,7 +55,6 @@ const EVENTS: Record<DemoNotification['kind'], string> = {
 const targetOf = (n: DemoNotification) => {
   switch (n.kind) {
     case 'review': return '/ca-nhan'
-    case 'job_match': return `/viec-lam/${encodeURIComponent(n.jobId)}`
     case 'candidate_match': return candidateHref(n.seekerId)
     case 'interest': return '/match'
     case 'considering': case 'offer': case 'offer_withdrawn': case 'rejected': return '/tim-viec/ung-tuyen'
@@ -84,11 +85,18 @@ export function MarkAllReadButton({ viewer, className, compact }: { viewer: Side
 /** Mỗi thẻ giữ trạng thái đọc riêng; thao tác xử lý không phụ thuộc chấm chưa đọc. */
 export default function NotificationList({ viewer, entries, onNavigate }: { viewer: Side; entries: NotificationEntry[]; onNavigate: () => void }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const openMessenger = useMessengerStore((s) => s.openMessenger)
   const open = (n: DemoNotification) => {
     if (!n.read) markNotificationRead(n.id)
-    onNavigate()
+    // Trả focus về nút chuông trước khi popup tin ghi nhớ phần tử đã mở nó.
+    if (n.kind === 'job_match') flushSync(onNavigate)
+    else onNavigate()
     if (n.kind === 'connected') openMessenger(`${n.jobId}|${n.seekerId}`)
+    else if (n.kind === 'job_match') navigate(jobDetailHref(n.jobId, location), {
+      replace: !!new URLSearchParams(location.search).get('tin'),
+      state: { jobDetailFrom: location.state?.jobDetailFrom ?? `${location.pathname}${location.search}${location.hash}` },
+    })
     else navigate(targetOf(n))
   }
   return (

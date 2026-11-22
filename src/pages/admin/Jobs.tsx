@@ -9,6 +9,7 @@ import { useAdminJobs, type AdminJobRow, type ModerationStatus } from '@services
 import { FOCUS } from '@utils/focus'
 import { BTN_SECONDARY } from '@utils/ui'
 import { formatRelativeTime } from '@utils/format'
+import { photoUrl } from '@components/discover/types'
 
 type SortKey = 'newest' | 'salary' | 'flags'
 const typeLabel = (t: string) => JOB_TYPES.find((x) => x.value === t)?.label ?? t
@@ -30,7 +31,7 @@ function JobDetail({ row }: { row: AdminJobRow }) {
   return (
     <div className="space-y-6">
       <img
-        src={`https://images.unsplash.com/photo-${job.photo.id}?w=800&q=70&auto=format&fit=crop`}
+        src={photoUrl(job.photo, 800)}
         alt={job.photo.alt}
         className="aspect-[16/9] w-full rounded-card object-cover"
       />

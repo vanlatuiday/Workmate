@@ -105,7 +105,7 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
     await leave()
     setUser(res.user, res.token)
     // Nhà tuyển dụng mới: vào thẳng form bắt đầu (mã số, tên, logo…); người tìm việc mới: hướng dẫn 3 bước (không bắt buộc)
-    navigate(res.user.role === 'recruiter' ? '/tuyen-dung/bat-dau' : res.user.role === 'jobseeker' ? '/tim-viec/bat-dau' : '/')
+    navigate(res.user.role === 'recruiter' ? '/tuyen-dung/bat-dau' : res.user.role === 'jobseeker' ? '/ho-so' : '/')
   }
 
   const resend = async () => {
@@ -137,7 +137,7 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
             <Item className="mt-3">
               <div className="flex items-start gap-3 rounded-card border border-dashed border-page-line bg-page-surface p-3 text-sm text-page-muted">
                 <Info className="h-5 w-5 shrink-0" aria-hidden />
-                <p>Bản demo (chưa cấu hình email): mã của bạn là <strong className="font-semibold tabular-nums tracking-widest text-page-fg">{devCode}</strong></p>
+                <p>Mã xác nhận của bạn là <strong className="font-semibold tabular-nums tracking-widest text-page-fg">{devCode}</strong></p>
               </div>
             </Item>
           )}

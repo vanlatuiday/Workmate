@@ -1,3 +1,4 @@
+import JobDetailLink from '@components/jobs/JobDetailLink'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { notifySuccess } from '@utils/feedback'
@@ -37,9 +38,9 @@ function Row({ item }: { item: PairItem }) {
     <li data-flip-key={`${item.jobId}|${item.seekerId}`} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 md:flex-row md:items-center md:justify-between">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <Link to={`/viec-lam/${item.jobId}`} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>
+          <JobDetailLink jobId={item.jobId} className={cn('rounded-control font-medium text-page-fg underline-offset-4 hover:underline', FOCUS)}>
             {info.subtitle}
-          </Link>
+          </JobDetailLink>
           {item.status === 'sent' && (
             <StatusBadge tone={stage === 'considering' ? 'soft' : 'neutral'}>{capitalize(APPLICATION_STAGE_LABEL[stage ?? 'applied'])}</StatusBadge>
           )}

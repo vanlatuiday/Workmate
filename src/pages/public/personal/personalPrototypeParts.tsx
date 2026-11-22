@@ -2,12 +2,15 @@ import type { ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@utils/cn'
 
-export function Card({ title, icon: Icon, children, className }: {
-  title: string; icon: LucideIcon; children: ReactNode; className?: string
+export function Card({ title, icon: Icon, children, className, action }: {
+  title: string; icon: LucideIcon; children: ReactNode; className?: string; action?: ReactNode
 }) {
   return (
     <section className={cn('personal-preview-card rounded-card', className)}>
-      <h2 className="personal-preview-heading"><Icon aria-hidden className="h-5 w-5 shrink-0" />{title}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="personal-preview-heading"><Icon aria-hidden className="h-5 w-5 shrink-0" />{title}</h2>
+        {action}
+      </div>
       {children}
     </section>
   )

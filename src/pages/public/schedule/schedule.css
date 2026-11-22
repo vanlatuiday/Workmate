@@ -1,0 +1,25 @@
+/* EmptyState dùng chung có mặt kính ngà của dashboard; trang lịch dùng mặt thẻ ban ngày. */
+.schedule-page .dash-card {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+/* Chỉ đổi màu popup được mở từ trang lịch; các nơi dùng DialogShell khác giữ nguyên. */
+.schedule-dialog.theme-day {
+  background-color: var(--wm-day);
+  color: var(--wm-abyss);
+}
+.schedule-dialog > header {
+  background-color: var(--wm-day-tint);
+}
+.schedule-dialog button,
+.schedule-actions button,
+.schedule-actions a {
+  min-height: 44px;
+}
+.schedule-dialog input:checked + span {
+  border-color: var(--wm-ocean);
+  background-color: var(--wm-day-tint);
+}

@@ -1,3 +1,4 @@
+import JobDetailLink from '@components/jobs/JobDetailLink'
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
@@ -35,7 +36,7 @@ const WHEEL_RANGE = 360
 /** Ô lệch dưới chừng này độ so với mặt trước mới tính là "ảnh đang hiện" để bắt cuộn chuột */
 const WHEEL_HIT_DEG = 75
 
-type Row = { job: MatchJob; href: string; status?: string; note?: string }
+type Row = { job: MatchJob; status?: string; note?: string }
 
 /** Nhãn nhỏ phía trên ảnh: "01 · BÁN THỜI GIAN" */
 function Tag({ index, label }: { index: number; label: string }) {
@@ -53,8 +54,8 @@ function JobPhoto({ job, alt, compact = false, className }: { job: MatchJob; alt
     <div className={cn('rounded-card border border-wm-ivory/25 bg-wm-abyss/40 p-1 shadow-[0_20px_50px_-30px_var(--wm-night)]', className)}>
       <div className="relative aspect-[4/5] overflow-hidden rounded-control bg-wm-abyss">
         <img
-          src={photoUrl(job.photo.id, compact ? 240 : 480)}
-          srcSet={compact ? undefined : photoSrcSet(job.photo.id)}
+          src={photoUrl(job.photo, compact ? 240 : 480)}
+          srcSet={compact ? undefined : photoSrcSet(job.photo)}
           sizes={compact ? undefined : '360px'}
           alt={alt}
           width={480}
@@ -97,13 +98,13 @@ function Details({ row }: { row: Row }) {
 /** Nút "Xem tin này →" / "Quản lý tin →" của một việc */
 function RowLink({ row, label }: { row: Row; label: string }) {
   return (
-    <Link to={row.href} data-cursor="Xem" className="group inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-wm-ivory">
+    <JobDetailLink jobId={row.job.id} data-cursor="Xem" className="group inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-wm-ivory">
       <span className="border-b border-transparent transition-colors duration-300 group-hover:border-wm-ivory group-focus-visible:border-wm-ivory">{label}</span>
       <ArrowRight
         className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
         aria-hidden
       />
-    </Link>
+    </JobDetailLink>
   )
 }
 
@@ -149,11 +150,10 @@ export default function NewJobsSection() {
   const items: Row[] = recruiter
     ? rows.map((r) => ({
         job: r.job,
-        href: `/viec-lam/${r.job.id}`, // trang chi tiết tin trên web, không vào dashboard
         status: statusOf(r),
         note: r.status === 'approved' ? mine.interested(numbers[r.job.id]?.interested ?? 0) : undefined,
       }))
-    : jobs.map((job) => ({ job, href: `/viec-lam/${job.id}` }))
+    : jobs.map((job) => ({ job }))
   const count = items.length
   const empty = recruiter && rows.length === 0
   const linkLabel = recruiter ? 'Quản lý tin' : 'Xem tin này'
@@ -395,10 +395,10 @@ export default function NewJobsSection() {
           >
             <div ref={ringRef} className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>
               {slots.map(({ row, k }) => (
-                <Link
+                <JobDetailLink
                   key={k}
                   data-slot
-                  to={row.href}
+                  jobId={row.job.id}
                   tabIndex={-1}
                   aria-hidden
                   draggable={false}
@@ -417,7 +417,7 @@ export default function NewJobsSection() {
                     <JobPhoto job={row.job} alt="" className="nj-photo w-full" />
                     <span aria-hidden className="nj-floor pointer-events-none absolute -bottom-8 left-[8%] right-[8%] h-10" />
                   </div>
-                </Link>
+                </JobDetailLink>
               ))}
             </div>
           </div>
@@ -446,15 +446,15 @@ export default function NewJobsSection() {
                     <span className="rounded-full bg-wm-ivory/10 px-3 py-1 text-sm font-medium text-wm-ivory ring-1 ring-wm-ivory/25">{row.job.shiftLabel}</span>
                     {row.note && <span className="rounded-full bg-wm-ivory/10 px-3 py-1 text-sm font-medium text-wm-ivory ring-1 ring-wm-ivory/25">{row.note}</span>}
                   </div>
-                  <Link
-                    to={row.href}
+                  <JobDetailLink
+                    jobId={row.job.id}
                     data-cursor="Xem"
                     tabIndex={i === active ? undefined : -1}
                     className="group mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-wm-ivory px-6 text-sm font-semibold text-wm-charcoal transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wm-ivory motion-reduce:transform-none"
                   >
                     {linkLabel}
                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
-                  </Link>
+                  </JobDetailLink>
                 </div>
               ))}
             </div>
@@ -488,8 +488,8 @@ export default function NewJobsSection() {
           <ul className="mt-6 space-y-3">
             {mobileItems.map((row) => (
               <li key={row.job.id}>
-                <Link
-                  to={row.href}
+                <JobDetailLink
+                  jobId={row.job.id}
                   className={cn('group flex items-start gap-3 rounded-card border border-wm-ivory/20 p-3 text-wm-ivory', HOME_GLASS_DARK, PRESS, CARD_HOVER, FOCUS)}
                 >
                   <JobPhoto job={row.job} alt="" compact className="w-20 shrink-0" />
@@ -503,12 +503,12 @@ export default function NewJobsSection() {
                       {linkLabel}<ArrowRight className="h-4 w-4" aria-hidden />
                     </span>
                   </div>
-                </Link>
+                </JobDetailLink>
               </li>
             ))}
           </ul>
           {count > mobileItems.length && (
-            <Link to={copy.all.href} className={cn(BTN_SECONDARY, 'mt-5 min-h-11 text-wm-ivory')}>
+            <Link to={copy.all.href} className={cn(BTN_SECONDARY, 'home-secondary-action mt-5 min-h-11 text-wm-ivory')}>
               {copy.all.label}<ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           )}

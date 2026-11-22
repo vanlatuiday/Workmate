@@ -591,7 +591,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
                     className={
                       i === 0 && !copy.search
                         ? 'group inline-flex min-h-11 items-center gap-2 bg-accent text-accent-fg font-semibold text-sm px-8 py-4 rounded-full transition-[filter,transform] duration-300 hover:brightness-110 active:scale-[0.97] motion-reduce:active:scale-100'
-                        : `group inline-flex min-h-11 items-center gap-2 border border-wm-ivory/40 ${HOME_GLASS_DARK} text-wm-ivory font-medium text-sm px-6 py-3 rounded-full hover:bg-wm-ivory hover:text-wm-charcoal focus-visible:bg-wm-ivory focus-visible:text-wm-charcoal active:scale-[0.97] motion-reduce:active:scale-100 transition-[color,background-color,transform] duration-300`
+                        : `home-secondary-action group inline-flex min-h-11 items-center gap-2 border border-wm-ivory/40 ${HOME_GLASS_DARK} text-wm-ivory font-medium text-sm px-6 py-3 rounded-full hover:bg-wm-ivory hover:text-wm-charcoal focus-visible:bg-wm-ivory focus-visible:text-wm-charcoal active:scale-[0.97] motion-reduce:active:scale-100 transition-[color,background-color,transform] duration-300`
                     }
                   >
                     <RollText>{a.label}</RollText>

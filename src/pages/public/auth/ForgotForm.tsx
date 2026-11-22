@@ -167,7 +167,7 @@ export default function ForgotForm({ delay, focus, shake }: AuthFormProps) {
               <Item className="mt-3">
                 <div className="flex items-start gap-3 rounded-card border border-dashed border-page-line bg-page-surface p-3 text-sm text-page-muted">
                   <Info className="w-5 h-5 shrink-0" aria-hidden />
-                  <p>Bản demo (chưa có email thật): mã của bạn là <strong className="font-semibold text-page-fg tabular-nums tracking-widest">{devCode}</strong></p>
+                  <p>Mã đặt lại mật khẩu của bạn là <strong className="font-semibold text-page-fg tabular-nums tracking-widest">{devCode}</strong></p>
                 </div>
               </Item>
             )}

@@ -940,13 +940,37 @@ html[data-header='hero'] .hd-logo::before { opacity: 0; }
 
 /* Trang chủ nền xanh (homeBackground.ts) — chủ dự án 2026-11-19:
    - Header: không có nền toàn chiều rộng (2026-11-21) — chỉ ba cụm kính nổi.
-   - Màu nhấn cam sáng hơn cho hợp nền xanh (chỉ vai trò mặc định; người tìm việc giữ xanh lá). */
+   - Nút tuyển dụng xanh ngọc, chữ abyss theo ảnh chủ dự án chọn; người tìm việc giữ xanh lá. */
 html[data-page='home']:not([data-role='seeker']),
 html[data-page='home']:not([data-role='seeker']) .theme-night,
 html[data-page='home']:not([data-role='seeker']) .theme-charcoal,
 html[data-page='home']:not([data-role='seeker']) .surface-dark {
-  --accent: var(--wm-tangerine);
-  --accent-dark: var(--wm-tangerine);
+  --accent: var(--wm-cyan);
+  --accent-fg: var(--wm-abyss);
+  --accent-dark: var(--wm-cyan);
+  --accent-dark-fg: var(--wm-abyss);
+}
+
+/* Nút phụ tuyển dụng giữ nền xanh đậm để chữ xanh ngọc rõ trên mọi vùng nền hero. */
+html[data-page='home']:not([data-role='seeker']) :is(.home-secondary-action, .stmt-btn-ghost) {
+  color: var(--wm-cyan);
+  border-color: color-mix(in srgb, var(--wm-cyan) 50%, transparent);
+  background-color: color-mix(in srgb, var(--wm-abyss) 80%, transparent);
+}
+html[data-page='home']:not([data-role='seeker']) :is(.home-secondary-action, .stmt-btn-ghost):is(:hover, :focus-visible) {
+  color: var(--wm-abyss);
+  border-color: var(--wm-cyan);
+  background-color: var(--wm-cyan);
+}
+
+/* Đăng nhập / đăng ký dùng cùng màu nút tuyển dụng, không đổi màu nhấn của dashboard. */
+.auth-brand {
+  --accent: var(--wm-cyan);
+  --accent-fg: var(--wm-abyss);
+  --accent-ink: var(--wm-cyan);
+  --accent-dark: var(--wm-cyan);
+  --accent-dark-fg: var(--wm-abyss);
+  --accent-dark-ink: var(--wm-cyan);
 }
 
 /* Nền trang chủ "thở" (HomeBackdrop.tsx): bản sao sáng hơn của ảnh nền, chỉ lộ ở cột giữa nơi có

@@ -69,7 +69,7 @@ export default function CurvedGallery<T extends CurvedItem>({ items, label, rend
   hiddenRef.current = hiddenId
 
   // Khóa theo danh sách ảnh: lọc/sắp xếp làm đổi thứ tự thẻ → đọc lại DOM, texture dùng lại
-  const itemsKey = items.map((i) => i.id).join(',')
+  const itemsKey = JSON.stringify(items.map((item) => [item.id, photoUrl(item.photo, TEX_WIDTH)]))
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -122,19 +122,20 @@ export default function CurvedGallery<T extends CurvedItem>({ items, label, rend
       if (c.frame) c.frame.style.backgroundColor = 'transparent'
     }
 
-    // Ảnh nạp riêng có crossOrigin (ảnh DOM không có) — Unsplash trả CORS cho mọi ảnh
+    // Ảnh không hỗ trợ CORS vẫn giữ bản DOM khi không nạp được texture.
     const loading = new Set<string>()
     const load = (c: Card) => {
       if (loading.has(c.id) || texById.has(c.id)) return
       loading.add(c.id)
-      const photoId = c.el.dataset.photo!
+      const src = c.el.dataset.photo
+      if (!src) return
       const img = new Image()
       img.crossOrigin = 'anonymous'
       img.decoding = 'async'
       img.onload = () => {
         if (!destroyed) uploads.push({ id: c.id, img })
       }
-      img.src = photoUrl(photoId, TEX_WIDTH)
+      img.src = src
     }
 
     // Đưa ảnh lên GPU mỗi khung hình một tấm — dồn cả loạt vào một khung sẽ làm khựng
@@ -241,7 +242,7 @@ export default function CurvedGallery<T extends CurvedItem>({ items, label, rend
     <>
       <ul ref={listRef} aria-label={label} className="grid gap-x-6 gap-y-12 lg:grid-cols-2 lg:gap-y-16">
         {items.map((item) => (
-          <li key={item.id} data-curve-card={item.id} data-photo={item.photo.id}>
+          <li key={item.id} data-curve-card={item.id} data-photo={photoUrl(item.photo, TEX_WIDTH)}>
             <button
               type="button"
               aria-label={itemLabel(item)}
@@ -250,7 +251,7 @@ export default function CurvedGallery<T extends CurvedItem>({ items, label, rend
             >
               {/* Đổ bóng màu như trang Việc làm: bản ảnh nhỏ nhòe mạnh, lệch xuống dưới ảnh → ánh màu của ảnh hắt lên nền */}
               <img
-                src={photoUrl(item.photo.id, 160)}
+                src={photoUrl(item.photo, 160)}
                 alt=""
                 aria-hidden
                 loading="lazy"
@@ -260,8 +261,8 @@ export default function CurvedGallery<T extends CurvedItem>({ items, label, rend
               />
               <div data-print className="relative aspect-[16/10] overflow-hidden rounded-card bg-page-surface">
                 <img
-                  src={photoUrl(item.photo.id, 960)}
-                  srcSet={photoSrcSet(item.photo.id)}
+                  src={photoUrl(item.photo, 960)}
+                  srcSet={photoSrcSet(item.photo)}
                   sizes="(min-width: 1024px) 40vw, 100vw"
                   alt={item.photo.alt}
                   loading="lazy"

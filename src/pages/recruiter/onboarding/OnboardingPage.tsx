@@ -62,6 +62,7 @@ function Wizard() {
   const [draft, setDraft] = useState<Draft>(() => ({ ...profile, address: savedAddress }))
   const set: SetDraft = (k, v) => setDraft((d) => ({ ...d, [k]: v }))
   const [busy, setBusy] = useState(false)
+  const [uploadBusy, setUploadBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | undefined>()
   // Đang hoàn thành: không bị đẩy về /tuyen-dung khi cờ needsOnboarding vừa tắt
@@ -76,6 +77,8 @@ function Wizard() {
   const [initial] = useState(limit === 5 ? 1 : limit)
   const raw = Number(params.get('buoc'))
   const step = Number.isInteger(raw) && raw >= 1 ? Math.min(raw, 5, limit) : Math.min(initial, limit)
+  // Nút Back của trình duyệt vẫn có thể đổi bước khi đang tải; bỏ trạng thái của picker đã rời trang.
+  useEffect(() => { setUploadBusy(false) }, [step])
   // Dò cụm từ cấm khi gõ: tên ở bước 2, giới thiệu ở bước 3
   const bannedName = useBannedCheck(draft.name, step === 2)
   const bannedTagline = useBannedCheck(draft.tagline, step === 3)
@@ -88,7 +91,7 @@ function Wizard() {
 
   if (!needsOnboarding && !finishing.current) return <Navigate to="/tuyen-dung" replace />
 
-  const go = (n: number) => { setError(null); setEmailError(undefined); setParams({ buoc: String(n) }) }
+  const go = (n: number) => { if (uploadBusy || busy) return; setError(null); setEmailError(undefined); setParams({ buoc: String(n) }) }
 
   // Lý do chưa cho "Tiếp theo" ở bước bắt buộc
   const blockReason =
@@ -98,6 +101,7 @@ function Wizard() {
     : null
 
   const finish = async (save: boolean) => {
+    if (uploadBusy || busy) return
     setError(null); setBusy(true); finishing.current = true
     try {
       if (save) await savePatch(5)
@@ -122,7 +126,7 @@ function Wizard() {
   }
 
   const next = async () => {
-    if (blockReason || busy) return
+    if (blockReason || busy || uploadBusy) return
     if (step === 5) {
       if (draft.email.trim() && !EMAIL_RE.test(draft.email.trim())) { setEmailError('Email chưa hợp lệ.'); return }
       await finish(true)
@@ -140,7 +144,7 @@ function Wizard() {
     go(step + 1)
   }
 
-  const skip = () => { if (step === 5) void finish(false); else go(step + 1) }
+  const skip = () => { if (uploadBusy || busy) return; if (step === 5) void finish(false); else go(step + 1) }
   const optional = step >= 3
 
   return (
@@ -176,7 +180,7 @@ function Wizard() {
             <section className="mt-2">
               {step === 1 && <StepTax />}
               {step === 2 && <StepName draft={draft} set={set} banned={bannedName} />}
-              {step === 3 && <StepIntro draft={draft} set={set} bannedTagline={bannedTagline} bannedAbout={bannedAbout} />}
+              {step === 3 && <StepIntro draft={draft} set={set} bannedTagline={bannedTagline} bannedAbout={bannedAbout} onBusyChange={setUploadBusy} disabled={busy || uploadBusy} />}
               {step === 4 && <StepCulture draft={draft} set={set} />}
               {step === 5 && <StepContact draft={draft} set={set} emailError={emailError} />}
             </section>
@@ -190,11 +194,11 @@ function Wizard() {
           {blockReason && <p className="mt-4 text-sm text-page-muted">{blockReason}</p>}
 
           <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-page-line pt-5">
-            {step > 1 && <button type="button" disabled={busy} onClick={() => go(step - 1)} className={BTN_SECONDARY}>Quay lại</button>}
-            <button type="button" disabled={!!blockReason || busy} onClick={() => { void next() }} className={BTN_ACCENT}>
+            {step > 1 && <button type="button" disabled={busy || uploadBusy} onClick={() => go(step - 1)} className={BTN_SECONDARY}>Quay lại</button>}
+            <button type="button" disabled={!!blockReason || busy || uploadBusy} onClick={() => { void next() }} className={BTN_ACCENT}>
               {busy ? 'Đang lưu…' : 'Tiếp theo'}
             </button>
-            {optional && <button type="button" disabled={busy} onClick={skip} className={BTN_GHOST}>Bỏ qua</button>}
+            {optional && <button type="button" disabled={busy || uploadBusy} onClick={skip} className={BTN_GHOST}>Bỏ qua</button>}
           </div>
         </div>
       </main>

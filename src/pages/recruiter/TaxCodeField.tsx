@@ -47,7 +47,7 @@ export function TaxResultBox({ lookup, nameMatches, usedByOther }: { lookup: Tax
       {lookup.result === 'unavailable' && (
         <p className="text-page-muted">Chưa tra được lúc này, quản trị viên sẽ kiểm tra khi duyệt.</p>
       )}
-      {lookup.source === 'mock' && <p className="mt-2 text-xs text-page-muted">Dữ liệu giả lập (chế độ demo)</p>}
+      {lookup.source === 'mock' && <p className="mt-2 text-xs text-page-muted">Dữ liệu giả lập</p>}
     </div>
   )
 }

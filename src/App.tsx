@@ -1,5 +1,6 @@
 import { Suspense, lazy, useEffect } from 'react'
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { jobDetailHref } from '@components/jobs/jobDetailHref'
 import { useAuthStore } from '@context/authStore'
 import { authService } from '@services/authService'
 import { loadCatalog } from '@services/catalogService'
@@ -30,7 +31,7 @@ import { IS_PRODUCTION } from '@utils/isProduction'
 import HomePage from '@pages/public/HomePage'
 const loadJobsPage = () => import('@pages/public/JobsPage')
 const JobsPage = lazy(loadJobsPage)
-const JobDetailPage = lazy(() => import('@pages/public/JobDetailPage'))
+const JobDetailDialog = lazy(() => import('@components/jobs/JobDetailDialog'))
 const CompanyDetailPage = lazy(() => import('@pages/public/CompanyDetailPage'))
 const PositionDetailPage = lazy(() => import('@pages/public/PositionDetailPage'))
 const BlogPage = lazy(() => import('@pages/public/BlogPage'))
@@ -63,7 +64,6 @@ const Applications = lazy(() => import('@pages/jobseeker/Applications'))
 const JobseekerStats = lazy(() => import('@pages/jobseeker/Stats'))
 const JobseekerMatch = lazy(() => import('@pages/jobseeker/Match'))
 const CVManager = lazy(() => import('@pages/jobseeker/CVManager'))
-const JobseekerOnboarding = lazy(() => import('@pages/jobseeker/onboarding/OnboardingPage'))
 const JobseekerSettings = lazy(() => import('@pages/jobseeker/Settings'))
 
 // Recruiter pages
@@ -100,7 +100,20 @@ function ProfileRedirect() {
   return <Navigate to={`/ho-so${hash}`} replace />
 }
 
+function LegacyJobDetailRedirect() {
+  const { id } = useParams()
+  return <Navigate to={jobDetailHref(id ?? null, { pathname: '/viec-lam', search: '', hash: '' })} replace />
+}
+
 export default function App() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const requestedJob = new URLSearchParams(location.search).get('tin')
+  const closeJobDetail = () => {
+    const background = jobDetailHref(null, location)
+    if (location.state?.jobDetailFrom === background) navigate(-1)
+    else navigate(background, { replace: true, state: null })
+  }
   // Có token lưu sẵn: hỏi máy chủ một lần để làm mới thông tin người dùng (token hỏng/hết hạn → interceptor tự đăng xuất)
   useEffect(() => {
     if (!useAuthStore.getState().token) return
@@ -155,7 +168,7 @@ export default function App() {
         <Route path="/cong-ty" element={<Navigate to="/viec-lam" replace />} />
         {/* Trang chi tiết: khách phải đăng nhập (xong quay lại đúng trang) */}
         <Route element={<RequireLogin />}>
-          <Route path="/viec-lam/:id" element={<JobDetailPage />} />
+          <Route path="/viec-lam/:id" element={<LegacyJobDetailRedirect />} />
           <Route path="/cong-ty/:id" element={<CompanyDetailPage />} />
         </Route>
         <Route path="/cam-nang" element={<BlogPage />} />
@@ -194,8 +207,8 @@ export default function App() {
 
       {/* Jobseeker routes */}
       <Route element={<ProtectedRoute role="jobseeker" />}>
-        {/* Hướng dẫn lần đầu: toàn trang, ngoài khung dashboard; không bắt buộc */}
-        <Route path="/tim-viec/bat-dau" element={<Suspense fallback={<GateSkeleton />}><JobseekerOnboarding /></Suspense>} />
+        {/* Link bắt đầu cũ mở thẳng trình viết CV. */}
+        <Route path="/tim-viec/bat-dau" element={<Navigate to="/ho-so" replace />} />
         <Route element={<Suspense fallback={DashFallback}><JobseekerLayout /></Suspense>}>
           <Route path="/tim-viec" element={<JobseekerDashboard />} />
           <Route path="/tim-viec/phu-hop" element={<RecommendedJobs />} />
@@ -253,6 +266,11 @@ export default function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
+    {requestedJob && (userId ? (
+      <Suspense fallback={null}>
+        <JobDetailDialog key={userId} jobId={requestedJob} onClose={closeJobDetail} />
+      </Suspense>
+    ) : <Navigate to="/dang-nhap" replace state={{ from: `${location.pathname}${location.search}${location.hash}` }} />)}
     {/* Hai công cụ của tài khoản tải độc lập, không làm trang hiện tại phải chờ. */}
     {(role === 'jobseeker' || role === 'recruiter') && (
       <Suspense fallback={null}>

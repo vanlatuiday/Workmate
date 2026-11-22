@@ -9,6 +9,7 @@ import { JOB_TYPES } from '@constants/index'
 import PersonalIntro from './PersonalIntro'
 import { ActionPrimary, ActionText, Actions, EmptyNote, PageActions, PlainList, Section, snippet, TagList } from './parts'
 import { Link } from 'react-router-dom'
+import JobDetailLink from '@components/jobs/JobDetailLink'
 import { FOCUS } from '@utils/focus'
 
 type Opts = { owner: boolean }
@@ -112,9 +113,8 @@ function buildCompanyEntries({ owner, P, openJobs }: BuildOpts): ArchiveEntry[] 
           <ul className="divide-y divide-page-line border-y border-page-line">
             {openJobs.map((j) => (
               <li key={j.id} className="py-3">
-                <Link to={owner ? `/vi-tri/${j.id}` : `/viec-lam/${j.id}`} className={`link-underline rounded-control font-medium ${FOCUS}`}>
-                  {j.title}
-                </Link>
+                {owner ? <Link to={`/vi-tri/${j.id}`} className={`link-underline rounded-control font-medium ${FOCUS}`}>{j.title}</Link>
+                  : <JobDetailLink jobId={j.id} className={`link-underline rounded-control font-medium ${FOCUS}`}>{j.title}</JobDetailLink>}
                 <p className="mt-1 text-sm text-page-muted">
                   {JOB_TYPES.find((t) => t.value === j.jobType)?.label ?? j.jobType} · {j.shiftLabel} · {j.salaryLabel}
                 </p>

@@ -8,6 +8,7 @@ import { useFlip } from '@hooks/useFlip'
 import { cn } from '@utils/cn'
 import { CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { formatRelativeTime } from '@utils/format'
+import { photoUrl } from '@components/discover/types'
 
 type Tab = 'pending' | 'flagged' | 'done'
 
@@ -28,7 +29,7 @@ function ModerationCard({ row, hideStatus }: { row: AdminJobRow; hideStatus?: bo
     <li data-flip-key={job.id} className="rounded-card border border-page-line bg-page-surface p-5">
       <div className="flex gap-4">
         <img
-          src={`https://images.unsplash.com/photo-${job.photo.id}?w=200&q=70&auto=format&fit=crop`}
+          src={photoUrl(job.photo, 200)}
           alt=""
           loading="lazy"
           className="hidden h-20 w-20 flex-shrink-0 rounded-control object-cover sm:block"

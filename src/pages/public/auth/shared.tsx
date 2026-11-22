@@ -10,6 +10,7 @@ import { EASE } from './authShared'
 
 /** Nút chính của form auth (màu nhấn), rộng hết khung (nên chiều rộng không đổi khi hiện spinner) */
 export const PRIMARY = cn(BTN_ACCENT, 'w-full')
+export const AUTH_SECONDARY = cn(BTN_SECONDARY, 'border-wm-cyan/50 text-wm-cyan hover:border-wm-cyan hover:bg-wm-cyan/10')
 
 /** Nút chữ nhỏ có gạch chân (Gửi lại mã, Đổi email…) */
 export const LINK_BTN = cn(BTN_GHOST, 'px-1 underline disabled:text-page-muted disabled:no-underline disabled:opacity-100')
@@ -33,7 +34,7 @@ export function OutlinePill({ children, back, small, ...props }: LinkProps & { b
   return (
     <Link
       {...props}
-      className={cn(BTN_SECONDARY, 'group shrink-0', small && BTN_SM)}
+      className={cn(AUTH_SECONDARY, 'group shrink-0', small && BTN_SM)}
     >
       {back && <Arrow className="w-4 h-4 transition-transform duration-base group-hover:-translate-x-0.5 motion-reduce:transition-none" aria-hidden />}
       {children}
