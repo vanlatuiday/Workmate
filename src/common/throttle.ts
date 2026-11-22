@@ -5,8 +5,10 @@ const MINUTE = 60_000
 const HOUR = 3_600_000
 
 /** Tên tài khoản trong body (đăng nhập bằng email hoặc tên đăng nhập); dữ liệu chưa qua kiểm tra nên phải thử kiểu */
-const accountOf = (req: Record<string, any>): string | null =>
-  typeof req.body?.email === 'string' && req.body.email.trim() ? req.body.email.trim().toLowerCase() : null
+const accountOf = (req: { body?: { email?: unknown } }): string | null => {
+  const email = req.body?.email
+  return typeof email === 'string' && email.trim() ? email.trim().toLowerCase() : null
+}
 
 const hasAccount = (ctx: ExecutionContext) => !!accountOf(ctx.switchToHttp().getRequest())
 
@@ -42,7 +44,7 @@ export const AUTH_LIMITS = {
     tai_khoan: {
       limit: 10,
       ttl: 15 * MINUTE,
-      getTracker: (req: Record<string, any>) => `${req.ip}|${accountOf(req) ?? ''}`,
+      getTracker: (req: { ip?: string; body?: { email?: unknown } }) => `${req.ip}|${accountOf(req) ?? ''}`,
     },
   },
   /** Mỗi lần xin là một mã mới và hủy mã cũ, nên giới hạn theo tài khoản bất kể IP */

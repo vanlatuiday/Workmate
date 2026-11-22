@@ -20,7 +20,8 @@
     "admin:create": "node prisma/create-admin.mjs",
     "mail:test": "node scripts/mail-test.mjs",
     "storage:init": "node storage/init.mjs",
-    "user:delete": "node -r ts-node/register/transpile-only scripts/delete-user.ts"
+    "user:delete": "node -r ts-node/register/transpile-only scripts/delete-user.ts",
+    "lint": "eslint src prisma scripts test"
   },
   "keywords": [],
   "author": "",
@@ -48,12 +49,16 @@
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@nestjs/cli": "^12.0.12",
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.6",
     "@types/nodemailer": "^8.0.2",
     "@types/passport-jwt": "^4.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.73.0",
+    "@typescript-eslint/parser": "^8.73.0",
+    "eslint": "^9.39.5",
     "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"

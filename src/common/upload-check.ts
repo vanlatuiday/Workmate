@@ -30,5 +30,6 @@ export function checkImage(file: UploadedImage | undefined): { file: UploadedIma
 export function fileDisplayName(original: string, fallback: string): string {
   // multer đọc tên file theo latin1; đổi lại UTF-8 để giữ dấu tiếng Việt
   const utf8 = Buffer.from(original, 'latin1').toString('utf8')
+  // eslint-disable-next-line no-control-regex -- cố ý lọc ký tự điều khiển khỏi tên file
   return utf8.replace(/\.[^.]+$/, '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 120) || fallback
 }

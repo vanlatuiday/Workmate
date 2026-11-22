@@ -140,6 +140,8 @@ export class VerificationService {
       ? await this.prisma.company.findMany({ where: { taxCode: { in: codes } }, select: { id: true, name: true, taxCode: true } })
       : []
     return rows.map((r) => {
+      // Bỏ dữ liệu tra cứu thô khỏi phần công ty trả về (đã tóm tắt ở `tax.lookup`)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { taxLookup: _raw, ...company } = r.company
       return {
         ...view(r),
