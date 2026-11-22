@@ -46,12 +46,40 @@ export class MessagesService {
     const unreadOf = new Map(unreads.map((u) => [pairKey(u.jobId, u.seekerId), u.unread]))
     const peerReadOf = new Map(peerReads.map((r) => [pairKey(r.jobId, r.seekerId), r.at]))
 
-    return connections
+    // Cặp đã bỏ quan tâm nhưng còn tin nhắn: vẫn hiện để đọc lại, khóa ô gửi (`locked`)
+    const linked = new Set(connections.map((c) => pairKey(c.jobId, c.seekerId)))
+    const orphans = lasts.filter((m) => !linked.has(pairKey(m.jobId, m.seekerId)))
+    const [oJobs, oSeekers] = orphans.length
+      ? await Promise.all([
+        this.prisma.job.findMany({
+          where: { id: { in: [...new Set(orphans.map((m) => m.jobId))] } },
+          select: { id: true, title: true, companyId: true, company: { select: { name: true, logoUrl: true } } },
+        }),
+        this.prisma.seekerProfile.findMany({
+          where: { userId: { in: [...new Set(orphans.map((m) => m.seekerId))] } },
+          select: { userId: true, fullName: true, avatarUrl: true, showAvatar: true },
+        }),
+      ])
+      : [[], []]
+    const jobOf = new Map(oJobs.map((j) => [j.id, j]))
+    const seekerOf = new Map(oSeekers.map((sp) => [sp.userId, sp]))
+    const pairs = [
+      ...connections.map((c) => ({ jobId: c.jobId, seekerId: c.seekerId, at: c.at, job: c.job, seeker: c.seeker, locked: false })),
+      ...orphans.flatMap((m) => {
+        const job = jobOf.get(m.jobId)
+        const seeker = seekerOf.get(m.seekerId)
+        return job && seeker ? [{ jobId: m.jobId, seekerId: m.seekerId, at: m.at, job, seeker, locked: true }] : []
+      }),
+    ]
+
+    return pairs
       .map((c) => {
         const key = pairKey(c.jobId, c.seekerId)
         const last = lastOf.get(key)
         return {
           key, jobId: c.jobId, seekerId: c.seekerId, at: c.at.toISOString(), jobTitle: c.job.title,
+          /** Đã bỏ quan tâm: chỉ đọc lại, không gửi tiếp */
+          ...(c.locked ? { locked: true } : {}),
           // Phía kia của cuộc trò chuyện; ảnh ứng viên chỉ gửi khi họ cho phép doanh nghiệp thấy
           peer: side === 'seeker'
             ? { name: c.job.company.name, avatarUrl: c.job.company.logoUrl, companyId: c.job.companyId }

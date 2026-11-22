@@ -59,11 +59,25 @@ export class ConnectionsService {
   }
 
   /** Rút quan tâm của phía mình — không rút được khi đã kết nối */
+  /**
+   * Rút / bỏ quan tâm của phía mình. Đã kết nối thì "bỏ quan tâm" (chủ dự án 2026-11-22, tránh lỡ tay):
+   * gỡ kết nối, giữ lịch sử tin nhắn (khóa — không gửi tiếp), tự hủy lịch phỏng vấn chưa diễn ra và đề nghị nhận việc
+   * chưa trả lời. Không báo bên kia. Đã nhận việc thì không bỏ được. Hoàn tác = quan tâm lại (bên kia còn quan tâm → kết nối lại).
+   */
   async withdraw(user: AuthUser, jobId: string, seekerId: string) {
     await this.pairs.access(user, jobId, seekerId, true)
-    return this.pairs.inPair(jobId, seekerId, async (tx) => {
+    return this.pairs.inPair(jobId, seekerId, async (tx, fx) => {
       const conn = await tx.connection.findUnique({ where: { jobId_seekerId: { jobId, seekerId } }, select: { jobId: true } })
-      if (conn) throw new ConflictException('Đã kết nối nên không rút quan tâm được')
+      if (conn) {
+        const hire = await tx.hire.findUnique({ where: { jobId_seekerId: { jobId, seekerId } }, select: { status: true } })
+        if (hire?.status === 'accepted') throw new ConflictException('Hai bên đã nhận việc nên không bỏ quan tâm được')
+        await tx.connection.delete({ where: { jobId_seekerId: { jobId, seekerId } } })
+        await tx.interview.updateMany({
+          where: { jobId, seekerId, OR: [{ status: 'pending' }, { status: 'confirmed', chosen: { gt: fx.at } }] },
+          data: { status: 'cancelled' },
+        })
+        await tx.hire.updateMany({ where: { jobId, seekerId, status: 'offered' }, data: { status: 'withdrawn' } })
+      }
       await tx.interest.deleteMany({ where: { jobId, seekerId, from: sideOf(user) } })
       const theirs = await tx.interest.count({ where: { jobId, seekerId } })
       return { status: theirs ? ('received' as const) : ('none' as const) }
