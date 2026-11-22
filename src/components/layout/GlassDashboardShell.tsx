@@ -127,7 +127,7 @@ export default function GlassDashboardShell({ sidebarRole, menuLabel = 'Menu khu
           </div>
         </main>
       </div>
-      <LeaveDashboardDialog />
+      <LeaveDashboardDialog tone="abyss" />
     </div>
   )
 }

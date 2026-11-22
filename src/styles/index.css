@@ -1560,3 +1560,11 @@ html[data-page='home']:not([data-role='seeker']) :is(.home-secondary-action, .st
   /* Không dùng text-stroke: với dấu tiếng Việt nó vẽ cả đường nối bên trong chữ. Mép sáng bằng drop-shadow thay thế */
   filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--wm-ivory) 35%, transparent)) drop-shadow(0 6px 24px color-mix(in srgb, var(--wm-cyan) 35%, transparent));
 }
+/* Hàng tin ở /viec-lam ban ngày: thẻ trắng viền mảnh (thay các ô xám mờ), hover nền day-tint; chip % / trạng thái chữ abyss để đọc được */
+.theme-day .day-post { background-color: rgb(255 255 255); border-color: var(--page-line); }
+.theme-day .day-post:hover { background-color: var(--wm-day-tint); border-color: var(--page-edge); }
+.theme-day .day-post-sub:hover { background-color: var(--wm-day-tint); }
+.theme-day .day-post-list, .theme-day .day-post-list > li { border-color: var(--page-line); }
+.theme-day .day-chip { background-color: var(--wm-day-tint); border-color: var(--page-line); color: var(--wm-abyss); }
+.theme-day .day-verified { color: var(--wm-azure); }
+.theme-day .day-gcard-head .day-stack-item { --tw-ring-color: rgb(255 255 255); }

@@ -14,8 +14,8 @@ import JobsHero from './JobsHero'
 import { useJobFilters } from './useJobFilters'
 import CategoryPicker from './CategoryPicker'
 import { categoryEntries } from './categoryEntries'
-import { useCategoryItems, initialStep } from './useCategoryItems'
-import { PostsCard, JobRow } from './CategoryPosts'
+import { useCategoryItems, initialStep, type CategoryItem } from './useCategoryItems'
+import { PostsCard, CompanyBlock, groupByCompany } from './CategoryPosts'
 
 /** Khách: khám phá nơi làm việc — nhấn vào lý do đáng xem, mời đăng ký khi muốn ứng tuyển. */
 export default function GuestJobs() {
@@ -77,9 +77,7 @@ export default function GuestJobs() {
         initialIndex={initialStep(items, filters.category)}
         renderDetail={({ group }) => (
           <>
-            <PostsCard label={group.cat.label} count={group.jobs.length}>
-              {group.jobs.map((j) => <JobRow key={j.id} job={j} />)}
-            </PostsCard>
+            <GuestPosts group={group} />
             <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
               <TextLink to="/dang-ky?role=jobseeker">Đăng ký để ứng tuyển</TextLink>
             </div>
@@ -98,5 +96,15 @@ export default function GuestJobs() {
       <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
       </DarkPageBody>
     </>
+  )
+}
+
+/** Thẻ danh sách tin của một nhóm: gom theo công ty, công ty nhiều tin lên trước */
+function GuestPosts({ group }: { group: CategoryItem['group'] }) {
+  const companies = groupByCompany(group.jobs)
+  return (
+    <PostsCard label={group.cat.label} count={group.jobs.length} companies={companies.map((c) => ({ id: c.companyId }))}>
+      {companies.map((c) => <CompanyBlock key={c.companyId} group={c} />)}
+    </PostsCard>
   )
 }

@@ -16,7 +16,7 @@ import { useJobFilters } from './useJobFilters'
 import CategoryPicker from './CategoryPicker'
 import { categoryEntries } from './categoryEntries'
 import { useCategoryItems, initialStep, type CategoryItem } from './useCategoryItems'
-import { PostsCard, JobRow } from './CategoryPosts'
+import { PostsCard, CompanyBlock, groupByCompany } from './CategoryPosts'
 
 /** Người tìm việc: mỗi ảnh là một công ty đang tuyển, kèm vài việc tiêu biểu để đi thẳng tới tin. */
 export default function JobseekerJobs() {
@@ -93,15 +93,13 @@ export default function JobseekerJobs() {
   )
 }
 
-/** Thẻ danh sách tin của một nhóm: tin có điểm phù hợp cao lên trước, kèm % khi máy chủ đã tính */
+/** Thẻ danh sách tin của một nhóm: gom theo công ty, công ty có tin phù hợp nhất lên trước, kèm % khi máy chủ đã tính */
 function SeekerPosts({ group }: { group: CategoryItem['group'] }) {
   const { outcomeOf } = useSeekerOutcomes()
-  const rows = group.jobs
-    .map((job) => ({ job, score: outcomeOf(job)?.score }))
-    .sort((a, b) => (b.score ?? -1) - (a.score ?? -1)) // sort ổn định: cùng điểm giữ thứ tự mới nhất trước
+  const companies = groupByCompany(group.jobs, (j) => outcomeOf(j)?.score)
   return (
-    <PostsCard label={group.cat.label} count={group.jobs.length}>
-      {rows.map(({ job, score }) => <JobRow key={job.id} job={job} score={score} />)}
+    <PostsCard label={group.cat.label} count={group.jobs.length} companies={companies.map((c) => ({ id: c.companyId }))}>
+      {companies.map((c) => <CompanyBlock key={c.companyId} group={c} />)}
     </PostsCard>
   )
 }

@@ -94,7 +94,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
         // Thẻ chữ thấp hơn ảnh (≈80%) để ảnh luôn là khối lớn nhất; bước dời giống ảnh (×1.08)
         if (layout === 'jobs' && dims.h) {
           const cardH = Math.round(dims.h * 0.8)
-          cards.current.forEach((c) => c && (c.style.height = `${cardH}px`))
+          cards.current.forEach((c) => c && (c.style.maxHeight = `${cardH}px`)) // tối đa 80% ảnh; ít tin thì thẻ co theo nội dung
           dims.card = cardH * 1.08
           // Khoảng trống phía trên ảnh khi ảnh căn giữa sân khấu (màn cao → trống nhiều)
           const stage = f?.parentElement

@@ -5,13 +5,25 @@ import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { lockScroll } from '@components/floating/scrollLock'
 
-type Props = { titleId: string; title: string; subtitle?: string; onClose: () => void; children: ReactNode; className?: string; contentKey?: string }
+type Props = {
+  titleId: string; title: string; subtitle?: string; onClose: () => void; children: ReactNode; className?: string; contentKey?: string
+  /** Tông khung: 'ivory' (mặc định) hoặc 'abyss' — kính xanh đậm như khu /tim-viec, /tuyen-dung */
+  tone?: 'ivory' | 'abyss'
+}
+
+const TONE = {
+  ivory: { overlay: 'bg-wm-charcoal/40', panel: 'theme-ivory border-page-line bg-wm-ivory text-wm-charcoal' },
+  abyss: {
+    overlay: 'bg-wm-night/60 backdrop-blur-[2px]',
+    panel: 'theme-abyss border-wm-ivory/15 bg-wm-abyss/90 text-page-fg shadow-[0_24px_60px_-24px_var(--wm-night)] ring-1 ring-wm-cyan/20 backdrop-blur-xl',
+  },
+} as const
 
 /**
  * Khung hộp thoại dùng chung cho mời / chọn giờ phỏng vấn: portal, nền phủ, Esc/X/nền đóng,
  * giữ focus trong khung, khóa cuộn nền và trả focus về nút đã mở. Mount = mở, unmount = đóng.
  */
-export default function DialogShell({ titleId, title, subtitle, onClose, children, className, contentKey }: Props) {
+export default function DialogShell({ titleId, title, subtitle, onClose, children, className, contentKey, tone = 'ivory' }: Props) {
   const panelRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
@@ -71,14 +83,14 @@ export default function DialogShell({ titleId, title, subtitle, onClose, childre
 
   return createPortal(
     <div data-lenis-prevent className="fixed inset-0 z-[100] flex items-end justify-center md:items-center md:p-8">
-      <div aria-hidden="true" onClick={onClose} className="absolute inset-0 bg-wm-charcoal/40" />
+      <div aria-hidden="true" onClick={onClose} className={cn('absolute inset-0', TONE[tone].overlay)} />
       <div
         ref={panelRef}
         data-dialog-shell
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={cn('theme-ivory relative flex max-h-[90svh] w-full flex-col rounded-t-card border border-page-line bg-wm-ivory text-wm-charcoal md:max-w-lg md:rounded-card', className)}
+        className={cn('relative flex max-h-[90svh] w-full flex-col rounded-t-card border md:max-w-lg md:rounded-card', TONE[tone].panel, className)}
       >
         <header className="flex items-start justify-between gap-4 border-b border-page-line px-6 py-5">
           <div className="min-w-0">
