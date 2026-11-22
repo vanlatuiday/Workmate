@@ -53,6 +53,18 @@ export class ReasonDto {
   reason?: string
 }
 
+/** Viết / sửa đánh giá theo công ty (người tìm việc) hoặc theo người tìm việc (doanh nghiệp): sao bắt buộc, nhận xét tùy chọn */
+export class UpsertReviewDto {
+  @IsInt() @Min(1) @Max(5)
+  stars!: number
+
+  @IsOptional() @IsArray() @ArrayMaxSize(REVIEW_MAX_TAGS) @IsString({ each: true }) @MaxLength(60, { each: true })
+  tags?: string[]
+
+  @IsOptional() @Transform(trim) @IsString() @MaxLength(REVIEW_MAX_COMMENT)
+  comment?: string
+}
+
 export class ReviewDto extends PairDto {
   @IsInt() @Min(1) @Max(5)
   stars!: number

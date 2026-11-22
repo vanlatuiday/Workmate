@@ -545,6 +545,9 @@ model Review {
   tags     String[]
   comment  String?
   at       DateTime      @default(now())
+  /// Lần sửa gần nhất (null = chưa sửa). Mỗi người tìm việc chỉ có một đánh giá cho mỗi công ty (và ngược lại),
+  /// gắn với một tin đã kết nối của công ty đó — xem ReviewsService
+  editedAt DateTime?
   job      Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
   seeker   SeekerProfile @relation(fields: [seekerId], references: [userId], onDelete: Cascade)
 

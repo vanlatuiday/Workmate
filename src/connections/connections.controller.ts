@@ -9,7 +9,7 @@ import { IsBoolean, IsString, MaxLength, MinLength } from 'class-validator'
 import { AUTH_LIMITS } from '../common/throttle'
 import { AccountService } from './account.service'
 import { CandidatesService } from './candidates.service'
-import { ConfirmInterviewDto, InviteInterviewDto, OfferDto, ReasonDto, ReviewDto, SendMessageDto } from './connections.dto'
+import { ConfirmInterviewDto, InviteInterviewDto, OfferDto, ReasonDto, ReviewDto, SendMessageDto, UpsertReviewDto } from './connections.dto'
 import { ConnectionsService } from './connections.service'
 import { HiresService } from './hires.service'
 import { InterviewsService } from './interviews.service'
@@ -235,6 +235,51 @@ export class ReviewsController {
   @Roles('jobseeker', 'recruiter')
   mine(@CurrentUser() user: AuthUser) {
     return this.reviews.mine(user)
+  }
+
+  /** Người tìm việc ↔ một công ty: được đánh giá không + đánh giá hiện có của tôi */
+  @Get('companies/:companyId/mine')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('jobseeker')
+  myCompanyReview(@CurrentUser() user: AuthUser, @Param('companyId') companyId: string) {
+    return this.reviews.eligibility(user, { companyId })
+  }
+
+  /** Viết / sửa đánh giá công ty (cần đã quan tâm đôi bên) */
+  @Put('companies/:companyId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('jobseeker')
+  upsertCompanyReview(@CurrentUser() user: AuthUser, @Param('companyId') companyId: string, @Body() dto: UpsertReviewDto) {
+    return this.reviews.upsert(user, { companyId }, dto)
+  }
+
+  @Delete('companies/:companyId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('jobseeker')
+  removeCompanyReview(@CurrentUser() user: AuthUser, @Param('companyId') companyId: string) {
+    return this.reviews.remove(user, { companyId })
+  }
+
+  /** Doanh nghiệp ↔ một người tìm việc: được đánh giá không + đánh giá hiện có của công ty mình */
+  @Get('seekers/:seekerId/mine')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('recruiter')
+  mySeekerReview(@CurrentUser() user: AuthUser, @Param('seekerId') seekerId: string) {
+    return this.reviews.eligibility(user, { seekerId })
+  }
+
+  @Put('seekers/:seekerId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('recruiter')
+  upsertSeekerReview(@CurrentUser() user: AuthUser, @Param('seekerId') seekerId: string, @Body() dto: UpsertReviewDto) {
+    return this.reviews.upsert(user, { seekerId }, dto)
+  }
+
+  @Delete('seekers/:seekerId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('recruiter')
+  removeSeekerReview(@CurrentUser() user: AuthUser, @Param('seekerId') seekerId: string) {
+    return this.reviews.remove(user, { seekerId })
   }
 
   @Get('seekers/:seekerId')
