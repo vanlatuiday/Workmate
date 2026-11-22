@@ -1,0 +1,13 @@
+WORKMATE: vus
+
+anh-01.jpg
+  Công việc: Trợ giảng VUS trong lớp học
+  Đường dẫn ảnh: https://vus.edu.vn/webroot/upload/new_images/2025/202508/Giao%20vien%20tai%20trung%20tam%20IELTS%20huong%20dan%20sat%20sao%20sua%20bai%20chi%20tiet.webp
+  Trang nguồn: https://vus.edu.vn/blog-vus/trung-tam-ielts
+  Ghi chú nội bộ: Giáo viên hướng dẫn học viên VUS, không xác minh vị trí trợ giảng
+
+anh-02.jpg
+  Công việc: Nhân viên tư vấn khóa học tại quầy VUS
+  Đường dẫn ảnh: https://vus.edu.vn/webroot/upload/new_images/2025/202508/Bat%20nhip%20tu%20bi%20kip%20luyen%20thi%20den%20chuong%20trinh%20luyen%20IELTS%20chat%20luong%20tai%20VUS.webp
+  Trang nguồn: https://vus.edu.vn/blog-vus/ielts-academic
+  Ghi chú nội bộ: Nhân viên tư vấn tuyển sinh tại quầy

@@ -1,0 +1,13 @@
+WORKMATE: viettel-post
+
+anh-01.jpg
+  Công việc: Nhân viên nhận bưu gửi tại quầy Viettel Post
+  Đường dẫn ảnh: https://image.vietnamnews.vn/uploadvnnews/Article/2020/10/12/116540_POST.jpg
+  Trang nguồn: https://vietnamnews.vn/economy/793341/military-run-telecom-giant-viettel-to-sell-6-per-cent-stake-in-viettel-post.html
+  Ghi chú nội bộ: Nhân viên tiếp khách tại quầy
+
+anh-02.jpg
+  Công việc: Xử lý hàng hóa trong kho Viettel Post
+  Đường dẫn ảnh: https://mkt.1cdn.vn/2023/11/06/vtp.png
+  Trang nguồn: https://markettimes.vn/viettel-post-lai-lon-truoc-khi-chuyen-san-46764.html
+  Ghi chú nội bộ: Nhân viên xử lý kiện hàng trong kho
