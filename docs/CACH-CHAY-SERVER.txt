@@ -1,0 +1,108 @@
+================================================================
+WORKMATE — CÁCH CHẠY SERVER (BACKEND → FRONTEND) TRÊN MÁY
+cập nhật 22/11/2026
+================================================================
+
+Cần mở 2 cửa sổ Terminal: một cho backend, một cho frontend.
+Thứ tự: Docker → backend → frontend.
+
+Địa chỉ sau khi chạy:
+  Web (frontend) : http://localhost:5173
+  API (backend)  : http://localhost:8000/api
+  Database       : localhost:5432 (PostgreSQL, trong Docker)
+  Lưu file ảnh/CV: localhost:8333 (SeaweedFS, trong Docker)
+
+----------------------------------------------------------------
+A. CHẠY HẰNG NGÀY (đã cài đặt xong từ trước)
+----------------------------------------------------------------
+1) Mở ứng dụng Docker Desktop, đợi biểu tượng cá voi báo "running".
+
+2) Terminal 1 — BACKEND:
+     cd /Users/yuu/workmate/backend
+     docker compose up -d          # bật database + kho lưu file
+     npx prisma migrate deploy     # áp thay đổi database mới (nếu có; chạy thừa cũng không sao)
+     npm run dev                   # chạy API, tự khởi động lại khi sửa code
+   Thấy dòng "Workmate API: http://localhost:8000/api" là xong.
+   Để nguyên cửa sổ này, đừng tắt.
+
+3) Terminal 2 — FRONTEND:
+     cd /Users/yuu/workmate/frontend
+     npx vite --port 5173
+   Thấy dòng "Local: http://localhost:5173/" là xong.
+
+4) Mở trình duyệt: http://localhost:5173
+   Tài khoản demo (mật khẩu 123456):
+     admin1 = người tìm việc · admin2 = nhà tuyển dụng · admin3 = quản trị
+   (Trang Đăng nhập có chip đăng nhập nhanh khi chạy trên máy.)
+
+TẮT:
+  - Ở mỗi Terminal bấm Ctrl + C.
+  - Tắt database (không bắt buộc): cd /Users/yuu/workmate/backend && docker compose stop
+
+----------------------------------------------------------------
+B. LẦN ĐẦU TRÊN MÁY MỚI (hoặc sau khi xóa node_modules)
+----------------------------------------------------------------
+Cần: Node.js >= 20.19 (máy hiện dùng 20.20.1), Docker Desktop.
+
+  cd /Users/yuu/workmate/backend
+  npm install
+  cp .env.example .env          # rồi mở .env điền: JWT_SECRET, SMTP_* (Gmail App Password)…
+  docker compose up -d
+  npx prisma migrate deploy     # tạo bảng
+  npm run db:seed               # nạp dữ liệu mẫu (XÓA SẠCH dữ liệu cũ!)
+  npm run dev
+
+  cd /Users/yuu/workmate/frontend
+  npm install
+  npx vite --port 5173
+
+----------------------------------------------------------------
+C. SAU KHI KÉO CODE MỚI TỪ GITHUB
+----------------------------------------------------------------
+  cd backend  && git pull && npm install && npx prisma migrate deploy
+  cd frontend && git pull && npm install
+Rồi chạy như mục A.
+
+----------------------------------------------------------------
+D. LỆNH HAY DÙNG
+----------------------------------------------------------------
+Backend (trong /Users/yuu/workmate/backend):
+  npm run dev           chạy API (tự khởi động lại khi sửa code)
+  npm run build && npm start   chạy bản đã build (giống chạy thật)
+  npm run db:studio     mở giao diện xem/sửa database trên trình duyệt
+  npm run db:seed       nạp lại dữ liệu mẫu (XÓA dữ liệu hiện có)
+  npm run db:reset      xóa database và tạo lại từ đầu (XÓA HẾT)
+  npm run admin:create  tạo tài khoản quản trị
+  npm run mail:test     thử gửi email
+  npm test · npm run lint · npx tsc --noEmit -p tsconfig.json   kiểm tra code
+
+Frontend (trong /Users/yuu/workmate/frontend):
+  npx vite --port 5173  chạy web
+  npm run build         build bản chạy thật (thư mục dist/)
+  npm run lint · npx tsc --noEmit -p . · node --test tests/      kiểm tra code
+
+----------------------------------------------------------------
+E. GẶP LỖI THÌ SAO
+----------------------------------------------------------------
+- "Can't reach database server at localhost:5432"
+    → Docker Desktop chưa mở, hoặc chưa chạy `docker compose up -d`.
+- "address already in use :::8000" (hoặc 5173)
+    → Đã có một server khác đang chạy cổng đó. Dùng luôn cái đang chạy,
+      hoặc tìm và tắt nó:  lsof -i :8000   rồi   kill <số PID>
+- Web mở được nhưng không có dữ liệu / báo lỗi mạng
+    → Backend chưa chạy hoặc đã dừng. Xem lại Terminal 1.
+- Sửa database / thêm API mà backend không nhận
+    → Ctrl + C ở Terminal 1 rồi `npm run dev` lại (chế độ tự khởi động lại
+      đôi khi bị kẹt). Nếu có file migration mới: `npx prisma migrate deploy`.
+- Đăng nhập báo "quá nhiều lần" (lỗi 429)
+    → Khởi động lại backend để xóa bộ đếm.
+- Không nhận được email mã xác nhận
+    → Kiểm tra SMTP_* trong backend/.env (Gmail cần App Password), rồi
+      `npm run mail:test`. Đổi .env xong phải khởi động lại backend.
+      Khi chưa cấu hình email, mã xác nhận được in ra ở Terminal 1.
+- Trang trắng sau khi kéo code mới
+    → Chạy `npm install` ở frontend rồi bật lại vite.
+
+Ghi chú: frontend tự chuyển mọi yêu cầu /api sang http://localhost:8000
+(cấu hình trong frontend/vite.config.ts), nên không cần chỉnh gì thêm.
+================================================================
