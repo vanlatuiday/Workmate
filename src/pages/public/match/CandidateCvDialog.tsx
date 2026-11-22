@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { RefreshCw, X } from 'lucide-react'
+import { RefreshCw, X, ZoomIn, ZoomOut } from 'lucide-react'
 import { ScoreRing } from './parts'
 import { ScaledCv } from '@components/cv/CvPanel'
 import { fetchCandidateProfile, type CandidateProfile } from '@services/candidateService'
@@ -34,6 +34,25 @@ export default function CandidateCvDialog({ seekerId, name, score, origin, onClo
   const [profile, setProfile] = useState<CandidateProfile | null>(null)
   const [error, setError] = useState(false)
   const [attempt, setAttempt] = useState(0)
+  // Phóng to: tờ CV cỡ thật (vừa chiều rộng khung ≈ A4 1:1) trong vùng cuộn; `focusY` = vị trí bấm (0–1 theo chiều cao tờ)
+  const [zoomed, setZoomed] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const focusY = useRef(0)
+  const zoomAt = (e: MouseEvent<HTMLElement>) => {
+    // Đo theo chính tờ CV (con đầu của nút), không theo cả vùng nút
+    const r = (e.currentTarget.firstElementChild ?? e.currentTarget).getBoundingClientRect()
+    focusY.current = r.height ? (e.clientY - r.top) / r.height : 0
+    setZoomed(true)
+  }
+  // Vừa phóng to: cuộn để chỗ vừa bấm nằm giữa khung; thu nhỏ thì về đầu
+  useEffect(() => {
+    const box = scrollRef.current
+    if (!box) return
+    const raf = requestAnimationFrame(() => {
+      box.scrollTop = zoomed ? Math.max(0, focusY.current * box.scrollHeight - box.clientHeight / 2) : 0
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [zoomed])
 
   useEffect(() => {
     let alive = true
@@ -108,9 +127,47 @@ export default function CandidateCvDialog({ seekerId, name, score, origin, onClo
           </div>
         </header>
 
-        <div className="cv-pop-sheet flex min-h-0 flex-1 items-start justify-center">
+        <div
+          ref={scrollRef}
+          className={cn('cv-pop-sheet relative flex min-h-0 flex-1 items-start justify-center', zoomed && 'overflow-y-auto overscroll-contain rounded-card')}
+        >
           {profile ? (
-            <ScaledCv data={toCvDataFromCandidate(profile)} mode="recruiter" contain />
+            zoomed ? (
+              // Cỡ đọc được: tờ rộng bằng khung (≈ A4 thật), cuộn để xem; bấm vào tờ để thu nhỏ lại
+              <div className="relative w-full">
+                <button
+                  type="button"
+                  onClick={() => setZoomed(false)}
+                  aria-label="Thu nhỏ CV về cả tờ"
+                  className="block w-full cursor-zoom-out rounded-card text-left outline-none focus-visible:ring-2 focus-visible:ring-wm-cyan"
+                >
+                  <ScaledCv data={toCvDataFromCandidate(profile)} mode="recruiter" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setZoomed(false)}
+                  className={cn(BTN_SECONDARY, BTN_SM, 'theme-day sticky bottom-3 float-right -mt-14 mr-3 border-wm-charcoal/20 bg-white text-wm-charcoal shadow-md')}
+                >
+                  <ZoomOut className="h-4 w-4" aria-hidden="true" />Thu nhỏ
+                </button>
+              </div>
+            ) : (
+              // Cả tờ thu nhỏ: rê chuột hiện kính lúp, bấm để phóng to đúng chỗ vừa bấm
+              <button
+                type="button"
+                onClick={zoomAt}
+                aria-label="Phóng to CV để đọc"
+                className="group relative flex h-full w-full cursor-zoom-in items-start justify-center rounded-card outline-none focus-visible:ring-2 focus-visible:ring-wm-cyan"
+              >
+                <ScaledCv data={toCvDataFromCandidate(profile)} mode="recruiter" contain />
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute left-1/2 top-1/2 inline-flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full bg-wm-abyss/85 px-4 py-2 text-sm font-medium text-wm-ivory opacity-0 shadow-lg transition-opacity duration-base group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+                >
+                  <ZoomIn className="h-4 w-4" />Bấm để phóng to
+                </span>
+              </button>
+            )
           ) : error ? (
             <div role="alert" className="theme-ivory flex flex-col items-center gap-3 rounded-card bg-white px-8 py-12 text-center">
               <p className="text-sm text-page-muted">Không tải được CV của ứng viên này. Kiểm tra mạng rồi thử lại.</p>
