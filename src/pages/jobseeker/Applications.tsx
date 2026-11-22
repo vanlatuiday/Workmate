@@ -16,6 +16,7 @@ import { formatRelativeTime } from '@utils/format'
 import { useFlip } from '@hooks/useFlip'
 import FadeIn from '@components/motion/FadeIn'
 import MessageLink from '@components/messenger/MessageLink'
+import UnconnectButton from '@components/connections/UnconnectButton'
 
 
 type Tab = 'all' | 'sent' | 'connected'
@@ -54,6 +55,7 @@ function Row({ item }: { item: PairItem }) {
       </div>
       <div className="flex flex-wrap items-center gap-2 md:flex-shrink-0">
         {item.status === 'connected' && <InterviewAction viewer="seeker" jobId={item.jobId} seekerId={item.seekerId} compact />}
+        {item.status === 'connected' && <UnconnectButton viewer="seeker" jobId={item.jobId} seekerId={item.seekerId} name={info.name} />}
         {item.status === 'connected' && (
           <MessageLink convKey={`${item.jobId}|${item.seekerId}`} className={cn(BTN_PRIMARY, BTN_SM)}>Nhắn tin</MessageLink>
         )}

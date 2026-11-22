@@ -44,6 +44,7 @@ import {
   type MatchOutcome,
 } from './score'
 import MessageLink from '@components/messenger/MessageLink'
+import UnconnectButton from '@components/connections/UnconnectButton'
 
 type SortKey = 'score' | 'salary' | 'distance'
 type TabKey = 'fit' | 'saved' | 'applied' | 'connected'
@@ -238,6 +239,7 @@ export default function JobseekerMatch() {
               Nhắn tin<span className="sr-only"> {job.title}</span>
             </MessageLink>
             <InterviewAction viewer="seeker" jobId={job.id} seekerId={ME} />
+            <UnconnectButton viewer="seeker" jobId={job.id} seekerId={ME} name={companyOf(job.companyId).name} />
           </>
         )}
         <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={cn(BTN_GHOST, BTN_SM)}>
@@ -306,6 +308,7 @@ export default function JobseekerMatch() {
             status={statusOf(job.id, ME)}
             name={job.title}
             convKey={`${job.id}|${ME}`}
+            unconnect={{ viewer: 'seeker', jobId: job.id, seekerId: ME, name: companyOf(job.companyId).name }}
             onPrimary={() => apply(job)}
             labels={{ none: 'Ứng tuyển ngay', sent: 'Đã ứng tuyển' }}
           />

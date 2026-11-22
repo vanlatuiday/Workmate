@@ -1,3 +1,4 @@
+import UnconnectButton from '@components/connections/UnconnectButton'
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { Bookmark, Check } from 'lucide-react'
 import CompanyLogo from '@components/common/CompanyLogo'
@@ -19,6 +20,7 @@ import { companyRecruitingJobs } from '@pages/public/personal/companyRecruitingJ
 import { CriterionBars, ImproveHint } from '@pages/public/match/detailParts'
 import { APPLICATION_STAGE_LABEL, CONNECTED_MESSAGE, expressInterest, ME, useApplicationStage, useOnNewConnection, usePairStatuses, withdrawInterest } from '@services/connectionService'
 import api from '@services/api'
+import { companyOf } from '@pages/public/match/data'
 import { notifySuccess } from '@utils/feedback'
 import { BTN_ACCENT, BTN_DANGER, BTN_SECONDARY } from '@utils/ui'
 
@@ -73,6 +75,7 @@ function SeekerActions({ job, recruiting, onClose }: { job: CatalogJob; recruiti
           useMessengerStore.getState().openMessenger(`${job.id}|${ME}`)
         }}>Nhắn tin</button>
       )}
+      {status === 'connected' && <UnconnectButton viewer="seeker" jobId={job.id} seekerId={ME} name={companyOf(job.companyId).name} />}
       <button type="button" aria-pressed={saved} onClick={() => toggleSavedJob(job.id)} className={BTN_SECONDARY}>
         <PopIcon icon={Bookmark} on={saved} />
         {saved ? 'Đã lưu' : 'Lưu'}

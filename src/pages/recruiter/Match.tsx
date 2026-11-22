@@ -9,6 +9,7 @@ import { cn } from '@utils/cn'
 import { BTN_ACCENT, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import { formatRelativeTime } from '@utils/format'
 import MessageLink from '@components/messenger/MessageLink'
+import UnconnectButton from '@components/connections/UnconnectButton'
 
 
 /** Kết nối (doanh nghiệp): ứng viên đã kết nối theo từng tin, kèm tin nhắn cuối và mời phỏng vấn. */
@@ -59,6 +60,7 @@ export default function RecruiterMatch() {
                   <div className="flex flex-wrap items-center gap-2 lg:flex-shrink-0">
                     <InterviewAction viewer="recruiter" jobId={p.jobId} seekerId={p.seekerId} compact />
                     <HireAction viewer="recruiter" jobId={p.jobId} seekerId={p.seekerId} compact />
+                    <UnconnectButton viewer="recruiter" jobId={p.jobId} seekerId={p.seekerId} name={info.name} />
                     <MessageLink convKey={`${p.jobId}|${p.seekerId}`} className={cn(BTN_PRIMARY, BTN_SM)}>Nhắn tin</MessageLink>
                   </div>
                 </li>

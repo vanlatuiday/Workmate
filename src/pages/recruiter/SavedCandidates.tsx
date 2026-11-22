@@ -14,6 +14,7 @@ import FadeIn from '@components/motion/FadeIn'
 import { useFlip } from '@hooks/useFlip'
 import { BTN_ACCENT, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import MessageLink from '@components/messenger/MessageLink'
+import UnconnectButton from '@components/connections/UnconnectButton'
 
 
 /** Danh sách dòng của một nhóm: sắp xếp lại mượt khi bỏ lưu (mỗi nhóm một ref riêng) */
@@ -95,6 +96,7 @@ export default function SavedCandidates() {
                               Đồng ý kết nối
                             </button>
                           )}
+                          {status === 'connected' && <UnconnectButton viewer="recruiter" jobId={position.id} seekerId={cand.id} name={cand.name} />}
                           {status === 'connected' && (
                             <MessageLink convKey={`${position.id}|${cand.id}`} className={cn(BTN_PRIMARY, BTN_SM)}>Nhắn tin</MessageLink>
                           )}

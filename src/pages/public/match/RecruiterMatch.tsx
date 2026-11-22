@@ -30,6 +30,7 @@ import { useFlip } from '@hooks/useFlip'
 import { useCandidateMatches } from '@services/matchingService'
 import { type CriterionResult } from './score'
 import MessageLink from '@components/messenger/MessageLink'
+import UnconnectButton from '@components/connections/UnconnectButton'
 
 type TabKey = 'fit' | 'saved' | 'interested' | 'connected'
 
@@ -188,6 +189,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
               Nhắn tin<span className="sr-only"> {c.name}</span>
             </MessageLink>
             <InterviewAction viewer="recruiter" jobId={position.id} seekerId={c.id} />
+            <UnconnectButton viewer="recruiter" jobId={position.id} seekerId={c.id} name={c.name} />
           </>
         )}
         <Link to={candidateHref(c.id)} className={cn(BTN_SECONDARY, BTN_SM)}>
@@ -338,6 +340,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
                   status={statusOf(position.id, c.id)}
                   name={c.name}
                   convKey={`${position.id}|${c.id}`}
+                  unconnect={{ viewer: 'recruiter', jobId: position.id, seekerId: c.id, name: c.name }}
                   onPrimary={() => invite(c)}
                   labels={{ none: 'Quan tâm ứng viên', sent: 'Đã quan tâm' }}
                 />

@@ -2,7 +2,9 @@
 // Trang yên tĩnh như dashboard: không chuyển động cuộn, chỉ đổi màu viền/nền khi hover.
 import { useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { Check, Clock, LayoutGrid, List, MessageCircle, X } from 'lucide-react'
+import type { Side } from '@services/connectionService'
 import MessageLink from '@components/messenger/MessageLink'
+import UnconnectButton from '@components/connections/UnconnectButton'
 import MatchScore from '@components/dashboard/MatchScore'
 import { Initials } from '@components/discover/detail/DetailBlocks'
 import CompanyLogo from '@components/common/CompanyLogo'
@@ -372,6 +374,7 @@ export function GalleryAction({
   convKey,
   onPrimary,
   labels,
+  unconnect,
 }: {
   status: string
   /** Tên vị trí / ứng viên, chỉ cho trình đọc màn hình */
@@ -379,14 +382,19 @@ export function GalleryAction({
   convKey: string
   onPrimary: () => void
   labels: { none: string; sent: string }
+  /** Có thì đã kết nối sẽ thêm nút nhỏ "Bỏ quan tâm" dưới "Nhắn tin" */
+  unconnect?: { viewer: Side; jobId: string; seekerId: string; name: string }
 }) {
   const full = 'w-full min-h-11'
   if (status === 'connected') {
     return (
-      <MessageLink convKey={convKey} className={cn(BTN_SECONDARY, full)}>
-        <MessageCircle className="h-4 w-4" aria-hidden="true" />
-        Nhắn tin<span className="sr-only"> {name}</span>
-      </MessageLink>
+      <div className="flex flex-col items-center gap-1">
+        <MessageLink convKey={convKey} className={cn(BTN_SECONDARY, full)}>
+          <MessageCircle className="h-4 w-4" aria-hidden="true" />
+          Nhắn tin<span className="sr-only"> {name}</span>
+        </MessageLink>
+        {unconnect && <UnconnectButton {...unconnect} />}
+      </div>
     )
   }
   if (status === 'sent') {

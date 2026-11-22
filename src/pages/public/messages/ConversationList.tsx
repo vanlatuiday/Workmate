@@ -85,7 +85,7 @@ export default function ConversationList({ viewer, conversations, activeKey, onS
                         </span>
                       )}
                     </span>
-                    <span className="block truncate text-xs text-page-muted">{info.subtitle}</span>
+                    <span className="block truncate text-xs text-page-muted">{info.subtitle}{c.locked && ' · Đã bỏ quan tâm'}</span>
                     <span className="mt-0.5 flex items-center justify-between gap-2">
                       <span className={cn('truncate text-sm', c.unread > 0 ? 'text-page-fg' : 'text-page-muted')}>
                         {c.last ? `${c.last.from === viewer ? 'Bạn: ' : ''}${c.last.text}` : 'Chưa có tin nhắn. Hãy gửi lời chào trước.'}

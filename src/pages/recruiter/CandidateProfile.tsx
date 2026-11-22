@@ -7,6 +7,7 @@ import { HireAction, ReviewsPanel } from '@components/hire'
 import { useSeekerReviews } from '@services/connectionService'
 import InterviewAction from '@components/interview/InterviewAction'
 import MessageLink from '@components/messenger/MessageLink'
+import UnconnectButton from '@components/connections/UnconnectButton'
 import ReportButton from '@components/report/ReportButton'
 import ConsiderButton from '@components/application/ConsiderButton'
 import { useCatalogStore, type CatalogJob } from '@context/catalogStore'
@@ -75,6 +76,7 @@ function JobActions({ job, profile, compact }: { job: CatalogJob; profile: Profi
           <MessageLink convKey={`${job.id}|${profile.id}`} className={cn(BTN_SECONDARY, BTN_SM)}>
             Nhắn tin<span className="sr-only"> về vị trí {job.title}</span>
           </MessageLink>
+          <UnconnectButton viewer="recruiter" jobId={job.id} seekerId={profile.id} name={profile.name} />
           {!compact && (
             <>
               <InterviewAction viewer="recruiter" jobId={job.id} seekerId={profile.id} />

@@ -1,7 +1,8 @@
 // Lớp dịch vụ cho quan tâm / kết nối / tin nhắn / phỏng vấn / nhận việc / đánh giá / thông báo.
 // Giao diện chỉ dùng các hàm ở đây. Đọc từ `connectionStore`; thao tác ghi gọi máy chủ rồi cập nhật kho,
 // máy chủ từ chối thì báo lỗi bằng toast. Sự kiện socket giữ kho khớp khi phía kia thay đổi.
-import { useEffect, useMemo, useState } from 'react'
+import { createElement, useEffect, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 import { create } from 'zustand'
 import { notifyError, notifySuccess } from '@utils/feedback'
 import api from './api'
@@ -77,10 +78,13 @@ export async function refreshPairs() {
     api.get<Hire[]>('/hires'),
     api.get<Review[]>('/reviews/mine'),
   ])
+  // Cặp đang chờ "Bỏ quan tâm" (còn trong 6 giây hoàn tác): máy chủ chưa xóa nhưng giao diện coi như đã bỏ
+  const skip = (jobId: string, seekerId: string, from?: Side) =>
+    [...pendingUnconnect.values()].some((p) => p.jobId === jobId && p.seekerId === seekerId && (!from || p.from === from))
   setStore({
     hydrated: true,
-    interests: state.data.interests.map(localize),
-    connections: state.data.connections.map(localize),
+    interests: state.data.interests.map(localize).filter((i) => !skip(i.jobId, i.seekerId, i.from)),
+    connections: state.data.connections.map(localize).filter((c) => !skip(c.jobId, c.seekerId)),
     interviews: interviews.data.map(localize),
     hires: hires.data.map(localize),
     reviews: reviews.data.map(localize),
@@ -229,6 +233,93 @@ export function expressInterest(from: Side, jobId: string, seekerId: string) {
     getPairStatus(from, jobId, seekerId) === 'connected'
       ? CONNECTED_MESSAGE
       : from === 'seeker' ? 'Đã ứng tuyển, đang chờ nhà tuyển dụng phản hồi' : 'Đã quan tâm, đang chờ ứng viên phản hồi')
+}
+
+// ─── Bỏ quan tâm sau khi đã kết nối (có 6 giây hoàn tác) ──────────────────────
+
+interface PendingUnconnect {
+  from: Side; jobId: string; seekerId: string
+  interests: Interest[]; connections: Connection[]
+  timer: ReturnType<typeof setTimeout>
+  /** Đã gửi máy chủ: không hoàn tác được nữa */
+  sent?: boolean
+}
+const pendingUnconnect = new Map<string, PendingUnconnect>()
+const UNDO_MS = 6000
+
+/** Hook: có được bỏ quan tâm cặp này không — không khi hai bên đã nhận việc (máy chủ từ chối) */
+export function useCanUnconnect(jobId: string, seekerId: string): boolean {
+  return useConnectionStore((s) => !s.hires.some((h) => h.jobId === jobId && h.seekerId === seekerId && h.status === 'accepted'))
+}
+
+/**
+ * Bỏ quan tâm khi đã kết nối. Giao diện đổi ngay, hiện toast "Hoàn tác" 6 giây;
+ * hết hạn mới gọi máy chủ (hủy lịch phỏng vấn / lời mời chưa trả lời, khóa tin nhắn; phía kia không được báo).
+ */
+export function unconnect(from: Side, jobId: string, seekerId: string, peerName: string) {
+  const k = pairKey(jobId, seekerId)
+  if (pendingUnconnect.has(k)) return
+  const st = store()
+  const matchPair = (r: { jobId: string; seekerId: string }) => pairKey(r.jobId, r.seekerId) === k
+  const removedInterests = st.interests.filter((i) => i.from === from && matchPair(i))
+  const removedConnections = st.connections.filter(matchPair)
+  setStore((s) => ({
+    interests: s.interests.filter((i) => !removedInterests.includes(i)),
+    connections: s.connections.filter((c) => !removedConnections.includes(c)),
+  }))
+  const toastId = `unconnect:${k}`
+  const commit = () => {
+    const p = pendingUnconnect.get(k)
+    if (!p || p.sent) return
+    p.sent = true
+    // Gỡ khỏi hàng chờ ngay khi máy chủ trả lời (thành công hay lỗi) rồi write() mới nạp lại → giao diện theo máy chủ
+    void write(async () => {
+      try { await api.delete(`/connections/${pairPath(jobId, seekerId)}/interest`); void refreshConversations().catch(() => undefined) } finally { pendingUnconnect.delete(k) }
+    }, 'Chưa bỏ quan tâm được, vui lòng thử lại.')
+  }
+  const timer = setTimeout(commit, UNDO_MS)
+  pendingUnconnect.set(k, { from, jobId, seekerId, interests: removedInterests, connections: removedConnections, timer })
+  toast(
+    (t) => createElement('span', { className: 'flex items-center gap-3' },
+      createElement('span', null, `Đã bỏ quan tâm ${peerName}`),
+      createElement('button', {
+        type: 'button',
+        className: 'rounded-control px-1 font-semibold underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+        onClick: () => { toast.dismiss(t.id); undoUnconnect(k) },
+      }, 'Hoàn tác')),
+    { id: toastId, duration: UNDO_MS },
+  )
+}
+
+function undoUnconnect(k: string) {
+  const p = pendingUnconnect.get(k)
+  if (!p || p.sent) return
+  clearTimeout(p.timer)
+  pendingUnconnect.delete(k)
+  setStore((s) => ({
+    interests: [...s.interests, ...p.interests.filter((i) => !s.interests.some((x) => x.from === i.from && pairKey(x.jobId, x.seekerId) === k))],
+    connections: [...s.connections, ...p.connections.filter(() => !s.connections.some((x) => pairKey(x.jobId, x.seekerId) === k))],
+  }))
+  notifySuccess('Đã giữ kết nối')
+}
+
+/** Đóng tab / ẩn trang khi còn đang chờ: gửi ngay các yêu cầu bỏ quan tâm để không mất */
+function flushPendingUnconnect() {
+  const token = useAuthStore.getState().token
+  for (const [k, p] of [...pendingUnconnect]) {
+    if (p.sent) continue
+    clearTimeout(p.timer)
+    pendingUnconnect.delete(k)
+    toast.dismiss(`unconnect:${k}`)
+    const base = import.meta.env.VITE_API_URL ?? '/api'
+    void fetch(`${base}/connections/${pairPath(p.jobId, p.seekerId)}/interest`, {
+      method: 'DELETE', keepalive: true, headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }).catch(() => undefined)
+  }
+}
+if (typeof document !== 'undefined') {
+  window.addEventListener('pagehide', flushPendingUnconnect)
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushPendingUnconnect() })
 }
 
 /** Rút quan tâm — không rút được khi đã kết nối */

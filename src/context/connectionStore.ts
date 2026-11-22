@@ -139,6 +139,8 @@ export interface ConversationSummary extends Connection {
   unread: number
   /** Lúc phía kia đọc tin gần nhất của cuộc trò chuyện (ISO); null/không có = chưa đọc */
   peerReadAt?: string | null
+  /** Đã bỏ quan tâm: còn tin cũ để xem lại nhưng không gửi tiếp */
+  locked?: boolean
 }
 
 interface ConnectionState {

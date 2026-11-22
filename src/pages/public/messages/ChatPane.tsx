@@ -77,6 +77,8 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
     if (q.stage === 'trial') return hire?.status !== 'accepted'
     return true
   })
+  // Cặp đã bỏ quan tâm: xem lại tin cũ, không gửi được
+  const locked = useConnectionStore((s) => !!s.conversations.find((c) => c.key === convKey(jobId, seekerId))?.locked)
   const [draft, setDraft] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -193,7 +195,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
       {/* Phỏng vấn: nút / chip trạng thái theo vai trò (không hiện gì khi người tìm việc chưa có lời mời) */}
       {/* Chỉ hiện hành động hợp trạng thái: có bản ghi nhận việc thì HireAction lo (chip + hành động có thật,
           vd. Đánh giá khi đã đi làm); phỏng vấn chỉ còn khi chưa có kết cục nhận việc. */}
-      {(viewer === 'recruiter' || hasInterview || hire) && (
+      {!locked && (viewer === 'recruiter' || hasInterview || hire) && (
         <div className="flex flex-wrap items-center gap-2 border-b border-page-line py-3">
           {(!hire || hire.status === 'offered') && <InterviewAction viewer={viewer} jobId={jobId} seekerId={seekerId} compact />}
           {hire && <HireAction viewer={viewer} jobId={jobId} seekerId={seekerId} compact />}
@@ -209,7 +211,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
           </div>
         )}
         {loadingMessages && <SkeletonChat />}
-        {!loadingMessages && rows.length === 0 && (
+        {!loadingMessages && rows.length === 0 && !locked && (
           <div className="py-10 text-center">
             <p className="text-sm font-medium text-page-fg">Hãy gửi lời chào đầu tiên</p>
             <p className="mt-1 text-xs text-page-muted">Chọn một gợi ý bên dưới hoặc tự soạn tin nhắn.</p>
@@ -262,6 +264,11 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
         )}
       </div>
 
+      {locked ? (
+        <p className="border-t border-page-line pt-4 text-center text-sm text-page-muted">
+          Hai bên không còn kết nối — bạn chỉ xem lại được tin cũ.
+        </p>
+      ) : (
       <div className="border-t border-page-line pt-4">
         <div className={cn('-mx-1 mb-3 flex snap-x snap-proximity gap-2 overflow-x-auto px-1 py-1', NO_SCROLLBAR)}>
           {quickReplies.map(({ text: q }) => (
@@ -308,6 +315,7 @@ export default function ChatPane({ viewer, jobId, seekerId, onBack, paused = fal
         </div>
         <p className="mt-2 hidden text-xs text-page-muted lg:block">Enter để gửi · Shift + Enter để xuống dòng</p>
       </div>
+      )}
     </FadeIn>
   )
 }
