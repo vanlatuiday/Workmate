@@ -1,0 +1,56 @@
+05. Pizza 4P’s (Demo)
+================================================================
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+NHẬN DIỆN VÀ PHẠM VI DỮ LIỆU
+Thương hiệu tham chiếu: Pizza 4P’s
+Mã hồ sơ demo: wm-demo-pizza-4ps
+Logo tại folder gốc: pizza-4ps__nha-hang.png
+Logo AI tái tạo theo README.txt gốc; chưa được xác minh là tài sản nhận diện chính thức.
+Website tham chiếu: https://pizza4ps.com/
+Website chỉ tham chiếu tên thương hiệu; nội dung hồ sơ bên dưới là minh họa.
+
+THÔNG TIN DOANH NGHIỆP
+Nhóm ngành: Nhà hàng / Quán ăn
+Trường industry trong web: Nhà hàng / Cà phê / F&B
+Khu vực mẫu: Hải Châu, Đà Nẵng
+Địa chỉ: Khu vực minh họa tại Hải Châu, Đà Nẵng — chưa cung cấp địa chỉ cơ sở thực tế.
+Quy mô mẫu: 51-200 người
+Quy mô đơn vị làm việc mô phỏng, không phải nhân sự thật của thương hiệu.
+Giới thiệu ngắn: [DEMO] Thử các vai trò bếp, phục vụ và đón khách trong nhà hàng.
+
+GIỚI THIỆU ĐẦY ĐỦ
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+Hồ sơ minh họa mô phỏng một nhà hàng với nhóm phụ bếp, phục vụ bàn và đón khách. Các vị trí mẫu có mức kỹ năng khác nhau, từ hỗ trợ cơ bản đến giao tiếp với khách.
+
+Quy mô, địa điểm, môi trường và chính sách bên dưới được viết cho bản demo, chưa được doanh nghiệp xác nhận.
+
+MÔI TRƯỜNG LÀM VIỆC
+- Khu vực đón khách, phục vụ và bếp phối hợp theo từng ca.
+- Có hướng dẫn an toàn thao tác và vệ sinh khu vực làm việc.
+- Lịch cuối tuần có thể có nhu cầu bổ sung nhân sự.
+
+GIÁ TRỊ THAM KHẢO
+- Phục vụ chu đáo
+- Phối hợp rõ ràng
+- Tôn trọng quy trình
+
+CHÍNH SÁCH / PHÚC LỢI MINH HỌA
+- Hướng dẫn nghiệp vụ phù hợp vị trí trong bản mẫu.
+- Trao đổi trước lịch làm và nhiệm vụ từng ca.
+- Phân công người hỗ trợ khi bắt đầu công việc.
+
+VĂN HÓA
+Môi trường minh họa chú trọng bàn giao thông tin đơn hàng, hỗ trợ ca đông khách và phản hồi lịch sự.
+
+LIÊN HỆ VÀ XÁC MINH
+Email minh họa: pizza-4ps@workmate-demo.invalid (không nhận thư)
+Điện thoại: chưa cung cấp.
+Mã số doanh nghiệp: chưa cung cấp.
+Trạng thái xác minh: chưa xác minh; không có huy hiệu thuế hợp lệ.
+
+ẢNH VÀ NỘI DUNG TUYỂN DỤNG
+Chưa có ảnh bìa/không gian thật; ảnh trong JSON dùng mã minh họa có sẵn của project.
+Không có số sao, nhận xét hoặc lịch sử nhân sự thực tế trong bộ này.
+Ba vị trí mẫu xem trong viec-lam.txt cùng folder.

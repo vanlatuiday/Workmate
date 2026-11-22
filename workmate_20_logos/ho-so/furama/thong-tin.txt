@@ -1,0 +1,56 @@
+11. Furama Resort Danang (Demo)
+================================================================
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+NHẬN DIỆN VÀ PHẠM VI DỮ LIỆU
+Thương hiệu tham chiếu: Furama Resort Danang
+Mã hồ sơ demo: wm-demo-furama
+Logo tại folder gốc: furama__khach-san.png
+Logo AI tái tạo theo README.txt gốc; chưa được xác minh là tài sản nhận diện chính thức.
+Website tham chiếu: https://furamavietnam.com/
+Website chỉ tham chiếu tên thương hiệu; nội dung hồ sơ bên dưới là minh họa.
+
+THÔNG TIN DOANH NGHIỆP
+Nhóm ngành: Khách sạn / Khu nghỉ dưỡng
+Trường industry trong web: Khác
+Khu vực mẫu: Ngũ Hành Sơn, Đà Nẵng
+Địa chỉ: Khu vực minh họa tại Ngũ Hành Sơn, Đà Nẵng — chưa cung cấp địa chỉ cơ sở thực tế.
+Quy mô mẫu: 51-200 người
+Quy mô đơn vị làm việc mô phỏng, không phải nhân sự thật của thương hiệu.
+Giới thiệu ngắn: [DEMO] Mô phỏng các vai trò phục vụ tiệc, buồng phòng và đón khách.
+
+GIỚI THIỆU ĐẦY ĐỦ
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+Hồ sơ mẫu mô phỏng hoạt động phối hợp giữa các bộ phận trong một khu nghỉ dưỡng. Vị trí minh họa bao gồm công việc phục vụ, hỗ trợ buồng phòng và giao tiếp tại quầy đón khách.
+
+Quy mô, địa điểm, môi trường và chính sách bên dưới được viết cho bản demo, chưa được doanh nghiệp xác nhận.
+
+MÔI TRƯỜNG LÀM VIỆC
+- Nhiệm vụ mô phỏng theo bộ phận phục vụ, buồng phòng hoặc đón khách.
+- Có trao đổi bàn giao và phân công đầu mỗi ca.
+- Các vị trí tiếp xúc khách có thể cần tiếng Anh giao tiếp.
+
+GIÁ TRỊ THAM KHẢO
+- Chu đáo
+- Tôn trọng riêng tư của khách
+- Phối hợp chuyên nghiệp
+
+CHÍNH SÁCH / PHÚC LỢI MINH HỌA
+- Hướng dẫn nhiệm vụ và cách phối hợp giữa các bộ phận trong bản mẫu.
+- Trao đổi rõ ca làm, trang phục và đầu mối hỗ trợ.
+- Có thời gian chuẩn bị và bàn giao công việc theo lịch ca.
+
+VĂN HÓA
+Môi trường minh họa tập trung vào sự chỉn chu, thái độ lịch sự và hỗ trợ khách trong phạm vi nhiệm vụ được giao.
+
+LIÊN HỆ VÀ XÁC MINH
+Email minh họa: furama@workmate-demo.invalid (không nhận thư)
+Điện thoại: chưa cung cấp.
+Mã số doanh nghiệp: chưa cung cấp.
+Trạng thái xác minh: chưa xác minh; không có huy hiệu thuế hợp lệ.
+
+ẢNH VÀ NỘI DUNG TUYỂN DỤNG
+Chưa có ảnh bìa/không gian thật; ảnh trong JSON dùng mã minh họa có sẵn của project.
+Không có số sao, nhận xét hoặc lịch sử nhân sự thực tế trong bộ này.
+Ba vị trí mẫu xem trong viec-lam.txt cùng folder.

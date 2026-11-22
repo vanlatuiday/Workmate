@@ -1,0 +1,131 @@
+TIN TUYỂN DỤNG MẪU — Anh văn Hội Việt Mỹ — VUS
+================================================================
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+Toàn bộ lương được ghi theo giờ. salaryMinK / salaryMaxK là nghìn đồng/giờ để khớp bộ tính phù hợp.
+Mã ca: ngày 0=T2 … 6=CN; buổi 0=Sáng, 1=Chiều, 2=Tối, 3=Khuya.
+
+[DEMO] Trợ giảng ca tối
+----------------------------------------------------------------
+Mã tin: wm-demo-vus-job-01
+Hình thức: Bán thời gian
+Khu vực mẫu: Thanh Khê, Đà Nẵng
+Số người mẫu: 5
+Lương mẫu: 47.000–62.000đ/giờ
+Lịch: T2 tối; T3 tối; T4 tối; T5 tối; T6 tối
+Trao đổi chọn các buổi phù hợp trong danh sách đề xuất; không yêu cầu rảnh toàn bộ các buổi.
+Kỹ năng: Tiếng Anh giao tiếp, Sư phạm, Làm việc nhóm
+Kỹ năng bắt buộc: Tiếng Anh giao tiếp
+Ngày đăng tham chiếu: 2026-11-20T21:17:41Z
+Hạn tham chiếu: 2026-12-20T21:17:41Z; tính lại khi thực sự nạp demo.
+Mã ca cho web: 0-2, 1-2, 2-2, 3-2, 4-2
+
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+MÔ TẢ CÔNG VIỆC
+- Chuẩn bị tài liệu, dụng cụ và danh sách cho lớp.
+- Hỗ trợ giáo viên hướng dẫn hoạt động học tập theo phân công.
+- Ghi nhận thông tin và phối hợp bàn giao với học vụ.
+
+YÊU CẦU
+- Có thể bắt đầu từ kinh nghiệm cơ bản; được hướng dẫn nhiệm vụ trong bản mẫu.
+- Kỹ năng phù hợp: Tiếng Anh giao tiếp, Sư phạm, Làm việc nhóm.
+- Giao tiếp rõ ràng, có trách nhiệm với lịch làm đã thống nhất.
+
+QUYỀN LỢI MINH HỌA
+- Hướng dẫn quy trình hỗ trợ lớp học hoặc học vụ trong bản mẫu.
+- Trao đổi rõ lịch lớp và nhiệm vụ trước khi nhận ca.
+- Mức trả công mẫu: 47.000–62.000đ/giờ; chưa được thương hiệu xác nhận.
+
+LỊCH LÀM MẪU
+- T2 tối; T3 tối; T4 tối; T5 tối; T6 tối.
+- Trao đổi chọn các buổi phù hợp trong danh sách đề xuất; không yêu cầu rảnh toàn bộ các buổi.
+- Sáng 07:00–12:00; chiều 13:00–17:00; tối 17:00–22:00; khuya 22:00–06:00 hôm sau. Chỉ áp dụng các buổi có trong danh sách của tin.
+
+ĐỊA ĐIỂM VÀ LIÊN HỆ
+- Khu vực minh họa: Thanh Khê, Đà Nẵng; không phải địa chỉ cơ sở đã xác minh.
+- Đây là tin demo, không tiếp nhận hồ sơ thực tế qua email minh họa.
+
+
+[DEMO] Tư vấn khóa học bán thời gian
+----------------------------------------------------------------
+Mã tin: wm-demo-vus-job-02
+Hình thức: Bán thời gian
+Khu vực mẫu: Thanh Khê, Đà Nẵng
+Số người mẫu: 2
+Lương mẫu: 34.000–46.000đ/giờ
+Lịch: T7 sáng, chiều; CN sáng, chiều
+Trao đổi chọn các buổi phù hợp trong danh sách đề xuất; không yêu cầu rảnh toàn bộ các buổi.
+Kỹ năng: Giao tiếp khách hàng, Bán hàng, Excel
+Kỹ năng bắt buộc: Không đặt kỹ năng bắt buộc
+Ngày đăng tham chiếu: 2026-11-18T21:17:41Z
+Hạn tham chiếu: 2026-12-18T21:17:41Z; tính lại khi thực sự nạp demo.
+Mã ca cho web: 5-0, 5-1, 6-0, 6-1
+
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+MÔ TẢ CÔNG VIỆC
+- Tiếp nhận nhu cầu tìm hiểu chương trình học.
+- Giới thiệu thông tin trong tài liệu mô phỏng được cung cấp.
+- Ghi lại lịch hẹn và chuyển trường hợp cần tư vấn chuyên sâu.
+
+YÊU CẦU
+- Có thể bắt đầu từ kinh nghiệm cơ bản; được hướng dẫn nhiệm vụ trong bản mẫu.
+- Kỹ năng phù hợp: Giao tiếp khách hàng, Bán hàng, Excel.
+- Giao tiếp rõ ràng, có trách nhiệm với lịch làm đã thống nhất.
+
+QUYỀN LỢI MINH HỌA
+- Hướng dẫn quy trình hỗ trợ lớp học hoặc học vụ trong bản mẫu.
+- Trao đổi rõ lịch lớp và nhiệm vụ trước khi nhận ca.
+- Mức trả công mẫu: 34.000–46.000đ/giờ; chưa được thương hiệu xác nhận.
+
+LỊCH LÀM MẪU
+- T7 sáng, chiều; CN sáng, chiều.
+- Trao đổi chọn các buổi phù hợp trong danh sách đề xuất; không yêu cầu rảnh toàn bộ các buổi.
+- Sáng 07:00–12:00; chiều 13:00–17:00; tối 17:00–22:00; khuya 22:00–06:00 hôm sau. Chỉ áp dụng các buổi có trong danh sách của tin.
+
+ĐỊA ĐIỂM VÀ LIÊN HỆ
+- Khu vực minh họa: Thanh Khê, Đà Nẵng; không phải địa chỉ cơ sở đã xác minh.
+- Đây là tin demo, không tiếp nhận hồ sơ thực tế qua email minh họa.
+
+
+[DEMO] Nhân viên nhập liệu học vụ
+----------------------------------------------------------------
+Mã tin: wm-demo-vus-job-03
+Hình thức: Linh hoạt
+Khu vực mẫu: Thanh Khê, Đà Nẵng
+Số người mẫu: 3
+Lương mẫu: 32.000–42.000đ/giờ
+Lịch: T2 chiều; T3 chiều; T4 chiều; T5 chiều; T6 chiều
+Trao đổi chọn các buổi phù hợp trong danh sách đề xuất; không yêu cầu rảnh toàn bộ các buổi.
+Kỹ năng: Excel, Nhập liệu, Giao tiếp khách hàng
+Kỹ năng bắt buộc: Excel
+Ngày đăng tham chiếu: 2026-11-16T21:17:41Z
+Hạn tham chiếu: 2026-12-16T21:17:41Z; tính lại khi thực sự nạp demo.
+Mã ca cho web: 0-1, 1-1, 2-1, 3-1, 4-1
+
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+MÔ TẢ CÔNG VIỆC
+- Đối chiếu danh sách lớp và các biểu mẫu học vụ.
+- Nhập thông tin vào bảng tính mẫu theo hướng dẫn.
+- Kiểm tra dữ liệu và báo lại các trường chưa đầy đủ.
+
+YÊU CẦU
+- Có thể bắt đầu từ kinh nghiệm cơ bản; được hướng dẫn nhiệm vụ trong bản mẫu.
+- Kỹ năng phù hợp: Excel, Nhập liệu, Giao tiếp khách hàng.
+- Giao tiếp rõ ràng, có trách nhiệm với lịch làm đã thống nhất.
+
+QUYỀN LỢI MINH HỌA
+- Hướng dẫn quy trình hỗ trợ lớp học hoặc học vụ trong bản mẫu.
+- Trao đổi rõ lịch lớp và nhiệm vụ trước khi nhận ca.
+- Mức trả công mẫu: 32.000–42.000đ/giờ; chưa được thương hiệu xác nhận.
+
+LỊCH LÀM MẪU
+- T2 chiều; T3 chiều; T4 chiều; T5 chiều; T6 chiều.
+- Trao đổi chọn các buổi phù hợp trong danh sách đề xuất; không yêu cầu rảnh toàn bộ các buổi.
+- Sáng 07:00–12:00; chiều 13:00–17:00; tối 17:00–22:00; khuya 22:00–06:00 hôm sau. Chỉ áp dụng các buổi có trong danh sách của tin.
+
+ĐỊA ĐIỂM VÀ LIÊN HỆ
+- Khu vực minh họa: Thanh Khê, Đà Nẵng; không phải địa chỉ cơ sở đã xác minh.
+- Đây là tin demo, không tiếp nhận hồ sơ thực tế qua email minh họa.
+

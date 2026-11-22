@@ -1,0 +1,65 @@
+WORKMATE — HỒ SƠ MINH HỌA CHO BỘ 20 LOGO
+========================================================================
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+Logo AI tái tạo theo README.txt gốc; chưa được xác minh là tài sản nhận diện chính thức.
+
+ĐÃ CHUẨN BỊ
+- 20 hồ sơ doanh nghiệp, 8 nhóm ngành.
+- 60 tin tuyển dụng: 3 tin mỗi hồ sơ.
+- Có đủ 7 loại việc và 7 khu vực đang dùng trong bộ lọc Workmate.
+- 40 file TXT dễ đọc, kèm 2 file JSON để chuẩn bị nạp dữ liệu.
+
+MỞ FILE NÀO TRƯỚC?
+- ho-so/<tên>/thong-tin.txt: giới thiệu, môi trường, văn hóa, phúc lợi, liên hệ minh họa.
+- ho-so/<tên>/viec-lam.txt: ba vị trí mẫu, nhiệm vụ, lương, lịch, kỹ năng và yêu cầu.
+- doanh-nghiep.json: 20 hồ sơ có id ổn định và liên kết đúng logo.
+- viec-lam.json: 60 tin liên kết bằng companyId.
+- manifest.json: số lượng, kiểm kê logo, quy ước các trường và hướng dẫn nối dữ liệu.
+- kiem-tra-du-lieu.mjs: chỉ đọc, kiểm tra tính đầy đủ; chạy bằng node, không cần cài package.
+
+DANH SÁCH HỒ SƠ
+- Highlands Coffee: ho-so/highlands/ — Cà phê / Trà sữa — 3 tin.
+- Phúc Long: ho-so/phuc-long/ — Cà phê / Trà sữa — 3 tin.
+- Cộng Cà Phê: ho-so/cong/ — Cà phê / Trà sữa — 3 tin.
+- Gong Cha: ho-so/gong-cha/ — Cà phê / Trà sữa — 3 tin.
+- Pizza 4P’s: ho-so/pizza-4ps/ — Nhà hàng / Quán ăn — 3 tin.
+- KFC: ho-so/kfc/ — Nhà hàng / Quán ăn — 3 tin.
+- Lotteria: ho-so/lotteria/ — Nhà hàng / Quán ăn — 3 tin.
+- WinMart+: ho-so/winmart-plus/ — Bán lẻ / Siêu thị — 3 tin.
+- Co.opmart Đà Nẵng: ho-so/coopmart/ — Bán lẻ / Siêu thị — 3 tin.
+- LOTTE Mart Đà Nẵng: ho-so/lotte-mart/ — Bán lẻ / Siêu thị — 3 tin.
+- Furama Resort Danang: ho-so/furama/ — Khách sạn / Khu nghỉ dưỡng — 3 tin.
+- Hyatt Regency Danang Resort and Spa: ho-so/hyatt-danang/ — Khách sạn / Khu nghỉ dưỡng — 3 tin.
+- Danang Events: ho-so/danang-events/ — Tổ chức sự kiện — 3 tin.
+- SEA Event: ho-so/sea-event/ — Tổ chức sự kiện — 3 tin.
+- Giao Hàng Nhanh — GHN: ho-so/ghn/ — Kho hàng / Giao nhận — 3 tin.
+- Viettel Post: ho-so/viettel-post/ — Kho hàng / Giao nhận — 3 tin.
+- Apollo English: ho-so/apollo/ — Giáo dục / Trung tâm ngoại ngữ — 3 tin.
+- Anh văn Hội Việt Mỹ — VUS: ho-so/vus/ — Giáo dục / Trung tâm ngoại ngữ — 3 tin.
+- SEODO: ho-so/seodo/ — Marketing / Truyền thông — 3 tin.
+- DanaSEO: ho-so/danaseo/ — Marketing / Truyền thông — 3 tin.
+
+QUY ƯỚC DỮ LIỆU
+- Tên hồ sơ có (Demo); tiêu đề tin có [DEMO]; mỗi bản ghi có isDemo=true.
+- Mức lương, ca làm, quy mô, phúc lợi và khu vực là nội dung tự soạn, không phải thông tin đã xác nhận của thương hiệu.
+- Email @workmate-demo.invalid chỉ để minh họa; không dùng gửi thư. Số điện thoại và mã số doanh nghiệp chưa cung cấp.
+- Không gắn huy hiệu xác minh/thuế hợp lệ, số sao, lượt xem hoặc nhận xét giả.
+- Giữ nguyên 20 logo và README.txt gốc; logo được mô tả là AI tái tạo, chưa phải bản nhận diện chính thức đã kiểm chứng.
+- Ảnh bìa/ảnh tin dùng mã minh họa sẵn trong project. Chưa có bộ ảnh không gian thật của các doanh nghiệp.
+- Hai hồ sơ khách sạn tạm dùng industry=Khác để khớp bộ chọn ngành hiện có; tên nhóm chi tiết nằm trong categoryLabel.
+- salaryMinK/salaryMaxK tính bằng nghìn đồng/giờ; tất cả nhãn lương cũng theo giờ.
+- Mã ca: ngày 0=T2 đến 6=CN; buổi 0=Sáng, 1=Chiều, 2=Tối, 3=Khuya. Khuya thuộc ngày bắt đầu ca.
+
+KHI NẠP VÀO WEB
+- Bộ này mới là dữ liệu trong folder, chưa đổi dữ liệu đang chạy và chưa tạo tài khoản.
+- Cần ánh xạ logoFile sang URL ảnh thực tế; logoUrl=null hiện tại là có chủ đích.
+- Chỉ thêm các id wm-demo-*; giữ nguyên tài khoản, lịch, hồ sơ và tin đang có. Không chạy seed xóa database.
+- Nạp công ty trước, tin sau; giữ liên kết companyId. Chọn các trường phù hợp schema/DTO, bỏ metadata khỏi request API.
+- Tính lại ngày đăng và hạn từ ngày nạp; tin mẫu có thời hạn 30 ngày. Backend tính lại khoảng cách theo vị trí người xem.
+- Giữ nhãn demo trên web; không phát email/thông báo tuyển dụng thật khi nạp bộ minh họa.
+- Tài khoản nhà tuyển dụng, ảnh doanh nghiệp thật, 30 người tìm việc và lịch sử/đánh giá chưa nằm trong phạm vi bộ logo này.
+
+KIỂM TRA
+Từ folder frontend: node workmate_20_logos/kiem-tra-du-lieu.mjs
+
+Ngày soạn (UTC): 2026-11-22T01:17:41Z

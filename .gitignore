@@ -19,3 +19,6 @@ dist
 
 # Python cache của skill ui-ux-pro-max
 __pycache__/
+
+# Hồ sơ người tìm việc có dữ liệu cá nhân (họ tên, ngày sinh, SĐT, ảnh) — chỉ để trên máy, KHÔNG đưa lên GitHub công khai
+/nguoi-tim-viec/

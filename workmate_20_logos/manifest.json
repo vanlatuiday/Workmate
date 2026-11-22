@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "datasetId": "workmate-20-company-demo",
+  "generatedAt": "2026-11-22T01:17:41Z",
+  "purpose": "Chuẩn bị hồ sơ và tin tuyển dụng minh họa; chưa nạp vào web hoặc database.",
+  "isDemo": true,
+  "notice": "Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.",
+  "logoNotice": "Logo AI tái tạo theo README.txt gốc; chưa được xác minh là tài sản nhận diện chính thức.",
+  "companiesFile": "doanh-nghiep.json",
+  "jobsFile": "viec-lam.json",
+  "humanReadableDirectory": "ho-so/",
+  "counts": {
+    "companies": 20,
+    "jobs": 60,
+    "logos": 20,
+    "companyTextFiles": 20,
+    "jobTextFiles": 20
+  },
+  "categories": {
+    "ca-phe": 4,
+    "nha-hang": 3,
+    "ban-le": 3,
+    "khach-san": 2,
+    "su-kien": 2,
+    "giao-nhan": 2,
+    "giao-duc": 2,
+    "marketing": 2
+  },
+  "jobTypes": {
+    "part-time": 21,
+    "shift": 15,
+    "event": 5,
+    "freelance": 4,
+    "full-time": 5,
+    "seasonal": 5,
+    "flexible": 5
+  },
+  "districts": {
+    "Thanh Khê": 15,
+    "Hải Châu": 27,
+    "Liên Chiểu": 6,
+    "Ngũ Hành Sơn": 6,
+    "Sơn Trà": 3,
+    "Cẩm Lệ": 2,
+    "Hòa Vang": 1
+  },
+  "logoFiles": [
+    {
+      "file": "highlands__ca-phe.png",
+      "bytes": 83650,
+      "width": 512,
+      "height": 512,
+      "sha256": "77896b27b7413762a0c1e4e962a09de6cd93b1b2c028eb20e809506275fcfd13",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "phuc-long__ca-phe.png",
+      "bytes": 75600,
+      "width": 512,
+      "height": 512,
+      "sha256": "456b954f707b98707e70e8c270c28b1b5b8d3c3a3cfe7630b200a86b26d8c7f0",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "cong__ca-phe.png",
+      "bytes": 37697,
+      "width": 512,
+      "height": 512,
+      "sha256": "979e56db75c296d2da1ad4c49f3bb7098a068d38047230dd03253e9c92666269",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "gong-cha__ca-phe.png",
+      "bytes": 40880,
+      "width": 512,
+      "height": 512,
+      "sha256": "a21a6dfa33c5b2cc13ffd3c87ee904850fa1912c60dc3816941e63a01af81ca3",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "pizza-4ps__nha-hang.png",
+      "bytes": 32582,
+      "width": 512,
+      "height": 512,
+      "sha256": "afa5b8ab91c0acfdd570807f025075c39574a5198aea0e62230cec81bd55403d",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "kfc__nha-hang.png",
+      "bytes": 58368,
+      "width": 512,
+      "height": 512,
+      "sha256": "d7ed67bce48e4632d9653ff69906ccad86aa00bfcb5beee0b301a52b2b45695c",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "lotteria__nha-hang.png",
+      "bytes": 39253,
+      "width": 512,
+      "height": 512,
+      "sha256": "dc8cce31b13fb2ea153f64d4229a2fdd846b229a5848396be9c0123840adbe81",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "winmart-plus__ban-le.png",
+      "bytes": 20965,
+      "width": 512,
+      "height": 512,
+      "sha256": "92f38b1300830f01ff7e97beb771e8331259aaa9a54872852f5a6d34fb104cae",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "coopmart__ban-le.png",
+      "bytes": 35404,
+      "width": 512,
+      "height": 512,
+      "sha256": "2e90be1764b5be3500d2f1fb2739e74e252fda00a843b0a8f7d5f95c447017d3",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "lotte-mart__ban-le.png",
+      "bytes": 42412,
+      "width": 512,
+      "height": 512,
+      "sha256": "21e1aa3343f76adc85184f1cea204c8ae1fa99f0d4ae3f990a766d73961e2b4b",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "furama__khach-san.png",
+      "bytes": 71250,
+      "width": 512,
+      "height": 512,
+      "sha256": "16d1c4d680a737c004465888d13d2dcb33753a73d33496e5ff4d974ab782a7cc",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "hyatt-danang__khach-san.png",
+      "bytes": 48964,
+      "width": 512,
+      "height": 512,
+      "sha256": "ad7ac8a9823509e9514da08c34f9bd5e5f845a049dda2c7a29f332f2f4cc70aa",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "danang-events__su-kien.png",
+      "bytes": 56965,
+      "width": 512,
+      "height": 512,
+      "sha256": "df0b52394c9bee46026532f595abdfa8f37fa9c964f33b5c7b47e1a764766928",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "sea-event__su-kien.png",
+      "bytes": 37776,
+      "width": 512,
+      "height": 512,
+      "sha256": "9b534042a994dccfa7b061f0e1aba75fbd7a961fbf0d2d4b49d179a9156a298e",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "ghn__giao-nhan.png",
+      "bytes": 49011,
+      "width": 512,
+      "height": 512,
+      "sha256": "4e141bf523d8f1255e6f500710ebb5efd2492578b10ea11d19cbdcd495a1207c",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "viettel-post__giao-nhan.png",
+      "bytes": 28798,
+      "width": 512,
+      "height": 512,
+      "sha256": "0c0f8768a46129051af99d36a5142b9e68db9d786d68920bb13fe861bed4d197",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "apollo__giao-duc.png",
+      "bytes": 51840,
+      "width": 512,
+      "height": 512,
+      "sha256": "7579b31764ad6b533f03beb4893af9380b3de132264a7d4f48c7bdf2e8feb6b3",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "vus__giao-duc.png",
+      "bytes": 49094,
+      "width": 512,
+      "height": 512,
+      "sha256": "9765289de3d861a42f070a94f5eb639cea5c78368da187e993ea7cbf92e541e8",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "seodo__marketing.png",
+      "bytes": 25875,
+      "width": 512,
+      "height": 512,
+      "sha256": "2fb6e17800953fad787d06e672c204ea8b8b82d50c08e250a4e0d82011b3a87c",
+      "provenance": "ai-recreated-unverified"
+    },
+    {
+      "file": "danaseo__marketing.png",
+      "bytes": 31900,
+      "width": 512,
+      "height": 512,
+      "sha256": "9bce952aa519a2d579a52628757d71de9cbda797d1a0b18ba6c6dc7d674b3046",
+      "provenance": "ai-recreated-unverified"
+    }
+  ],
+  "mappingNotes": {
+    "logoFile": "Đường dẫn tương đối từ folder này. Cần tải logo lên kho ảnh rồi gán URL vào logoUrl; null hiện tại là có chủ đích.",
+    "coverAndPhoto": "Mã Unsplash minh họa đang có trong project, không phải ảnh cơ sở thật. Chưa có file ảnh doanh nghiệp thật trong bộ này.",
+    "hotelIndustry": "Nhóm khach-san dùng industry=Khác vì danh sách ngành hiện tại của frontend chưa có khách sạn; categoryLabel giữ tên ngành chi tiết.",
+    "salary": "salaryMinK và salaryMaxK là nghìn đồng/giờ; salaryLabel là VND/giờ. Không dùng lương tháng làm đầu vào khớp lương giờ.",
+    "slots": "ngày-buổi: ngày 0=T2…6=CN; buổi 0=Sáng,1=Chiều,2=Tối,3=Khuya. Khuya thuộc ngày bắt đầu ca.",
+    "dates": "Ngày đăng/hết hạn trong JSON là mốc tham chiếu lúc soạn. Khi nạp, tính lại từ ngày nạp và durationDays, giữ thứ tự mới/cũ.",
+    "distanceKm": "Giá trị mẫu để xem trước; backend tính lại theo vị trí người xem, không dùng như khoảng cách xác minh.",
+    "contact": "Email minh họa không nhận thư; phone rỗng và taxCode null là chủ đích, không tạo số liên hệ hoặc xác minh giả.",
+    "extraFields": "Chọn trường phù hợp DTO/Catalog khi nạp; không gửi nguyên bản ghi kèm metadata/id/status vào API tạo tin."
+  },
+  "importPolicy": {
+    "mode": "add-demo-records-only",
+    "resetDatabase": false,
+    "overwriteExistingRealData": false,
+    "createUsers": false,
+    "sendNotifications": false,
+    "markDemoVisibly": true
+  },
+  "notIncluded": [
+    "Tài khoản hoặc mật khẩu nhà tuyển dụng",
+    "Mã số doanh nghiệp / xác minh thật",
+    "Số điện thoại hoặc email liên hệ thật",
+    "Ảnh bìa / ảnh không gian thật",
+    "Hồ sơ 30 người tìm việc",
+    "Đánh giá sao, lịch sử nhận việc hoặc tin nhắn giả"
+  ]
+}

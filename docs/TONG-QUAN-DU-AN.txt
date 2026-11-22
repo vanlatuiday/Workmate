@@ -1,0 +1,322 @@
+================================================================
+WORKMATE — TỔNG QUAN DỰ ÁN + NHẬT KÝ CA LÀM VIỆC (cập nhật 22/11/2026)
+Dùng file này để mở đầu phiên làm việc sau: dán vào hoặc bảo Claude đọc.
+Bản gốc: /Users/yuu/workmate/TONG-QUAN-DU-AN.txt
+Bản trên GitHub: nhánh `frontend`, docs/TONG-QUAN-DU-AN.txt
+================================================================
+
+MỤC LỤC
+  1. Dự án là gì
+  2. Cấu trúc thư mục, Git, cách chạy
+  3. Luồng sử dụng (web flow) theo từng vai trò
+  4. Danh sách trang và chức năng
+  5. Hệ thống phía máy chủ (backend)
+  6. Quy ước thiết kế / code
+  7. NHẬT KÝ CA LÀM VIỆC 22/11/2026
+  8. Việc còn mở / cần chủ dự án quyết
+
+================================================================
+1. DỰ ÁN LÀ GÌ
+================================================================
+Workmate: nền tảng việc làm linh hoạt (bán thời gian, theo ca) ở Đà Nẵng.
+Ghép người tìm việc và nhà tuyển dụng theo 5 tiêu chí:
+  kỹ năng · lịch rảnh (T2–CN × Sáng/Chiều/Tối/Khuya) · lương ·
+  khoảng cách · loại việc. Điểm phù hợp 0–100% tính ở máy chủ.
+Chỉ mở kênh nhắn tin khi CẢ HAI BÊN cùng quan tâm (kết nối hai chiều).
+Thông tin liên hệ / CV đầy đủ chỉ hiện sau khi kết nối.
+
+Bốn kiểu người dùng:
+  - Khách (chưa đăng nhập): xem trang công khai, phải đăng nhập để xem
+    chi tiết công ty / tin.
+  - Người tìm việc (jobseeker) — khu làm việc /tim-viec
+  - Nhà tuyển dụng (recruiter)  — khu làm việc /tuyen-dung
+  - Quản trị (admin)            — khu làm việc /admin
+
+Tài khoản demo (mật khẩu 123456):
+  admin1 = người tìm việc · admin2 = nhà tuyển dụng (công ty "Nhóm Dịch Vụ
+  Sông Hàn", id song-han) · admin3 = quản trị.
+Ở bản chạy thử (không phải production) trang Đăng nhập có chip đăng nhập nhanh.
+
+Chủ dự án không chuyên kỹ thuật, nói tiếng Việt, muốn được HỎI TRƯỚC khi
+thay đổi lớn ("cứ hỏi t").
+
+================================================================
+2. CẤU TRÚC THƯ MỤC, GIT, CÁCH CHẠY
+================================================================
+/Users/yuu/workmate/
+  frontend/   React — git riêng, nhánh `frontend`
+  backend/    NestJS — git riêng, nhánh `backend`
+  TONG-QUAN-DU-AN.txt (file này)
+GitHub (CÔNG KHAI): https://github.com/vanlatuiday/Workmate.git
+  nhánh `frontend`, nhánh `backend`, `main` chỉ có README.
+  Thay đổi phần nào commit vào nhánh phần đó.
+KHÔNG đưa lên git (chỉ để trên máy, có trong .gitignore):
+  frontend/nguoi-tim-viec/ (20 hồ sơ có họ tên, ngày sinh, SĐT, ảnh)
+  backend/backups/ (bản sao lưu database), .env
+
+Chạy thử:
+  1) Mở Docker Desktop
+  2) cd backend && docker compose up -d     (PostgreSQL + SeaweedFS lưu file)
+     npx prisma migrate deploy                (nếu có migration mới)
+     npx nest start --watch                   (API ở http://localhost:8000/api)
+  3) cd frontend && npx vite --port 5173      (web ở http://localhost:5173)
+Kiểm tra code:
+  frontend: npx tsc --noEmit -p . · npm run lint · npm run build ·
+            node --test tests/  (42 test)
+  backend:  npx tsc --noEmit -p tsconfig.json · npm run lint · npm test (53 test)
+Lưu ý: chế độ watch của backend đôi khi không tự khởi động lại sau khi sửa
+schema/route → tắt và bật lại. Đăng nhập sai nhiều lần bị chặn (429) →
+khởi động lại backend để xóa bộ đếm.
+
+Công nghệ:
+  Frontend: React 18 + TypeScript + Vite 6 + Tailwind 3, React Router 7
+    (createBrowserRouter — cần cho hộp "Rời khu làm việc?"), Zustand, axios,
+    GSAP + ScrollTrigger, Lenis (cuộn mượt), motion (LazyMotion, chỉ `m.`),
+    react-hot-toast (thông báo góc trên phải).
+  Backend: NestJS 12, Prisma + PostgreSQL, JWT, socket.io (thời gian thực),
+    nodemailer (Gmail), S3/SeaweedFS (ảnh, CV), @nestjs/throttler.
+
+================================================================
+3. LUỒNG SỬ DỤNG (WEB FLOW)
+================================================================
+3.1 Khách
+  Trang chủ (/) → màn mở đầu chữ "Workmate" → hero "Hôm nay bạn muốn làm
+  việc gì?" + ô tìm kiếm → bảng "Ca đang cần người" theo nhóm nghề →
+  các mục giới thiệu → cuối trang chọn vai trò.
+  → /viec-lam: lưới ô ngành nghề → chọn ngành → bộ sưu tập theo ngành.
+  → Bấm xem công ty / tin → bị yêu cầu đăng nhập (xong quay lại đúng trang).
+  → /dang-ky: chọn vai trò → nhập email + mật khẩu → nhận MÃ qua email →
+    xác minh → tạo tài khoản.
+
+3.2 Người tìm việc
+  Đăng ký → /ho-so (điền hồ sơ: thông tin, kinh nghiệm, kỹ năng, lịch rảnh,
+  mong muốn; tờ CV xem trước bên phải, tự lưu). (/tim-viec/bat-dau cũ → /ho-so)
+  → Tìm việc: /viec-lam (theo ngành), /match (Kết nối: việc xếp theo % phù hợp),
+    bảng ca ở trang chủ, Việc phù hợp trong dashboard.
+  → Bấm "Ứng tuyển" (= quan tâm) → thông báo góc trên phải.
+  → Nhà tuyển dụng cũng quan tâm → KẾT NỐI → mở tin nhắn, thấy liên hệ.
+  → Nhận lời mời phỏng vấn → chọn khung giờ (/lich-phong-van).
+  → Nhận đề nghị nhận việc → đồng ý / từ chối.
+  → Viết đánh giá 1–5 sao cho công ty (trên trang công ty) — được viết ngay
+    khi đã kết nối.
+  → Lỡ tay: "Bỏ quan tâm" (hỏi lại + Hoàn tác 6 giây).
+
+3.3 Nhà tuyển dụng
+  Đăng ký → /tuyen-dung/bat-dau (form bắt đầu: hồ sơ công ty, mã số thuế,
+  logo…) → đăng tin đầu tiên (/dang-tin?bat-dau=1).
+  → /dang-tin: chọn Nhóm công việc (bắt buộc), tên, hình thức, khu vực,
+    số lượng, lương, ca làm, kỹ năng (đánh dấu bắt buộc), bán kính, thời hạn,
+    mô tả, ảnh → hệ thống tự kiểm duyệt (cụm từ cấm, lương bất thường…) →
+    hiện ngay hoặc chờ admin duyệt.
+  → Tìm ứng viên: /match (Kết nối theo từng vị trí), Tìm ứng viên,
+    Ứng viên đã lưu; mở CV (rê chuột → kính lúp, bấm → phóng to đọc được).
+  → Quan tâm ứng viên / đồng ý đơn ứng tuyển → kết nối → nhắn tin →
+    mời phỏng vấn → gửi đề nghị nhận việc → đánh giá người tìm việc
+    (trên /ung-vien/:id).
+  → Quản lý tin: /tuyen-dung/tin-dang (tạm dừng / đóng / gia hạn / sửa).
+  → Xác minh doanh nghiệp: gửi giấy tờ → admin duyệt (huy hiệu đã xác minh).
+
+3.4 Quản trị
+  /admin: tổng quan số liệu → kiểm duyệt tin, xác minh doanh nghiệp, xử lý
+  báo cáo, khóa/mở người dùng & công ty, cấu hình hệ thống (cụm từ cấm,
+  trọng số ghép, ngưỡng…), thống kê.
+
+3.5 Dashboard và chuyển trang
+  Ba khu làm việc (/tim-viec, /tuyen-dung, /admin). Bấm bất kỳ liên kết / nút
+  nào dẫn RA NGOÀI khu (kể cả Tin nhắn, Lịch phỏng vấn, Đăng tin, Kết nối,
+  Hồ sơ, nút Back) → hộp "Rời khu làm việc?" (nơi đang đứng → nơi sẽ đến,
+  mô tả trang đích, cách quay lại) với Ở lại / Tiếp tục. Đăng xuất không hỏi.
+  Màu hộp: kính xanh (tìm việc, tuyển dụng) / ngà (quản trị).
+
+================================================================
+4. DANH SÁCH TRANG VÀ CHỨC NĂNG
+================================================================
+TRANG CÔNG KHAI
+  /                 Trang chủ: intro hạt chữ, hero kính, bảng ca theo nhóm nghề
+                    (lọc buổi/ngày; người tìm việc bấm Ứng tuyển, NTD xem ứng
+                    viên), mục tuyên bố, các khối tính năng, việc mới, phần cuối.
+  /viec-lam         Việc làm (làm lại 22/11):
+                    - Vào trang: tiêu đề giữa màn hình + lưới ô ngành nghề
+                      (ảnh tách nền, biểu tượng, số việc; ngành rỗng ẩn).
+                    - Chọn ngành → bộ sưu tập 3 cột, MỖI NẤC CUỘN = 1 NGÀNH:
+                      trái = danh sách ngành; giữa = ảnh tin mới nhất (bấm
+                      mở tin); phải = thẻ "N công ty · M tin", tin gom theo
+                      công ty (logo 48px, tên công ty nổi bật, lương, ca,
+                      quận; % phù hợp cho người tìm việc).
+                    - NTD: chỉ tin của mình, dòng ghi trạng thái + số ứng viên
+                      phù hợp, link Quản lý tin.
+                    - Thanh tìm kiếm (từ khóa, quận, loại việc, lương, gần tôi);
+                      URL ?nhom=<ngành>|tat-ca&q=&quan=&loai=&luong=&gan=1;
+                      "← Chọn ngành khác"; điện thoại: khối ảnh + danh sách.
+  /cong-ty/:id      Trang công ty (cần đăng nhập): hồ sơ, tin đang tuyển,
+                    ĐÁNH GIÁ: sao trung bình + "Xem nhận xét (N)"; người tìm
+                    việc đã kết nối viết / sửa / xóa đánh giá.
+  /vi-tri/:id       Chi tiết một vị trí (NTD).
+  ?tin=<id>         Popup chi tiết tin (mở từ mọi nơi, đóng quay lại chỗ cũ).
+  /match            Kết nối: người tìm việc ↔ việc, NTD ↔ ứng viên theo vị trí;
+                    tab Phù hợp / Đã lưu / Đã quan tâm / Đã kết nối; chế độ
+                    Danh sách / Bộ sưu tập; lọc theo mức phù hợp; CV ứng viên
+                    trong khung nổi có kính lúp phóng to.
+  /tin-nhan         Tin nhắn (cũng có khung chat nổi): danh sách hội thoại,
+                    đã xem, đang gõ, gợi ý trả lời nhanh, mời phỏng vấn /
+                    đề nghị nhận việc ngay trong chat. Cặp đã bỏ quan tâm:
+                    nhãn "Đã bỏ quan tâm", chỉ đọc lại tin cũ.
+  /lich-phong-van   Lịch phỏng vấn: lời mời, chọn giờ, xác nhận, hủy.
+  /ca-nhan          Trang cá nhân (người tìm việc: hồ sơ công khai, đánh giá
+                    nhận được; NTD: hồ sơ công ty + đánh giá về công ty).
+  /ho-so            Trình sửa hồ sơ người tìm việc + CV xem trước, tải PDF.
+  /dang-tin         Đăng / sửa tin (mục 3.3).
+  /ung-vien/:id     Hồ sơ ứng viên cho NTD: CV, quan tâm, đánh giá ứng viên.
+  /cam-nang, /cam-nang/:slug  Cẩm nang (bài viết: chữ trái, ảnh phải dính).
+  /gioi-thieu, /nha-tuyen-dung, /ho-tro, /lien-he, /dieu-khoan, /bao-mat,
+  /xem-thu, trang 404.
+  /dang-nhap, /dang-ky, /quen-mat-khau (mã qua email).
+
+KHU NGƯỜI TÌM VIỆC (/tim-viec, nền kính xanh)
+  Tổng quan · Việc phù hợp · Đã ứng tuyển (tiến độ: chờ → đã xem → đang
+  cân nhắc) · Việc đã lưu · Kết nối · Lịch phỏng vấn · Hồ sơ của tôi ·
+  CV (tải lên tối đa vài file PDF/ảnh, xem trước) · Thống kê (hành trình
+  ứng tuyển, tỉ lệ, 8 tuần, đánh giá) · Cài đặt (riêng tư, thông báo, đổi
+  mật khẩu, xóa tài khoản).
+
+KHU NHÀ TUYỂN DỤNG (/tuyen-dung, nền kính xanh)
+  Tổng quan · Đăng tin · Tin tuyển dụng · Ứng viên phù hợp · Tìm ứng viên ·
+  Ứng viên đã lưu · Kết nối · Lịch phỏng vấn · Hồ sơ công ty (logo, ảnh bìa,
+  năm thành lập, địa chỉ, giá trị, chính sách, văn hóa, liên hệ, mã số thuế)
+  · Cài đặt.
+
+KHU QUẢN TRỊ (/admin, nền ngà)
+  Tổng quan · Người dùng · Nhà tuyển dụng · Tin tuyển dụng · Ứng viên ·
+  Kiểm duyệt · Xác minh · Báo cáo · Thống kê · Cấu hình.
+
+CHỨC NĂNG XUYÊN SUỐT
+  - Quan tâm hai chiều → kết nối; thông báo góc trên phải khi quan tâm.
+  - Bỏ quan tâm sau khi đã kết nối: hỏi lại → "Đã bỏ quan tâm … | Hoàn tác"
+    (6 giây; hết 6 giây mới gửi máy chủ). Giữ lịch sử tin nhắn (khóa), hủy
+    lịch phỏng vấn sắp tới + đề nghị chưa trả lời, KHÔNG báo bên kia.
+    Đã nhận việc thì không bỏ được.
+  - Đánh giá hai chiều: 1–5 sao bắt buộc, nhận xét ≤300 ký tự tùy chọn (lọc
+    cụm từ cấm), mỗi người tìm việc 1 đánh giá / công ty và ngược lại, sửa
+    "đã sửa", xóa được. Nhận xét về công ty: ai đăng nhập cũng xem; về người
+    tìm việc: NTD được xem hồ sơ + chính người đó.
+  - Nhóm nghề (13 nhóm: Pha chế, Phục vụ, Phụ bếp, Thu ngân, Bán hàng, Giao
+    hàng, Kho hàng, Lễ tân, Sự kiện, Hành chính, Marketing & nội dung, Trợ
+    giảng, Việc khác). Tin mới chọn nhóm khi đăng; tin cũ suy từ tên việc
+    (khớp nguyên từ).
+  - Thông báo (chuông) + email (Gmail) cho sự kiện quan trọng; tin hợp với
+    người tìm việc được báo tự động; tin hết hạn tự đóng.
+  - Báo cáo vi phạm (người dùng → admin).
+  - Thời gian thực bằng socket (tin nhắn, kết nối, thông báo).
+  - Hộp "Rời khu làm việc?" (mục 3.5).
+
+================================================================
+5. HỆ THỐNG PHÍA MÁY CHỦ (BACKEND)
+================================================================
+Khoảng 104 API trong các nhóm: auth, catalog (danh mục công khai công ty +
+tin), recruiter/jobs, recruiter/company (+ verification), seeker/profile,
+seeker/cvs, seeker/stats, seeker/saved-jobs, recruiter/candidates,
+recruiter/candidate-marks, connections (quan tâm / bỏ quan tâm / đã xem /
+đang cân nhắc), conversations (tin nhắn), interviews, hires, reviews,
+notifications, matching, reports, admin, config, settings, account, health.
+
+API mới / đổi trong ngày 22/11:
+  Job.category (nhóm nghề) — bắt buộc khi POST /recruiter/jobs.
+  PUT/DELETE/GET mine: /reviews/companies/:companyId (người tìm việc),
+                       /reviews/seekers/:seekerId (doanh nghiệp).
+  DELETE /connections/:jobId/:seekerId/interest — giờ bỏ được cả khi đã
+    kết nối; GET /conversations trả thêm cặp `locked`.
+Migration mới: 20261122110000_company_founded_year,
+  20261122130000_job_category, 20261122150000_review_edited_at.
+Dữ liệu hiện tại (máy cá nhân): 23 công ty (chỉ Hoa Sữa chưa có logo),
+  70 tin, 32 người tìm việc. Sao lưu trước khi xóa:
+  backend/backups/before-cleanup-2026-11-22.dump
+
+================================================================
+6. QUY ƯỚC THIẾT KẾ / CODE
+================================================================
+- Màu chỉ từ src/styles/tokens.json (wm-*, page-*), không hex trong component.
+- Chữ giao diện tiếng Việt; route tiếng Việt không dấu.
+- Chuyển động chỉ transform/opacity, luôn có nhánh giảm chuyển động;
+  dashboard không dùng hiệu ứng theo tiến trình cuộn.
+- Nút/chip dùng hằng trong src/utils/ui.ts; mỗi màn hình ≤ 1 BTN_ACCENT.
+- Hàm bỏ dấu tiếng Việt dùng chung: src/utils/text.ts (foldVi, initialsOf).
+- Danh sách nhóm nghề phải giống nhau ở frontend
+  (src/components/home/categories.ts) và backend (src/jobs/categories.ts).
+- Phân công: Opus lập kế hoạch + nghiệm thu, Sonnet (frontend-builder)
+  viết giao diện; kiểm tra bằng Chrome thật trước khi báo xong.
+  Khi mở phiên ở /Users/yuu/workmate (không phải frontend/) thì agent
+  frontend-builder / visual-qa không tự có → dùng agent thường + model sonnet
+  và bảo nó đọc frontend/.claude/agents/<tên>.md.
+- Chi tiết: frontend/DESIGN.md, frontend/prj-context.md, frontend/CLAUDE.md,
+  backend/docs/.
+
+================================================================
+7. NHẬT KÝ CA LÀM VIỆC 22/11/2026
+================================================================
+Đầu ca: commit gọn phần việc dang dở của phiên trước (hồ sơ công ty đầy đủ,
+popup chi tiết tin ?tin=, làm mới lịch phỏng vấn, chọn ảnh cho NTD, script
+nhập hồ sơ cục bộ) thành commit riêng.
+
+1) Trang Việc làm theo ngành nghề
+   - Backend: thêm Job.category + danh sách 13 nhóm; tin cũ suy từ tên việc,
+     sau đó sửa thành khớp NGUYÊN TỪ ("kho" không còn khớp "khóa học") và
+     bổ sung từ khóa → chỉ còn 1/76 tin ở "Việc khác".
+   - Frontend: lưới ô ngành ở đầu trang; bộ sưu tập mỗi nấc cuộn một ngành;
+     sửa lỗi bấm ngành bị nhảy sai (Lenis chưa đo lại chiều cao trang);
+     thẻ bên phải làm lại hai lần → bản cuối đặt CÔNG TY lên đầu (logo, tên,
+     gom nhiều vị trí, "N công ty · M tin"), thẻ cao theo nội dung.
+   - Trang đăng tin: ô "Nhóm công việc *" bắt buộc.
+2) Hộp "Rời khu làm việc?" trong dashboard
+   - Bản đầu chỉ chặn link và cho các mục hằng ngày đi thẳng → chủ dự án
+     muốn hỏi cho MỌI trang ngoài khu và hiện thêm thông tin, cùng tông màu.
+   - Bản cuối: chuyển router sang createBrowserRouter + useBlocker (chặn cả
+     nút bấm, chuyển hướng, nút Back); hiện nơi đi → nơi đến, mô tả, cách
+     quay lại; tông kính xanh / ngà.
+3) Cẩm nang: trang bài viết chữ trái, ảnh phải (dính khi cuộn).
+4) /tim-viec/bat-dau: bỏ, dẫn thẳng /ho-so.
+5) Dọn dữ liệu (đã sao lưu trước): xóa 6 công ty mẫu thiếu logo (giữ Hoa
+   Sữa), công ty "mạnh" + tài khoản, tài khoản "Trung lê", 10 người tìm việc
+   mẫu thiếu ảnh chưa có hoạt động; xóa tương ứng trong prisma/seed-data.json
+   (đã chạy thử seed trên database tạm, 0 cảnh báo).
+6) Đánh giá công ty ↔ người tìm việc (mục 4, chức năng xuyên suốt).
+7) Phóng to CV ở trang Kết nối phía NTD: kính lúp khi rê chuột, bấm phóng to
+   cỡ A4 thật đúng chỗ bấm, cuộn xem, "Thu nhỏ".
+8) Bỏ quan tâm sau khi kết nối + Hoàn tác; tin nhắn khóa. Thông báo khi quan
+   tâm đã có sẵn (góc trên phải) — kiểm tra lại, không cần sửa.
+9) Dọn code toàn dự án ("dọn an toàn"):
+   - Frontend: xóa 6 file không dùng (demoStore, Tilt, CurvedGallery,
+     curveGL, ProfilePreview, PositionChips), ~60 export/dữ liệu mẫu thừa,
+     bỏ `export` ở 86 chỗ, gộp 11 bản hàm bỏ dấu → utils/text.ts (−2.000 dòng).
+   - Backend: cài ESLint (cùng luật frontend), sửa 4 lỗi; backend gần như
+     không có code thừa.
+   - Kiểm tra 16 trang chính trên trình duyệt: không lỗi console.
+10) Kiểm tra hiệu năng: không file thừa nào làm chậm web (Vite chỉ đóng gói
+    file được dùng). Lần tải đầu ≈ 300 KB JS (nén) + 27 KB CSS.
+11) Cuối ca: commit + push tất cả; thư mục nguoi-tim-viec/ (dữ liệu cá nhân)
+    KHÔNG đưa lên GitHub công khai, thêm vào .gitignore.
+
+Commit chính trong ngày:
+  frontend: eab5adc, d4319e3, b6fb4af, f4928e1, 93d03c8, 2572439 (+ commit
+            cuối ca: tài liệu + thư mục tham khảo)
+  backend:  0cebc09, d905d90, 880528e, a5b2a55, cb13a33, 5dde89e, 158746c
+
+================================================================
+8. VIỆC CÒN MỞ / CẦN CHỦ DỰ ÁN QUYẾT
+================================================================
+- ĐƯA WEB LÊN CHẠY THẬT: còn chờ chọn (Oracle Cloud miễn phí cần thẻ Visa/
+  Mastercard để xác minh, hoặc Render + Supabase chỉ hợp demo).
+- Khách chưa đăng nhập vẫn phải đăng nhập mới xem trang công ty (và đánh
+  giá) — có mở cho khách xem không?
+- /viec-lam: lịch ca dài bị cắt "…" trong thẻ tin; chưa kiểm tra kỹ bản
+  điện thoại / máy tính bảng và giao diện NTD.
+- Bỏ quan tâm: chưa bấm thử trên trình duyệt ở các trang ngoài hồ sơ ứng
+  viên; chưa thử trường hợp đã nhận việc (nút ẩn) và đóng trang khi đang
+  đếm 6 giây.
+- Phóng to CV: mới thử trên máy tính, chưa thử điện thoại.
+- Tăng tốc (tùy chọn): đặt font trong dự án thay Google Fonts; nén/tạo bản
+  nhỏ cho ảnh 140–215 KB ở trang chủ; tách dữ liệu mẫu dự phòng khỏi gói đầu.
+- Dữ liệu mẫu dự phòng ở frontend (match/data.ts, jobs/data.ts) vẫn còn
+  các công ty đã xóa khỏi database (chỉ hiện khi máy chủ tắt).
+- Từ trước: email hỗ trợ thật, cam kết riêng tư, rà pháp lý Điều khoản/Bảo
+  mật, tính năng bản đồ, vài câu quảng cáo trang chủ chưa kiểm chứng.
+================================================================

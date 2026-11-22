@@ -1,0 +1,56 @@
+18. Anh văn Hội Việt Mỹ — VUS (Demo)
+================================================================
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+NHẬN DIỆN VÀ PHẠM VI DỮ LIỆU
+Thương hiệu tham chiếu: Anh văn Hội Việt Mỹ — VUS
+Mã hồ sơ demo: wm-demo-vus
+Logo tại folder gốc: vus__giao-duc.png
+Logo AI tái tạo theo README.txt gốc; chưa được xác minh là tài sản nhận diện chính thức.
+Website tham chiếu: https://vus.edu.vn/
+Website chỉ tham chiếu tên thương hiệu; nội dung hồ sơ bên dưới là minh họa.
+
+THÔNG TIN DOANH NGHIỆP
+Nhóm ngành: Giáo dục / Trung tâm ngoại ngữ
+Trường industry trong web: Giáo dục / Gia sư
+Khu vực mẫu: Thanh Khê, Đà Nẵng
+Địa chỉ: Khu vực minh họa tại Thanh Khê, Đà Nẵng — chưa cung cấp địa chỉ cơ sở thực tế.
+Quy mô mẫu: 11-50 người
+Quy mô đơn vị làm việc mô phỏng, không phải nhân sự thật của thương hiệu.
+Giới thiệu ngắn: [DEMO] Các vai trò mẫu trong lớp học, tư vấn chương trình và học vụ.
+
+GIỚI THIỆU ĐẦY ĐỦ
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+Hồ sơ minh họa mô phỏng nhu cầu hỗ trợ lớp ngoại ngữ và học vụ. Tin tuyển mẫu phân biệt công việc cần tiếng Anh với công việc thiên về trao đổi thông tin và bảng tính.
+
+Quy mô, địa điểm, môi trường và chính sách bên dưới được viết cho bản demo, chưa được doanh nghiệp xác nhận.
+
+MÔI TRƯỜNG LÀM VIỆC
+- Phối hợp giữa bộ phận lớp học, học vụ và đón tiếp học viên.
+- Các ca chiều tối và cuối tuần được bố trí theo lịch lớp mẫu.
+- Có người hướng dẫn nghiệp vụ và quy trình trao đổi thông tin.
+
+GIÁ TRỊ THAM KHẢO
+- Kiên nhẫn
+- Trách nhiệm
+- Tôn trọng người học
+
+CHÍNH SÁCH / PHÚC LỢI MINH HỌA
+- Hướng dẫn quy trình hỗ trợ lớp học hoặc học vụ trong bản mẫu.
+- Trao đổi rõ lịch lớp và nhiệm vụ trước khi nhận ca.
+- Bảo mật thông tin học viên trong các tình huống mô phỏng.
+
+VĂN HÓA
+Văn hóa minh họa khuyến khích giao tiếp rõ ràng, hỗ trợ người học và phối hợp tôn trọng giữa các bộ phận.
+
+LIÊN HỆ VÀ XÁC MINH
+Email minh họa: vus@workmate-demo.invalid (không nhận thư)
+Điện thoại: chưa cung cấp.
+Mã số doanh nghiệp: chưa cung cấp.
+Trạng thái xác minh: chưa xác minh; không có huy hiệu thuế hợp lệ.
+
+ẢNH VÀ NỘI DUNG TUYỂN DỤNG
+Chưa có ảnh bìa/không gian thật; ảnh trong JSON dùng mã minh họa có sẵn của project.
+Không có số sao, nhận xét hoặc lịch sử nhân sự thực tế trong bộ này.
+Ba vị trí mẫu xem trong viec-lam.txt cùng folder.

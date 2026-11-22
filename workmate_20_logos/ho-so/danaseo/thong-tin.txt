@@ -1,0 +1,56 @@
+20. DanaSEO (Demo)
+================================================================
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+NHẬN DIỆN VÀ PHẠM VI DỮ LIỆU
+Thương hiệu tham chiếu: DanaSEO
+Mã hồ sơ demo: wm-demo-danaseo
+Logo tại folder gốc: danaseo__marketing.png
+Logo AI tái tạo theo README.txt gốc; chưa được xác minh là tài sản nhận diện chính thức.
+Website tham chiếu: https://danaseo.net/
+Website chỉ tham chiếu tên thương hiệu; nội dung hồ sơ bên dưới là minh họa.
+
+THÔNG TIN DOANH NGHIỆP
+Nhóm ngành: Marketing / Truyền thông
+Trường industry trong web: Marketing / Truyền thông
+Khu vực mẫu: Thanh Khê, Đà Nẵng
+Địa chỉ: Khu vực minh họa tại Thanh Khê, Đà Nẵng — chưa cung cấp địa chỉ cơ sở thực tế.
+Quy mô mẫu: 11-50 người
+Quy mô đơn vị làm việc mô phỏng, không phải nhân sự thật của thương hiệu.
+Giới thiệu ngắn: [DEMO] Bộ đầu việc mẫu về nội dung website, thiết kế và chiến dịch.
+
+GIỚI THIỆU ĐẦY ĐỦ
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+Hồ sơ minh họa mô phỏng đội dự án có các vai trò viết nội dung, thiết kế hình ảnh và hỗ trợ vận hành chiến dịch. Yêu cầu đầu ra và lịch bàn giao được mô tả riêng theo từng vị trí mẫu.
+
+Quy mô, địa điểm, môi trường và chính sách bên dưới được viết cho bản demo, chưa được doanh nghiệp xác nhận.
+
+MÔI TRƯỜNG LÀM VIỆC
+- Làm việc theo đầu việc và lịch bàn giao của dự án minh họa.
+- Có trao đổi yêu cầu, phản hồi và chỉnh sửa theo từng vòng.
+- Phối hợp giữa nội dung, thiết kế và người phụ trách dự án.
+
+GIÁ TRỊ THAM KHẢO
+- Rõ yêu cầu
+- Tôn trọng bản quyền
+- Chủ động phản hồi
+
+CHÍNH SÁCH / PHÚC LỢI MINH HỌA
+- Có yêu cầu đầu ra và người phản hồi công việc trong bản mẫu.
+- Thống nhất lịch nhận việc và thời điểm bàn giao.
+- Sử dụng dữ liệu, hình ảnh và tài liệu được cung cấp cho bài mô phỏng.
+
+VĂN HÓA
+Môi trường minh họa hướng tới trao đổi cởi mở, quản lý đầu việc rõ ràng và cải thiện chất lượng qua phản hồi.
+
+LIÊN HỆ VÀ XÁC MINH
+Email minh họa: danaseo@workmate-demo.invalid (không nhận thư)
+Điện thoại: chưa cung cấp.
+Mã số doanh nghiệp: chưa cung cấp.
+Trạng thái xác minh: chưa xác minh; không có huy hiệu thuế hợp lệ.
+
+ẢNH VÀ NỘI DUNG TUYỂN DỤNG
+Chưa có ảnh bìa/không gian thật; ảnh trong JSON dùng mã minh họa có sẵn của project.
+Không có số sao, nhận xét hoặc lịch sử nhân sự thực tế trong bộ này.
+Ba vị trí mẫu xem trong viec-lam.txt cùng folder.

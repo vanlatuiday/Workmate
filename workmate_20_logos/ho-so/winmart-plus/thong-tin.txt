@@ -1,0 +1,56 @@
+08. WinMart+ (Demo)
+================================================================
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+NHẬN DIỆN VÀ PHẠM VI DỮ LIỆU
+Thương hiệu tham chiếu: WinMart+
+Mã hồ sơ demo: wm-demo-winmart-plus
+Logo tại folder gốc: winmart-plus__ban-le.png
+Logo AI tái tạo theo README.txt gốc; chưa được xác minh là tài sản nhận diện chính thức.
+Website tham chiếu: https://winmart.vn/
+Website chỉ tham chiếu tên thương hiệu; nội dung hồ sơ bên dưới là minh họa.
+
+THÔNG TIN DOANH NGHIỆP
+Nhóm ngành: Bán lẻ / Siêu thị
+Trường industry trong web: Bán hàng / Bán lẻ
+Khu vực mẫu: Liên Chiểu, Đà Nẵng
+Địa chỉ: Khu vực minh họa tại Liên Chiểu, Đà Nẵng — chưa cung cấp địa chỉ cơ sở thực tế.
+Quy mô mẫu: 11-50 người
+Quy mô đơn vị làm việc mô phỏng, không phải nhân sự thật của thương hiệu.
+Giới thiệu ngắn: [DEMO] Mô phỏng các ca bán hàng, thu ngân và sắp xếp hàng tại cửa hàng.
+
+GIỚI THIỆU ĐẦY ĐỦ
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+Hồ sơ mẫu mô phỏng một cửa hàng bán lẻ với nhóm bán hàng, thu ngân và sắp xếp hàng hóa. Có một vị trí ca khuya để thử đủ bốn buổi trong lịch rảnh của Workmate.
+
+Quy mô, địa điểm, môi trường và chính sách bên dưới được viết cho bản demo, chưa được doanh nghiệp xác nhận.
+
+MÔI TRƯỜNG LÀM VIỆC
+- Chia khu vực quầy hàng, thu ngân và kho theo nhiệm vụ.
+- Lịch làm được tổng hợp trước từng tuần.
+- Có bảng kiểm và hướng dẫn khi tiếp nhận hàng.
+
+GIÁ TRỊ THAM KHẢO
+- Chính xác
+- Chủ động hỗ trợ
+- Tôn trọng khách hàng
+
+CHÍNH SÁCH / PHÚC LỢI MINH HỌA
+- Có tài liệu và hướng dẫn công việc cơ bản trong bản mẫu.
+- Bàn giao tiền hàng và tồn kho theo bảng kiểm.
+- Thỏa thuận ca làm và mức trả công trước khi bắt đầu.
+
+VĂN HÓA
+Văn hóa minh họa đề cao tính chính xác, ngăn nắp, giao tiếp lịch sự và báo cáo chênh lệch kịp thời.
+
+LIÊN HỆ VÀ XÁC MINH
+Email minh họa: winmart-plus@workmate-demo.invalid (không nhận thư)
+Điện thoại: chưa cung cấp.
+Mã số doanh nghiệp: chưa cung cấp.
+Trạng thái xác minh: chưa xác minh; không có huy hiệu thuế hợp lệ.
+
+ẢNH VÀ NỘI DUNG TUYỂN DỤNG
+Chưa có ảnh bìa/không gian thật; ảnh trong JSON dùng mã minh họa có sẵn của project.
+Không có số sao, nhận xét hoặc lịch sử nhân sự thực tế trong bộ này.
+Ba vị trí mẫu xem trong viec-lam.txt cùng folder.

@@ -1,0 +1,56 @@
+13. Danang Events (Demo)
+================================================================
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+NHẬN DIỆN VÀ PHẠM VI DỮ LIỆU
+Thương hiệu tham chiếu: Danang Events
+Mã hồ sơ demo: wm-demo-danang-events
+Logo tại folder gốc: danang-events__su-kien.png
+Logo AI tái tạo theo README.txt gốc; chưa được xác minh là tài sản nhận diện chính thức.
+Website tham chiếu: https://danangevents.com.vn/
+Website chỉ tham chiếu tên thương hiệu; nội dung hồ sơ bên dưới là minh họa.
+
+THÔNG TIN DOANH NGHIỆP
+Nhóm ngành: Tổ chức sự kiện
+Trường industry trong web: Tổ chức sự kiện
+Khu vực mẫu: Sơn Trà, Đà Nẵng
+Địa chỉ: Khu vực minh họa tại Sơn Trà, Đà Nẵng — chưa cung cấp địa chỉ cơ sở thực tế.
+Quy mô mẫu: 11-50 người
+Quy mô đơn vị làm việc mô phỏng, không phải nhân sự thật của thương hiệu.
+Giới thiệu ngắn: [DEMO] Các vai trò mẫu điều phối, đón tiếp và nội dung theo chương trình.
+
+GIỚI THIỆU ĐẦY ĐỦ
+Dữ liệu minh họa cho Workmate; không phải hồ sơ hoặc thông báo tuyển dụng chính thức của thương hiệu.
+
+Hồ sơ mẫu mô phỏng một nhóm triển khai sự kiện với nhân sự điều phối, đón tiếp và nội dung. Lịch đề xuất theo các buổi cụ thể để kiểm tra việc ghép lịch người tìm việc.
+
+Quy mô, địa điểm, môi trường và chính sách bên dưới được viết cho bản demo, chưa được doanh nghiệp xác nhận.
+
+MÔI TRƯỜNG LÀM VIỆC
+- Làm việc theo chương trình và các nhóm hậu cần, đón tiếp, nội dung.
+- Có buổi phổ biến nhiệm vụ trước khi bắt đầu chương trình.
+- Địa điểm và lịch thực hiện thay đổi theo từng sự kiện minh họa.
+
+GIÁ TRỊ THAM KHẢO
+- Đúng tiến độ
+- Làm việc nhóm
+- Xử lý tình huống bình tĩnh
+
+CHÍNH SÁCH / PHÚC LỢI MINH HỌA
+- Nhận bảng phân công và đầu mối điều phối trong bản mẫu.
+- Thống nhất khung giờ, công việc và mức trả công trước chương trình.
+- Được hướng dẫn an toàn trong phạm vi nhiệm vụ được giao.
+
+VĂN HÓA
+Văn hóa minh họa linh hoạt, chủ động phối hợp và tuân thủ chỉ dẫn của người điều phối chương trình.
+
+LIÊN HỆ VÀ XÁC MINH
+Email minh họa: danang-events@workmate-demo.invalid (không nhận thư)
+Điện thoại: chưa cung cấp.
+Mã số doanh nghiệp: chưa cung cấp.
+Trạng thái xác minh: chưa xác minh; không có huy hiệu thuế hợp lệ.
+
+ẢNH VÀ NỘI DUNG TUYỂN DỤNG
+Chưa có ảnh bìa/không gian thật; ảnh trong JSON dùng mã minh họa có sẵn của project.
+Không có số sao, nhận xét hoặc lịch sử nhân sự thực tế trong bộ này.
+Ba vị trí mẫu xem trong viec-lam.txt cùng folder.
