@@ -25,7 +25,7 @@ const view = (c: Company, bannedWords: string[]) => {
   const nameBanned = phraseHits(c.name, bannedWords).hits
   return {
   id: c.id, slug: c.slug, name: c.name, industry: c.industry, district: c.district, address: c.address, size: SIZE_LABEL[c.size],
-  tagline: c.tagline, about: c.about, environment: c.environment, values: c.values, policies: c.policies, culture: c.culture,
+  foundedYear: c.foundedYear, tagline: c.tagline, about: c.about, environment: c.environment, values: c.values, policies: c.policies, culture: c.culture,
   email: c.email, phone: c.phone, logoUrl: c.logoUrl, cover: (c.coverPhoto as unknown as PhotoDto | null) ?? { alt: c.name }, verified: c.verified, locked: c.locked,
   taxCode: c.taxCode, taxLookup: taxLookupOf(c), taxNameMatches: taxNameMatches(c),
   onboardedAt: c.onboardedAt?.toISOString() ?? null,
@@ -162,6 +162,15 @@ export class CompanyService {
       throw new BadRequestException(`Còn thiếu: ${missing.map((m) => label[m]).join(', ')}`)
     }
     return this.out(await this.prisma.company.update({ where: { id: company.id }, data: { onboardedAt: new Date() } }))
+  }
+
+  /** Ảnh cho nháp tin/ảnh bìa; form hiện có lưu URL khi người dùng xác nhận. */
+  async uploadImage(user: AuthUser, upload: UploadedImage | undefined): Promise<PhotoDto> {
+    const company = await this.own(user)
+    if (company.locked) throw new ForbiddenException('Doanh nghiệp đang bị khóa')
+    const { file, ext } = checkImage(upload)
+    const url = await this.storage.putPublic(`company-images/${company.id}/${randomBytes(12).toString('hex')}.${ext}`, file.buffer, file.mimetype)
+    return { url, alt: 'Ảnh doanh nghiệp' }
   }
 
   async setLogo(user: AuthUser, upload: UploadedImage | undefined) {

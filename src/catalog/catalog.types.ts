@@ -21,6 +21,14 @@ export interface CatalogCompany {
   district: string
   /** '1-10' | '11-50' | '51-200' | '201-500' | '500+' */
   size: string
+  foundedYear?: number | null
+  address?: string
+  values?: string[]
+  policies?: string[]
+  culture?: string
+  /** Chỉ thông tin liên hệ doanh nghiệp, không phải email tài khoản. */
+  email?: string
+  phone?: string
   cover: CatalogPhoto
   more?: CatalogPhoto
   tagline: string

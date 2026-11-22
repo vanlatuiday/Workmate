@@ -29,7 +29,7 @@ export const VISIBLE_WHERE: Prisma.JobWhereInput = { moderation: 'approved', sta
 export class CatalogService {
   constructor(private prisma: PrismaService) {}
 
-  toCompany(c: Company): CatalogCompany {
+  toCompany(c: Company, includeProfile = true): CatalogCompany {
     return {
       id: c.id, name: c.name, industry: c.industry, district: c.district, size: SIZE_LABEL[c.size],
       cover: (c.coverPhoto as unknown as CatalogPhoto | null) ?? { alt: c.name },
@@ -37,6 +37,7 @@ export class CatalogService {
       verified: c.verified, locked: c.locked, logoUrl: c.logoUrl,
       taxValid: (c.taxLookup as { result?: string } | null)?.result === 'active',
     }
+      ...(includeProfile && { foundedYear: c.foundedYear, address: c.address, values: c.values, policies: c.policies, culture: c.culture, email: c.email, phone: c.phone }),
   }
 
   /** `withViews`: chỉ bật cho công ty sở hữu tin và admin */
@@ -98,7 +99,11 @@ export class CatalogService {
       orderBy: { createdAt: 'asc' },
     })
     return {
-      companies: companies.map((c) => ({ ...this.toCompany(c), hidden: c.members.some((m) => m.user.settings?.visibility === 'hidden') })),
+      companies: companies.map((c) => {
+        const hidden = c.members.some((m) => m.user.settings?.visibility === 'hidden')
+        const includeProfile = (!hidden && !c.locked) || user?.role === 'admin' || c.id === ownCompanyId
+        return { ...this.toCompany(c, includeProfile), hidden }
+      }),
       jobs: jobs.map((j) => this.toJob(j, origin, user?.role === 'admin' || (!!ownCompanyId && j.companyId === ownCompanyId))),
     }
   }

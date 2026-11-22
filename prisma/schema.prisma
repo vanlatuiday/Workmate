@@ -217,6 +217,8 @@ model Company {
   lat         Float?
   lng         Float?
   size        CompanySize @default(s1_10)
+  /// Năm thành lập do doanh nghiệp cung cấp; chưa điền = null
+  foundedYear Int?
   tagline     String      @default("")
   about       String      @default("")
   environment String[]

@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, Patch, Post, Query, UploadedFi
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Transform, Type } from 'class-transformer'
-import { ArrayMaxSize, IsArray, IsEmail, IsIn, IsOptional, IsString, MaxLength, MinLength, ValidateIf, ValidateNested } from 'class-validator'
+import { ArrayMaxSize, IsArray, IsEmail, IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength, ValidateIf, ValidateNested } from 'class-validator'
 import { CurrentUser, type AuthUser } from '../auth/current-user.decorator'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { Roles } from '../auth/roles.decorator'
@@ -21,6 +21,7 @@ export class UpdateCompanyDto {
   @IsOptional() @IsIn(Object.keys(DISTRICT_GEO)) district?: string
   @IsOptional() @Transform(trim) @IsString() @MaxLength(300) address?: string
   @IsOptional() @IsIn(COMPANY_SIZES) size?: (typeof COMPANY_SIZES)[number]
+  @IsOptional() @IsInt() @Min(1000) @Max(Number(new Intl.DateTimeFormat('en', { year: 'numeric', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()))) foundedYear?: number | null
   @IsOptional() @Transform(trim) @IsString() @MaxLength(200) tagline?: string
   @IsOptional() @Transform(trim) @IsString() @MaxLength(4000) about?: string
   @IsOptional() @IsArray() @ArrayMaxSize(20) @IsString({ each: true }) @MaxLength(200, { each: true }) environment?: string[]
@@ -69,6 +70,13 @@ export class CompanyController {
   @HttpCode(200)
   completeOnboarding(@CurrentUser() user: AuthUser) {
     return this.company.completeOnboarding(user)
+  }
+
+  @Post('images')
+  @UseGuards(ThrottlerGuard) @Throttle({ phut: { limit: 15, ttl: 60_000 }, gio: { limit: 60, ttl: 3_600_000 } })
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: IMAGE_MAX_BYTES, files: 1 } }))
+  uploadImage(@CurrentUser() user: AuthUser, @UploadedFile() file: UploadedImage | undefined) {
+    return this.company.uploadImage(user, file)
   }
 
   @Post('logo')
