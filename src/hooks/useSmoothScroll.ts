@@ -7,7 +7,12 @@ let current: Lenis | null = null
 
 /** Cuộn tới vị trí `y`, đi qua Lenis nếu đang bật. Mặc định tức thì; `smooth` để trôi tới. */
 export function scrollToY(y: number, smooth = false) {
-  if (current) current.scrollTo(y, smooth ? { duration: 1 } : { immediate: true })
+  // Lenis đo chiều cao trang bất đồng bộ (ResizeObserver): trang vừa dài ra (vd. bộ sưu tập mới gắn)
+  // mà chưa đo lại thì đích bị kẹp ở mức cuộn tối đa cũ → đo lại ngay trước khi cuộn
+  if (current) {
+    current.resize()
+    current.scrollTo(y, smooth ? { duration: 1 } : { immediate: true })
+  }
   else window.scrollTo(0, y)
 }
 

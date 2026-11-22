@@ -18,6 +18,8 @@ export type GalleryProps<T extends GalleryItem> = {
    * chữ trong thẻ kính, mục lục gọn; phần mở đầu do trang tự vẽ nên `intro` bị bỏ qua).
    */
   layout?: 'default' | 'jobs'
+  /** Mục mở sẵn khi dựng (chỉ đọc lúc mount; bản cuộn nhảy tới đó không hoạt ảnh) */
+  initialIndex?: number
 }
 
 /**

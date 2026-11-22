@@ -33,6 +33,8 @@ export interface CatalogJob {
   salaryMinK: number
   salaryMaxK: number
   jobType: JobType
+  /** Nhóm công việc (khóa trong HOME_CATEGORIES); máy chủ luôn trả, dữ liệu mẫu có thể thiếu */
+  category?: string
   description: string
   quantity: number
   radiusKm: number
@@ -51,6 +53,14 @@ export interface CatalogJob {
 
 /** = DiscoverCompany + trạng thái xác minh / khóa */
 export interface CatalogCompany extends DiscoverCompany {
+  foundedYear?: number | null
+  address?: string
+  values?: string[]
+  policies?: string[]
+  culture?: string
+  /** Thông tin liên hệ doanh nghiệp, không phải email đăng nhập. */
+  email?: string
+  phone?: string
   verified: boolean
   locked: boolean
   /** Doanh nghiệp đã tắt "Công khai trang công ty" */
@@ -103,7 +113,7 @@ interface CatalogState {
   settled: boolean
 
   /** Nạp lại danh mục theo người đang đăng nhập; lỗi mạng thì giữ dữ liệu hiện có */
-  load: () => Promise<void>
+  load: () => Promise<boolean>
   upsertJob: (job: CatalogJob) => void
   upsertCompany: (company: CatalogCompany) => void
   setConfig: (config: Partial<SystemConfig>) => void
@@ -133,9 +143,11 @@ export const useCatalogStore = create<CatalogState>()((set) => ({
         loaded: true,
         settled: true,
       }))
+      return true
     } catch {
       /* máy chủ tắt / lỗi mạng: dùng dữ liệu mẫu ban đầu */
       set({ settled: true })
+      return false
     }
   },
   upsertJob: (job) =>

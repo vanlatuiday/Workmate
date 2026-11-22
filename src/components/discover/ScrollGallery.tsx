@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, m } from 'motion/react'
 import { ArrowDown, ArrowUp } from 'lucide-react'
-import { gsap, useGSAP } from '@utils/gsap'
+import { gsap, ScrollTrigger as ScrollTriggerPlugin, useGSAP } from '@utils/gsap'
 import type { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { scrollToY } from '@hooks/useSmoothScroll'
 import { useCurtainNavigate } from '@components/motion/PageCurtain'
@@ -37,7 +37,7 @@ function settle(p: number) {
  * trôi lên-phải, nhỏ và nghiêng dần. Chỉ ghi transform/opacity, không gây reflow.
  * Chữ hai bên đổi theo ảnh đang ở giữa (`active`).
  */
-export default function ScrollGallery<T extends GalleryItem>({ items, label, intro, renderDetail, layout = 'default' }: GalleryProps<T>) {
+export default function ScrollGallery<T extends GalleryItem>({ items, label, intro, renderDetail, layout = 'default', initialIndex = 0 }: GalleryProps<T>) {
   const n = items.length
   const sectionRef = useRef<HTMLElement>(null)
   const frames = useRef<(HTMLAnchorElement | null)[]>([])
@@ -81,6 +81,8 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
   const activeRef = useRef(0)
   const [active, setActive] = useState(0)
   const go = useCurtainNavigate()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const { contextSafe } = useGSAP(
     () => {
@@ -186,8 +188,21 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
         },
       })
       stRef.current = tween.scrollTrigger ?? null
+      // Mở sẵn ở mục `initialIndex`: sau khi bố cục ổn định thì đo lại rồi nhảy tới đó (không hoạt ảnh)
+      const startAt = Math.min(n - 1, Math.max(0, Math.round(initialIndex)))
+      let raf = 0
+      if (startAt > 0 && tween.scrollTrigger) {
+        const st = tween.scrollTrigger
+        raf = requestAnimationFrame(() => {
+          ScrollTriggerPlugin.refresh()
+          scrollToY(st.start + (startAt / (n - 1)) * (st.end - st.start))
+          tween.progress(startAt / (n - 1))
+          st.update()
+        })
+      }
       return () => {
         window.clearTimeout(snapTimer)
+        cancelAnimationFrame(raf)
         stRef.current = null
       }
     },
@@ -225,6 +240,11 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
     // Ctrl/Cmd/Shift + bấm → để trình duyệt mở tab mới như link thường
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
     e.preventDefault()
+    // Tin chi tiết dạng popup: điều hướng thường (như JobDetailLink), trang đứng yên
+    if (items[i].popup) {
+      navigate(items[i].href, { state: { jobDetailFrom: `${location.pathname}${location.search}${location.hash}` } })
+      return
+    }
     const el = frames.current[i]
     const others = frames.current.filter((f, k) => f && k !== i)
     gsap.to(others, { opacity: 0, duration: 0.3, ease: 'power2.out' })
@@ -337,7 +357,7 @@ export default function ScrollGallery<T extends GalleryItem>({ items, label, int
                       ref={(el) => {
                         glows.current[i] = el
                       }}
-                      src={photoUrl(item.photo.id, 160)}
+                      src={photoUrl(item.photo, 160)}
                       alt=""
                       aria-hidden
                       loading={i < 3 ? 'eager' : 'lazy'}

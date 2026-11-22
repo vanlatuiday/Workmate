@@ -191,6 +191,13 @@
   backdrop-filter: none;
 }
 .theme-day .day-gcard { transition: opacity 0.4s ease; }
+/* Đầu thẻ dính (tên ngành · số tin ở /viec-lam): cùng nền trắng với thẻ ban ngày để chữ tối đọc được */
+.theme-day .day-gcard-head {
+  background-color: rgb(255 255 255);
+  border-color: var(--page-line);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
 /* Thẻ chờ (công ty trước/sau) không có nội dung → ẩn hẳn trên nền ban ngày, chỉ còn thẻ đang xem */
 .theme-day .day-gcard[data-center='false'] { opacity: 0; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { .theme-day .day-gcard { transition: none; } }

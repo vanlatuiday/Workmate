@@ -40,24 +40,35 @@ const norm = (s: string) =>
 
 export const HOME_CATEGORIES: HomeCategory[] = [
   { key: 'pha_che', label: 'Pha chế', icon: Coffee, q: 'Pha chế', cutout: { src: phaChe, alt: 'Tay nhân viên pha chế rót sữa tạo hình lên ly cà phê' }, words: ['pha che', 'barista'] },
-  { key: 'phuc_vu', label: 'Phục vụ', icon: UtensilsCrossed, q: 'Phục vụ', cutout: { src: phucVu, alt: 'Nhân viên phục vụ mặc tạp dề bưng khay nước và đĩa mì' }, words: ['phuc vu'] },
-  { key: 'phu_bep', label: 'Phụ bếp', icon: ChefHat, q: 'Phụ bếp', cutout: { src: phuBep, alt: 'Tay đeo găng thái ớt chuông trên thớt trong bếp' }, words: ['bep'] },
+  { key: 'phuc_vu', label: 'Phục vụ', icon: UtensilsCrossed, q: 'Phục vụ', cutout: { src: phucVu, alt: 'Nhân viên phục vụ mặc tạp dề bưng khay nước và đĩa mì' }, words: ['phuc vu', 'mang di'] },
+  { key: 'phu_bep', label: 'Phụ bếp', icon: ChefHat, q: 'Phụ bếp', cutout: { src: phuBep, alt: 'Tay đeo găng thái ớt chuông trên thớt trong bếp' }, words: ['bep', 'nguyen lieu', 'topping'] },
   { key: 'thu_ngan', label: 'Thu ngân', icon: ScanBarcode, q: 'Thu ngân', cutout: { src: thuNgan, alt: 'Nhân viên thu ngân quét mã gói hàng bằng súng đọc mã vạch' }, words: ['thu ngan'] },
-  { key: 'ban_hang', label: 'Bán hàng', icon: ShoppingBag, q: 'Bán hàng', cutout: { src: banHang, alt: 'Nhân viên gấp áo sơ mi ở quầy quần áo' }, words: ['ban hang', 'cua hang'] },
-  { key: 'giao_hang', label: 'Giao hàng', icon: Bike, q: 'Giao hàng', cutout: { src: giaoHang, alt: 'Người giao hàng đội mũ bảo hiểm, đeo thùng giao hàng, ôm kiện hàng' }, words: ['giao hang', 'tai xe', 'lai xe', 'shipper'] },
-  { key: 'kho', label: 'Kho hàng', icon: Package, q: 'Kho', cutout: { src: kho, alt: 'Nhân viên kho đeo găng quét mã vạch trên thùng hàng' }, words: ['kho'] },
-  { key: 'le_tan', label: 'Lễ tân', icon: BellRing, q: 'Lễ tân', cutout: { src: leTan, alt: 'Nhân viên lễ tân mặc vest đưa thẻ, bên cạnh chuông bàn' }, words: ['le tan'] },
-  { key: 'su_kien', label: 'Sự kiện', icon: PartyPopper, q: 'Sự kiện', cutout: { src: suKien, alt: 'Tay chỉnh bàn trộn âm thanh ở sự kiện' }, words: ['su kien', 'tiec'] },
-  { key: 'hanh_chinh', label: 'Hành chính', icon: FolderOpen, q: 'Hành chính', cutout: { src: hanhChinh, alt: 'Nhân viên văn phòng sắp xếp chồng giấy bên máy tính xách tay' }, words: ['hanh chinh', 'van phong'] },
-  { key: 'marketing', label: 'Marketing & nội dung', icon: Megaphone, q: 'Marketing', cutout: { src: marketing, alt: 'Máy quay và máy tính đang dựng video nội dung' }, words: ['marketing', 'noi dung'] },
-  { key: 'tro_giang', label: 'Trợ giảng', icon: BookOpen, q: 'Trợ giảng', cutout: { src: troGiang, alt: 'Hai người chỉ vào cuốn sách giáo trình đang mở trên bàn' }, words: ['tro giang', 'gia su', 'giang'] },
+  { key: 'ban_hang', label: 'Bán hàng', icon: ShoppingBag, q: 'Bán hàng', cutout: { src: banHang, alt: 'Nhân viên gấp áo sơ mi ở quầy quần áo' }, words: ['ban hang', 'cua hang', 'quay hang', 'quay thuc pham'] },
+  { key: 'giao_hang', label: 'Giao hàng', icon: Bike, q: 'Giao hàng', cutout: { src: giaoHang, alt: 'Người giao hàng đội mũ bảo hiểm, đeo thùng giao hàng, ôm kiện hàng' }, words: ['giao hang', 'tai xe', 'lai xe', 'shipper', 'giao nhan', 'buu gui', 'diem nhan'] },
+  { key: 'kho', label: 'Kho hàng', icon: Package, q: 'Kho', cutout: { src: kho, alt: 'Nhân viên kho đeo găng quét mã vạch trên thùng hàng' }, words: ['kho', 'phan loai hang', 'sap xep hang', 'dong goi', 'kiem ke', 'nhap hang'] },
+  { key: 'le_tan', label: 'Lễ tân', icon: BellRing, q: 'Lễ tân', cutout: { src: leTan, alt: 'Nhân viên lễ tân mặc vest đưa thẻ, bên cạnh chuông bàn' }, words: ['le tan', 'don khach', 'buong phong', 'dich vu khach hang'] },
+  { key: 'su_kien', label: 'Sự kiện', icon: PartyPopper, q: 'Sự kiện', cutout: { src: suKien, alt: 'Tay chỉnh bàn trộn âm thanh ở sự kiện' }, words: ['su kien', 'tiec', 'san khau', 'khach moi'] },
+  { key: 'hanh_chinh', label: 'Hành chính', icon: FolderOpen, q: 'Hành chính', cutout: { src: hanhChinh, alt: 'Nhân viên văn phòng sắp xếp chồng giấy bên máy tính xách tay' }, words: ['hanh chinh', 'van phong', 'nhap lieu', 'tiep nhan don', 'cham soc don hang'] },
+  { key: 'marketing', label: 'Marketing & nội dung', icon: Megaphone, q: 'Marketing', cutout: { src: marketing, alt: 'Máy quay và máy tính đang dựng video nội dung' }, words: ['marketing', 'noi dung', 'thiet ke', 'truyen thong', 'chien dich', 'tu khoa'] },
+  { key: 'tro_giang', label: 'Trợ giảng', icon: BookOpen, q: 'Trợ giảng', cutout: { src: troGiang, alt: 'Hai người chỉ vào cuốn sách giáo trình đang mở trên bàn' }, words: ['tro giang', 'gia su', 'giang', 'hoc vien', 'khoa hoc'] },
   { key: 'khac', label: 'Việc khác', icon: Briefcase, q: '', words: [] },
 ]
 
 const FALLBACK = HOME_CATEGORIES[HOME_CATEGORIES.length - 1]
 
-/** Nhóm nghề của một việc (luôn có — việc không khớp từ khóa nào vào "Việc khác") */
+/** Nhóm theo khóa (không biết khóa → undefined) */
+export function categoryByKey(key: string | undefined | null): HomeCategory | undefined {
+  return key ? HOME_CATEGORIES.find((c) => c.key === key) : undefined
+}
+
+/**
+ * Nhóm nghề của một việc (luôn có): ưu tiên `category` do máy chủ/nhà tuyển dụng gán (nếu là khóa hợp lệ);
+ * không có thì xếp theo từ khóa trong tên việc, không khớp thì vào "Việc khác".
+ */
 export function categoryOf(job: MatchJob): HomeCategory {
-  const title = norm(job.title)
-  return HOME_CATEGORIES.find((c) => c.words.some((w) => title.includes(w))) ?? FALLBACK
+  const set = categoryByKey((job as { category?: string }).category)
+  if (set) return set
+  // Khớp NGUYÊN TỪ (đệm khoảng trắng hai đầu): "kho" không được khớp "khóa học"
+  const title = ` ${norm(job.title).replace(/[^a-z0-9]+/g, ' ')} `
+  return HOME_CATEGORIES.find((c) => c.words.some((w) => title.includes(` ${w} `))) ?? FALLBACK
 }

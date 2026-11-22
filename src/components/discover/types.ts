@@ -1,16 +1,34 @@
-/** Ảnh Unsplash: `id` là phần sau "photo-" trong URL. */
-export type Photo = { id: string; alt: string }
+/** Ảnh tải lên dùng `url`; ảnh mẫu Unsplash dùng `id` sau "photo-". */
+export type Photo = { id?: string; url?: string; alt: string }
 
-/**
- * Ảnh minh họa từ Unsplash (Unsplash License — dùng miễn phí, kể cả thương mại).
- * Nạp thẳng từ CDN của Unsplash; đổi sang ảnh thật của doanh nghiệp khi có API.
- */
-export function photoUrl(id: string, width: number) {
-  return `https://images.unsplash.com/photo-${id}?w=${width}&q=75&auto=format&fit=crop`
+function directPhotoUrl(value: string | undefined) {
+  const url = value?.trim()
+  if (!url || url.includes('\\') || [...url].some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127)) return undefined
+  if (/^https?:\/\//i.test(url)) {
+    try {
+      return new URL(url).hostname ? url : undefined
+    } catch {
+      return undefined
+    }
+  }
+  return /^(?:\/(?!\/)|\.{1,2}\/|[\w-]+\/)/.test(url) && !url.includes(':') ? url : undefined
 }
 
-export function photoSrcSet(id: string) {
-  return [640, 960, 1400].map((w) => `${photoUrl(id, w)} ${w}w`).join(', ')
+/**
+ * Giữ nguyên URL ảnh doanh nghiệp; ảnh mẫu nạp từ CDN Unsplash.
+ */
+export function photoUrl(photo: Photo | string | undefined, width: number) {
+  const url = directPhotoUrl(typeof photo === 'string' ? photo : photo?.url)
+  if (url) return url
+  const id = typeof photo === 'string' ? photo : photo?.id
+  return id && /^[\w-]+$/.test(id)
+    ? `https://images.unsplash.com/photo-${id}?w=${width}&q=75&auto=format&fit=crop`
+    : undefined
+}
+
+export function photoSrcSet(photo: Photo | string | undefined) {
+  if (directPhotoUrl(typeof photo === 'string' ? photo : photo?.url) || !photoUrl(photo, 640)) return undefined
+  return [640, 960, 1400].map((w) => `${photoUrl(photo, w)} ${w}w`).join(', ')
 }
 
 /** Một mục trong bộ sưu tập ảnh ở /viec-lam. Nội dung chữ do từng vai trò tự vẽ. */
@@ -23,6 +41,8 @@ export interface GalleryItem {
   cursor: string
   /** Tên đầy đủ của liên kết cho trình đọc màn hình */
   linkLabel: string
+  /** true: `href` là tin chi tiết dạng popup trên cùng trang (?tin=…) → mở bằng điều hướng thường, không qua màn che chuyển trang */
+  popup?: boolean
 }
 
 /** Số thứ tự hai chữ số: 1 → "01" */

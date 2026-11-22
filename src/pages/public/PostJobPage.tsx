@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { AlertTriangle, Lock, X } from 'lucide-react'
 import { gsap } from '@utils/gsap'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { useCurtainNavigate } from '@components/motion/PageCurtain'
 import { JOB_TYPES } from '@constants/index'
+import { HOME_CATEGORIES, categoryByKey, categoryOf } from '@components/home/categories'
 import { DAY_SHORT, SESSIONS } from '@pages/jobseeker/mockData'
 import { checkJobText, createJob, DURATION_DAYS, updateJob, type JobReview, type DurationDays } from '@services/catalogService'
 import { apiErrorMessage } from '@services/authService'
@@ -18,6 +19,8 @@ import { useCompanyStore } from '@context/companyStore'
 import { scoreMatch } from './match/score'
 import ShiftGrid from './post/ShiftGrid'
 import CompletionRing from '@components/common/CompletionRing'
+import PhotoPicker from '@components/common/PhotoPicker'
+import type { Photo } from '@components/discover/types'
 import PostPreview from './post/PostPreview'
 import SectionIndex from './profile/SectionIndex'
 import { Group, INPUT, chip } from './profile/ui'
@@ -53,6 +56,8 @@ export default function PostJobPage() {
     editId ? useCatalogStore.getState().jobs.find((j) => j.id === editId && j.companyId === useCompanyStore.getState().id) : undefined,
   )
   const [title, setTitle] = useState(editing?.title ?? '')
+  // Nhóm công việc (bắt buộc): tin cũ chưa có `category` thì suy từ tên việc như máy chủ
+  const [category, setCategory] = useState<string>(editing ? (categoryByKey(editing.category) ?? categoryOf(editing)).key : '')
   const [jobType, setJobType] = useState<JobType | ''>(editing?.jobType ?? '')
   const [district, setDistrict] = useState(editing?.district ?? DISTRICTS[0])
   const [headcount, setHeadcount] = useState(editing?.quantity ?? 1)
@@ -70,7 +75,8 @@ export default function PostJobPage() {
   // Sửa tin: mặc định giữ hạn cũ (0); chọn số ngày = gia hạn tính từ hôm nay
   const [duration, setDuration] = useState<DurationDays | 0>(editing ? 0 : 30)
   const [desc, setDesc] = useState(editing?.description ?? '')
-  const [photoIndex, setPhotoIndex] = useState(() => Math.max(0, PHOTOS.findIndex((p) => p.id === editing?.photo.id)))
+  const [photo, setPhoto] = useState<Photo>(() => editing?.photo ?? PHOTOS[0])
+  const [uploadBusy, setUploadBusy] = useState(false)
   const [posted, setPosted] = useState(false)
   // Cụm từ cấm tuyệt đối phát hiện được (khi soạn hoặc khi tin bị từ chối)
   const [banned, setBanned] = useState<string[]>([])
@@ -124,6 +130,7 @@ export default function PostJobPage() {
 
   // Mục bắt buộc còn thiếu: nhãn cho dòng trạng thái, gợi ý bấm để nhảy tới ô cần điền
   const todo = [
+    !category && { key: 'category', text: 'nhóm công việc', label: 'Chọn nhóm công việc', target: 'pj-cat' },
     !title.trim() && { key: 'title', text: 'tên vị trí', label: 'Nhập tên vị trí', target: 'pj-title' },
     !jobType && { key: 'type', text: 'hình thức', label: 'Chọn hình thức làm việc', target: 'pj-type' },
     slots.length === 0 && { key: 'slots', text: 'ít nhất một ca', label: 'Chọn ít nhất một ca làm', target: 'pj-shift' },
@@ -131,11 +138,11 @@ export default function PostJobPage() {
   ].filter((x): x is { key: string; text: string; label: string; target: string } => !!x)
   const missing = todo.map((t) => t.text)
   const ready = todo.length === 0
-  const filled = 4 - todo.length
-  const percent = filled * 25
+  const filled = 5 - todo.length
+  const percent = filled * 20
   // Mục lục: chấm đặc = phần đã xong (phần không bắt buộc luôn có sẵn giá trị mặc định)
   const sections = [
-    { id: 'pj-chung', label: 'Thông tin chung', done: !!title.trim() && !!jobType },
+    { id: 'pj-chung', label: 'Thông tin chung', done: !!category && !!title.trim() && !!jobType },
     { id: 'pj-luong', label: 'Mức lương', done: true },
     { id: 'pj-ca', label: 'Ca làm', done: slots.length > 0 },
     { id: 'pj-kynang', label: 'Kỹ năng', done: skills.length > 0 },
@@ -161,14 +168,14 @@ export default function PostJobPage() {
   }, [ready, reduced])
 
   const submit = async () => {
-    if (!ready || posted) return
+    if (!ready || posted || uploadBusy) return
     setPosted(true)
     // Thẻ xem trước nhấc lên; dùng y/scale để không đụng tween x của con dấu
     if (!reduced && card.current) gsap.to(card.current, { y: -12, scale: 1.02, duration: 0.4, ease: 'power2.out', overwrite: false })
     // Gửi lên máy chủ (khoảng cách do máy chủ tính theo quận)
     const fields = {
-      title: title.trim(), district, salaryLabel, shiftLabel: scheduleText(slots),
-      skills, requiredSkills, requireAllSlots, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: req.jobType, photo: PHOTOS[photoIndex],
+      title: title.trim(), category, district, salaryLabel, shiftLabel: scheduleText(slots),
+      skills, requiredSkills, requireAllSlots, slots, salaryMinK: minK, salaryMaxK: maxK, jobType: req.jobType, photo,
       description: desc.trim(), quantity: headcount, radiusKm: radius,
       ...(duration ? { durationDays: duration } : {}),
     }
@@ -216,8 +223,8 @@ export default function PostJobPage() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {onboarding && <Link to="/tuyen-dung" className={`${BTN_SECONDARY} ${BTN_SM}`}>Bỏ qua, vào trang tổng quan</Link>}
-            <button type="submit" ref={submitBtn} disabled={!ready || posted} className={cn(BTN_ACCENT, BTN_SM)}>
+            {onboarding && <button type="button" disabled={uploadBusy || posted} onClick={() => curtainTo('/tuyen-dung', 'Tổng quan')} className={cn(BTN_SECONDARY, BTN_SM)}>Bỏ qua, vào trang tổng quan</button>}
+            <button type="submit" ref={submitBtn} disabled={!ready || posted || uploadBusy} className={cn(BTN_ACCENT, BTN_SM)}>
               {editing ? 'Lưu thay đổi' : 'Đăng tin'}
             </button>
           </div>
@@ -228,7 +235,7 @@ export default function PostJobPage() {
           <div className="min-w-0 space-y-5">
             <CompletionRing
               value={filled}
-              max={4}
+              max={5}
               label="Mức hoàn thiện tin tuyển dụng"
               center={`${percent}%`}
               rowText={`Tin hoàn thiện ${percent}%`}
@@ -237,9 +244,20 @@ export default function PostJobPage() {
             />
             <div className="min-w-0 space-y-5">
           <Group id="pj-chung" title="Thông tin chung">
+            <div role="group" aria-label="Nhóm công việc *">
+              <p className="mb-2 text-sm text-page-muted">Nhóm công việc *</p>
+              <div className="flex flex-wrap gap-2">
+                {HOME_CATEGORIES.map((c, i) => (
+                  <button key={c.key} type="button" aria-pressed={category === c.key} onClick={(e) => { if (category !== c.key) pop(e.currentTarget, reduced); setCategory(c.key) }} id={i === 0 ? 'pj-cat' : undefined} className={chip(category === c.key)}>
+                    <c.icon className="h-4 w-4" aria-hidden="true" />
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div>
               <label htmlFor="pj-title" className="mb-1 block text-sm text-page-muted">Tên vị trí *</label>
-              <input id="pj-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ví dụ: Pha chế ca tối" className={INPUT} />
+              <input id="pj-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={`Ví dụ: ${categoryByKey(category)?.label ?? 'Pha chế'} ca tối`} className={INPUT} />
             </div>
             <div role="group" aria-label="Hình thức *">
               <p className="mb-2 text-sm text-page-muted">Hình thức *</p>
@@ -378,20 +396,7 @@ export default function PostJobPage() {
               </Group>
 
               <Group id="pj-anh" title="Ảnh minh họa">
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-              {PHOTOS.map((p, i) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  aria-pressed={photoIndex === i}
-                  aria-label={`Chọn ảnh: ${p.alt}`}
-                  onClick={() => setPhotoIndex(i)}
-                  className={cn('aspect-square overflow-hidden rounded-control border-2 transition-colors', photoIndex === i ? 'border-page-fg' : 'border-transparent', FOCUS)}
-                >
-                  <img src={`https://images.unsplash.com/photo-${p.id}?w=200&q=70&auto=format&fit=crop`} alt="" loading="lazy" className="h-full w-full object-cover" />
-                </button>
-              ))}
-            </div>
+            <PhotoPicker value={photo} choices={PHOTOS} onChange={setPhoto} onBusyChange={setUploadBusy} disabled={posted} />
               </Group>
 
             </div>
@@ -399,8 +404,7 @@ export default function PostJobPage() {
           <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start" aria-label="Xem trước tin">
             <PostPreview
               ref={card}
-              photos={PHOTOS}
-              photoIndex={photoIndex}
+              photo={photo}
               title={title.trim()}
               subtitle={`${companyName || 'Công ty của bạn'} · ${district} · ${salaryLabel}${headcount > 1 ? ` · cần ${headcount} người` : ''}`}
               shift={scheduleText(slots)}

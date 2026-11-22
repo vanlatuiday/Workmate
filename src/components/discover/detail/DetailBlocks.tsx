@@ -21,8 +21,8 @@ export function ImageBlock({ photo }: { photo: Photo }) {
   return (
     <Reveal>
       <img
-        src={photoUrl(photo.id, 1400)}
-        srcSet={photoSrcSet(photo.id)}
+        src={photoUrl(photo, 1400)}
+        srcSet={photoSrcSet(photo)}
         sizes="(min-width: 1024px) 60vw, 92vw"
         alt={photo.alt}
         loading="lazy"

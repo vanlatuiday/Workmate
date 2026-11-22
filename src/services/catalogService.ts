@@ -12,6 +12,8 @@ export interface JobBody {
   title: string
   description: string
   jobType: JobType
+  /** Nhóm công việc (khóa trong HOME_CATEGORIES) — bắt buộc khi đăng mới */
+  category: string
   district: string
   skills: string[]
   /** Kỹ năng bắt buộc, nằm trong skills */

@@ -19,15 +19,24 @@ export default function ArticlePage() {
 
   return (
     <ContentPage eyebrow={`Cẩm nang · ${article.readMin} phút đọc`} title={article.title} intro={article.summary}>
-      <div className="aspect-[16/9] max-w-3xl overflow-hidden rounded-card border border-page-line bg-page-surface">
-        <img src={photoUrl(article.photoId, 1400)} alt={article.photoAlt} className="h-full w-full object-cover" />
+      {/* Desktop: chữ bên trái, ảnh bên phải đứng yên khi cuộn; mobile: ảnh trên, chữ dưới */}
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-16">
+        <figure className="overflow-hidden rounded-card border border-page-line bg-page-surface lg:sticky lg:top-24 lg:order-2 lg:self-start">
+          <img
+            src={photoUrl(article.photoId, 1400)}
+            alt={article.photoAlt}
+            className="aspect-[16/10] w-full object-cover lg:aspect-[4/5]"
+          />
+        </figure>
+        <div className="space-y-5 lg:order-1">
+          {article.body.map((p) => (
+            <ProseBlock key={p}>{p}</ProseBlock>
+          ))}
+          <div className="pt-4">
+            <Link to="/cam-nang" className={`link-underline rounded-control text-sm text-page-fg ${FOCUS}`}>Về cẩm nang</Link>
+          </div>
+        </div>
       </div>
-      <div className="space-y-5">
-        {article.body.map((p) => (
-          <ProseBlock key={p}>{p}</ProseBlock>
-        ))}
-      </div>
-      <Link to="/cam-nang" className={`link-underline rounded-control text-sm text-page-fg ${FOCUS}`}>Về cẩm nang</Link>
     </ContentPage>
   )
 }

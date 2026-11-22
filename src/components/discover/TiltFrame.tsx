@@ -58,8 +58,8 @@ export default function TiltFrame({ photo, active, eager = false, sizes }: Props
     >
       <img
         ref={imgRef}
-        src={photoUrl(photo.id, 960)}
-        srcSet={photoSrcSet(photo.id)}
+        src={photoUrl(photo, 960)}
+        srcSet={photoSrcSet(photo)}
         sizes={sizes}
         alt={photo.alt}
         loading={eager ? 'eager' : 'lazy'}

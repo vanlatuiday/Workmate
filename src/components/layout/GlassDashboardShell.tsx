@@ -11,6 +11,7 @@ import RouteScroll from '@components/common/RouteScroll'
 import Skeleton, { SkeletonStats } from '@components/dashboard/Skeleton'
 import MenuOverlay from './MenuOverlay'
 import { EXPLORE_ITEMS } from './ExploreMenu'
+import LeaveDashboardDialog from './LeaveDashboardDialog'
 import SiteHeader from './SiteHeader'
 import { NAV } from './navLinks'
 import Sidebar from './sidebar/Sidebar'
@@ -126,6 +127,7 @@ export default function GlassDashboardShell({ sidebarRole, menuLabel = 'Menu khu
           </div>
         </main>
       </div>
+      <LeaveDashboardDialog />
     </div>
   )
 }

@@ -85,8 +85,8 @@ export default function DetailHero({
       <div className="shell mt-6 md:mt-8">
         <div className="overflow-hidden rounded-control bg-page-surface">
           <m.img
-            src={photoUrl(photo.id, 1400)}
-            srcSet={photoSrcSet(photo.id)}
+            src={photoUrl(photo, 1400)}
+            srcSet={photoSrcSet(photo)}
             sizes="(min-width: 1440px) 1312px, 92vw"
             alt={photo.alt}
             className="aspect-[16/9] w-full object-cover lg:aspect-[21/9]"

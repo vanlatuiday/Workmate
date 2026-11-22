@@ -4,7 +4,7 @@ import EmptyState from '@components/dashboard/EmptyState'
 import { JOB_TYPES } from '@constants/index'
 import { BTN_SECONDARY } from '@utils/ui'
 import DiscoverGallery from '@components/discover/DiscoverGallery'
-import { ClosingBand, DetailHead, Facts, PrimaryLink, SampleNote, TextLink } from '@components/discover/parts'
+import { ClosingBand, PrimaryLink, SampleNote, TextLink } from '@components/discover/parts'
 import type { GalleryItem } from '@components/discover/types'
 import { STATUS_LABEL } from '@components/admin/parts'
 import { useCandidateStore } from '@context/candidateStore'
@@ -18,9 +18,14 @@ import { LIGHT_CARD_VARS } from '@components/home/homeBackground'
 import { DarkPageBody } from '@components/common/PageCover'
 import JobsHero from './JobsHero'
 import JobSearchBar from './JobSearchBar'
-import { EMPTY_FILTERS, type JobFilters } from './catalog'
+import { ALL_CATEGORIES, EMPTY_FILTERS, type JobFilters } from './catalog'
 import { useJobFilters } from './useJobFilters'
+import CategoryPicker from './CategoryPicker'
+import { categoryEntries, categoryGroups, groupPhoto, type CategoryGroup } from './categoryEntries'
+import { PostsCard, OwnRow } from './CategoryPosts'
+import { initialStep } from './useCategoryItems'
 
+type GroupItem = GalleryItem & { group: CategoryGroup<CatalogJob> }
 type Item = GalleryItem & { position: CatalogJob; statusLabel: string; typeLabel: string }
 
 /** Tin đang hiện trước, rồi tới tin đang chờ duyệt / tạm dừng */
@@ -53,22 +58,49 @@ function matches({ position: p, typeLabel }: Item, f: JobFilters) {
  * Không hiện thông tin ứng viên ở đây — chỉ số lượng, chi tiết nằm trong khu tuyển dụng.
  */
 export default function RecruiterJobs() {
-  const { filters, setFilters } = useJobFilters()
+  const { filters, setFilters, setCategory } = useJobFilters()
   const rows = useCompanyJobs(useCompanyStore((s) => s.id))
   const candidates = useCandidateStore((s) => s.list)
   const settled = useCatalogStore((s) => s.settled)
   const all = useMemo(() => rows.map((r) => r.job).sort((a, b) => rank(a) - rank(b)).map(toItem), [rows])
-  const items = useMemo(() => all.filter((x) => matches(x, filters)), [all, filters])
+  const matched = useMemo(() => all.filter((x) => matches(x, filters)), [all, filters])
+  // Mỗi nhóm có tin khớp là một bước: ảnh = tin mới nhất của nhóm, thẻ phải liệt kê các tin của nhóm
+  const byId = useMemo(() => new Map(matched.map((x) => [x.id, x])), [matched])
+  const items = useMemo<GroupItem[]>(
+    () =>
+      categoryGroups(matched.map((x) => x.position)).map((group) => ({
+        id: group.cat.key,
+        title: group.cat.label,
+        href: `/vi-tri/${group.newest.id}`,
+        photo: groupPhoto(group),
+        cursor: 'Xem tin',
+        linkLabel: `Xem tin mới nhất nhóm ${group.cat.label}: ${group.newest.title}`,
+        group,
+      })),
+    [matched],
+  )
   // fitCandidatesOf đọc thẳng kho ứng viên: tính lại khi danh sách nạp xong
   const { outcomeOf } = useCandidateMatches(all.map((x) => x.id)) // điểm máy chủ; outcomeOf đổi khi điểm đổi
   const fitCount = useMemo(() => new Map(all.map((x) => [x.id, fitCandidatesOf(x.position).length])), [all, candidates, outcomeOf])
   const fact = `${all.length} tin tuyển dụng`
+  // Chưa chọn nhóm: chỉ hiện bộ chọn nhóm (nhóm của chính các tin mình đăng); chưa có tin nào thì giữ trạng thái trống
+  const picking = filters.category === '' && all.length > 0
+  const entries = useMemo(() => categoryEntries(all.map((x) => x.position)), [all])
   return (
     <>
-      <JobsHero title="Tin tuyển dụng của bạn" fact={fact} stats={[[items.length, 'vị trí']]}>
-        <JobSearchBar filters={filters} onChange={setFilters} showDistrict={false} showSalary={false} placeholder="Tên vị trí, lịch làm…" inCover />
+      <JobsHero
+        title="Tin tuyển dụng của bạn"
+        fact={fact}
+        stats={picking ? [[entries.length, 'nhóm công việc']] : [[matched.length, 'vị trí']]}
+        picker={picking}
+        category={filters.category}
+        back={picking ? undefined : () => setCategory('')}
+      >
+        {picking ? undefined : <JobSearchBar filters={filters} onChange={setFilters} showDistrict={false} showSalary={false} placeholder="Tên vị trí, lịch làm…" inCover />}
       </JobsHero>
       <DarkPageBody>
+      {picking ? <CategoryPicker entries={entries} total={all.length} unit="vị trí" onPick={(k) => setCategory(k ?? ALL_CATEGORIES)} /> : null}
+      {picking ? null : <>
       {all.length === 0 && !settled ? (
         <div className="shell py-section-sm">
           <SkeletonCards count={3} label="Đang tải tin tuyển dụng…" />
@@ -77,14 +109,14 @@ export default function RecruiterJobs() {
         <div className={`shell py-section-sm ${LIGHT_CARD_VARS}`}>
           <EmptyState icon={SearchX} title="Chưa có tin nào" description="Đăng tin đầu tiên để Workmate gợi ý ứng viên khớp lịch gần nơi làm." />
         </div>
-      ) : items.length === 0 ? (
+      ) : matched.length === 0 ? (
         <div className={`shell py-section-sm ${LIGHT_CARD_VARS}`}>
           <EmptyState
             icon={SearchX}
             title="Không có tin nào khớp"
             description="Thử bỏ bớt điều kiện hoặc gõ từ khóa khác."
             action={
-              <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className={BTN_SECONDARY}>
+              <button type="button" onClick={() => setFilters({ ...EMPTY_FILTERS, category: filters.category })} className={BTN_SECONDARY}>
                 Xóa bộ lọc
               </button>
             }
@@ -94,31 +126,31 @@ export default function RecruiterJobs() {
       <DiscoverGallery
         key={items.map((x) => x.id).join(',')}
         items={items}
-        label="Vị trí bạn đang tuyển"
+        label="Vị trí bạn đang tuyển theo nhóm"
         layout="jobs"
-        renderDetail={({ position: p, statusLabel, typeLabel, href }) => (
+        initialIndex={initialStep(items, filters.category)}
+        renderDetail={({ group }) => (
           <>
-            <DetailHead kicker={`${statusLabel} · ${typeLabel}`} title={p.title} />
-            {p.description && <p className="mt-3 line-clamp-3 text-sm leading-relaxed">{p.description}</p>}
-            <Facts
-              dense
-              rows={[
-                ['Lịch', p.shiftLabel],
-                ['Lương', p.salaryLabel],
-                ['Cần tuyển', `${p.quantity} người`],
-                ['Ứng viên phù hợp', fitCount.get(p.id) ?? 0],
-              ]}
-            />
-            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
-              <PrimaryLink to={href} curtain={p.title} state={{ from: '/viec-lam' }}>
-                Xem vị trí
-              </PrimaryLink>
-              <TextLink to="/tuyen-dung/tin-dang">Quản lý tin</TextLink>
-            </div>
+            <PostsCard label={group.cat.label} count={group.jobs.length} unit="vị trí" footer={<TextLink to="/tuyen-dung/tin-dang">Quản lý tin</TextLink>}>
+              {group.jobs.map((p) => {
+                const it = byId.get(p.id)
+                return (
+                  <OwnRow
+                    key={p.id}
+                    id={p.id}
+                    title={p.title}
+                    status={it?.statusLabel ?? ''}
+                    meta={[it?.typeLabel, p.shiftLabel, p.salaryLabel].filter(Boolean).join(' · ')}
+                    fit={fitCount.get(p.id) ?? 0}
+                  />
+                )
+              })}
+            </PostsCard>
           </>
         )}
       />
       )}
+      </>}
       <ClosingBand
         title="Đăng thêm một vị trí"
         text="Đăng tin kèm lịch làm và tiêu chí bắt buộc, Workmate sẽ gợi ý ứng viên khớp lịch gần nơi làm."

@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom'
+import JobDetailLink from '@components/jobs/JobDetailLink'
 import { ArrowRight } from 'lucide-react'
 import Reveal from '@components/motion/Reveal'
 import { useAuthStore } from '@context/authStore'
 import { useSeekerOutcomes, type MatchJob } from '@pages/public/jobs/catalog'
 import { FOCUS } from '@utils/focus'
 
-/** Danh sách việc đang tuyển: mỗi dòng là một link tới /viec-lam/:id, người tìm việc thấy thêm % phù hợp. */
+/** Danh sách việc đang tuyển: mở popup; người tìm việc thấy thêm % phù hợp. */
 export default function JobLinks({ jobs }: { jobs: MatchJob[] }) {
   const isSeeker = useAuthStore((s) => s.user?.role === 'jobseeker')
   const { outcomeOf } = useSeekerOutcomes()
@@ -17,9 +17,8 @@ export default function JobLinks({ jobs }: { jobs: MatchJob[] }) {
           const score = isSeeker ? outcomeOf(j)?.score : undefined
           return (
             <li key={j.id}>
-              <Link
-                to={`/viec-lam/${j.id}`}
-                state={{ from: '/viec-lam' }}
+              <JobDetailLink
+                jobId={j.id}
                 className={`group day-card flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-card border border-page-line p-4 transition-colors duration-fast hover:border-page-fg md:px-5 ${FOCUS}`}
               >
                 <span className="min-w-0">
@@ -39,7 +38,7 @@ export default function JobLinks({ jobs }: { jobs: MatchJob[] }) {
                     <ArrowRight className="h-4 w-4 transition-transform duration-slow ease-editorial group-hover:translate-x-0.5" aria-hidden="true" />
                   </span>
                 </span>
-              </Link>
+              </JobDetailLink>
             </li>
           )
         })}

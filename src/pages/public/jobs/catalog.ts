@@ -13,6 +13,7 @@ import { useMatchingStore } from '@context/matchingStore'
 import type { CatalogJob } from '@context/catalogStore'
 import { useSeekerMatches } from '@services/matchingService'
 import { scoreMatch, type MatchOutcome } from '@pages/public/match/score'
+import { categoryByKey, categoryOf } from '@components/home/categories'
 
 export type { MatchJob }
 
@@ -73,9 +74,17 @@ export interface JobFilters {
   minSalaryK: number
   /** Chỉ việc trong bán kính hồ sơ (hồ sơ: maxDistanceKm) */
   nearMe: boolean
+  /**
+   * Nhóm công việc đang xem: khóa trong HOME_CATEGORIES, `ALL_CATEGORIES` = tất cả nhóm, '' = chưa chọn
+   * (trang hiện bộ chọn nhóm). Lưu ở query `nhom`.
+   */
+  category: string
 }
 
-export const EMPTY_FILTERS: JobFilters = { q: '', district: '', type: '', minSalaryK: 0, nearMe: false }
+/** Giá trị `category` / query `nhom` cho "Tất cả" */
+export const ALL_CATEGORIES = 'tat-ca'
+
+export const EMPTY_FILTERS: JobFilters = { q: '', district: '', type: '', minSalaryK: 0, nearMe: false, category: '' }
 
 /** Khu vực đang hỗ trợ, khớp với hồ sơ công ty; vẫn chọn được quận chưa có tin. */
 export const DISTRICTS = [...DANANG_DISTRICTS].sort((a, b) => a.localeCompare(b, 'vi'))
@@ -89,12 +98,19 @@ export function filtersFromParams(p: URLSearchParams): JobFilters {
   const wholeCity = /^(?:(?:thanh pho|tp\.?)\s+)?da nang$/.test(city)
   // Giữ địa điểm chưa hỗ trợ để trả kết quả rỗng và giải thích, tránh âm thầm bỏ điều kiện.
   const district = city && !wholeCity ? DISTRICTS.find((d) => city.includes(norm(d)) || norm(d).includes(city)) ?? location : ''
+  const nhom = (p.get('nhom') ?? '').trim()
+  const q = (p.get('q') ?? p.get('keyword') ?? '').trim()
+  const minSalaryK = Number(p.get('luong') ?? 0) || 0
+  const nearMe = (p.get('gan') ?? p.get('nearMe')) === 'true' || p.get('gan') === '1'
+  // Có `nhom` hợp lệ → dùng; không thì có điều kiện lọc khác (liên kết từ trang chủ / footer) → coi như "Tất cả"; còn lại → bộ chọn nhóm
+  const category = categoryByKey(nhom) ? nhom : nhom === ALL_CATEGORIES || q || district || type || minSalaryK || nearMe ? ALL_CATEGORIES : ''
   return {
     q: (p.get('q') ?? p.get('keyword') ?? '').trim(),
     district,
     type,
-    minSalaryK: Number(p.get('luong') ?? 0) || 0,
-    nearMe: (p.get('gan') ?? p.get('nearMe')) === 'true' || p.get('gan') === '1',
+    minSalaryK,
+    nearMe,
+    category,
   }
 }
 
@@ -106,10 +122,15 @@ export function filtersToParams(f: JobFilters): URLSearchParams {
   if (f.type) p.set('loai', f.type)
   if (f.minSalaryK) p.set('luong', String(f.minSalaryK))
   if (f.nearMe) p.set('gan', '1')
+  if (f.category) p.set('nhom', f.category)
   return p
 }
 
+/** Điều kiện lọc của ô tìm kiếm (không tính nhóm) */
 export const hasFilters = (f: JobFilters) => !!(f.q || f.district || f.type || f.minSalaryK || f.nearMe)
+
+/** Đang lọc theo một nhóm cụ thể (không phải "Tất cả" / chưa chọn) */
+export const hasCategory = (f: JobFilters) => !!categoryByKey(f.category)
 
 /** Bỏ dấu + chữ thường để tìm "pha che" vẫn ra "Pha chế" */
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim()
@@ -132,6 +153,7 @@ function textMatches(query: string, text: string): boolean {
 
 /** Việc có khớp bộ lọc không */
 export function jobMatches(job: MatchJob, f: JobFilters): boolean {
+  if (hasCategory(f) && categoryOf(job).key !== f.category) return false
   if (f.district && job.district !== f.district) return false
   if (f.type && job.jobType !== f.type) return false
   if (f.minSalaryK && job.salaryMaxK < f.minSalaryK) return false
@@ -150,6 +172,6 @@ export function companiesMatching(f: JobFilters, companies?: DiscoverCompany[]):
   const list = companies ?? allCompanies()
   return list
     .map((company) => ({ company, all: jobsOfCompany(company.id), jobs: jobsOfCompany(company.id).filter((j) => jobMatches(j, f)) }))
-    .filter((x) => x.all.length > 0 && (!hasFilters(f) || x.jobs.length > 0))
+    .filter((x) => x.all.length > 0 && ((!hasFilters(f) && !hasCategory(f)) || x.jobs.length > 0))
     .map(({ company, jobs }) => ({ company, jobs }))
 }
