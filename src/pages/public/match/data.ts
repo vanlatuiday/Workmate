@@ -4,11 +4,9 @@
 // Ca làm là khóa `${ngày 0–6}-${buổi 0–3}` (T2…CN × Sáng/Chiều/Tối/Khuya); lương quy ra nghìn đồng/giờ.
 import { COMPANIES, type DiscoverCompany } from '@pages/public/jobs/data'
 import { AVAILABILITY_DEFAULT, PROFILE_DEFAULT } from '@pages/jobseeker/mockData'
-import { getSeekerCriteria, useProfileStore } from '@context/profileStore'
 import { MOCK_JOBS, type MockJob } from '@pages/recruiter/mockData'
 import type { Photo } from '@components/discover/types'
 import { COMPANY } from '@pages/public/personal/companyData'
-import { ME } from '@context/connectionStore'
 import type { JobType } from '@/types'
 import type { JobRequirement, SeekerCriteria } from './score'
 import { useMemo } from 'react'
@@ -119,11 +117,6 @@ export function companyOf(id: string): DiscoverCompany {
   return base ?? { ...UNKNOWN_COMPANY, id }
 }
 
-/** Mọi công ty trong danh mục */
-export function allCompanies(): DiscoverCompany[] {
-  return useCatalogStore.getState().companies
-}
-
 // ─── Phía doanh nghiệp ──────────────────────────────────────────────────────
 
 export interface MatchPosition {
@@ -142,7 +135,7 @@ const POSITION_REQ: Record<string, JobRequirement> = {
 }
 
 /** Vị trí mẫu j1–j4: chỉ để dựng danh mục dự phòng khi máy chủ tắt. Vị trí thật dùng `usePositions` */
-export const POSITIONS: MatchPosition[] = MOCK_JOBS.filter((j) => j.id in POSITION_REQ).map((job) => ({
+const POSITIONS: MatchPosition[] = MOCK_JOBS.filter((j) => j.id in POSITION_REQ).map((job) => ({
   id: job.id,
   job,
   req: POSITION_REQ[job.id],
@@ -174,7 +167,7 @@ export const RECRUITER_POSITION_JOBS: MatchJob[] = POSITIONS.map((p) => ({
 export const SEEKER_JOBS: MatchJob[] = [...MATCH_JOBS, ...RECRUITER_POSITION_JOBS]
 
 /** `from`: ngày sẵn sàng nếu biết (hồ sơ thật chưa có trường này) */
-export type Availability = { kind: 'ready'; from?: string } | { kind: 'working' }
+type Availability = { kind: 'ready'; from?: string } | { kind: 'working' }
 
 export const availabilityLabel = (a: Availability) =>
   a.kind === 'working' ? 'Đang đi làm' : a.from ? `Bắt đầu từ ${a.from}` : 'Bắt đầu ngay'
@@ -252,27 +245,6 @@ export const CANDIDATES: MatchCandidate[] = [
   cand('u20', 'j4', 'Trịnh M. A.', 'Hải Châu', 3.8, 'Mới tốt nghiệp · muốn việc ổn định', ready('01/12'),
     ['Thu ngân'], ['0-0', '1-1', '2-2', '3-0', '4-1', '5-2'], 34, ['full-time', 'shift'], { id: '1435527173128-983b87201f4d', alt: 'Cuốn sổ lịch mở trên bàn làm việc' }),
 ]
-
-/** Tên viết tắt, vd. "Nguyễn Minh Anh" -> "Nguyễn M. A." */
-const abbrevName = (full: string) => {
-  const parts = full.trim().split(/\s+/).filter(Boolean)
-  if (parts.length < 2) return parts[0] ?? ''
-  return [parts[0], ...parts.slice(1).map((w) => `${w[0].toUpperCase()}.`)].join(' ')
-}
-
-/** Người tìm việc demo (admin1) — hiện trong danh sách ứng viên của mọi vị trí.
- * name / area / criteria là getter: đọc hồ sơ mới nhất từ profileStore mỗi lần truy cập */
-export const ME_CANDIDATE: MatchCandidate = {
-  id: ME,
-  positionId: '*',
-  get name() { return abbrevName(useProfileStore.getState().profile.fullName) },
-  get area() { return useProfileStore.getState().profile.area.split(',')[0].trim() },
-  distanceKm: 1.8,
-  summary: 'Phục vụ, sự kiện · 2 năm',
-  availability: ready('01/12'),
-  get criteria() { return getSeekerCriteria() },
-  photo: { id: '1517248135467-4c7edcad34c4', alt: 'Phòng ăn nhà hàng với bàn gỗ và đèn vàng' },
-}
 
 /** Ứng viên doanh nghiệp được thấy (máy chủ đã lọc người bị khóa và hồ sơ không cho phép) — chấm điểm theo từng tin */
 export const candidatesOf = (): MatchCandidate[] => useCandidateStore.getState().list

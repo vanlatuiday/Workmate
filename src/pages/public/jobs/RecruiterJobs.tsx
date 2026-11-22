@@ -24,6 +24,7 @@ import CategoryPicker from './CategoryPicker'
 import { categoryEntries, categoryGroups, groupPhoto, type CategoryGroup } from './categoryEntries'
 import { PostsCard, OwnRow } from './CategoryPosts'
 import { initialStep } from './useCategoryItems'
+import { foldVi as fold } from '@utils/text'
 
 type GroupItem = GalleryItem & { group: CategoryGroup<CatalogJob> }
 type Item = GalleryItem & { position: CatalogJob; statusLabel: string; typeLabel: string }
@@ -42,9 +43,6 @@ const toItem = (p: CatalogJob): Item => ({
   statusLabel: p.moderation === 'approved' ? JOB_STATUS_LABELS[p.status] : STATUS_LABEL[p.moderation],
   typeLabel: JOB_TYPES.find((t) => t.value === p.jobType)?.label ?? p.jobType,
 })
-
-/** Bỏ dấu + chữ thường để gõ "pha che" vẫn khớp "pha chế" */
-const fold = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase()
 
 /** Lọc tin của nhà tuyển dụng: từ khóa khớp tên/lịch/loại việc */
 function matches({ position: p, typeLabel }: Item, f: JobFilters) {

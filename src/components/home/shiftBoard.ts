@@ -1,4 +1,5 @@
 import type { MatchJob } from '@pages/public/match/data'
+import { pad } from '@utils/format'
 
 /** Bốn buổi của một ngày; chỉ số buổi khớp khóa ca `${ngày}-${buổi}` (0 Sáng, 1 Chiều, 2 Tối, 3 Khuya — Khuya thuộc ngày bắt đầu ca) */
 export type SessionIndex = 0 | 1 | 2 | 3
@@ -28,7 +29,6 @@ export interface ShiftRow {
 const dayIndexOf = (d: Date) => (d.getDay() + 6) % 7
 export const DAY_SHORT = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
 
-const pad = (n: number) => String(n).padStart(2, '0')
 export const timeRange = (s: SessionIndex) => `${pad(SESSION_HOURS[s].start)}:00–${pad(SESSION_HOURS[s].end % 24)}:00`
 
 /** Số ngày bảng ca nhìn tới: hôm nay (phần còn lại) + 6 ngày sau */
@@ -60,7 +60,7 @@ export function shiftsOf(jobs: MatchJob[], now: Date, allowed?: ReadonlySet<stri
 }
 
 /** Thứ trong tuần của ca: 0 = T2 … 6 = CN (khớp chip ngày ở bộ lọc) */
-export const dayOfRow = (r: ShiftRow) => Number(r.slot.split('-')[0])
+const dayOfRow = (r: ShiftRow) => Number(r.slot.split('-')[0])
 /** Nhãn thứ ngắn của ca, vd. "T7" */
 export const dayShort = (r: ShiftRow) => DAY_SHORT[dayOfRow(r)]
 

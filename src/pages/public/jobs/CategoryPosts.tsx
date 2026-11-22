@@ -14,7 +14,7 @@ const ROW = cn('day-post block w-full rounded-control border border-wm-ivory/15 
 const SUB_ROW = cn('day-post-sub flex min-h-11 w-full items-start gap-3 px-3 py-2.5 text-left hover:bg-wm-ivory/10', PRESS, FOCUS)
 
 /** Phần tử công ty rút gọn cho đầu thẻ (chồng logo) */
-export interface CompanyBrief { id: string }
+interface CompanyBrief { id: string }
 
 /** Thông tin hiển thị của một công ty: tên, logo (danh mục / dữ liệu mẫu) + trạng thái đã xác minh */
 function useCompanyView(id: string) {
@@ -117,7 +117,7 @@ function JobMeta({ job, noDistrict }: { job: MatchJob; noDistrict?: boolean }) {
 }
 
 /** Các tin của một công ty trong nhóm (đã xếp tin phù hợp nhất lên đầu) */
-export interface CompanyPosts<J extends MatchJob = MatchJob> {
+interface CompanyPosts<J extends MatchJob = MatchJob> {
   companyId: string
   jobs: J[]
   /** Điểm phù hợp của từng tin (nếu có) */

@@ -7,7 +7,7 @@ export const fmtDay = (d: string) => new Date(`${d}T00:00`).toLocaleDateString('
 export const todayStr = () => new Date().toLocaleDateString('sv-SE')
 
 /** Nhãn trạng thái nhận việc theo người xem (lời lẽ nhẹ nhàng, tôn trọng) */
-export const HIRE_LABEL: Record<Side, Record<HireStatus, string>> = {
+const HIRE_LABEL: Record<Side, Record<HireStatus, string>> = {
   recruiter: {
     offered: 'Chờ xác nhận đi làm',
     accepted: 'Đã đi làm',
@@ -42,11 +42,4 @@ export function hireLabel(viewer: Side, hire: { status: HireStatus; startDate?: 
 export const REVIEW_TAGS: Record<Side, string[]> = {
   seeker: ['Trả lương đúng hẹn', 'Đúng mô tả công việc', 'Môi trường thân thiện', 'Quản lý hướng dẫn tận tình'],
   recruiter: ['Đúng giờ', 'Chăm chỉ', 'Học việc nhanh', 'Thái độ tốt'],
-}
-
-/** Rút gọn tên người: "Nguyễn Văn An" → "Nguyễn V. A." (tên đã viết tắt thì giữ nguyên) */
-export function abbreviateName(full: string): string {
-  const parts = full.trim().split(/\s+/).filter(Boolean)
-  if (parts.length <= 1) return full.trim()
-  return [parts[0], ...parts.slice(1).map((w) => (w.endsWith('.') ? w : `${w[0].toUpperCase()}.`))].join(' ')
 }

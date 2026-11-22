@@ -12,45 +12,6 @@ export interface User {
   displayName?: string
 }
 
-// ─── Jobseeker ───────────────────────────────────────────────────────────────
-export interface JobseekerProfile {
-  id: string
-  userId: string
-  fullName: string
-  avatar?: string
-  age?: number
-  location: string
-  phone: string
-  email: string
-  education: Education[]
-  experience: Experience[]
-  skills: Skill[]
-  availability: WeeklyAvailability
-  desiredJobType: JobType[]
-  desiredSalary?: SalaryRange
-  maxDistanceKm?: number
-}
-
-export interface Education {
-  school: string
-  major: string
-  startYear: number
-  endYear?: number
-}
-
-export interface Experience {
-  title: string
-  company: string
-  startDate: string
-  endDate?: string
-  description?: string
-}
-
-export interface Skill {
-  name: string
-  category: 'professional' | 'communication' | 'workstyle' | 'practical'
-}
-
 export type DayOfWeek = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
 
 export interface TimeSlot {
@@ -130,19 +91,6 @@ export interface JobRequirements {
 // ─── Matching ────────────────────────────────────────────────────────────────
 export type MatchLevel = 'high' | 'medium' | 'possible' | 'low'
 
-export interface MatchResult {
-  id: string
-  jobId: string
-  jobseekerId: string
-  score: number
-  level: MatchLevel
-  breakdown: MatchBreakdown
-  jobseekerInterested?: boolean
-  recruiterInterested?: boolean
-  matched: boolean
-  createdAt: string
-}
-
 export interface MatchBreakdown {
   skills: number
   schedule: number
@@ -171,15 +119,6 @@ export interface Application {
   appliedAt: string
   updatedAt: string
   note?: string
-}
-
-// ─── Chat ────────────────────────────────────────────────────────────────────
-export interface ChatRoom {
-  id: string
-  matchId: string
-  participants: string[]
-  lastMessage?: Message
-  updatedAt: string
 }
 
 export interface Message {
@@ -228,19 +167,4 @@ export interface Notification {
   read: boolean
   link?: string
   createdAt: string
-}
-
-// ─── API Response ────────────────────────────────────────────────────────────
-export interface ApiResponse<T> {
-  data: T
-  message?: string
-  success: boolean
-}
-
-export interface PaginatedResponse<T> {
-  data: T[]
-  total: number
-  page: number
-  pageSize: number
-  totalPages: number
 }

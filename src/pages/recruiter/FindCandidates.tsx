@@ -14,12 +14,12 @@ import { FOCUS } from '@utils/focus'
 import { BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { candidateHref } from '@pages/public/personal/links'
 import { Link } from 'react-router-dom'
+import { foldVi, initialsOf } from '@utils/text'
 
 const FIELD = `h-10 rounded-control border border-page-edge bg-page-surface px-3 text-sm text-page-fg ${FOCUS}`
 
 /** Bỏ dấu + chữ thường để "pha che" khớp "Pha chế" */
-const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase().trim()
-const initialsOf = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join('')
+const norm = (s: string) => foldVi(s).trim()
 
 const SESSIONS = [
   { id: 0, label: 'Sáng' },

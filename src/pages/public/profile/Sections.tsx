@@ -11,7 +11,7 @@ import { chip, Group, INPUT, LevelPicker } from './ui'
 import { fmtMoney, type ProfileApi } from './useProfileDraft'
 
 /** Kỹ năng: chip bỏ được + ô thêm (dùng ở /ho-so và form bắt đầu). */
-export function SkillsFields({ api }: { api: ProfileApi }) {
+function SkillsFields({ api }: { api: ProfileApi }) {
   const { profile, addSkill, removeSkill, setSkillLevel } = api
   const [draft, setDraft] = useState('')
   const add = () => { addSkill(draft); setDraft('') }
@@ -45,7 +45,7 @@ export function SkillsChapter({ api }: { api: ProfileApi }) {
 const MAX_BULLETS = 8
 
 /** "Việc đã làm": mỗi dòng một ô; Enter thêm dòng kế (tối đa 8), Backspace ở dòng trống xóa dòng. */
-export function BulletsEditor({ id, bullets, onChange }: { id: string; bullets: string[]; onChange: (b: string[]) => void }) {
+function BulletsEditor({ id, bullets, onChange }: { id: string; bullets: string[]; onChange: (b: string[]) => void }) {
   const focusLine = (i: number) => requestAnimationFrame(() => document.getElementById(`kn-b-${id}-${i}`)?.focus())
   const setLine = (i: number, v: string) => onChange(bullets.map((b, j) => (j === i ? v : b)))
   const addLine = (after = bullets.length - 1) => {
@@ -149,7 +149,7 @@ export function ExperienceChapter({ api }: { api: ProfileApi }) {
 }
 
 /** Lưới lịch rảnh 7 ngày × 4 buổi (dùng ở /ho-so và form bắt đầu); ô bật = nền màu vai trò. */
-export function AvailabilityGrid({ availability, onToggle }: { availability: string[]; onToggle: (key: string) => void }) {
+function AvailabilityGrid({ availability, onToggle }: { availability: string[]; onToggle: (key: string) => void }) {
   return (
     <div>
     <div className="grid grid-cols-[auto_repeat(4,1fr)] gap-1.5" role="group" aria-label="Lịch rảnh trong tuần">
@@ -210,7 +210,7 @@ export function AvailabilityChapter({ api }: { api: ProfileApi }) {
 }
 
 /** Mong muốn: lương, khoảng cách, loại việc, khu vực (dùng ở /ho-so và form bắt đầu). */
-export function WantsFields({ api }: { api: ProfileApi }) {
+function WantsFields({ api }: { api: ProfileApi }) {
   const { profile, set, toggleJobType } = api
   return (
     <div className="space-y-4">

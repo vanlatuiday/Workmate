@@ -22,7 +22,7 @@ export const DEFAULT_PRIORITY: CriterionKey[] = ['skills', 'schedule', 'salary',
  * Trọng số theo hạng (tổng 100). Hạng 3 nhỉnh hơn hạng 4 một chút
  * để đổi chỗ hai tiêu chí nào cũng làm danh sách thay đổi.
  */
-export const RANK_WEIGHTS = [35, 25, 16, 14, 10] as const
+const RANK_WEIGHTS = [35, 25, 16, 14, 10] as const
 
 export function weightsOf(priority: CriterionKey[]): Record<CriterionKey, number> {
   const w = {} as Record<CriterionKey, number>

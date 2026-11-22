@@ -8,7 +8,7 @@ import type { Photo } from '@components/discover/types'
 import type { JobType } from '@/types'
 
 /** Nội dung nhà tuyển dụng gửi khi đăng / sửa tin (khớp DTO của máy chủ) */
-export interface JobBody {
+interface JobBody {
   title: string
   description: string
   jobType: JobType
@@ -44,7 +44,7 @@ export async function loadCatalog(isAdmin = false): Promise<void> {
 }
 
 /** Quản trị viên: danh sách tin kèm cờ + cấu hình đầy đủ (có từ cấm) */
-export async function loadAdmin(): Promise<void> {
+async function loadAdmin(): Promise<void> {
   try {
     const [rows, cfg] = await Promise.all([api.get<AdminJobData[]>('/admin/jobs'), api.get<SystemConfig>('/admin/config')])
     store().setAdminRows(rows.data)
@@ -56,7 +56,7 @@ export async function loadAdmin(): Promise<void> {
 
 /** Kết quả tự lọc tin: duyệt ngay / giữ lại chờ duyệt / từ chối kèm các cụm cấm tìm thấy */
 export interface JobReview { decision: 'approved' | 'pending' | 'rejected'; banned: string[] }
-export interface RecruiterJobResult { job: CatalogJob; review: JobReview }
+interface RecruiterJobResult { job: CatalogJob; review: JobReview }
 
 const splitReview = (r: CatalogJob & { review?: JobReview }): RecruiterJobResult => {
   const { review = { decision: 'pending', banned: [] }, ...job } = r

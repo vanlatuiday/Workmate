@@ -44,7 +44,7 @@ export function OutlinePill({ children, back, small, ...props }: LinkProps & { b
 }
 
 /** Lỗi nhỏ dưới ô nhập, gắn với ô qua aria-describedby */
-export function FieldError({ id, message }: { id: string; message?: string }) {
+function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null
   return (
     <p id={id} role="alert" className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-danger">
@@ -228,7 +228,7 @@ const STRENGTH = [
 ] as const
 
 /** 0 = yếu, 1 = trung bình, 2 = mạnh: theo độ dài + chữ hoa / số / ký tự đặc biệt */
-export function passwordStrength(pw: string): 0 | 1 | 2 {
+function passwordStrength(pw: string): 0 | 1 | 2 {
   if (pw.length < 8) return 0
   const kinds = [/[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/].filter((re) => re.test(pw)).length
   const points = kinds + (pw.length >= 12 ? 1 : 0)

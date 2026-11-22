@@ -7,11 +7,11 @@ import { FOCUS } from '@utils/focus'
 import { BTN_ACCENT, BTN_GHOST, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import DialogShell from './DialogShell'
 import { MODE_LABEL } from './format'
+import { pad } from '@utils/format'
 
 type Props = { jobId: string; seekerId: string; onClose: () => void }
 type Row = { id: number; date: string; time: string }
 
-const pad = (n: number) => String(n).padStart(2, '0')
 const dateStr = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 /** Mặc định: 2, 3, 4 ngày tới lúc 15:00 */
 const defaultRows = (): Row[] =>

@@ -10,14 +10,14 @@ type ThemeSpec = { bg: PaletteName; fg: PaletteName }
  * Tương phản đã kiểm tra: chữ chính ≥ 6.2:1, chữ phụ (--page-muted, 82%) ≥ 4.5:1
  * trên mọi nền; sage là nền khó nhất (4.52:1).
  */
-export const THEMES = Object.fromEntries(
+const THEMES = Object.fromEntries(
   Object.entries(tokens.themes as Record<string, ThemeSpec>).map(([name, t]) => [
     name,
     { bg: tokens.palette[t.bg], fg: tokens.palette[t.fg] },
   ]),
 ) as Record<keyof typeof tokens.themes, { bg: string; fg: string }>
 
-export type ThemeName = keyof typeof THEMES
+type ThemeName = keyof typeof THEMES
 
 /**
  * Đổi màu nền/chữ của cả trang theo section đang xem.

@@ -56,7 +56,7 @@ export function ScaledCv({ data, mode, compact, contain }: { data: CvData; mode:
  * In CV thành PDF: dựng MỘT bản tờ CV ở cuối <body> (class cv-print-root) rồi gọi window.print();
  * stylesheet in (index.css) ẩn mọi thứ khác và đặt khổ A4. Tên tài liệu tạm đổi thành "CV – {tên}".
  */
-export function useCvPrint(data: CvData, mode: CvMode) {
+function useCvPrint(data: CvData, mode: CvMode) {
   const [printing, setPrinting] = useState(false)
   const start = useCallback(() => setPrinting(true), [])
 

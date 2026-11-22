@@ -4,7 +4,7 @@ import { useReducedMotion } from '@hooks/useReducedMotion'
 import { photoUrl, type Photo } from '@components/discover/types'
 import { personInitials } from '../match/parts'
 
-export interface TopCandidate { name: string; score: number }
+interface TopCandidate { name: string; score: number }
 
 interface Props {
   photo: Photo

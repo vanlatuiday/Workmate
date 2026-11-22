@@ -2,7 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import { gsap } from '@utils/gsap'
 
 /** 'out' = lan từ tâm ra ngoài; 'in' = từ mép màn hình co vào, hội tụ tại tâm */
-export type RippleDirection = 'out' | 'in'
+type RippleDirection = 'out' | 'in'
 
 export type DeskRippleHandle = {
   /** Phát một vòng sóng quanh điểm (x, y) theo toạ độ màn hình; `duration` (giây) mặc định DURATION */

@@ -7,6 +7,7 @@ import { setModeration, type AdminJobRow, type ModerationStatus } from '@service
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { BTN_DANGER, BTN_GHOST, BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
+import { foldVi } from '@utils/text'
 
 // Phần dùng chung của các trang quản trị: kiểu ô nhập, nhãn trạng thái, danh sách cờ,
 // hộp xác nhận / nhập lý do và cụm nút kiểm duyệt một tin.
@@ -14,7 +15,7 @@ import { BTN_DANGER, BTN_GHOST, BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_O
 export const FIELD = `rounded-card border border-page-edge bg-page-surface px-4 py-2.5 text-sm text-page-fg ${FOCUS}`
 
 /** Bỏ dấu + chữ thường để tìm "pha che" khớp "Pha chế" */
-export const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase().trim()
+export const norm = (s: string) => foldVi(s).trim()
 
 export const STATUS_LABEL: Record<ModerationStatus, string> = {
   pending: 'Chờ duyệt',

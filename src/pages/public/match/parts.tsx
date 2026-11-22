@@ -15,6 +15,7 @@ import PageCover, { COVER_EDGE, COVER_GLASS, DarkPageBody } from '@components/co
 import { CRITERION_LABELS, type CriterionResult, type MatchOutcome } from './score'
 import { companyOf, type MatchJob } from './data'
 import { fitTone } from './gallery/MatchGallery'
+import { foldVi } from '@utils/text'
 
 /** Nút dùng chung — re-export từ bộ nút của site để các màn hình ngoài /match vẫn import được */
 export { BTN_PRIMARY, BTN_SECONDARY } from '@utils/ui'
@@ -61,19 +62,9 @@ export function personInitials(name: string) {
   return (parts[0][0] + (parts[parts.length - 1][0] ?? '')).toUpperCase()
 }
 
-/** Chữ tắt công ty: hai chữ cuối của tên, "Quán Gió Sông Hàn" → "SH" */
-export function companyInitials(name: string) {
-  const words = name.split(/\s+/).filter(Boolean)
-  return words
-    .slice(-2)
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
-}
-
 // ─── Tabs ───────────────────────────────────────────────────────────────────
 
-export interface TabDef {
+interface TabDef {
   id: string
   label: string
   count: number
@@ -216,8 +207,7 @@ export function JobCard({ job, outcome, actions }: { job: MatchJob; outcome: Mat
 // ─── Chế độ xem Danh sách / Bộ sưu tập ──────────────────────────────────────
 
 /** Bỏ dấu + chữ thường để gõ "pha che" vẫn ra "Pha chế" */
-export const foldText = (s: string) =>
-  s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim()
+const foldText = (s: string) => foldVi(s).trim()
 
 /** Mọi từ trong `query` đều có mặt trong `haystack` (đã bỏ dấu). Query trống = khớp. */
 export const foldMatches = (haystack: string[], query: string) => {

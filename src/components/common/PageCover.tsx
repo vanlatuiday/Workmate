@@ -27,7 +27,7 @@ const EDGE = 'px-4 md:px-[max(16px,2.5vw)]'
 /** Trên trang ban ngày (.theme-day) tự thành kính trắng + viền xanh nhạt (index.css → .cover-glass); dashboard giữ kính tối */
 export const COVER_GLASS = 'cover-glass'
 
-export type CoverRole = 'jobseeker' | 'recruiter' | 'admin'
+type CoverRole = 'jobseeker' | 'recruiter' | 'admin'
 
 /** Màu vạch đáy của dải chức năng theo vai trò */
 const ROLE_LINE: Record<CoverRole, string> = {
@@ -36,7 +36,7 @@ const ROLE_LINE: Record<CoverRole, string> = {
   admin: 'bg-wm-ivory/60',
 }
 
-export type Crumb = { label: string; to?: string }
+type Crumb = { label: string; to?: string }
 
 type Props = {
   level: 'lg' | 'md' | 'strip'

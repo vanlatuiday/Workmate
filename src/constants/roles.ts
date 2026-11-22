@@ -8,7 +8,7 @@ export const ROLE_AREAS: Record<UserRole, { home: string; label: string; roleLab
 }
 
 /** Vai trò sở hữu đường dẫn này (khu làm việc), hoặc null nếu là trang công khai. */
-export function roleOfPath(path: string): UserRole | null {
+function roleOfPath(path: string): UserRole | null {
   const entry = (Object.entries(ROLE_AREAS) as [UserRole, { home: string }][]).find(
     ([, a]) => path === a.home || path.startsWith(a.home + '/'),
   )

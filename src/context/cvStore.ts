@@ -18,7 +18,7 @@ type CvRow = CvMeta & { isDefault: boolean }
 /** Kiểu file nhận (khớp máy chủ) */
 export const CV_TYPES = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp']
 /** Tối đa 5MB / file, tối đa 5 CV */
-export const CV_MAX_BYTES = 5 * 1024 * 1024
+const CV_MAX_BYTES = 5 * 1024 * 1024
 export const CV_MAX_COUNT = 5
 
 interface CvState {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export type Surface = 'light' | 'dark' | 'day'
+type Surface = 'light' | 'dark' | 'day'
 
 /** Chiều cao header (h-16). Đường dò nằm ngay dưới mép header. */
 const HEADER_H = 64

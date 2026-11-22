@@ -4,8 +4,9 @@ import { useConnectionStore, convKey } from '@context/connectionStore'
 import { useCatalogStore } from '@context/catalogStore'
 import { candidatesOf } from '../match/data'
 import { findAnyJob } from '../jobs/lookup'
+import { initialsOf } from '@utils/text'
 
-export interface ConversationInfo {
+interface ConversationInfo {
   name: string
   subtitle: string
   initials: string
@@ -16,8 +17,6 @@ export interface ConversationInfo {
 }
 
 /** Chữ tắt trong vòng tròn: chữ cái đầu của hai từ đầu tiên */
-const initialsOf = (name: string) =>
-  name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join('')
 
 /**
  * Tên + phụ đề hiển thị cho một cuộc trò chuyện, theo người xem:

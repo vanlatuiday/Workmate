@@ -5,8 +5,8 @@ import { useCompanyStore } from '@context/companyStore'
 import { useCatalogStore } from '@context/catalogStore'
 import type { Photo } from '@components/discover/types'
 
-export const LOGO_MAX_BYTES = 2 * 1024 * 1024
-export const LOGO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const LOGO_MAX_BYTES = 2 * 1024 * 1024
+const LOGO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 /** Kiểm tra phía client trước khi gửi; trả về thông báo lỗi hoặc null nếu hợp lệ */
 export function checkLogoFile(file: File): string | null {
@@ -67,7 +67,7 @@ export async function removeCompanyLogo(): Promise<string | null> {
 
 // ---- Xác minh doanh nghiệp (/api/recruiter/company/verification) ----
 export type VerificationStatus = 'pending' | 'approved' | 'rejected'
-export interface VerificationDoc { id: string; name: string; type: string; size: number }
+interface VerificationDoc { id: string; name: string; type: string; size: number }
 export interface Verification {
   id: string
   status: VerificationStatus
@@ -82,7 +82,7 @@ export interface VerificationState { verified: boolean; latest: Verification | n
 export const VERIFY_MAX_FILES = 5
 export const VERIFY_MAX_BYTES = 5 * 1024 * 1024
 export const VERIFY_NOTE_MAX = 1000
-export const VERIFY_TYPES = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp']
+const VERIFY_TYPES = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp']
 
 /** Kiểm tra danh sách file sẽ gửi (số lượng, loại, dung lượng); trả về lỗi hoặc null */
 export function checkVerificationFiles(files: File[]): string | null {
@@ -137,7 +137,7 @@ export async function withdrawVerification(): Promise<string | null> {
 }
 
 // ---- Mã số doanh nghiệp (/api/recruiter/company/tax-lookup) ----
-export type TaxResult = 'active' | 'inactive' | 'not_found' | 'unavailable'
+type TaxResult = 'active' | 'inactive' | 'not_found' | 'unavailable'
 export interface TaxLookup {
   result: TaxResult
   name?: string

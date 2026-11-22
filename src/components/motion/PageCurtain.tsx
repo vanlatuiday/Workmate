@@ -6,7 +6,7 @@ import { cn } from '@utils/cn'
 import { isDayPath } from '@components/layout/dayContext'
 
 /** Hướng màn: 'up' = trượt từ dưới lên (mở trang chi tiết), 'down' = phủ từ trên xuống (trang cá nhân, như menu) */
-export type CurtainDirection = 'up' | 'down'
+type CurtainDirection = 'up' | 'down'
 
 type Request = {
   id: number
@@ -23,7 +23,7 @@ type Request = {
  * trang chủ → xanh abyss; trang ban ngày (Việc làm, Công ty, Kết nối…) → nền day + bầu trời xanh nhạt (.curtain-day);
  * /ca-nhan, /ho-so → than chì như cũ; trang công khai còn lại → ngà.
  */
-export function curtainColors(to: string) {
+function curtainColors(to: string) {
   const path = to.split(/[?#]/)[0]
   if (path === '/') return 'bg-wm-abyss text-wm-ivory'
   if (path === '/ca-nhan' || path === '/ho-so') return 'bg-wm-charcoal text-wm-ivory'

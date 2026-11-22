@@ -30,7 +30,7 @@ let seekerInflight: Promise<void> | null = null
 let companyInflight: Promise<void> | null = null
 
 /** Người tìm việc: nạp điểm mọi tin đang hiển thị */
-export function loadSeekerMatches(): Promise<void> {
+function loadSeekerMatches(): Promise<void> {
   if (role() !== 'jobseeker') return Promise.resolve()
   if (seekerInflight) return seekerInflight
   const gen = generation
@@ -59,7 +59,7 @@ type CompanyReply = { weights: Weights; jobs: Record<string, ({ seekerId: string
  * Nhà tuyển dụng: nạp điểm ứng viên cho MỌI tin của công ty trong một lần gọi.
  * `wanted`: các tin đang được hỏi — tin không có trong kết quả (vừa tạo, không thuộc công ty) được ghi rỗng để không hỏi lại mãi.
  */
-export function loadCompanyMatches(wanted: string[] = []): Promise<void> {
+function loadCompanyMatches(wanted: string[] = []): Promise<void> {
   if (role() !== 'recruiter') return Promise.resolve()
   if (companyInflight) return companyInflight
   const gen = generation
@@ -91,11 +91,8 @@ export function loadCompanyMatches(wanted: string[] = []): Promise<void> {
   return companyInflight
 }
 
-/** Giữ tên cũ cho chỗ gọi theo một tin: nạp cả công ty (một lần gọi) */
-export const loadCandidateMatches = (jobId: string) => loadCompanyMatches([jobId])
-
 /** Nạp lại những gì đang giữ (tin của người tìm việc / mọi tin của nhà tuyển dụng) */
-export function refreshMatching(): void {
+function refreshMatching(): void {
   if (role() === 'jobseeker') void loadSeekerMatches()
   else if (role() === 'recruiter' && Object.keys(state().candidates).length) void loadCompanyMatches()
 }

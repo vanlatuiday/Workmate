@@ -1,20 +1,5 @@
 // Dữ liệu mẫu — thay bằng API. Dùng chung cho Dashboard, Việc phù hợp và Hồ sơ.
-import type { ApplicationStatus, JobType } from '@/types'
-
-export type MockApplication = {
-  id: string
-  jobId: string
-  title: string
-  company: string
-  status: ApplicationStatus
-  appliedAt: string
-}
-
-export const RECENT_APPLICATIONS: MockApplication[] = [
-  { id: 'dt-1', jobId: 'vl-101', title: 'Nhân viên bán hàng cuối tuần', company: 'Cửa hàng Biển Xanh', status: 'interview_invited', appliedAt: '21/10/2026' },
-  { id: 'dt-2', jobId: 'vl-103', title: 'Phụ trách sự kiện khai trương', company: 'Công ty Sự kiện Mây Trắng', status: 'considering', appliedAt: '19/10/2026' },
-  { id: 'dt-3', jobId: 'vl-102', title: 'Pha chế quán cà phê', company: 'Quán Gió Sông Hàn', status: 'viewed', appliedAt: '17/10/2026' },
-]
+import type { JobType } from '@/types'
 
 /** Hồ sơ mẫu ban đầu — chỉ là hạt giống cho `context/profileStore` (nguồn thật của hồ sơ, lưu localStorage) */
 export const PROFILE_DEFAULT = {

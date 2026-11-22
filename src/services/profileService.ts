@@ -46,7 +46,7 @@ function toBody(patch: Partial<SeekerProfile>): ProfileBody {
 }
 
 /** Chỉ đồng bộ khi đang đăng nhập bằng tài khoản người tìm việc */
-export const syncsWithServer = () => useAuthStore.getState().user?.role === 'jobseeker'
+const syncsWithServer = () => useAuthStore.getState().user?.role === 'jobseeker'
 
 let pending: Partial<SeekerProfile> = {}
 let timer: ReturnType<typeof setTimeout> | null = null
@@ -74,7 +74,7 @@ async function flush(): Promise<void> {
 }
 
 /** Gọi từ profileStore mỗi lần hồ sơ đổi */
-export function queueProfileSave(patch: Partial<SeekerProfile>): void {
+function queueProfileSave(patch: Partial<SeekerProfile>): void {
   if (!syncsWithServer()) return
   pending = { ...pending, ...patch }
   if (timer) clearTimeout(timer)

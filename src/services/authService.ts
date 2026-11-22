@@ -2,9 +2,9 @@ import axios from 'axios'
 import api from './api'
 import type { User } from '@/types'
 
-export interface AuthResponse { user: User; token: string }
+interface AuthResponse { user: User; token: string }
 /** `devCode`: CHỈ có khi máy chủ chạy ngoài production (bản demo chưa có email thật) */
-export interface ForgotPasswordResponse { ok: true; devCode?: string }
+interface ForgotPasswordResponse { ok: true; devCode?: string }
 
 /** Lấy thông báo lỗi tiếng Việt từ phản hồi của máy chủ; mất kết nối thì báo riêng */
 export function apiErrorMessage(err: unknown, fallback = 'Chưa thực hiện được. Vui lòng thử lại sau ít phút.'): string {

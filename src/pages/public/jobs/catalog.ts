@@ -4,43 +4,25 @@
 import { useCallback } from 'react'
 import type { JobType } from '@/types'
 import { DANANG_DISTRICTS } from '@constants/index'
-import type { DiscoverCompany } from './data'
-import { allCompanies, companyOf, type MatchJob } from '@pages/public/match/data'
-import { getVisibleJobs, useVisibleJobs } from '@services/adminService'
+import { companyOf, type MatchJob } from '@pages/public/match/data'
+import { useVisibleJobs } from '@services/adminService'
 import { getSeekerCriteria } from '@context/profileStore'
 import { useAuthStore } from '@context/authStore'
-import { useMatchingStore } from '@context/matchingStore'
 import type { CatalogJob } from '@context/catalogStore'
 import { useSeekerMatches } from '@services/matchingService'
 import { scoreMatch, type MatchOutcome } from '@pages/public/match/score'
 import { categoryByKey, categoryOf } from '@components/home/categories'
+import { foldVi } from '@utils/text'
 
 export type { MatchJob }
 
 /**
- * Mọi việc người tìm việc thấy được (đọc tức thời từ danh mục): chỉ tin đã duyệt, đang mở và công ty không bị khóa
- * (cờ `visible` do máy chủ tính).
- * Trong component dùng `useAllJobs()` để tự cập nhật khi quản trị viên thay đổi.
+ * Mọi việc người tìm việc thấy được: chỉ tin đã duyệt, đang mở và công ty không bị khóa
+ * (cờ `visible` do máy chủ tính). Tự cập nhật khi quản trị viên thay đổi.
  */
-export const getAllJobs = (): CatalogJob[] => getVisibleJobs()
 export const useAllJobs = (): CatalogJob[] => useVisibleJobs()
 
-/** Việc đang tuyển của một công ty (theo id công ty) */
-export function jobsOfCompany(companyId: string): MatchJob[] {
-  return getAllJobs().filter((j) => j.companyId === companyId)
-}
-
-/**
- * Điểm phù hợp của một việc với người tìm việc đang đăng nhập: lấy từ máy chủ (services/matchingService).
- * Chưa có điểm (đang nạp, tin vừa tạo) → undefined. Khách / vai trò khác chỉ thấy bản mẫu tính tại chỗ với hồ sơ demo.
- * Trong component dùng `useSeekerOutcomes()` để tự cập nhật khi điểm về.
- */
-export function seekerOutcome(job: MatchJob): MatchOutcome | undefined {
-  if (useAuthStore.getState().user?.role === 'jobseeker') return useMatchingStore.getState().jobs[job.id]
-  return scoreMatch(getSeekerCriteria(), job, job.distanceKm)
-}
-
-/** Hook: `ready` = điểm đã về (hoặc không cần chờ), `outcomeOf(job)` như seekerOutcome nhưng cập nhật giao diện */
+/** Hook: `ready` = điểm đã về (hoặc không cần chờ), `outcomeOf(job)` cập nhật giao diện khi điểm về (khách / vai trò khác: điểm mẫu tính tại chỗ với hồ sơ demo) */
 export function useSeekerOutcomes() {
   const isSeeker = useAuthStore((s) => s.user?.role === 'jobseeker')
   const m = useSeekerMatches()
@@ -50,16 +32,6 @@ export function useSeekerOutcomes() {
     [isSeeker, outcomeOf],
   )
   return { ready: !isSeeker || m.ready, outcomeOf: of }
-}
-
-/** Việc hợp nhất của một công ty (để hiện "Độ phù hợp với bạn"); `outcomeOf` lấy từ useSeekerOutcomes() */
-export function bestJobOf(
-  companyId: string,
-  outcomeOf: (job: MatchJob) => MatchOutcome | undefined = seekerOutcome,
-): { job: MatchJob; outcome: MatchOutcome } | undefined {
-  return jobsOfCompany(companyId)
-    .flatMap((job) => { const outcome = outcomeOf(job); return outcome ? [{ job, outcome }] : [] })
-    .sort((a, b) => b.outcome.score - a.outcome.score)[0]
 }
 
 /** Điều kiện lọc ở trang Việc làm — đọc/ghi qua query của URL */
@@ -130,10 +102,10 @@ export function filtersToParams(f: JobFilters): URLSearchParams {
 export const hasFilters = (f: JobFilters) => !!(f.q || f.district || f.type || f.minSalaryK || f.nearMe)
 
 /** Đang lọc theo một nhóm cụ thể (không phải "Tất cả" / chưa chọn) */
-export const hasCategory = (f: JobFilters) => !!categoryByKey(f.category)
+const hasCategory = (f: JobFilters) => !!categoryByKey(f.category)
 
 /** Bỏ dấu + chữ thường để tìm "pha che" vẫn ra "Pha chế" */
-const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim()
+const norm = (s: string) => foldVi(s).trim()
 
 /**
  * Từ khóa có khớp văn bản không (đã bỏ dấu): ưu tiên khớp cả cụm ("pha che" trong "pha che co ban");
@@ -163,15 +135,4 @@ export function jobMatches(job: MatchJob, f: JobFilters): boolean {
     if (!textMatches(f.q, [job.title, c.name, c.industry, job.district, ...job.skills].join(' '))) return false
   }
   return true
-}
-
-/** Công ty (trong danh mục) có ít nhất một việc khớp, kèm các việc khớp */
-export function companiesMatching(f: JobFilters, companies?: DiscoverCompany[]): { company: DiscoverCompany; jobs: MatchJob[] }[] {
-  // Mặc định: mọi công ty trong danh mục (kể cả công ty demo). Công ty bị khóa / không còn tin nào
-  // đang hiện thì bỏ khỏi danh sách.
-  const list = companies ?? allCompanies()
-  return list
-    .map((company) => ({ company, all: jobsOfCompany(company.id), jobs: jobsOfCompany(company.id).filter((j) => jobMatches(j, f)) }))
-    .filter((x) => x.all.length > 0 && ((!hasFilters(f) && !hasCategory(f)) || x.jobs.length > 0))
-    .map(({ company, jobs }) => ({ company, jobs }))
 }

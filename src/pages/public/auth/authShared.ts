@@ -48,7 +48,7 @@ export function useFocusFirst(ref: RefObject<HTMLElement>, enabled: boolean, key
 
 /* ─── Kiểm tra ô nhập (tiếng Việt, hiện dưới từng ô) ─────────────────────────── */
 
-export const PASSWORD_MIN = 8
+const PASSWORD_MIN = 8
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 /** Ngoài production, ô "Email" của đăng nhập / quên mật khẩu nhận cả tên ngắn của tài khoản demo */

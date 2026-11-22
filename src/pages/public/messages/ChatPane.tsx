@@ -13,6 +13,7 @@ import { BTN_ICON, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, LINK } from '@utils/ui
 import { describeConversation } from './describe'
 import ChatAvatar from './ChatAvatar'
 import FadeIn from './FadeIn'
+import { pad } from '@utils/format'
 
 /** Gợi ý trả lời nhanh. `stage`: chỉ hợp ở giai đoạn đó (bỏ khi đã có lịch phỏng vấn / đã mời nhận việc / đã đi làm) */
 const QUICK_REPLIES: Record<Side, { text: string; stage?: 'interview' | 'trial' }[]> = {
@@ -32,7 +33,6 @@ const QUICK_REPLIES: Record<Side, { text: string; stage?: 'interview' | 'trial' 
 const MAX_INPUT = 120
 const NO_SCROLLBAR = '[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
 
-const pad = (n: number) => String(n).padStart(2, '0')
 const timeOf = (iso: string) => {
   const d = new Date(iso)
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`

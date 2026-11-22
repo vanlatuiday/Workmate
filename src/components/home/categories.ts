@@ -13,6 +13,7 @@ import phucVu from '@assets/images/trades/phuc_vu.webp'
 import suKien from '@assets/images/trades/su_kien.webp'
 import thuNgan from '@assets/images/trades/thu_ngan.webp'
 import troGiang from '@assets/images/trades/tro_giang.webp'
+import { foldVi as norm } from '@utils/text'
 
 /**
  * Nhóm nghề của bảng "Ca đang cần người" (ShiftBoardSection).
@@ -34,9 +35,6 @@ export interface HomeCategory {
   /** Từ khóa (không dấu, chữ thường) tìm trong tên việc */
   words: string[]
 }
-
-const norm = (s: string) =>
-  s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase()
 
 export const HOME_CATEGORIES: HomeCategory[] = [
   { key: 'pha_che', label: 'Pha chế', icon: Coffee, q: 'Pha chế', cutout: { src: phaChe, alt: 'Tay nhân viên pha chế rót sữa tạo hình lên ly cà phê' }, words: ['pha che', 'barista'] },

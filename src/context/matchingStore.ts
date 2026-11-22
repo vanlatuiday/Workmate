@@ -7,9 +7,9 @@ import type { CriterionKey, MatchOutcome } from '@pages/public/match/score'
 export type Weights = Record<CriterionKey, number>
 /** Kết quả một cặp: giống MatchOutcome kèm khoảng cách người ↔ chỗ làm do máy chủ tính */
 export type ServerOutcome = MatchOutcome & { distanceKm: number }
-export type LoadStatus = 'idle' | 'loading' | 'ready' | 'error'
+type LoadStatus = 'idle' | 'loading' | 'ready' | 'error'
 
-export interface CandidateScores {
+interface CandidateScores {
   status: LoadStatus
   items: Record<string, ServerOutcome>
 }

@@ -27,7 +27,7 @@ function parseToken(t: string, end: boolean): string | 'now' | null {
 }
 
 /** Đọc chuỗi đã lưu (chuẩn hoặc cũ); không hiểu được → null (ô để trống) */
-export function parsePeriod(v: string): Parts | null {
+function parsePeriod(v: string): Parts | null {
   const raw = v.trim()
   if (!raw) return null
   const bits = raw.split(/\s*[–—-]\s*/).filter(Boolean)

@@ -1,7 +1,7 @@
 import { FOCUS } from '@utils/focus'
 
 /** Một gợi ý còn thiếu để đạt 100%; bấm để nhảy/focus tới phần tương ứng */
-export interface RingSuggestion {
+interface RingSuggestion {
   key: string
   label: string
   onSelect: () => void

@@ -14,7 +14,7 @@ import { cn } from '@utils/cn'
 const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 
 /** Kết quả tra mã số: tên chính thức, địa chỉ, tình trạng và các cảnh báo (tên lệch, trùng mã) */
-export function TaxResultBox({ lookup, nameMatches, usedByOther }: { lookup: TaxLookup; nameMatches: boolean | null; usedByOther: boolean }) {
+function TaxResultBox({ lookup, nameMatches, usedByOther }: { lookup: TaxLookup; nameMatches: boolean | null; usedByOther: boolean }) {
   const warn = (text: string) => (
     <p className="mt-2 flex items-start gap-1.5 rounded-control bg-warning-soft px-3 py-2 text-sm font-medium text-warning-ink">
       <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" /><span className="min-w-0 break-words">{text}</span>

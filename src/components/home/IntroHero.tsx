@@ -18,7 +18,7 @@ import { heroCopy, heroTags } from './content'
 import { HOME_BG_FALLBACK, HOME_GLASS_DARK, heroBgStyle } from './homeBackground'
 import { HomeBgLayers } from './HomeBackdrop'
 
-export type IntroHeroHandle = {
+type IntroHeroHandle = {
   /** Cuộn tới chỗ thanh tìm kiếm đã hiện đủ rồi đặt con trỏ vào ô từ khóa. */
   focusSearch: () => void
 }
@@ -27,7 +27,7 @@ export type IntroHeroHandle = {
 const INTRO_LOGO_WIDTH = { ratio: 0.5, max: 620, mobileRatio: 0.62 }
 
 /** Bề rộng (px) của logo ở trạng thái intro với màn hình rộng `vw` — dùng chung với lớp hạt. */
-export function introLogoWidth(vw: number) {
+function introLogoWidth(vw: number) {
   return Math.min(vw * (vw < 640 ? INTRO_LOGO_WIDTH.mobileRatio : INTRO_LOGO_WIDTH.ratio), INTRO_LOGO_WIDTH.max)
 }
 

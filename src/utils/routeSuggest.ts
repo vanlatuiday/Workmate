@@ -1,7 +1,8 @@
 // Gợi ý trang gần giống cho trang 404: so khớp đường dẫn gõ sai với danh sách trang tĩnh.
 import type { UserRole } from '@/types'
+import { foldVi as fold } from './text'
 
-export type RouteEntry = { to: string; label: string; roles?: UserRole[]; guestOnly?: boolean }
+type RouteEntry = { to: string; label: string; roles?: UserRole[]; guestOnly?: boolean }
 
 const PUBLIC: RouteEntry[] = [
   { to: '/viec-lam', label: 'Việc làm' },
@@ -58,9 +59,6 @@ const SETTINGS: Record<string, string> = {
   recruiter: '/tuyen-dung/cai-dat',
 }
 
-/** Bỏ dấu tiếng Việt, chữ thường */
-const fold = (s: string) =>
-  s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase()
 
 /** Chuẩn hóa: - _ / khoảng trắng như nhau; trả về các đoạn đã bỏ dấu */
 function segments(s: string): string[] {
@@ -106,7 +104,7 @@ const ALIASES: Record<string, string> = {
 
 const THRESHOLD = 0.6
 
-export function routesForRole(role?: UserRole | null): RouteEntry[] {
+function routesForRole(role?: UserRole | null): RouteEntry[] {
   const extra = role === 'jobseeker' ? SEEKER : role === 'recruiter' ? RECRUITER : role === 'admin' ? ADMIN : []
   return [...PUBLIC.filter((r) => !(role && r.guestOnly)), ...extra]
 }

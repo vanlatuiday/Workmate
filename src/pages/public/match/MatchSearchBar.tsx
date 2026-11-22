@@ -325,7 +325,7 @@ export function BarSelect({
   )
 }
 
-export type FilterOption = { value: string; label: string; count?: number }
+type FilterOption = { value: string; label: string; count?: number }
 
 /**
  * Nút lọc cỡ chip, bấm mở menu nhỏ bên dưới để chọn. `active`: giá trị khác mặc định → tô đậm.

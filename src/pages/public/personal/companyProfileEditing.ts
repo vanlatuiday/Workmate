@@ -9,7 +9,7 @@ export type CompanyDraft = Omit<CompanyProfile, 'foundedYear' | 'values' | 'envi
   address: string
 }
 export type CompanyDraftErrors = Partial<Record<keyof CompanyDraft, string>>
-export type CompanyPatch = Partial<CompanyProfile> & { address?: string }
+type CompanyPatch = Partial<CompanyProfile> & { address?: string }
 
 export function companyCurrentYear(now = new Date()) {
   return Number(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric' }).format(now))

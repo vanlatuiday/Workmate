@@ -1,49 +1,14 @@
 import { Link } from 'react-router-dom'
-import { ArrowUpRight, UserRound } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 import type { ReactNode } from 'react'
 import RollText from '@components/motion/RollText'
 import { cn } from '@utils/cn'
 import { CurtainLink } from '@components/motion/PageCurtain'
 import { FOCUS } from '@utils/focus'
-import { BTN_ACCENT, BTN_PRIMARY, CHIP, CHIP_OFF } from '@utils/ui'
-import TextReveal from '@components/motion/TextReveal'
-import Reveal from '@components/motion/Reveal'
-import { usePageEnterDelay } from '@components/motion/PageTransition'
+import { BTN_ACCENT, BTN_PRIMARY } from '@utils/ui'
 
 /** Mảnh giao diện nhỏ cho phần chữ của bộ sưu tập — giữ ba vai trò cùng một nhịp chữ. */
 
-
-export function GalleryIntro({ eyebrow, title, text }: { eyebrow: string; title: string; text: string }) {
-  // Tiêu đề trồi lên theo từng chữ khi trang lộ ra (sau các dải chuyển trang nếu có)
-  const enter = usePageEnterDelay()
-  return (
-    <>
-      <p className="inline-flex items-center gap-2 text-sm text-page-muted">
-        <span className="h-px w-8 bg-page-line" />
-        {eyebrow}
-      </p>
-      <TextReveal
-        as="h1"
-        immediate
-        delay={enter}
-        text={title}
-        className="mt-5 max-w-[14ch] font-display text-2xl font-semibold leading-[1.15] tracking-[-0.02em]"
-      />
-      <Reveal immediate delay={enter + 0.2} y={16}>
-        <p className="mt-4 text-sm leading-relaxed text-page-muted">{text}</p>
-      </Reveal>
-    </>
-  )
-}
-
-export function DetailHead({ kicker, title }: { kicker: string; title: string }) {
-  return (
-    <>
-      <p className="text-sm text-page-muted">{kicker}</p>
-      <h2 className="mt-3 font-display text-xl font-semibold leading-snug tracking-[-0.01em] md:text-2xl">{title}</h2>
-    </>
-  )
-}
 
 /** Danh sách cặp nhãn – giá trị. `dense`: bản gọn cho thẻ kính thấp ở /viec-lam */
 export function Facts({ rows, dense = false }: { rows: [string, ReactNode][]; dense?: boolean }) {
@@ -112,23 +77,5 @@ export function ClosingBand({ title, text, children }: { title: string; text: st
         <div className="flex flex-wrap items-center gap-x-6 gap-y-4 md:col-span-5 md:justify-end">{children}</div>
       </div>
     </section>
-  )
-}
-
-/**
- * Thẻ dẫn tới trang cá nhân của bên đang đăng tuyển / đang ứng tuyển.
- * Mở bằng màn phủ từ trên xuống, cùng hướng với nút "Trang cá nhân" ở header.
- */
-export function ProfileTag({ to, children }: { to: string; children: string }) {
-  return (
-    <CurtainLink
-      to={to}
-      title="Trang cá nhân"
-      direction="down"
-      className={cn(CHIP, CHIP_OFF, 'gap-2 px-3 py-1.5 text-xs text-page-muted hover:text-page-fg')}
-    >
-      <UserRound className="h-3.5 w-3.5" />
-      {children}
-    </CurtainLink>
   )
 }

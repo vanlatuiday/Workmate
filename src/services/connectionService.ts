@@ -71,7 +71,7 @@ async function write(run: () => Promise<unknown>, fallback: string, success?: st
 
 // ─── Nạp dữ liệu ────────────────────────────────────────────────────────────
 
-export async function refreshPairs() {
+async function refreshPairs() {
   const [state, interviews, hires, reviews] = await Promise.all([
     api.get<{ interests: Interest[]; connections: Connection[] }>('/connections'),
     api.get<Interview[]>('/interviews'),
@@ -91,7 +91,7 @@ export async function refreshPairs() {
   })
 }
 
-export async function refreshConversations() {
+async function refreshConversations() {
   const { data } = await api.get<ConversationSummary[]>('/conversations')
   setStore({
     conversations: data.map((c) => {
@@ -101,7 +101,7 @@ export async function refreshConversations() {
   })
 }
 
-export async function refreshNotifications() {
+async function refreshNotifications() {
   const { data } = await api.get<{ items: DemoNotification[] }>('/notifications')
   setStore({ notifications: data.items.map(localize) })
 }
@@ -213,7 +213,7 @@ export function usePairStatuses(viewer: Side): (jobId: string, seekerId: string)
 }
 
 /** Trạng thái hiện tại của một cặp (đọc tức thời, không theo dõi) — vd. để biết bấm xong có thành kết nối ngay không */
-export function getPairStatus(viewer: Side, jobId: string, seekerId: string): PairStatus {
+function getPairStatus(viewer: Side, jobId: string, seekerId: string): PairStatus {
   const { interests, connections } = store()
   const k = pairKey(jobId, seekerId)
   if (connections.some((c) => pairKey(c.jobId, c.seekerId) === k)) return 'connected'
@@ -330,7 +330,7 @@ export function withdrawInterest(from: Side, jobId: string, seekerId: string) {
 
 // ─── Tiến độ đơn ứng tuyển: chờ phản hồi → đã xem → đang cân nhắc ───────────
 
-export type ApplicationStage = 'applied' | 'viewed' | 'considering'
+type ApplicationStage = 'applied' | 'viewed' | 'considering'
 export const APPLICATION_STAGE_LABEL: Record<ApplicationStage, string> = {
   applied: 'chờ phản hồi',
   viewed: 'nhà tuyển dụng đã xem',
@@ -660,7 +660,7 @@ export function useMySeekerReview(seekerId: string) {
   return useMyReview(isRecruiter && seekerId ? `/reviews/seekers/${encodeURIComponent(toServer(seekerId))}/mine` : null)
 }
 
-export interface ReviewBody { stars: number; comment?: string; tags?: string[] }
+interface ReviewBody { stars: number; comment?: string; tags?: string[] }
 const REVIEW_ERROR = 'Chưa lưu được đánh giá, vui lòng thử lại.'
 const saveReview = async (path: string, body: ReviewBody, edit: boolean) => {
   const ok = await write(() => api.put(path, { stars: body.stars, tags: body.tags ?? [], comment: body.comment?.trim() || undefined }), REVIEW_ERROR, edit ? 'Đã cập nhật đánh giá' : 'Đã gửi đánh giá. Cảm ơn bạn.')

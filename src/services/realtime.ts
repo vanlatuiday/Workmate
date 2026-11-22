@@ -6,7 +6,7 @@ const URL = import.meta.env.VITE_SOCKET_URL ?? String(import.meta.env.VITE_API_U
 let socket: Socket | null = null
 let generation = 0
 
-export interface RealtimeHandlers {
+interface RealtimeHandlers {
   /** Kết nối lại sau khi rớt mạng: có thể đã lỡ sự kiện nên nạp lại dữ liệu */
   onReconnect: () => void
   on: Record<string, (payload: never) => void>

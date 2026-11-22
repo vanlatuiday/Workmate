@@ -6,7 +6,7 @@ import { SIDEBAR_CONFIG } from './sidebar/config'
 
 /** Khu làm việc (dashboard) → tiền tố đường dẫn; đi trong cùng khu thì không hỏi. */
 const AREAS = ['/tim-viec', '/tuyen-dung', '/admin'] as const
-export type Area = (typeof AREAS)[number]
+type Area = (typeof AREAS)[number]
 
 export const areaOf = (path: string): Area | undefined => AREAS.find((a) => path === a || path.startsWith(`${a}/`))
 

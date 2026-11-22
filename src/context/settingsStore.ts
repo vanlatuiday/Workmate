@@ -9,10 +9,10 @@ import type { DemoNotification, Side } from './connectionStore'
 // Tắt một loại thông báo thì loại đó không hiện trong cửa sổ thông báo và không tính vào số chưa đọc.
 
 export type NotificationKind = DemoNotification['kind']
-export type ProfileVisibility = 'public' | 'connected' | 'hidden'
+type ProfileVisibility = 'public' | 'connected' | 'hidden'
 export type EmailDigest = 'instant' | 'daily' | 'off'
 
-export interface SideSettings {
+interface SideSettings {
   /** Loại thông báo đang bật (thiếu khóa = bật) */
   notify: Partial<Record<NotificationKind, boolean>>
   /** Email thông báo: gửi ngay / tóm tắt 8:00 sáng (giờ VN) / tắt — backend gửi thật */

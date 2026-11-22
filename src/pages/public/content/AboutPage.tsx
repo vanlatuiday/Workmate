@@ -12,10 +12,7 @@ import { FOCUS } from '@utils/focus'
 import { BTN_ACCENT, BTN_SECONDARY, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import ContentPage, { CtaRow } from './ContentPage'
 import { ABOUT_POSTS, type AboutPost } from './aboutPosts'
-
-/** Bỏ dấu + chữ thường để tìm không phân biệt dấu/hoa thường */
-const fold = (s: string) =>
-  s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/đ/g, 'd')
+import { foldVi as fold } from '@utils/text'
 
 const CATEGORIES = Array.from(new Set(ABOUT_POSTS.map((p) => p.category)))
 

@@ -10,7 +10,7 @@ import tokens from '@/styles/tokens.json'
  * Một ảnh gốc cao TILE; hero (100svh) hiện phần đầu ảnh (tia sáng → quầng cam ở đáy).
  * Phần nội dung ngay sau hero nối tiếp từ đúng vị trí đó (lệch lên 100svh).
  */
-export const HOME_BG_TILE = '274svh'
+const HOME_BG_TILE = '274svh'
 /** Màu xanh biển lót dưới ảnh (tokens.palette.ocean) — hiện khi ảnh chưa tải */
 export const HOME_BG_FALLBACK = tokens.palette.ocean
 
@@ -51,7 +51,7 @@ export const beamBgStyle = {
  * Ảnh home-bg-wave.webp = hàng tia sáng giãn ngang theo sóng, một chu kỳ = HOME_BG_WAVE, lặp liền mạch.
  * Đầu ảnh (y = 0) đúng bằng hàng tia sáng → khớp với đoạn nối dưới hero.
  */
-export const HOME_BG_WAVE = '150svh'
+const HOME_BG_WAVE = '150svh'
 export const waveBgStyle = {
   backgroundColor: HOME_BG_FALLBACK,
   backgroundImage: `url(${waveUrl})`,

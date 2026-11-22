@@ -8,7 +8,7 @@ import RollText from '@components/motion/RollText'
 
 export type MenuItem = { label: string; href: string }
 /** Nút cuối menu: link (href) hoặc hành động (onClick, vd. Đăng xuất) */
-export type MenuAction = { label: string; href?: string; onClick?: () => void }
+type MenuAction = { label: string; href?: string; onClick?: () => void }
 
 type Props = {
   /** id để nút mở menu trỏ tới bằng aria-controls */

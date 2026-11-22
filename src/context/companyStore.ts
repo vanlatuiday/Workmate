@@ -55,7 +55,7 @@ const SEED: CompanyProfile = {
 }
 
 /** Mục bắt buộc của form bắt đầu mà máy chủ báo còn thiếu */
-export type MissingRequired = 'taxCode' | 'name' | 'logo'
+type MissingRequired = 'taxCode' | 'name' | 'logo'
 
 interface CompanyState {
   /** Id công ty của tôi; rỗng khi chưa nạp hoặc không phải nhà tuyển dụng */

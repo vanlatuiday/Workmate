@@ -29,7 +29,7 @@ export type SidebarItem = {
   children?: SidebarChild[]
 }
 
-export type SidebarGroup = { label: string; items: SidebarItem[] }
+type SidebarGroup = { label: string; items: SidebarItem[] }
 
 export type SidebarRole = 'seeker' | 'recruiter' | 'admin'
 
@@ -153,6 +153,4 @@ export function isItemActive(pathname: string, href: string, homeHref: string) {
 }
 
 /** Bỏ dấu + hạ chữ thường để tìm trang gõ không dấu cũng ra */
-export function normalize(s: string) {
-  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase()
-}
+export { foldVi as normalize } from '@utils/text'

@@ -1,8 +1,6 @@
 // Dữ liệu mẫu cho /viec-lam và /cong-ty/:id — thay bằng API khi có backend.
 // Việc làm của từng công ty nằm ở `jobs/catalog.ts` (một nguồn cho cả hai phía),
 // tin của nhà tuyển dụng lấy từ MOCK_JOBS — cùng nguồn với dashboard nên số liệu không lệch nhau.
-import { useCatalogStore } from '@context/catalogStore'
-import { IS_PRODUCTION } from '@utils/isProduction'
 import type { Photo } from '@components/discover/types'
 import type { CompanySize } from '@/types'
 
@@ -122,8 +120,3 @@ export const COMPANIES: DiscoverCompany[] = [
     environment: ['Đào tạo trước khi vào ca', 'Bữa ăn trong ca', 'Ca chiều tối'],
   },
 ]
-
-/** Công ty theo id: ưu tiên danh mục đã nạp từ máy chủ, chưa có thì dữ liệu mẫu (chưa ghép hồ sơ đã sửa của công ty demo — dùng `companyOf`) */
-export function findCompany(id: string | undefined) {
-  return useCatalogStore.getState().companies.find((c) => c.id === id) ?? (IS_PRODUCTION ? undefined : COMPANIES.find((c) => c.id === id))
-}

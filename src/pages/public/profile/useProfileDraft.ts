@@ -5,7 +5,7 @@ import type { JobType } from '@/types'
 export type { ExperienceItem }
 
 /** Hồ sơ đang chỉnh — đọc/ghi thẳng vào profileStore (lưu ngay, giữ qua lần tải lại; ảnh đại diện chỉ giữ trong phiên). */
-export type ProfileDraft = SeekerProfile & {
+type ProfileDraft = SeekerProfile & {
   /** Object URL của ảnh đại diện vừa tải lên */
   avatarUrl: string | null
 }

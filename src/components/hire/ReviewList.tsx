@@ -1,5 +1,5 @@
 import { Star } from 'lucide-react'
-import { reviewStats, useCompanyReviews, useSeekerReviews, type ReviewItem } from '@services/connectionService'
+import { reviewStats, useSeekerReviews, type ReviewItem } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { formatRelativeTime } from '@utils/format'
 
@@ -17,17 +17,15 @@ export function Stars({ value, className }: { value: number; className?: string 
 const LATEST = 4
 
 /** Một khối "Đánh giá": điểm trung bình + số lượng + vài đánh giá mới nhất; trống thì có dòng giải thích */
-function ReviewBlock({ title, reviews, emptyText, hideTitle }: {
+function ReviewBlock({ title, reviews, emptyText }: {
   title: string
-  /** Ẩn tiêu đề nhìn thấy (trang đã có tiêu đề riêng), vẫn giữ cho trình đọc màn hình */
-  hideTitle?: boolean
   reviews: ReviewItem[]
   emptyText: string
 }) {
   const { average, count } = reviewStats(reviews)
   return (
     <section aria-label={title}>
-      <h3 className={hideTitle ? 'sr-only' : 'text-sm font-medium text-page-muted'}>{title}</h3>
+      <h3 className="text-sm font-medium text-page-muted">{title}</h3>
       {count === 0 ? (
         <p className="mt-2.5 rounded-card border border-dashed border-page-edge px-4 py-3 text-sm text-page-muted">{emptyText}</p>
       ) : (
@@ -61,21 +59,6 @@ function ReviewBlock({ title, reviews, emptyText, hideTitle }: {
         </>
       )}
     </section>
-  )
-}
-
-/** Đánh giá từ người đã làm về một công ty (người viết = người tìm việc, tên rút gọn) */
-export function CompanyReviews({ companyId, className, hideTitle }: { companyId: string; className?: string; hideTitle?: boolean }) {
-  const reviews = useCompanyReviews(companyId)
-  return (
-    <div className={className}>
-      <ReviewBlock
-        title="Đánh giá từ người đã làm"
-        hideTitle={hideTitle}
-        reviews={reviews}
-        emptyText="Chưa có đánh giá nào. Đánh giá xuất hiện sau khi người tìm việc đã đi làm tại đây."
-      />
-    </div>
   )
 }
 

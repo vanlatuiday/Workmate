@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { Check, Lock } from 'lucide-react'
 import Reveal from '@components/motion/Reveal'
-import { photoSrcSet, photoUrl, type Photo } from '../types'
 
 /** Khối chữ trong dòng nội dung — tự hiện khi cuộn tới. */
 export function TextBlock({ title, children, id }: { title: string; children: ReactNode; id?: string }) {
@@ -12,23 +11,6 @@ export function TextBlock({ title, children, id }: { title: string; children: Re
         <h2 className="font-display text-xl font-semibold leading-tight tracking-[-0.02em] md:text-2xl">{title}</h2>
         <div className="mt-4">{children}</div>
       </div>
-    </Reveal>
-  )
-}
-
-/** Ảnh lớn xen giữa các khối chữ. */
-export function ImageBlock({ photo }: { photo: Photo }) {
-  return (
-    <Reveal>
-      <img
-        src={photoUrl(photo, 1400)}
-        srcSet={photoSrcSet(photo)}
-        sizes="(min-width: 1024px) 60vw, 92vw"
-        alt={photo.alt}
-        loading="lazy"
-        decoding="async"
-        className="aspect-[4/3] w-full rounded-control bg-page-surface object-cover"
-      />
     </Reveal>
   )
 }

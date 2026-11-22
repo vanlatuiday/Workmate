@@ -1,44 +1,9 @@
-import type { SalaryRange } from '@/types'
-
-const SALARY_UNIT_LABEL: Record<string, string> = {
-  hour:        '/giờ',
-  day:         '/ngày',
-  month:       '/tháng',
-  commission:  '(hoa hồng)',
-  negotiable:  '',
-}
 
 /** Số thứ tự 2 chữ số: 1 → "01". */
 export const pad = (n: number) => String(n).padStart(2, '0')
 
-export function formatSalary(salary: SalaryRange): string {
-  if (salary.unit === 'negotiable') return 'Thỏa thuận'
-
-  const unit = SALARY_UNIT_LABEL[salary.unit] ?? ''
-
-  if (salary.min && salary.max) {
-    return `${formatVND(salary.min)} – ${formatVND(salary.max)}${unit}`
-  }
-  if (salary.min) return `Từ ${formatVND(salary.min)}${unit}`
-  if (salary.max) return `Đến ${formatVND(salary.max)}${unit}`
-  return 'Thỏa thuận'
-}
-
-/** Lương theo giờ từ dữ liệu nghìn đồng: "25.000–28.000đ/giờ"; bằng nhau → "25.000đ/giờ" */
-export function formatHourlyRangeK(minK: number, maxK: number): string {
-  const f = (k: number) => (k * 1000).toLocaleString('vi-VN')
-  return minK === maxK ? `${f(maxK)}đ/giờ` : `${f(minK)}–${f(maxK)}đ/giờ`
-}
-
 /** Một mốc lương tối thiểu theo giờ: "từ 25.000đ/giờ" */
 export const formatHourlyFromK = (k: number): string => `từ ${(k * 1000).toLocaleString('vi-VN')}đ/giờ`
-
-export function formatVND(amount: number): string {
-  if (amount >= 1_000_000) {
-    return `${(amount / 1_000_000).toFixed(amount % 1_000_000 === 0 ? 0 : 1)}tr`
-  }
-  return `${(amount / 1_000).toFixed(0)}k`
-}
 
 export function formatRelativeTime(dateStr: string): string {
   const now = new Date()
@@ -56,7 +21,7 @@ export function formatRelativeTime(dateStr: string): string {
 }
 
 /** Hôm nay dạng YYYY-MM-DD theo giờ máy (dùng cho `min` của input ngày) */
-export const todayIso = (): string => {
+const todayIso = (): string => {
   const d = new Date()
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
@@ -70,12 +35,6 @@ export const tomorrowIso = (): string => {
 
 /** Ngày bắt đầu còn ở tương lai (YYYY-MM-DD)? Ngày đã qua / rỗng coi như bắt đầu ngay */
 export const isFutureStart = (iso: string | null | undefined): iso is string => !!iso && iso > todayIso()
-
-/** "YYYY-MM-DD" -> "dd/mm/yyyy" */
-export const formatDateVi = (iso: string): string => {
-  const [y, m, d] = iso.split('-')
-  return `${d}/${m}/${y}`
-}
 
 /** "ngay" hoặc "từ dd/mm/yyyy" — ngày đã qua tính là ngay */
 export const startLabel = (iso: string | null | undefined, short = false): string => {

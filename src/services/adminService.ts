@@ -15,16 +15,16 @@ import * as catalogApi from './catalogService'
 import { apiErrorMessage } from './authService'
 import api from './api'
 import type { TaxLookup, Verification, VerificationStatus } from './companyService'
+import { foldVi as norm } from '@utils/text'
+import { pad } from '@utils/format'
 
 export type { JobOpenStatus, ModerationStatus, SystemConfig } from '@context/catalogStore'
 export type { Report, ReportStatus, ReportTarget } from '@context/adminStore'
 export { DEFAULT_CONFIG } from '@context/catalogStore'
 
-const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase()
-
 /** Lý do tự gắn cờ cho một tin (rỗng = không có gì đáng ngờ). Chỉ là bản dự phòng khi chưa nạp dòng quản trị từ máy chủ;
  *  máy chủ mới là nơi dò đầy đủ (từ đáng ngờ, số điện thoại, liên kết…). */
-export function flagsOf(job: MatchJob & { description?: string }, config: SystemConfig): string[] {
+function flagsOf(job: MatchJob & { description?: string }, config: SystemConfig): string[] {
   const flags: string[] = []
   if (job.salaryMaxK > 0 && job.salaryMaxK < config.minWageK) flags.push(`Lương thấp bất thường (dưới ${config.minWageK}.000đ/giờ)`)
   if (!job.skills.length) flags.push('Chưa nêu kỹ năng cần có')
@@ -38,19 +38,11 @@ export function flagsOf(job: MatchJob & { description?: string }, config: System
   return flags
 }
 
-/** Mọi tin đang hiện công khai (đã duyệt, đang mở, công ty không bị khóa) — đọc tức thời từ danh mục */
-export function getVisibleJobs(): CatalogJob[] {
-  return useCatalogStore.getState().jobs.filter((j) => j.visible)
-}
-
-/** Hook: như getVisibleJobs nhưng tự cập nhật khi danh mục đổi (nạp lại, quản trị duyệt/ẩn/khóa) */
+/** Hook: mọi tin đang hiện công khai, tự cập nhật khi danh mục đổi (nạp lại, quản trị duyệt/ẩn/khóa) */
 export function useVisibleJobs(): CatalogJob[] {
   const jobs = useCatalogStore((s) => s.jobs)
   return useMemo(() => jobs.filter((j) => j.visible), [jobs])
 }
-
-/** Người tìm việc có bị khóa không (ẩn khỏi danh sách của doanh nghiệp) */
-export const isSeekerLocked = (seekerId: string) => !!useAdminStore.getState().lockedSeekers[seekerId]
 
 /** Tin do người dùng đăng (id sinh tự động) khác với tin mẫu có sẵn (m1…, j1…, p-seed-…) */
 const isSampleId = (id: string) => /^([mj]\d+|p-seed-\d+)$/.test(id)
@@ -148,7 +140,7 @@ export function fitCandidatesOf(job: MatchJob): { c: MatchCandidate; score: numb
     .sort((a, b) => b.score - a.score)
 }
 
-export interface JobNumbers {
+interface JobNumbers {
   /** Ứng viên phù hợp (điểm ≥ 60) */
   fit: number
   /** Người tìm việc đã quan tâm/ứng tuyển tin này (kể cả đã kết nối) */
@@ -197,7 +189,6 @@ export const resolveReport = reportErrors((...a: Parameters<ReturnType<typeof us
 export const updateConfig = (patch: Partial<SystemConfig>) => catalogApi.saveConfig(patch)
 
 const WEEKDAY = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
-const pad2 = (n: number) => String(n).padStart(2, '0')
 
 /** Hook: số tài khoản đăng ký mới mỗi ngày trong `days` ngày gần nhất (theo giờ máy người xem), cũ trước mới sau */
 export function useSignupsPerDay(days: number): { day: string; date: string; count: number }[] {
@@ -207,7 +198,7 @@ export function useSignupsPerDay(days: number): { day: string; date: string; cou
     return Array.from({ length: days }, (_, i) => {
       const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (days - 1 - i))
       const count = users.filter((u) => new Date(u.createdAt).toDateString() === d.toDateString()).length
-      return { day: WEEKDAY[d.getDay()], date: `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`, count }
+      return { day: WEEKDAY[d.getDay()], date: `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`, count }
     })
   }, [users, days])
 }

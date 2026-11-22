@@ -5,14 +5,14 @@ import { create } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 import { useMediaQuery } from '@hooks/useMediaQuery'
 
-export const FLOAT_SIZE = 56 // đường kính nút
+const FLOAT_SIZE = 56 // đường kính nút
 const EDGE = 24 // khoảng cách tới mép trái/phải (vị trí lưu cũ sát mép cũng được kẹp lại vì x luôn tính từ EDGE)
 const TOP = 72 // dưới header 4rem + chút đệm
 const BOTTOM = 24 // cách mép dưới 24px (cả mobile)
 const DRAG_THRESHOLD = 5 // px: di chuyển ít hơn thế vẫn coi là bấm
 export const GAP = 12 // khoảng cách tối thiểu giữa hai nút cùng mép
 // Dưới md (<768px): hai nút gom thành một cụm nhỏ, cố định góc dưới phải, không kéo được
-export const COMPACT_QUERY = '(max-width: 767px)'
+const COMPACT_QUERY = '(max-width: 767px)'
 const COMPACT_SIZE = 48 // vẫn >= 44px vùng chạm
 const COMPACT_GAP = 8
 const COMPACT_EDGE = 16
@@ -41,7 +41,7 @@ function applyReserve() {
   }
 }
 /** Đăng ký chừa `px` ở đáy trang khi `px > 0` (0 = không chừa) */
-export function useFloatReserve(key: string, px: number) {
+function useFloatReserve(key: string, px: number) {
   useLayoutEffect(() => {
     if (px > 0) reserves.set(key, px)
     else reserves.delete(key)
@@ -53,7 +53,7 @@ export function useFloatReserve(key: string, px: number) {
   }, [key, px])
 }
 /** Chiều cao cụm cần chừa: đáy của nút cao nhất (vị trí y của nó) -> tới mép dưới + đệm */
-export function floatReservePx(restY: number, viewportH: number) {
+function floatReservePx(restY: number, viewportH: number) {
   return Math.max(0, viewportH - restY + 12)
 }
 
