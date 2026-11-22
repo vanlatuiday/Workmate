@@ -46,10 +46,12 @@ interface CardsProps {
   /** Thẻ chèn đầu cột trái / đầu cột phải */
   leftTop?: ReactNode
   rightTop?: ReactNode
+  /** Thay nội dung thẻ đánh giá (nhà tuyển dụng xem: có viết/sửa/xóa) */
+  reviewsSlot?: ReactNode
 }
 
 /** Các thẻ hồ sơ người tìm việc, thuần hiển thị (không đọc store). */
-export function SeekerProfileCards({ data, reviews, work, viewer, details, leftTop, rightTop }: CardsProps) {
+export function SeekerProfileCards({ data, reviews, work, viewer, details, leftTop, rightTop, reviewsSlot }: CardsProps) {
   const [allReviews, setAllReviews] = useState(false)
   const history = work?.history ?? []
   const strengths = work?.strengths ?? [...new Set(reviews.flatMap((r) => r.tags))]
@@ -110,7 +112,7 @@ export function SeekerProfileCards({ data, reviews, work, viewer, details, leftT
         </Card>
       )}
       <Card title="Đánh giá từ doanh nghiệp" icon={Star}>
-        {latestReviews.length ? <>
+        {reviewsSlot ?? (latestReviews.length ? <>
           <ul className="mt-2 divide-y divide-page-line">{latestReviews.slice(0, allReviews ? undefined : 4).map((review) => <li key={review.jobId} className="py-4 break-words">
             <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">{review.authorName}</h3><time className="text-xs text-page-muted" dateTime={review.at}>{date(review.at)}</time></div>
             <p className="mt-2 flex items-center gap-2"><Stars value={review.stars} /><span className="text-xs text-page-muted">{review.stars}/5</span></p>
@@ -118,7 +120,7 @@ export function SeekerProfileCards({ data, reviews, work, viewer, details, leftT
             {review.comment && <p className="mt-3 whitespace-pre-line text-sm leading-6 text-page-muted">{review.comment}</p>}
           </li>)}</ul>
           {latestReviews.length > 4 && <button type="button" className={cn(BTN_SECONDARY, BTN_SM, 'mt-2')} aria-expanded={allReviews} onClick={() => setAllReviews(!allReviews)}>{allReviews ? 'Thu gọn đánh giá' : `Đọc đủ ${latestReviews.length} đánh giá`}</button>}
-        </> : <p className="mt-4 text-sm leading-6 text-page-muted">{viewer ? 'Ứng viên chưa nhận được đánh giá từ doanh nghiệp.' : 'Bạn chưa nhận được đánh giá từ doanh nghiệp. Điểm sao và nhận xét sẽ xuất hiện khi doanh nghiệp gửi đánh giá.'}</p>}
+        </> : <p className="mt-4 text-sm leading-6 text-page-muted">{viewer ? 'Ứng viên chưa nhận được đánh giá từ doanh nghiệp.' : 'Bạn chưa nhận được đánh giá từ doanh nghiệp. Điểm sao và nhận xét sẽ xuất hiện khi doanh nghiệp gửi đánh giá.'}</p>)}
       </Card>
       <Card title="Kỹ năng và điểm mạnh" icon={Sparkles}>
         <h3 className="mt-4 text-xs font-medium text-page-muted">Kỹ năng trong hồ sơ</h3>

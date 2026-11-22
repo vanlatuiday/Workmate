@@ -2,6 +2,7 @@
 // Giao diện chỉ dùng các hàm ở đây. Đọc từ `connectionStore`; thao tác ghi gọi máy chủ rồi cập nhật kho,
 // máy chủ từ chối thì báo lỗi bằng toast. Sự kiện socket giữ kho khớp khi phía kia thay đổi.
 import { useEffect, useMemo, useState } from 'react'
+import { create } from 'zustand'
 import { notifyError, notifySuccess } from '@utils/feedback'
 import api from './api'
 import { apiErrorMessage } from './authService'
@@ -492,8 +493,23 @@ export interface ReviewItem {
   tags: string[]
   comment?: string
   at: string
+  /** Có khi tác giả đã sửa lại đánh giá */
+  editedAt?: string
   authorName: string
 }
+
+/** Đánh giá của chính mình về một bên (để sửa/xóa) */
+export interface MyReview {
+  stars: number
+  tags: string[]
+  comment?: string
+  at: string
+  editedAt?: string
+}
+
+/** Đếm số lần lưu/xóa đánh giá: các danh sách công khai và "của tôi" nạp lại khi số này đổi */
+const useReviewVersion = create<{ n: number }>(() => ({ n: 0 }))
+const bumpReviews = () => useReviewVersion.setState((s) => ({ n: s.n + 1 }))
 
 /** Hook: đánh giá `from` đã gửi cho một cặp, nếu có */
 export function useReview(jobId: string, seekerId: string, from: Side): Review | undefined {
@@ -504,6 +520,7 @@ export function useReview(jobId: string, seekerId: string, from: Side): Review |
 function useReviewList(path: string | null): ReviewItem[] {
   const [items, setItems] = useState<ReviewItem[]>([])
   const count = useConnectionStore((s) => s.reviews.length)
+  const version = useReviewVersion((s) => s.n)
   useEffect(() => {
     if (!path) { setItems([]); return }
     let alive = true
@@ -511,7 +528,7 @@ function useReviewList(path: string | null): ReviewItem[] {
       .then(({ data }) => { if (alive) setItems(data) })
       .catch(() => { if (alive) setItems([]) })
     return () => { alive = false }
-  }, [path, count])
+  }, [path, count, version])
   return items
 }
 
@@ -521,8 +538,53 @@ export const useCompanyReviews = (companyId: string) => useReviewList(companyId 
 /** Hook: đánh giá từ doanh nghiệp về một người tìm việc (khách không có quyền xem) */
 export function useSeekerReviews(seekerId: string) {
   const loggedIn = useAuthStore((s) => !!s.token)
-  return useReviewList(loggedIn ? `/reviews/seekers/${encodeURIComponent(toServer(seekerId))}` : null)
+  return useReviewList(loggedIn && seekerId ? `/reviews/seekers/${encodeURIComponent(toServer(seekerId))}` : null)
 }
+
+/** Hook: đánh giá của mình về một bên + có được phép đánh giá không (đã quan tâm nhau). `path` rỗng = không tải */
+function useMyReview(path: string | null): { canReview: boolean; mine?: MyReview; ready: boolean } {
+  const [state, setState] = useState<{ canReview: boolean; mine?: MyReview; ready: boolean }>({ canReview: false, ready: false })
+  const connections = useConnectionStore((s) => s.connections.length)
+  const version = useReviewVersion((s) => s.n)
+  useEffect(() => {
+    if (!path) { setState({ canReview: false, ready: true }); return }
+    let alive = true
+    api.get<{ canReview: boolean; mine?: MyReview }>(path)
+      .then(({ data }) => { if (alive) setState({ canReview: data.canReview, mine: data.mine ?? undefined, ready: true }) })
+      .catch(() => { if (alive) setState({ canReview: false, ready: true }) })
+    return () => { alive = false }
+  }, [path, connections, version])
+  return state
+}
+
+/** Người tìm việc: đánh giá của mình về công ty */
+export function useMyCompanyReview(companyId: string) {
+  const isJobseeker = useAuthStore((s) => s.user?.role === 'jobseeker')
+  return useMyReview(isJobseeker && companyId ? `/reviews/companies/${encodeURIComponent(companyId)}/mine` : null)
+}
+
+/** Nhà tuyển dụng: đánh giá của công mình về một người tìm việc */
+export function useMySeekerReview(seekerId: string) {
+  const isRecruiter = useAuthStore((s) => s.user?.role === 'recruiter')
+  return useMyReview(isRecruiter && seekerId ? `/reviews/seekers/${encodeURIComponent(toServer(seekerId))}/mine` : null)
+}
+
+export interface ReviewBody { stars: number; comment?: string; tags?: string[] }
+const REVIEW_ERROR = 'Chưa lưu được đánh giá, vui lòng thử lại.'
+const saveReview = async (path: string, body: ReviewBody, edit: boolean) => {
+  const ok = await write(() => api.put(path, { stars: body.stars, tags: body.tags ?? [], comment: body.comment?.trim() || undefined }), REVIEW_ERROR, edit ? 'Đã cập nhật đánh giá' : 'Đã gửi đánh giá. Cảm ơn bạn.')
+  if (ok) bumpReviews()
+  return ok
+}
+const removeReview = async (path: string) => {
+  const ok = await write(() => api.delete(path), 'Chưa xóa được đánh giá, vui lòng thử lại.', 'Đã xóa đánh giá')
+  if (ok) bumpReviews()
+  return ok
+}
+export const saveCompanyReview = (companyId: string, body: ReviewBody, edit = false) => saveReview(`/reviews/companies/${encodeURIComponent(companyId)}`, body, edit)
+export const deleteCompanyReview = (companyId: string) => removeReview(`/reviews/companies/${encodeURIComponent(companyId)}`)
+export const saveSeekerReview = (seekerId: string, body: ReviewBody, edit = false) => saveReview(`/reviews/seekers/${encodeURIComponent(toServer(seekerId))}`, body, edit)
+export const deleteSeekerReview = (seekerId: string) => removeReview(`/reviews/seekers/${encodeURIComponent(toServer(seekerId))}`)
 
 /** Điểm trung bình (1 số lẻ) và số lượng của một nhóm đánh giá */
 export function reviewStats(list: { stars: number }[]): { average: number; count: number } {

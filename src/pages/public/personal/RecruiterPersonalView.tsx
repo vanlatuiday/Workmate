@@ -1,6 +1,7 @@
 import PersonalArchive from '@components/archive/PersonalArchive'
 import type { ArchiveEntry } from '@components/archive/types'
-import { CompanyReviews } from '@components/hire'
+import { ReviewsPanel } from '@components/hire'
+import { useCompanyReviews } from '@services/connectionService'
 import { useCompanyStore, type CompanyProfile } from '@context/companyStore'
 import type { CatalogJob } from '@context/catalogStore'
 import { useCompanyJobs } from '@services/adminService'
@@ -159,6 +160,7 @@ function buildCompanyEntries({ owner, P, openJobs }: BuildOpts): ArchiveEntry[] 
 /** Nhà tuyển dụng: doanh nghiệp của tôi (owner) hoặc xem thử bản người tìm việc thấy. */
 export default function RecruiterPersonalView({ owner }: Opts) {
   const myCompanyId = useCompanyStore((s) => s.id)
+  const myReviews = useCompanyReviews(myCompanyId)
   const P = useCompanyStore((s) => s.profile)
   const openJobs = useCompanyJobs(myCompanyId).map((r) => r.job).filter((j) => j.visible)
   return (
@@ -192,7 +194,8 @@ export default function RecruiterPersonalView({ owner }: Opts) {
         </PageActions>
       )}
       <div className="shell pb-section-sm">
-        <CompanyReviews companyId={myCompanyId} className="mx-auto max-w-2xl" />
+        <h2 className="mx-auto max-w-2xl text-sm font-medium text-page-muted">Đánh giá từ người đã làm</h2>
+        <ReviewsPanel kind="company" targetId={myCompanyId} targetName="công ty" reviews={myReviews} className="mx-auto mt-3 max-w-2xl" />
       </div>
       <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
     </>

@@ -11,10 +11,12 @@ import DetailNotFound from '@components/discover/detail/NotFound'
 import DetailSkeleton from '@components/discover/detail/DetailSkeleton'
 import BackLink from '@components/discover/detail/BackLink'
 import { photoUrl } from '@components/discover/types'
-import { CompanyReviews } from '@components/hire'
+import { RatingSummary, ReviewsPanel } from '@components/hire'
+import { useCompanyReviews } from '@services/connectionService'
 import { scrollToY } from '@hooks/useSmoothScroll'
 import { BTN_ACCENT, BTN_SECONDARY, BTN_SM, LINK } from '@utils/ui'
 import { cn } from '@utils/cn'
+import { FOCUS } from '@utils/focus'
 import cover from '@assets/images/personal-cover-preview.webp'
 import backdrop from '@assets/images/page-bg-jobs-preview.webp'
 import { Card } from './personal/personalPrototypeParts'
@@ -36,6 +38,7 @@ export default function CompanyDetailPage() {
   const myPageHidden = useSettingsStore((s) => isOwner && s.bySide.recruiter.visibility === 'hidden')
   const [retrying, setRetrying] = useState(false)
   const company = companies.find((item) => item.id === id)
+  const reviews = useCompanyReviews(company?.id ?? '')
 
   useEffect(() => {
     document.documentElement.dataset.personalPreview = ''
@@ -81,6 +84,11 @@ export default function CompanyDetailPage() {
                 <h1 className="min-w-0 max-w-full break-words font-display text-2xl font-bold tracking-tight sm:text-3xl lg:text-[34px]">{company.name}</h1>
                 <span className="personal-preview-chip">Nhà tuyển dụng</span>
               </div>
+              {reviews.length > 0 && (
+                <a href="#danh-gia" className={cn('mt-2 inline-flex justify-center rounded-control sm:justify-start', FOCUS)} aria-label="Xem đánh giá về công ty">
+                  <RatingSummary reviews={reviews} size="sm" />
+                </a>
+              )}
               <p className="mt-3 inline-flex items-center gap-2 text-sm"><MapPin aria-hidden className="h-4 w-4 shrink-0 text-wm-ocean" />{area}</p>
               <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm sm:justify-start">
                 {company.industry && <p className="flex items-center gap-2"><Building2 aria-hidden className="h-4 w-4 shrink-0 text-wm-ocean" />{company.industry}</p>}
@@ -110,9 +118,11 @@ export default function CompanyDetailPage() {
         <div className="personal-preview-grid mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.95fr)]">
           <CompanyProfileCards company={company} jobs={jobs} />
           <div className="min-w-0 lg:col-span-2">
-            <Card title="Đánh giá từ người đã làm" icon={Star}>
-              <CompanyReviews key={company.id} companyId={company.id} hideTitle className="mt-4" />
-            </Card>
+            <div id="danh-gia" className="scroll-mt-28">
+              <Card title="Đánh giá về công ty" icon={Star}>
+                <ReviewsPanel key={company.id} kind="company" targetId={company.id} targetName={company.name} reviews={reviews} className="mt-4" />
+              </Card>
+            </div>
           </div>
         </div>
       </div>

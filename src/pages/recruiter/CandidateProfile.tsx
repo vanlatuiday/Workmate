@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Check, FileText, MapPin, Phone, Target, UserRound } from 'lucide-react'
 import DetailNotFound from '@components/discover/detail/NotFound'
-import { HireAction } from '@components/hire'
+import { HireAction, ReviewsPanel } from '@components/hire'
 import { useSeekerReviews } from '@services/connectionService'
 import InterviewAction from '@components/interview/InterviewAction'
 import MessageLink from '@components/messenger/MessageLink'
@@ -226,6 +226,7 @@ export default function CandidateProfile() {
             viewer
             data={data}
             reviews={reviews}
+            reviewsSlot={<ReviewsPanel kind="seeker" targetId={profile.id} targetName={profile.name} reviews={reviews} className="mt-4" />}
             details={[{ icon: MapPin, label: 'Cách công ty', value: `${profile.distanceKm.toLocaleString('vi-VN')} km` }, { icon: Target, label: 'Đi làm trong bán kính', value: `${profile.criteria.maxDistanceKm} km` }]}
             rightTop={
               <Card title="Phù hợp với tin của bạn" icon={Target}>
