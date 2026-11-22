@@ -4,6 +4,7 @@ import {
   ArrayMaxSize, IsArray, IsBoolean, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, MinLength, ValidateNested,
 } from 'class-validator'
 import { DISTRICT_GEO } from '../common/geo'
+import { JOB_CATEGORY_KEYS, type JobCategory } from './categories'
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value)
 
@@ -29,6 +30,7 @@ const rules = {
   title: () => applyDecorators(Transform(trim), IsString(), MinLength(3), MaxLength(120)),
   description: () => applyDecorators(Transform(trim), IsString(), MaxLength(4000)),
   jobType: () => applyDecorators(IsIn(JOB_TYPES)),
+  category: () => applyDecorators(IsIn(JOB_CATEGORY_KEYS, { message: 'Chọn nhóm công việc' })),
   district: () => applyDecorators(IsIn(Object.keys(DISTRICT_GEO))),
   skills: () => applyDecorators(IsArray(), ArrayMaxSize(20), IsString({ each: true }), MaxLength(60, { each: true })),
   slots: () => applyDecorators(IsArray(), ArrayMaxSize(28), Matches(/^[0-6]-[0-3]$/, { each: true, message: 'Ca làm phải có dạng "ngày-buổi", vd. 0-3' })),
@@ -45,6 +47,8 @@ export class CreateJobDto {
   @rules.title() title!: string
   @rules.description() description!: string
   @rules.jobType() jobType!: (typeof JOB_TYPES)[number]
+  /** Nhóm nghề, bắt buộc khi đăng tin mới */
+  @rules.category() category!: JobCategory
   @rules.district() district!: string
   @rules.skills() skills!: string[]
   /** Kỹ năng bắt buộc, phải nằm trong `skills` */
@@ -69,6 +73,7 @@ export class UpdateJobDto {
   @optional(rules.title()) title?: string
   @optional(rules.description()) description?: string
   @optional(rules.jobType()) jobType?: (typeof JOB_TYPES)[number]
+  @optional(rules.category()) category?: JobCategory
   @optional(rules.district()) district?: string
   @optional(rules.skills()) skills?: string[]
   @optional(rules.skills()) requiredSkills?: string[]

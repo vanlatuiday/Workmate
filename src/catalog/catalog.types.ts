@@ -66,6 +66,8 @@ export interface CatalogJob {
   salaryMinK: number
   salaryMaxK: number
   jobType: JobTypeLabel
+  /** Nhóm nghề (khóa trong src/jobs/categories.ts) */
+  category: string
   description: string
   quantity: number
   radiusKm: number

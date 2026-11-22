@@ -3,6 +3,7 @@ import type { Company, Job, Prisma } from '@prisma/client'
 import type { AuthUser } from '../auth/current-user.decorator'
 import { DANANG_CENTER, haversineKm } from '../common/geo'
 import { PrismaService } from '../prisma/prisma.service'
+import { inferCategory } from '../jobs/categories'
 import type { CatalogCompany, CatalogJob, CatalogPhoto, CatalogResponse, JobTypeLabel } from './catalog.types'
 
 /** Enum Prisma → chuỗi frontend (full_time → 'full-time') */
@@ -36,8 +37,8 @@ export class CatalogService {
       tagline: c.tagline, why: '', about: c.about, environment: c.environment,
       verified: c.verified, locked: c.locked, logoUrl: c.logoUrl,
       taxValid: (c.taxLookup as { result?: string } | null)?.result === 'active',
-    }
       ...(includeProfile && { foundedYear: c.foundedYear, address: c.address, values: c.values, policies: c.policies, culture: c.culture, email: c.email, phone: c.phone }),
+    }
   }
 
   /** `withViews`: chỉ bật cho công ty sở hữu tin và admin */
@@ -47,6 +48,7 @@ export class CatalogService {
       id: j.id, companyId: j.companyId, title: j.title, district: j.district, distanceKm: Math.round(km * 10) / 10,
       salaryLabel: j.salaryLabel, shiftLabel: j.shiftLabel, photo: j.photo as unknown as CatalogPhoto,
       skills: j.skills, requiredSkills: j.requiredSkills, requireAllSlots: j.requireAllSlots, slots: j.slots, salaryMinK: j.salaryMinK, salaryMaxK: j.salaryMaxK, jobType: JOB_TYPE_LABEL[j.jobType],
+      category: j.category ?? inferCategory(j.title),
       description: j.description, quantity: j.quantity, radiusKm: j.radiusKm, postedAt: j.postedAt.toISOString(), ...(j.expiresAt ? { expiresAt: j.expiresAt.toISOString() } : {}),
       status: j.status, moderation: j.moderation, ...(j.moderationReason ? { moderationReason: j.moderationReason } : {}),
       visible: j.moderation === 'approved' && j.status === 'open' && !j.company.locked,

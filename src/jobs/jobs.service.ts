@@ -111,7 +111,7 @@ export class JobsService {
     if (!dto.photo.id && !dto.photo.url) throw new BadRequestException('Ảnh minh họa cần có id hoặc url')
     const job = await this.prisma.job.create({
       data: {
-        companyId, authorId: user.id, title: dto.title, description: dto.description, jobType: JOB_TYPE_ENUM[dto.jobType],
+        companyId, authorId: user.id, title: dto.title, description: dto.description, jobType: JOB_TYPE_ENUM[dto.jobType], category: dto.category,
         district: dto.district, skills: dto.skills, slots: dto.slots,
         requiredSkills: requiredOf(dto.skills, dto.requiredSkills ?? []), requireAllSlots: dto.requireAllSlots ?? false, salaryMinK: dto.salaryMinK, salaryMaxK: dto.salaryMaxK,
         salaryLabel: dto.salaryLabel || salaryLabelOf(dto.salaryMinK, dto.salaryMaxK),
@@ -138,6 +138,7 @@ export class JobsService {
       ...(dto.title !== undefined && { title: dto.title }),
       ...(dto.description !== undefined && { description: dto.description }),
       ...(dto.jobType !== undefined && { jobType: JOB_TYPE_ENUM[dto.jobType] }),
+      ...(dto.category !== undefined && { category: dto.category }),
       ...(dto.skills !== undefined && { skills: dto.skills }),
       // Đổi danh sách kỹ năng thì bỏ các kỹ năng bắt buộc không còn trong danh sách
       ...((dto.skills !== undefined || dto.requiredSkills !== undefined) && {
