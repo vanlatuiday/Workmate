@@ -11,7 +11,7 @@ import { homeSections, homeSectionsByRole } from './content'
 import { useHomeRole } from './homeData'
 import LightCurves from './LightCurves'
 import { gsap, useGSAP } from '@utils/gsap'
-import { useReducedMotion } from '@hooks/useReducedMotion'
+import { useHomeReducedMotion } from '@hooks/useHomeReducedMotion'
 
 /**
  * Section ⑥ — bố cục dọc không khung: tiêu đề + dòng phụ + nút (chữ ngà) căn giữa, ảnh minh họa tách nền bên dưới. Tấm đứng yên khi cuộn (taste skill: ngoài 2 khoảnh khắc không gì chạy theo cuộn, 2026-11-20).
@@ -20,7 +20,7 @@ export default function RecruiterSection() {
   const ref = useRef<HTMLElement>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
   const role = useHomeRole()
-  const reduced = useReducedMotion()
+  const reduced = useHomeReducedMotion()
 
   // Khi cuộn tới: chữ hiện (TextReveal) rồi laptop trồi lên + lớn dần 96% → 100% (một lần); sau đó trôi lên xuống rất chậm.
   // gsap.from trong matchMedia → mặc định CSS vẫn hiện đủ nếu GSAP không chạy; giảm chuyển động: không tween.
@@ -29,6 +29,7 @@ export default function RecruiterSection() {
       const art = ref.current?.querySelector<HTMLElement>('[data-art]')
       const img = ref.current?.querySelector<HTMLElement>('[data-art-float]')
       if (!art || !img) return
+      if (reduced) return
       const mm = gsap.matchMedia()
       mm.add('(prefers-reduced-motion: no-preference)', () => {
         gsap.from(art, {
@@ -39,7 +40,7 @@ export default function RecruiterSection() {
       })
       return () => mm.revert()
     },
-    { scope: ref, dependencies: [reduced, role] },
+    { scope: ref, dependencies: [reduced, role], revertOnUpdate: true },
   )
   // Nhà tuyển dụng → nhắc hoàn thiện trang công ty; người tìm việc → mời tìm việc;
   // khách → mời đăng tin

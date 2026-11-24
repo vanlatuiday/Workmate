@@ -13,7 +13,7 @@ import { photoSrcSet, photoUrl, type Photo } from '@components/discover/types'
 import { Flip } from 'gsap/Flip'
 import { JOB_TYPES } from '@constants/index'
 import { gsap, ScrollTrigger, useGSAP } from '@utils/gsap'
-import { useReducedMotion } from '@hooks/useReducedMotion'
+import { useHomeReducedMotion } from '@hooks/useHomeReducedMotion'
 import { useMediaQuery } from '@hooks/useMediaQuery'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -160,7 +160,7 @@ const TWO_COL_MIN = 720
 export default function ShiftBoardSection() {
   const role = useHomeRole()
   const text = copy[role]
-  const reduced = useReducedMotion()
+  const reduced = useHomeReducedMotion()
   const isCarousel = useMediaQuery('(min-width: 768px)')
   const isLg = useMediaQuery('(min-width: 1024px)')
   const [openKey, setOpenKey] = useState<string | null>(null)
@@ -400,6 +400,7 @@ export default function ShiftBoardSection() {
   // Ảnh hiện hình: một lần khi vùng thẻ vào màn hình; chỉ chạy khi không giảm chuyển động
   useGSAP(
     () => {
+      if (reduced) return
       const mm = gsap.matchMedia()
       mm.add('(prefers-reduced-motion: no-preference)', () => {
         const grid = gridRef.current
@@ -421,7 +422,7 @@ export default function ShiftBoardSection() {
       })
       return () => mm.revert()
     },
-    { scope: rootRef },
+    { scope: rootRef, dependencies: [reduced], revertOnUpdate: true },
   )
 
   const emptyText = role === 'jobseeker' ? copy.emptyJobseeker : copy.emptyText

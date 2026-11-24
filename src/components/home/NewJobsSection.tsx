@@ -10,7 +10,7 @@ import { companyOf, type MatchJob } from '@pages/public/match/data'
 import { useCompanyStore } from '@context/companyStore'
 import { useCompanyJobs, useJobNumbers, type CompanyJobRow } from '@services/adminService'
 import { gsap, useGSAP } from '@utils/gsap'
-import { useReducedMotion } from '@hooks/useReducedMotion'
+import { useHomeReducedMotion } from '@hooks/useHomeReducedMotion'
 import { useMediaQuery } from '@hooks/useMediaQuery'
 import { cn } from '@utils/cn'
 import { homeSections, homeSectionsByRole } from './content'
@@ -130,7 +130,7 @@ function RowLink({ row, label }: { row: Row; label: string }) {
  */
 export default function NewJobsSection() {
   const ref = useRef<HTMLElement>(null)
-  const reduced = useReducedMotion()
+  const reduced = useHomeReducedMotion()
   const wide = useMediaQuery('(min-width: 768px)')
   const finePointer = useMediaQuery('(pointer: fine)')
   const areaRef = useRef<HTMLDivElement>(null)
@@ -326,7 +326,7 @@ export default function NewJobsSection() {
       }
     },
     // count/role đổi (đăng nhập/xuất, quản trị duyệt tin) → dựng lại cho bộ thẻ mới
-    { scope: ref, dependencies: [wheel, count, role, finePointer] },
+    { scope: ref, dependencies: [wheel, count, role, finePointer], revertOnUpdate: true },
   )
 
   // Các ô trên vòng: danh sách việc lặp lại cho đủ MIN_SLOTS (số ô chia hết cho số việc)

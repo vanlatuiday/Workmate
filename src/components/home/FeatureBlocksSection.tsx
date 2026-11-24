@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-import { useReducedMotion } from "@hooks/useReducedMotion";
+import { useHomeReducedMotion } from "@hooks/useHomeReducedMotion";
 import { useCompanyStore } from "@context/companyStore";
 import { cn } from "@utils/cn";
 import { photoSrcSet, photoUrl } from "@components/discover/types";
@@ -180,7 +180,7 @@ function useChipJobs(blocks: Block[], role: HomeRole): (ChipJob | null)[] {
  * Giảm chuyển động: đổi tức thì.
  */
 export default function FeatureBlocksSection() {
-  const reduced = useReducedMotion();
+  const reduced = useHomeReducedMotion();
   const role = useHomeRole();
   const recruiter = role === "recruiter";
   const blocks: Block[] = useMemo(

@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect, useRef } from 'react'
 import { useSmoothScroll } from '@hooks/useSmoothScroll'
 import { ScrollTrigger } from '@utils/gsap'
 import { ParticleBoundary, useParticlesFailed } from '@components/motion/particleStatus'
-import { useReducedMotion } from '@hooks/useReducedMotion'
+import { useHomeReducedMotion } from '@hooks/useHomeReducedMotion'
 import CustomCursor from '@components/motion/CustomCursor'
 import { afterHeroBgStyle, HOME_BG_JOIN, waveBgStyle } from '@components/home/homeBackground'
 import { HomeBgLayers, useHomeBgParallax } from '@components/home/HomeBackdrop'
@@ -38,16 +38,16 @@ const ParticleField = lazy(() => import('@components/motion/ParticleField'))
  * Các section cũ (Urgent/StreetScene/Fit/Opportunities/HowItWorks/Closing) còn trong thư mục nhưng không render.
  */
 export default function HomePage() {
-  useSmoothScroll()
   // Lớp hạt (logo → nền mờ): chỉ khi cho phép chuyển động và có WebGL — IntroHero dùng cùng điều kiện
-  const reduced = useReducedMotion()
+  const reduced = useHomeReducedMotion()
+  useSmoothScroll(!reduced)
   const particlesFailed = useParticlesFailed()
   const particles = !reduced && supportsWebGL() && !particlesFailed
 
   const rootRef = useRef<HTMLDivElement>(null)
   useSectionThemes(rootRef)
   useHomeHeader()
-  useHomeBgParallax(rootRef)
+  useHomeBgParallax(rootRef, !reduced)
 
   // Font display tải xong làm đổi chiều cao chữ → đo lại vị trí các trigger
   useEffect(() => {
@@ -65,10 +65,10 @@ export default function HomePage() {
   }, [])
 
   return (
-    <div ref={rootRef} className="bg-page-bg text-page-fg">
-      <CustomCursor />
+    <div ref={rootRef} data-home-light={reduced ? '' : undefined} className="bg-page-bg text-page-fg">
+      {!reduced && <CustomCursor />}
       {/* Kết cấu hạt mờ — dưới header (z-40) */}
-      <div aria-hidden className="grain pointer-events-none fixed inset-0 z-30" />
+      {!reduced && <div aria-hidden className="grain pointer-events-none fixed inset-0 z-30" />}
       {/* Hạt: logo ở intro, rồi tan thành nền mờ. Canvas z-[5]: trên nền trang và banner hero
           (lớp sticky, z auto), DƯỚI nội dung các section (mỗi section gốc là relative z-10) và header (z-40). */}
       {particles && (

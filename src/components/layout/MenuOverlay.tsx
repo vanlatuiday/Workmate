@@ -168,16 +168,14 @@ export default function MenuOverlay({ id, open, onClose, items, actions }: Props
               )
             })}
 
-            {/* Chất lượng hiệu ứng nền WebGL — vô nghĩa khi đã tắt chuyển động */}
-            {!reduced && (
-              <button
-                type="button"
-                onClick={() => setQuality(quality === 'high' ? 'low' : 'high')}
-                className="ml-auto text-sm text-wm-sage hover:text-wm-ivory transition-colors"
-              >
-                Chất lượng <span className="text-wm-ivory">{quality === 'high' ? 'Cao' : 'Thấp'}</span>
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => setQuality(quality === 'high' ? 'low' : 'high')}
+              className="ml-auto text-sm text-wm-sage hover:text-wm-ivory transition-colors"
+            >
+              {quality === 'high' ? 'Giảm hiệu ứng' : 'Nâng hiệu ứng'}
+              <span className="ml-2 text-wm-ivory">({quality === 'high' ? 'Cao' : 'Thấp'})</span>
+            </button>
           </m.div>
         </m.div>
       )}

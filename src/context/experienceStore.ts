@@ -6,6 +6,7 @@ export type Quality = 'high' | 'low'
 interface ExperienceState {
   /** Chất lượng hiệu ứng WebGL ở trang chủ. */
   quality: Quality
+  hasChosenQuality: boolean
   setQuality: (q: Quality) => void
 }
 
@@ -26,7 +27,8 @@ export const useExperienceStore = create<ExperienceState>()(
   persist(
     (set) => ({
       quality: defaultQuality(),
-      setQuality: (quality) => set({ quality }),
+      hasChosenQuality: false,
+      setQuality: (quality) => set({ quality, hasChosenQuality: true }),
     }),
     { name: 'workmate-experience' },
   ),

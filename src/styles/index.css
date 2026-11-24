@@ -1568,3 +1568,8 @@ html[data-page='home']:not([data-role='seeker']) :is(.home-secondary-action, .st
 .theme-day .day-chip { background-color: var(--wm-day-tint); border-color: var(--page-line); color: var(--wm-abyss); }
 .theme-day .day-verified { color: var(--wm-azure); }
 .theme-day .day-gcard-head .day-stack-item { --tw-ring-color: rgb(255 255 255); }
+
+/* Keep the decorative layers static in the lighter home experience. */
+[data-home-light] :is(.home-bg-glow, .hero-art-float, .hero-tick, .hero-star, .hero-light, .hero-shimmer, .hero-streak) {
+  animation: none;
+}

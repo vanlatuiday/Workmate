@@ -8,7 +8,7 @@ import type { MatchJob } from '@pages/public/match/data'
 import { useCompanyStore } from '@context/companyStore'
 import { useCompanyJobs } from '@services/adminService'
 import { gsap, useGSAP } from '@utils/gsap'
-import { useReducedMotion } from '@hooks/useReducedMotion'
+import { useHomeReducedMotion } from '@hooks/useHomeReducedMotion'
 import { cn } from '@utils/cn'
 import { homeSections } from './content'
 import { useHomeRole } from './homeData'
@@ -25,7 +25,7 @@ const BTN_ICONS: Record<string, LucideIcon> = { 'Tìm việc ngay': Search, 'Đ�
  */
 export default function StatementSection() {
   const ref = useRef<HTMLElement>(null)
-  const reduced = useReducedMotion()
+  const reduced = useHomeReducedMotion()
   const role = useHomeRole()
   const criteria = homeSections.statementCriteria[role]
   const btns = homeSections.statementButtons[role]
@@ -33,6 +33,7 @@ export default function StatementSection() {
 
   useGSAP(
     () => {
+      if (reduced) return
       const mm = gsap.matchMedia()
       mm.add('(prefers-reduced-motion: no-preference)', () => {
         const items = gsap.utils.toArray<HTMLElement>('[data-reveal]', ref.current)
@@ -53,7 +54,7 @@ export default function StatementSection() {
       })
       return () => mm.revert()
     },
-    { scope: ref, dependencies: [reduced, role, chipN > 0] },
+    { scope: ref, dependencies: [reduced, role, chipN > 0], revertOnUpdate: true },
   )
 
   return (

@@ -1,3 +1,4 @@
+import EffectsPreferenceDialog from '@components/layout/EffectsPreferenceDialog'
 import { Suspense, lazy, useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { jobDetailHref } from '@components/jobs/jobDetailHref'
@@ -266,6 +267,7 @@ export default function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
+    <EffectsPreferenceDialog />
     {requestedJob && (userId ? (
       <Suspense fallback={null}>
         <JobDetailDialog key={userId} jobId={requestedJob} onClose={closeJobDetail} />

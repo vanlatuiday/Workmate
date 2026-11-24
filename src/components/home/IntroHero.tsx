@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUpRight, ChevronDown, Flame, Sparkles } from 'lucide-re
 
 import { gsap, ScrollTrigger, useGSAP } from '@utils/gsap'
 import { setInitialScroll } from '@components/common/RouteScroll'
-import { useReducedMotion } from '@hooks/useReducedMotion'
+import { useHomeReducedMotion } from '@hooks/useHomeReducedMotion'
 import { getSmoothScroll, scrollToY } from '@hooks/useSmoothScroll'
 import HeroFeatureCards from './HeroFeatureCards'
 import HeroSideArt, { HeroSparkle } from './HeroSideArt'
@@ -102,7 +102,7 @@ const fromBelowEase = (t: number) => 1 - Math.pow(1 - t, 4)
  * nên khi tắt chuyển động hoặc JS lỗi, trang vẫn dùng được bình thường.
  */
 const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
-  const reduced = useReducedMotion()
+  const reduced = useHomeReducedMotion()
   // Lớp hạt hỏng → dựng lại timeline với tween logo bay (logo header không bị ẩn)
   const particlesFailed = useParticlesFailed()
   const wrapRef = useRef<HTMLElement>(null)
@@ -274,7 +274,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
   useGSAP(
     (_, contextSafe) => {
       const hero = wrapRef.current
-      if (!hero || !contextSafe) return
+      if (reduced || !hero || !contextSafe) return
       const mm = gsap.matchMedia()
       mm.add('(pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
         const layers = gsap.utils.toArray<HTMLElement>('[data-depth]').map((el) => ({
@@ -300,7 +300,7 @@ const IntroHero = forwardRef<IntroHeroHandle>(function IntroHero(_, ref) {
       })
       return () => mm.revert()
     },
-    { scope: wrapRef, dependencies: [audience], revertOnUpdate: true },
+    { scope: wrapRef, dependencies: [audience, reduced], revertOnUpdate: true },
   )
 
   // Intro là MỘT khối: lướt nhẹ xuống là trôi một mạch tới hero, lướt lên từ hero là

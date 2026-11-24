@@ -22,9 +22,10 @@ export function HomeBgLayers({ style }: { style: CSSProperties }) {
  * - Quầng cam sau phần ⑥ ([data-home-orange]) trôi nhẹ trong phạm vi phần đó, luôn nằm sau khối của nó.
  * - Tia sáng lượn sóng ([data-home-wave]) trôi chậm nhẹ. Chỉ transform; tắt chuyển động → đứng yên.
  */
-export function useHomeBgParallax(scope: RefObject<HTMLElement>) {
+export function useHomeBgParallax(scope: RefObject<HTMLElement>, enabled: boolean) {
   useGSAP(
     () => {
+      if (!enabled) return
       const root = scope.current
       const stars = root?.querySelector<HTMLElement>('[data-home-stars]')
       const orange = root?.querySelector<HTMLElement>('[data-home-orange]')
@@ -64,6 +65,6 @@ export function useHomeBgParallax(scope: RefObject<HTMLElement>) {
       })
       return () => mm.revert()
     },
-    { scope },
+    { scope, dependencies: [enabled], revertOnUpdate: true },
   )
 }

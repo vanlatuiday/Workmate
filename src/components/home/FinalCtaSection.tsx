@@ -53,8 +53,7 @@ export default function FinalCtaSection() {
           <HomeSearchForm size="sm" className="w-full max-w-2xl" />
         )}
       </Reveal>
-      {/* Tìm nhanh theo khu vực / hình thức (gộp từ phần "Việc theo khu vực và hình thức", 2026-11-20) */}
-      <ExploreChips className="mt-12 max-w-5xl" />
+      {!recruiter && <ExploreChips className="mt-12 max-w-5xl" />}
       {/* Ghi chú dữ liệu mẫu duy nhất của trang chủ */}
       <p className="mt-12 text-xs text-page-muted">{homeSections.demoNotice}</p>
     </section>

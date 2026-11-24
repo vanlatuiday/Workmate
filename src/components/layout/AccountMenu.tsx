@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
+import { useExperienceStore } from '@context/experienceStore'
 import { useMessengerStore } from '@context/messengerStore'
 import { useNotificationCenterStore } from '@context/notificationCenterStore'
 import { cn } from '@utils/cn'
@@ -37,6 +38,7 @@ const ITEM = cn(
  */
 export default function AccountMenu({ initial, area, profileHref, unreadMessages, unreadNotifications, onOpenProfile, onLogout, magnetic }: Props) {
   const [open, setOpen] = useState(false)
+  const { quality, setQuality } = useExperienceStore()
   const openMessenger = useMessengerStore((s) => s.openMessenger)
   const openNotificationCenter = useNotificationCenterStore((s) => s.openCenter)
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -194,6 +196,18 @@ export default function AccountMenu({ initial, area, profileHref, unreadMessages
         >
           Trang cá nhân
         </Link>
+        <button
+          role="menuitem"
+          type="button"
+          className={ITEM}
+          onClick={() => {
+            setQuality(quality === 'high' ? 'low' : 'high')
+            close()
+          }}
+        >
+          {quality === 'high' ? 'Giảm hiệu ứng' : 'Nâng hiệu ứng'}
+          <span className="ml-2 opacity-70">({quality === 'high' ? 'Cao' : 'Thấp'})</span>
+        </button>
         <div role="separator" className="my-1 h-px bg-page-line" />
         <button
           role="menuitem"
