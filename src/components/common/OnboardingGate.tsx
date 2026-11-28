@@ -8,7 +8,7 @@ import { BTN_PRIMARY } from '@utils/ui'
 /** Khung chờ toàn trang: dùng khi hồ sơ công ty chưa về, để không nháy trang rồi mới chuyển hướng */
 export function GateSkeleton() {
   return (
-    <div role="status" aria-live="polite" className="theme-ivory min-h-screen bg-page-bg shell py-section-sm">
+    <div role="status" aria-live="polite" className="theme-abyss min-h-screen bg-page-bg shell py-section-sm">
       <span className="sr-only">Đang tải hồ sơ công ty…</span>
       <Skeleton className="h-8 w-1/3" />
       <Skeleton className="mt-6 h-4 w-2/3" />

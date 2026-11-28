@@ -4,8 +4,7 @@ import { FOCUS } from './focus'
  * Bộ nút và chip dùng chung cho cả site (DESIGN.md → Components). Không tự định nghĩa nút trong trang:
  * ghép `BTN_*` (kiểu) với `BTN_SM` / `BTN_LG` (cỡ, tùy chọn) bằng `cn(...)`.
  *
- * Quy tắc màu: mỗi màn hình tối đa MỘT nút `BTN_ACCENT` (hành động chính: Ứng tuyển, Đăng tin, Lưu, Gửi…).
- * Các hành động còn lại dùng `BTN_PRIMARY` (đen) hoặc `BTN_SECONDARY` (viền).
+ * `BTN_ACCENT` và `BTN_PRIMARY` dùng cùng màu thương hiệu. `BTN_SECONDARY` dùng viền cho hành động phụ.
  */
 
 /** Chuyển động chuẩn của phần tử bấm được: đổi màu 150ms, lún nhẹ khi bấm, tắt khi giảm chuyển động */
@@ -14,10 +13,10 @@ export const PRESS =
 
 const BASE = `inline-flex min-h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-medium ${PRESS} disabled:cursor-default disabled:opacity-50 disabled:active:scale-100 ${FOCUS}`
 
-/** Hành động chính của màn hình — màu nhấn theo vai trò */
+/** Hành động chính của màn hình — màu nhấn theo nền */
 export const BTN_ACCENT = `${BASE} border-accent bg-accent text-accent-fg hover:brightness-110 disabled:hover:brightness-100`
-/** Nút đặc màu chữ trang (đen trên nền sáng) — hành động quan trọng thứ hai, hoặc khi màn hình đã có nút nhấn */
-export const BTN_PRIMARY = `${BASE} border-page-fg bg-page-fg text-page-bg hover:bg-page-bg hover:text-page-fg disabled:hover:bg-page-fg disabled:hover:text-page-bg`
+/** Nút chính dùng xanh đậm trên nền sáng, xanh ngọc trên nền tối. */
+export const BTN_PRIMARY = BTN_ACCENT
 /** Nút viền — hành động phụ */
 export const BTN_SECONDARY = `${BASE} border-page-line text-page-fg hover:border-page-fg disabled:hover:border-page-line`
 /** Nút chữ — hành động nhẹ (Hủy, Xem thêm) */

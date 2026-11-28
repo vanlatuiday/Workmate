@@ -12,6 +12,8 @@
     /* Dấu tiếng Việt cần khoảng dòng rộng; tiêu đề tự đặt leading riêng */
     line-height: 1.6;
   }
+
+  body:has(#root:empty) { background-color: var(--boot-bg, var(--wm-day)); }
   h1, h2, h3 { line-height: 1.2; }
   /* Số liệu (lương, km, giờ ca) thẳng hàng: thêm class tnum (đã có) hoặc tabular-nums */
 
@@ -36,7 +38,7 @@
 @property --page-fg {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f6f6f2; /* = wm-ivory; @property không nhận var() nên phải ghi thẳng */
+  initial-value: #F5F8FE; /* = wm-ivory; @property không nhận var() nên phải ghi thẳng */
 }
 :root {
   transition: --page-fg 0.45s cubic-bezier(0.22, 1, 0.36, 1);
@@ -46,7 +48,7 @@
 @property --page-bg {
   syntax: '<color>';
   inherits: true;
-  initial-value: #242522; /* = wm-charcoal */
+  initial-value: #05155E; /* = wm-charcoal */
 }
 
 /* Bảng màu trang chủ. --page-bg / --page-fg được useSectionThemes ghi đè và nội
@@ -102,8 +104,7 @@
   color: var(--page-fg);
 }
 /* Theme "ban ngày" cho trang công khai nền sáng xanh (DESIGN.md → Nền ban ngày, 2026-11-21): chữ abyss trên nền #F5F8FE.
-   KHÔNG đặt nền (trong suốt) để lộ DayBackdrop phía sau. Link chữ (text-accent-ink) đổi sang abyss vì xanh lá/đất nung
-   chỉ đạt 3,0–4,3:1 trên nền này; nút bg-accent giữ màu vai trò. */
+   KHÔNG đặt nền (trong suốt) để lộ DayBackdrop phía sau. Link chữ dùng màu abyss trên nền sáng. */
 .theme-day {
   --page-bg: var(--wm-day);
   --page-fg: var(--wm-abyss);
@@ -947,11 +948,11 @@ html[data-header='hero'] .hd-logo::before { opacity: 0; }
 
 /* Trang chủ nền xanh (homeBackground.ts) — chủ dự án 2026-11-19:
    - Header: không có nền toàn chiều rộng (2026-11-21) — chỉ ba cụm kính nổi.
-   - Nút tuyển dụng xanh ngọc, chữ abyss theo ảnh chủ dự án chọn; người tìm việc giữ xanh lá. */
-html[data-page='home']:not([data-role='seeker']),
-html[data-page='home']:not([data-role='seeker']) .theme-night,
-html[data-page='home']:not([data-role='seeker']) .theme-charcoal,
-html[data-page='home']:not([data-role='seeker']) .surface-dark {
+   - Nút trên trang chủ dùng xanh ngọc và chữ abyss. */
+html[data-page='home'],
+html[data-page='home'] .theme-night,
+html[data-page='home'] .theme-charcoal,
+html[data-page='home'] .surface-dark {
   --accent: var(--wm-cyan);
   --accent-fg: var(--wm-abyss);
   --accent-dark: var(--wm-cyan);
@@ -959,12 +960,12 @@ html[data-page='home']:not([data-role='seeker']) .surface-dark {
 }
 
 /* Nút phụ tuyển dụng giữ nền xanh đậm để chữ xanh ngọc rõ trên mọi vùng nền hero. */
-html[data-page='home']:not([data-role='seeker']) :is(.home-secondary-action, .stmt-btn-ghost) {
+html[data-page='home'] :is(.home-secondary-action, .stmt-btn-ghost) {
   color: var(--wm-cyan);
   border-color: color-mix(in srgb, var(--wm-cyan) 50%, transparent);
   background-color: color-mix(in srgb, var(--wm-abyss) 80%, transparent);
 }
-html[data-page='home']:not([data-role='seeker']) :is(.home-secondary-action, .stmt-btn-ghost):is(:hover, :focus-visible) {
+html[data-page='home'] :is(.home-secondary-action, .stmt-btn-ghost):is(:hover, :focus-visible) {
   color: var(--wm-abyss);
   border-color: var(--wm-cyan);
   background-color: var(--wm-cyan);

@@ -25,7 +25,7 @@ export default function EffectsPreferenceDialog() {
         event.preventDefault()
         setQuality('low')
       }}
-      className="m-auto w-[calc(100%-2rem)] max-w-sm rounded-card border border-wm-ivory/20 bg-wm-night p-6 text-wm-ivory shadow-xl backdrop:bg-black/65"
+      className="m-auto w-[calc(100%-2rem)] max-w-sm rounded-card border border-wm-ivory/20 bg-wm-night p-6 text-wm-ivory shadow-xl backdrop:bg-wm-abyss/65"
     >
       <h2 id={title} className="text-xl font-semibold">Chọn mức hiệu ứng</h2>
       <p id={description} className="mt-2 text-sm">

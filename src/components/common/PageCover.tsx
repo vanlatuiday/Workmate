@@ -32,7 +32,7 @@ type CoverRole = 'jobseeker' | 'recruiter' | 'admin'
 /** Màu vạch đáy của dải chức năng theo vai trò */
 const ROLE_LINE: Record<CoverRole, string> = {
   jobseeker: 'bg-wm-leaf',
-  recruiter: 'bg-wm-tangerine',
+  recruiter: 'bg-wm-cyan',
   admin: 'bg-wm-ivory/60',
 }
 
