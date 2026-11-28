@@ -3,7 +3,7 @@ import { SkeletonCards } from '@components/dashboard/Skeleton'
 import { SearchX } from 'lucide-react'
 import EmptyState from '@components/dashboard/EmptyState'
 import DiscoverGallery from '@components/discover/DiscoverGallery'
-import { ClosingBand, PrimaryLink, SampleNote, TextLink } from '@components/discover/parts'
+import { ClosingBand, PrimaryLink, TextLink } from '@components/discover/parts'
 import { BTN_SECONDARY } from '@utils/ui'
 import { useAllJobs, EMPTY_FILTERS } from './catalog'
 import JobSearchBar from './JobSearchBar'
@@ -79,7 +79,6 @@ export default function GuestJobs() {
         <PrimaryLink to="/dang-ky?role=jobseeker">Tôi tìm việc</PrimaryLink>
         <TextLink to="/dang-ky?role=recruiter">Tôi cần tuyển người</TextLink>
       </ClosingBand>
-      <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
       </DarkPageBody>
     </>
   )

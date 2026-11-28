@@ -139,7 +139,7 @@ export default function GuestPersonalView({ admin }: { admin: boolean }) {
           <ActionText to="/dang-nhap">Đăng nhập</ActionText>
         </PageActions>
       )}
-      <SampleNote>Nội dung trên trang này là giới thiệu chung, chưa có dữ liệu của ai. Ảnh minh họa từ Unsplash.</SampleNote>
+      <SampleNote>Nội dung trên trang này là giới thiệu chung, chưa có dữ liệu của ai.</SampleNote>
     </>
   )
 }

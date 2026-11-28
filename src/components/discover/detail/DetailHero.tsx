@@ -99,7 +99,6 @@ export default function DetailHero({
                 })}
           />
         </div>
-        <p className="mt-2 text-xs text-page-muted">Ảnh minh họa từ Unsplash.</p>
       </div>
     </header>
   )

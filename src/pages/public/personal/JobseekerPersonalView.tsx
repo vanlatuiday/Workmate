@@ -3,7 +3,6 @@ import PersonalArchive from '@components/archive/PersonalArchive'
 import type { ArchiveEntry } from '@components/archive/types'
 import { SeekerReviews } from '@components/hire'
 import { ME, useMyPairs } from '@services/connectionService'
-import { SampleNote } from '@components/discover/parts'
 import { JOB_TYPES } from '@constants/index'
 import { useCvStore } from '@context/cvStore'
 import { useProfileStore, type SeekerProfile } from '@context/profileStore'
@@ -248,7 +247,6 @@ export default function JobseekerPersonalView({ owner }: Opts) {
       <div className="shell pb-section-sm">
         <SeekerReviews seekerId={ME} className="mx-auto max-w-2xl" />
       </div>
-      <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
     </>
   )
 }

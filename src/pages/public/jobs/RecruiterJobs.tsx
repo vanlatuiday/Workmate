@@ -4,7 +4,7 @@ import EmptyState from '@components/dashboard/EmptyState'
 import { JOB_TYPES } from '@constants/index'
 import { BTN_SECONDARY } from '@utils/ui'
 import DiscoverGallery from '@components/discover/DiscoverGallery'
-import { ClosingBand, PrimaryLink, SampleNote, TextLink } from '@components/discover/parts'
+import { ClosingBand, PrimaryLink, TextLink } from '@components/discover/parts'
 import type { GalleryItem } from '@components/discover/types'
 import { STATUS_LABEL } from '@components/admin/parts'
 import { useCandidateStore } from '@context/candidateStore'
@@ -146,7 +146,6 @@ export default function RecruiterJobs() {
       >
         <PrimaryLink to="/dang-tin">Đăng tin mới</PrimaryLink>
       </ClosingBand>
-      <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
       </DarkPageBody>
     </>
   )

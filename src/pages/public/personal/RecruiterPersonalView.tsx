@@ -5,7 +5,7 @@ import { useCompanyReviews } from '@services/connectionService'
 import { useCompanyStore, type CompanyProfile } from '@context/companyStore'
 import type { CatalogJob } from '@context/catalogStore'
 import { useCompanyJobs } from '@services/adminService'
-import { Facts, SampleNote } from '@components/discover/parts'
+import { Facts } from '@components/discover/parts'
 import { JOB_TYPES } from '@constants/index'
 import PersonalIntro from './PersonalIntro'
 import { ActionPrimary, ActionText, Actions, EmptyNote, PageActions, PlainList, Section, snippet, TagList } from './parts'
@@ -197,7 +197,6 @@ export default function RecruiterPersonalView({ owner }: Opts) {
         <h2 className="mx-auto max-w-2xl text-sm font-medium text-page-muted">Đánh giá từ người đã làm</h2>
         <ReviewsPanel kind="company" targetId={myCompanyId} targetName="công ty" reviews={myReviews} className="mx-auto mt-3 max-w-2xl" />
       </div>
-      <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
     </>
   )
 }

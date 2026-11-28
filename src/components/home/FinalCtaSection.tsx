@@ -54,8 +54,6 @@ export default function FinalCtaSection() {
         )}
       </Reveal>
       {!recruiter && <ExploreChips className="mt-12 max-w-5xl" />}
-      {/* Ghi chú dữ liệu mẫu duy nhất của trang chủ */}
-      <p className="mt-12 text-xs text-page-muted">{homeSections.demoNotice}</p>
     </section>
   )
 }

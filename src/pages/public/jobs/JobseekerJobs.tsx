@@ -3,7 +3,7 @@ import { SkeletonCards } from '@components/dashboard/Skeleton'
 import { SearchX } from 'lucide-react'
 import EmptyState from '@components/dashboard/EmptyState'
 import DiscoverGallery from '@components/discover/DiscoverGallery'
-import { ClosingBand, PrimaryLink, SampleNote } from '@components/discover/parts'
+import { ClosingBand, PrimaryLink } from '@components/discover/parts'
 import { BTN_SECONDARY } from '@utils/ui'
 import { useSeekerCriteria } from '@context/profileStore'
 import { useAllJobs, useSeekerOutcomes, EMPTY_FILTERS } from './catalog'
@@ -73,7 +73,6 @@ export default function JobseekerJobs() {
       >
         <PrimaryLink to="/tim-viec/phu-hop">Xem việc phù hợp</PrimaryLink>
       </ClosingBand>
-      <SampleNote>Ảnh minh họa từ Unsplash.</SampleNote>
       </DarkPageBody>
     </>
   )

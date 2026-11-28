@@ -83,8 +83,6 @@ export const heroCopy: Record<'guest' | 'jobseeker' | 'recruiter' | 'admin', Her
 export const homeSections = {
   /** Chú thích gắn ở các hàng thẻ việc làm */
   sampleNote: 'Dữ liệu minh họa',
-  /** Ghi chú dữ liệu mẫu DUY NHẤT của trang chủ (taste skill: không lặp ghi chú mẫu) — đặt ở phần cuối */
-  demoNotice: 'Việc làm, doanh nghiệp và hồ sơ trên trang là dữ liệu minh họa, chưa phải tin tuyển dụng thật.',
   /** Phần câu nhấn giữa trang (StatementSection): nhãn, tiêu đề (đoạn nhấn màu cyan ở giữa), mô tả và nút theo vai trò */
   statementEyebrow: { lead: 'Kết nối cơ hội', tail: 'Kiến tạo tương lai' },
   statementTitle: { lead: 'Ghép việc hợp lịch, kết nối khi ', em: 'cả hai bên', tail: ' cùng muốn.' },
