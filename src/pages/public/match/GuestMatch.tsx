@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { MockNotice } from '@components/dashboard'
 import { FOCUS } from '@utils/focus'
 import { MATCH_JOBS, SEEKER_DEFAULT } from './data'
 import { BTN_ACCENT, BTN_SECONDARY } from '@utils/ui'
@@ -60,9 +59,6 @@ export default function GuestMatch() {
             </p>
           </div>
         </div>
-      </div>
-      <div className="mt-6">
-        <MockNotice />
       </div>
     </MatchFrame>
   )
