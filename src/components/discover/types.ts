@@ -1,3 +1,5 @@
+export const COMPACT_JOBS_GALLERY = '(max-width: 1023px), (pointer: coarse)'
+
 /** Ảnh tải lên dùng `url`; ảnh mẫu Unsplash dùng `id` sau "photo-". */
 export type Photo = { id?: string; url?: string; alt: string }
 

@@ -550,7 +550,7 @@ export default function ShiftBoardSection() {
                     <article className="shift-card group/card relative flex flex-col overflow-hidden rounded-card border border-wm-cyan/35 bg-wm-abyss/55 text-wm-ivory backdrop-blur-[16px] md:h-full">
                       {/* Thẻ đang mở (rộng gấp đôi) không giữ tỉ lệ 4:3, nếu không sẽ cao vọt; nó giãn theo chiều cao hàng do các thẻ đóng quyết định */}
                       {/* Bấm vào ảnh cũng mở danh sách (chuột/chạm); bàn phím dùng nút "Xem ca làm" nên ảnh không thêm điểm Tab */}
-                      <div data-photo-layer onClick={open ? undefined : () => pick(g.cat.key)} className={cn('relative aspect-[4/3] shrink-0 cursor-pointer overflow-hidden bg-gradient-to-b from-wm-ivory/20 to-wm-azure/25', open && 'md:aspect-auto md:min-h-0 md:flex-1')}>
+                      <div data-photo-layer onClick={open ? undefined : () => pick(g.cat.key)} className={cn('relative aspect-video max-h-44 shrink-0 cursor-pointer overflow-hidden bg-gradient-to-b from-wm-ivory/20 to-wm-azure/25 md:aspect-[4/3] md:max-h-none', open && 'md:aspect-auto md:min-h-0 md:flex-1')}>
                         {/* Phần nhấc lên khi rê chuột/focus nằm ở lớp bọc này, không phải <img> (GSAP đang đặt `filter` lên ảnh) */}
                         <div className={cn('h-full w-full origin-bottom transition-transform duration-300 ease-out motion-safe:group-hover/card:-translate-y-1.5 motion-safe:group-hover/card:scale-[1.03] motion-safe:group-has-[:focus-visible]/card:-translate-y-1.5 motion-safe:group-has-[:focus-visible]/card:scale-[1.03]', open ? 'md:absolute md:inset-0' : 'relative')}>
                           {g.cat.cutout ? (
@@ -569,7 +569,7 @@ export default function ShiftBoardSection() {
                               data-shift-photo
                               src={photoUrl(g.cat.photo, 640)}
                               srcSet={photoSrcSet(g.cat.photo)}
-                              sizes="(min-width: 1024px) 20vw, (min-width: 768px) 33vw, 100vw"
+                              sizes="(min-width: 1024px) 20vw, (min-width: 768px) 33vw, 80vw"
                               alt={g.cat.photo.alt}
                               width={640}
                               height={800}

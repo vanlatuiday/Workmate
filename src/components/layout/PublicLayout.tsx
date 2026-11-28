@@ -116,7 +116,7 @@ export default function PublicLayout() {
         <SiteHeader home={dark} surface={headerSurface} menuOpen={overlayOpen} menuId={MENU_ID} onOpenMenu={() => setOverlayOpen(true)} />
       )}
 
-      <MenuOverlay
+      {!dark && <MenuOverlay
         id={MENU_ID}
         open={overlayOpen}
         onClose={() => setOverlayOpen(false)}
@@ -132,7 +132,7 @@ export default function PublicLayout() {
                 { label: 'Đăng ký', href: '/dang-ky' },
               ]
         }
-      />
+      />}
 
       {/* Page content — đổi route: trang cũ mờ đi nhanh, trang mới trượt từ trên xuống vào chỗ */}
       {/* pt-[72px]: header cố định không còn chiếm chỗ trong luồng. Trang chủ và trang đăng nhập (bare) tự nằm dưới header */}

@@ -2,27 +2,6 @@ import type { MatchJob } from '@pages/public/match/data'
 import { photoUrl, type Photo } from '@components/discover/types'
 import { HOME_CATEGORIES, categoryOf, type HomeCategory } from '@components/home/categories'
 
-/** Một nhóm có việc cho người đang xem (bộ chọn nhóm + hàng chip chuyển nhóm) */
-export interface CategoryEntry {
-  cat: HomeCategory
-  /** Số việc của người đang xem trong nhóm */
-  count: number
-  /** Ảnh của việc đầu tiên: dùng cho nhóm không có ảnh tách nền ("Việc khác") */
-  photo?: Photo
-}
-
-/** Chỉ các nhóm có ≥ 1 việc, theo thứ tự HOME_CATEGORIES */
-export function categoryEntries(jobs: MatchJob[]): CategoryEntry[] {
-  const by = new Map<string, CategoryEntry>()
-  for (const j of jobs) {
-    const cat = categoryOf(j)
-    const e = by.get(cat.key)
-    if (e) e.count += 1
-    else by.set(cat.key, { cat, count: 1, photo: j.photo })
-  }
-  return HOME_CATEGORIES.flatMap((c) => by.get(c.key) ?? [])
-}
-
 /** Một bước của bộ sưu tập /viec-lam: một nhóm + các tin của nhóm (mới nhất trước) */
 export interface CategoryGroup<J extends MatchJob = MatchJob> {
   cat: HomeCategory

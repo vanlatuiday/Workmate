@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { useCatalogStore } from '@context/catalogStore'
 import { SkeletonCards } from '@components/dashboard/Skeleton'
 import { SearchX } from 'lucide-react'
@@ -6,20 +5,18 @@ import EmptyState from '@components/dashboard/EmptyState'
 import DiscoverGallery from '@components/discover/DiscoverGallery'
 import { ClosingBand, PrimaryLink, SampleNote, TextLink } from '@components/discover/parts'
 import { BTN_SECONDARY } from '@utils/ui'
-import { ALL_CATEGORIES, useAllJobs, EMPTY_FILTERS } from './catalog'
+import { useAllJobs, EMPTY_FILTERS } from './catalog'
 import JobSearchBar from './JobSearchBar'
 import { LIGHT_CARD_VARS } from '@components/home/homeBackground'
 import { DarkPageBody } from '@components/common/PageCover'
 import JobsHero from './JobsHero'
 import { useJobFilters } from './useJobFilters'
-import CategoryPicker from './CategoryPicker'
-import { categoryEntries } from './categoryEntries'
 import { useCategoryItems, initialStep, type CategoryItem } from './useCategoryItems'
 import { PostsCard, CompanyBlock, groupByCompany } from './CategoryPosts'
 
 /** Khách: khám phá nơi làm việc — nhấn vào lý do đáng xem, mời đăng ký khi muốn ứng tuyển. */
 export default function GuestJobs() {
-  const { filters, setFilters, setCategory } = useJobFilters()
+  const { filters, setFilters } = useJobFilters()
   // Quản trị viên duyệt/ẩn tin hoặc khóa công ty → tính lại danh sách
   const moderation = useCatalogStore((s) => s.jobs)
   const locked = useCatalogStore((s) => s.companies)
@@ -30,27 +27,17 @@ export default function GuestJobs() {
   const jobCount = items.reduce((n, x) => n + x.group.jobs.length, 0)
   const companyCount = useCatalogStore((s) => s.companies.length)
   const fact = `${allJobs.length} việc đang tuyển · ${companyCount} công ty`
-  // Chưa chọn nhóm: chỉ hiện bộ chọn nhóm; các nhóm có việc theo danh sách việc người xem thấy
-  const picking = filters.category === '' && allJobs.length > 0
-  const entries = useMemo(() => categoryEntries(allJobs), [allJobs])
-
   return (
     <>
       <JobsHero
         title="Việc làm theo ca ở Đà Nẵng"
         fact={fact}
-        stats={picking ? [[entries.length, 'nhóm công việc']] : [[items.length, 'nhóm'], [jobCount, 'việc']]}
-        picker={picking}
+        stats={[[items.length, 'nhóm'], [jobCount, 'việc']]}
         category={filters.category}
-        back={picking ? undefined : () => setCategory('')}
       >
-        {picking ? undefined : <JobSearchBar filters={filters} onChange={setFilters} inCover />}
+        <JobSearchBar filters={filters} onChange={setFilters} inCover />
       </JobsHero>
       <DarkPageBody>
-      {picking ? (
-        <CategoryPicker entries={entries} total={allJobs.length} onPick={(k) => setCategory(k ?? ALL_CATEGORIES)} />
-      ) : null}
-      {picking ? null : <>
       {items.length === 0 && !settled ? (
         <div className="shell py-section-sm">
           <SkeletonCards count={6} image label="Đang tải danh sách công ty…" />
@@ -85,7 +72,6 @@ export default function GuestJobs() {
         )}
       />
       )}
-      </>}
       <ClosingBand
         title="Chọn vai trò để bắt đầu"
         text="Một tài khoản cho người tìm việc, một cho nơi cần người. Chọn đúng phía để Workmate gợi ý đúng thứ bạn cần."

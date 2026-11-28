@@ -3,7 +3,7 @@ import { useMediaQuery } from '@hooks/useMediaQuery'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import ScrollGallery from './ScrollGallery'
 import StaticGallery from './StaticGallery'
-import type { GalleryItem } from './types'
+import { COMPACT_JOBS_GALLERY, type GalleryItem } from './types'
 
 export type GalleryProps<T extends GalleryItem> = {
   items: T[]
@@ -29,5 +29,6 @@ export type GalleryProps<T extends GalleryItem> = {
 export default function DiscoverGallery<T extends GalleryItem>(props: GalleryProps<T>) {
   const wide = useMediaQuery('(min-width: 1024px)')
   const reduced = useReducedMotion()
-  return wide && !reduced ? <ScrollGallery {...props} /> : <StaticGallery {...props} />
+  const compactJobs = useMediaQuery(COMPACT_JOBS_GALLERY)
+  return wide && !reduced && !(props.layout === 'jobs' && compactJobs) ? <ScrollGallery {...props} /> : <StaticGallery {...props} />
 }

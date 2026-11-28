@@ -18,10 +18,9 @@ import { LIGHT_CARD_VARS } from '@components/home/homeBackground'
 import { DarkPageBody } from '@components/common/PageCover'
 import JobsHero from './JobsHero'
 import JobSearchBar from './JobSearchBar'
-import { ALL_CATEGORIES, EMPTY_FILTERS, type JobFilters } from './catalog'
+import { EMPTY_FILTERS, type JobFilters } from './catalog'
 import { useJobFilters } from './useJobFilters'
-import CategoryPicker from './CategoryPicker'
-import { categoryEntries, categoryGroups, groupPhoto, type CategoryGroup } from './categoryEntries'
+import { categoryGroups, groupPhoto, type CategoryGroup } from './categoryEntries'
 import { PostsCard, OwnRow } from './CategoryPosts'
 import { initialStep } from './useCategoryItems'
 import { foldVi as fold } from '@utils/text'
@@ -56,7 +55,7 @@ function matches({ position: p, typeLabel }: Item, f: JobFilters) {
  * Không hiện thông tin ứng viên ở đây — chỉ số lượng, chi tiết nằm trong khu tuyển dụng.
  */
 export default function RecruiterJobs() {
-  const { filters, setFilters, setCategory } = useJobFilters()
+  const { filters, setFilters } = useJobFilters()
   const rows = useCompanyJobs(useCompanyStore((s) => s.id))
   const candidates = useCandidateStore((s) => s.list)
   const settled = useCatalogStore((s) => s.settled)
@@ -81,24 +80,17 @@ export default function RecruiterJobs() {
   const { outcomeOf } = useCandidateMatches(all.map((x) => x.id)) // điểm máy chủ; outcomeOf đổi khi điểm đổi
   const fitCount = useMemo(() => new Map(all.map((x) => [x.id, fitCandidatesOf(x.position).length])), [all, candidates, outcomeOf])
   const fact = `${all.length} tin tuyển dụng`
-  // Chưa chọn nhóm: chỉ hiện bộ chọn nhóm (nhóm của chính các tin mình đăng); chưa có tin nào thì giữ trạng thái trống
-  const picking = filters.category === '' && all.length > 0
-  const entries = useMemo(() => categoryEntries(all.map((x) => x.position)), [all])
   return (
     <>
       <JobsHero
         title="Tin tuyển dụng của bạn"
         fact={fact}
-        stats={picking ? [[entries.length, 'nhóm công việc']] : [[matched.length, 'vị trí']]}
-        picker={picking}
+        stats={[[matched.length, 'vị trí']]}
         category={filters.category}
-        back={picking ? undefined : () => setCategory('')}
       >
-        {picking ? undefined : <JobSearchBar filters={filters} onChange={setFilters} showDistrict={false} showSalary={false} placeholder="Tên vị trí, lịch làm…" inCover />}
+        <JobSearchBar filters={filters} onChange={setFilters} showDistrict={false} showSalary={false} placeholder="Tên vị trí, lịch làm…" inCover />
       </JobsHero>
       <DarkPageBody>
-      {picking ? <CategoryPicker entries={entries} total={all.length} unit="vị trí" onPick={(k) => setCategory(k ?? ALL_CATEGORIES)} /> : null}
-      {picking ? null : <>
       {all.length === 0 && !settled ? (
         <div className="shell py-section-sm">
           <SkeletonCards count={3} label="Đang tải tin tuyển dụng…" />
@@ -148,7 +140,6 @@ export default function RecruiterJobs() {
         )}
       />
       )}
-      </>}
       <ClosingBand
         title="Đăng thêm một vị trí"
         text="Đăng tin kèm lịch làm và tiêu chí bắt buộc, Workmate sẽ gợi ý ứng viên khớp lịch gần nơi làm."

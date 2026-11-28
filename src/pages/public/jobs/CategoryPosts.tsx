@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { BadgeCheck, Banknote, Clock, MapPin, Users } from 'lucide-react'
+import { BadgeCheck, Banknote, ChevronDown, Clock, MapPin, Users } from 'lucide-react'
 import { cn } from '@utils/cn'
+import { COMPACT_JOBS_GALLERY } from '@components/discover/types'
+import { useMediaQuery } from '@hooks/useMediaQuery'
 import { FOCUS } from '@utils/focus'
 import { PRESS } from '@utils/ui'
 import { useCatalogStore } from '@context/catalogStore'
@@ -29,6 +31,10 @@ function useCompanyView(id: string) {
  * `companies`: các công ty đang tuyển trong nhóm (đã xếp thứ tự) → hiện "N công ty · M tin" và chồng logo.
  */
 export function PostsCard({ label, count, unit = 'tin', companies, children, footer }: { label: string; count: number; unit?: string; companies?: CompanyBrief[]; children: ReactNode; footer?: ReactNode }) {
+  const compact = useMediaQuery(COMPACT_JOBS_GALLERY)
+  const [expanded, setExpanded] = useState(false)
+  const listId = useId()
+  const listLabel = companies ? 'danh sách công ty' : 'danh sách vị trí'
   const summary = companies ? `${companies.length} công ty · ${count} ${unit}` : `${count} ${unit}`
   return (
     <>
@@ -38,7 +44,7 @@ export function PostsCard({ label, count, unit = 'tin', companies, children, foo
           <h2 className="font-display text-lg font-semibold leading-tight">{label}</h2>
           <p className="tnum mt-0.5 text-sm text-page-muted">{summary}</p>
         </div>
-        {companies && companies.length > 0 ? (
+        {!compact && companies && companies.length > 0 ? (
           <div aria-hidden className="flex shrink-0 items-center">
             {companies.slice(0, 4).map((c, i) => (
               <Logo key={c.id} id={c.id} size="xs" className={cn('ring-2 ring-wm-abyss day-stack-item', i > 0 && '-ml-2')} />
@@ -47,8 +53,22 @@ export function PostsCard({ label, count, unit = 'tin', companies, children, foo
           </div>
         ) : null}
       </div>
-      <ul role="list" className="mt-3 space-y-2">{children}</ul>
-      {footer ? <div className="mt-4 border-t border-wm-ivory/10 pt-3">{footer}</div> : null}
+      {compact && (
+        <button
+          type="button"
+          aria-expanded={expanded}
+          aria-controls={listId}
+          onClick={() => setExpanded((open) => !open)}
+          className={cn(ROW, 'mt-3 flex min-h-11 items-center justify-between gap-2 px-3 text-sm font-semibold')}
+        >
+          {expanded ? 'Ẩn' : 'Xem'} {listLabel}
+          <ChevronDown aria-hidden className={cn('h-4 w-4 shrink-0', expanded && 'rotate-180')} />
+        </button>
+      )}
+      <div id={listId} hidden={compact && !expanded}>
+        <ul role="list" className="mt-3 space-y-2">{children}</ul>
+        {footer ? <div className="mt-4 border-t border-wm-ivory/10 pt-3">{footer}</div> : null}
+      </div>
     </>
   )
 }

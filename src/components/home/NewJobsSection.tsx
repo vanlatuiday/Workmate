@@ -72,42 +72,6 @@ function JobPhoto({ job, alt, compact = false, className }: { job: MatchJob; alt
 /** Nhãn của thẻ: hình thức làm việc (ứng viên) hoặc trạng thái tin (nhà tuyển dụng) */
 const tagOf = (row: Row) => row.status ?? JOB_TYPES.find((t) => t.value === row.job.jobType)?.label ?? row.job.district
 
-/** Dòng thông tin của việc: công ty · lương · quận (+ ca, ghi chú quan tâm) */
-function detailsOf(row: Row) {
-  const { job } = row
-  return [companyOf(job.companyId).name, job.salaryLabel, `${job.district}, Đà Nẵng`, job.shiftLabel, row.note].filter((d): d is string =>
-    Boolean(d),
-  )
-}
-
-/** Dòng thông tin dạng chữ liền; lương và giờ ca là số liệu → tnum + đậm hơn chữ quanh */
-function Details({ row }: { row: Row }) {
-  const { job } = row
-  return (
-    <>
-      {detailsOf(row).map((d, i) => (
-        <span key={i}>
-          {i > 0 && ' · '}
-          {d === job.salaryLabel || d === job.shiftLabel ? <span className="tnum font-semibold text-page-fg">{d}</span> : d}
-        </span>
-      ))}
-    </>
-  )
-}
-
-/** Nút "Xem tin này →" / "Quản lý tin →" của một việc */
-function RowLink({ row, label }: { row: Row; label: string }) {
-  return (
-    <JobDetailLink jobId={row.job.id} data-cursor="Xem" className="group inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-wm-ivory">
-      <span className="border-b border-transparent transition-colors duration-300 group-hover:border-wm-ivory group-focus-visible:border-wm-ivory">{label}</span>
-      <ArrowRight
-        className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
-        aria-hidden
-      />
-    </JobDetailLink>
-  )
-}
-
 /**
  * Section ④ — vòng 3D (references/p9.mp4) dưới dải chữ chạy ngang, theo nội dung 6 việc nhân đôi
  * thành 12 ô. Khách / người tìm việc / quản trị: sáu việc mới nhất theo ngày đăng.
@@ -125,8 +89,7 @@ function RowLink({ row, label }: { row: Row; label: string }) {
  * Kéo ngang bằng chuột/cảm ứng vẫn xoay tự do (touch-action: pan-y giữ cuộn dọc). Ngừng thao tác
  * ~150ms thì căn về ô gần nhất.
  * Phím ← →, nút trước/sau: một ô. Khối chữ của việc ở trước chuyển mờ chéo.
- * Điện thoại: ba thẻ ngang gọn và liên kết xem thêm. Giảm chuyển động: dải chữ đứng yên,
- * màn rộng dùng danh sách tĩnh đủ sáu việc.
+ * Giảm chuyển động: dãy thẻ ngang cuộn tự nhiên. Điện thoại ở mức Cao: ba thẻ xếp dọc.
  */
 export default function NewJobsSection() {
   const ref = useRef<HTMLElement>(null)
@@ -136,6 +99,7 @@ export default function NewJobsSection() {
   const areaRef = useRef<HTMLDivElement>(null)
   const stepRef = useRef<((dir: number) => void) | null>(null)
   const ringRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
   const [active, setActive] = useState(0)
   const role = useHomeRole()
   const recruiter = role === 'recruiter'
@@ -159,7 +123,7 @@ export default function NewJobsSection() {
   const linkLabel = recruiter ? 'Quản lý tin' : 'Xem tin này'
   // Dựng bánh xe ghim hay danh sách tĩnh
   const wheel = wide && !reduced && !empty && count >= 2
-  const mobileItems = items.slice(0, 3)
+  const cardItems = reduced ? items : items.slice(0, 3)
 
   // Vòng 3D: góc đích `target` (cộng dồn từ chuột/kéo/phím), góc thật `cur` đuổi theo bằng lerp mỗi khung
   useGSAP(
@@ -482,23 +446,56 @@ export default function NewJobsSection() {
             </div>
           </div>
         </>
-      ) : !wide ? (
-        /* Điện thoại: ba thẻ ngang gọn, bấm cả thẻ để mở tin. */
+      ) : (
         <div className="shell">
-          <ul className="mt-6 space-y-3">
-            {mobileItems.map((row) => (
-              <li key={row.job.id}>
+          {reduced && count > 1 && (
+            <div className="mt-3 hidden justify-end gap-2 md:flex">
+              {[-1, 1].map((direction) => (
+                <button
+                  key={direction}
+                  type="button"
+                  aria-label={direction < 0 ? 'Lướt việc về trước' : 'Lướt việc về sau'}
+                  onClick={() => {
+                    const list = listRef.current
+                    const card = list?.firstElementChild
+                    if (list && card) list.scrollBy({
+                      left: direction * (card.getBoundingClientRect().width + parseFloat(getComputedStyle(list).columnGap)),
+                      behavior: 'instant',
+                    })
+                  }}
+                  className={cn('inline-flex h-11 w-11 items-center justify-center rounded-full border border-wm-ivory/30 bg-wm-abyss/80 text-wm-ivory hover:border-wm-ivory', FOCUS)}
+                >
+                  {direction < 0 ? <ArrowLeft className="h-4 w-4" aria-hidden /> : <ArrowRight className="h-4 w-4" aria-hidden />}
+                </button>
+              ))}
+            </div>
+          )}
+          <ul
+            ref={listRef}
+            aria-label={copy.title}
+            className={reduced
+              ? 'mt-4 flex snap-x snap-proximity gap-3 overflow-x-auto overscroll-x-contain px-1 pb-3 pt-1'
+              : 'mt-6 space-y-3'}
+          >
+            {cardItems.map((row) => (
+              <li key={row.job.id} className={reduced ? 'flex w-[min(95%,29rem)] shrink-0 snap-start' : undefined}>
                 <JobDetailLink
                   jobId={row.job.id}
-                  className={cn('group flex items-start gap-3 rounded-card border border-wm-ivory/20 p-3 text-wm-ivory', HOME_GLASS_DARK, PRESS, CARD_HOVER, FOCUS)}
+                  className={cn(
+                    'group flex items-start gap-3 rounded-card border border-wm-ivory/20 p-3 text-wm-ivory',
+                    HOME_GLASS_DARK,
+                    reduced ? 'w-full py-4 hover:border-wm-ivory/50 sm:px-5' : [PRESS, CARD_HOVER],
+                    FOCUS,
+                  )}
                 >
-                  <JobPhoto job={row.job} alt="" compact className="w-20 shrink-0" />
+                  <JobPhoto job={row.job} alt="" compact className={cn('w-20 shrink-0', reduced && 'w-[5.5rem] sm:w-24')} />
                   <div className="min-w-0 flex-1">
                     <h3 className="line-clamp-2 font-display text-base font-semibold leading-snug">{row.job.title}</h3>
                     <p className="mt-1 line-clamp-1 text-xs text-wm-ivory/80">{companyOf(row.job.companyId).name}</p>
                     <p className="tnum mt-2 text-sm font-semibold text-wm-cyan">{row.job.salaryLabel}</p>
                     <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-wm-ivory/80">{row.job.district} · {row.job.shiftLabel}</p>
                     {row.status && <p className="mt-1 text-xs text-wm-ivory/80">{row.status}</p>}
+                    {reduced && row.note && <p className="mt-1 text-xs text-wm-ivory/80">{row.note}</p>}
                     <span className="mt-2 inline-flex items-center gap-1 text-sm font-medium group-hover:underline">
                       {linkLabel}<ArrowRight className="h-4 w-4" aria-hidden />
                     </span>
@@ -507,28 +504,11 @@ export default function NewJobsSection() {
               </li>
             ))}
           </ul>
-          {count > mobileItems.length && (
+          {!reduced && count > cardItems.length && (
             <Link to={copy.all.href} className={cn(BTN_SECONDARY, 'home-secondary-action mt-5 min-h-11 text-wm-ivory')}>
               {copy.all.label}<ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           )}
-        </div>
-      ) : (
-        /* Giảm chuyển động trên màn rộng: giữ danh sách tĩnh có đủ sáu việc. */
-        <div className="shell">
-          <ul role="list" className="mt-8 space-y-4">
-            {items.map((row, i) => (
-              <li key={row.job.id} className={`flex flex-col items-center rounded-card border border-wm-ivory/20 ${HOME_GLASS_DARK} px-5 py-8 text-center`}>
-                <Tag index={i} label={tagOf(row)} />
-                <JobPhoto job={row.job} alt={row.job.photo.alt} className="mt-4 w-44" />
-                <h3 className="mt-6 font-display text-2xl font-semibold leading-snug text-page-fg">{row.job.title}</h3>
-                <p className="mt-3 max-w-md text-sm leading-relaxed text-page-muted"><Details row={row} /></p>
-                <div className="mt-2">
-                  <RowLink row={row} label={linkLabel} />
-                </div>
-              </li>
-            ))}
-          </ul>
         </div>
       )}
     </section>

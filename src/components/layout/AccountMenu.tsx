@@ -1,46 +1,25 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
+import { useLocation } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
-import { useExperienceStore } from '@context/experienceStore'
-import { useMessengerStore } from '@context/messengerStore'
-import { useNotificationCenterStore } from '@context/notificationCenterStore'
+import AccountActions, { type AccountActions as AccountActionsProps } from './AccountActions'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 
-type Props = {
-  /** Chữ trong vòng tròn, vd. chữ cái đầu email */
+type Props = AccountActionsProps & {
   initial: string
-  /** Nút vào khu làm việc của vai trò, vd. "Khu tìm việc" */
-  area: { label: string; href: string }
-  profileHref: string
-  /** Số tin nhắn chưa đọc (0 = ẩn chip/chấm) */
-  unreadMessages: number
-  /** Số thông báo chưa đọc (0 = ẩn) */
-  unreadNotifications: number
-  /** Mở trang cá nhân (màn phủ từ trên xuống) — nhận sự kiện bấm của link */
-  onOpenProfile: (e: MouseEvent<HTMLAnchorElement>) => void
-  onLogout: () => void
-  /** Trang chủ: nút có hiệu ứng nam châm */
   magnetic: boolean
 }
-
-const ITEM = cn(
-  'block w-full rounded-control px-3 py-2 text-left text-sm text-page-muted transition-colors duration-fast hover:bg-page-surface hover:text-page-fg',
-  FOCUS,
-)
 
 /**
  * Nút tài khoản ở header (đã đăng nhập): vòng chữ tắt + "Trang cá nhân ▾",
  * bấm mở menu nhỏ gồm khu làm việc, trang cá nhân, đăng xuất.
  * Theo mẫu menu button của WAI-ARIA: mũi tên lên/xuống chuyển mục, Esc đóng và trả focus về nút.
  */
-export default function AccountMenu({ initial, area, profileHref, unreadMessages, unreadNotifications, onOpenProfile, onLogout, magnetic }: Props) {
+export default function AccountMenu({ initial, magnetic, ...actions }: Props) {
   const [open, setOpen] = useState(false)
-  const { quality, setQuality } = useExperienceStore()
-  const openMessenger = useMessengerStore((s) => s.openMessenger)
-  const openNotificationCenter = useNotificationCenterStore((s) => s.openCenter)
+  const { unreadMessages, unreadNotifications } = actions
   const wrapRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -150,76 +129,7 @@ export default function AccountMenu({ initial, area, profileHref, unreadMessages
           open ? 'visible translate-y-0 opacity-100' : 'invisible -translate-y-1 opacity-0',
         )}
       >
-        <button
-          type="button"
-          role="menuitem"
-          className={cn(ITEM, 'flex items-center justify-between')}
-          onClick={() => {
-            close(false)
-            openMessenger()
-          }}
-        >
-          Tin nhắn
-          {unreadMessages > 0 && (
-            <span className="rounded-full bg-page-fg px-2 text-xs font-medium text-page-bg">{unreadMessages}</span>
-          )}
-        </button>
-        <button
-          type="button"
-          role="menuitem"
-          aria-haspopup="dialog"
-          className={cn(ITEM, 'flex items-center justify-between')}
-          onClick={() => {
-            close(false)
-            openNotificationCenter()
-          }}
-        >
-          Thông báo
-          {unreadNotifications > 0 && (
-            <span className="rounded-full bg-page-fg px-2 text-xs font-medium text-page-bg">{unreadNotifications}</span>
-          )}
-        </button>
-        <Link role="menuitem" to="/lich-phong-van" className={ITEM} onClick={() => close(false)}>
-          Lịch phỏng vấn
-        </Link>
-        <Link role="menuitem" to={area.href} className={ITEM} onClick={() => close(false)}>
-          {area.label}
-        </Link>
-        <Link
-          role="menuitem"
-          to={profileHref}
-          className={ITEM}
-          onClick={(e) => {
-            close(false)
-            onOpenProfile(e)
-          }}
-        >
-          Trang cá nhân
-        </Link>
-        <button
-          role="menuitem"
-          type="button"
-          className={ITEM}
-          onClick={() => {
-            setQuality(quality === 'high' ? 'low' : 'high')
-            close()
-          }}
-        >
-          {quality === 'high' ? 'Giảm hiệu ứng' : 'Nâng hiệu ứng'}
-          <span className="ml-2 opacity-70">({quality === 'high' ? 'Cao' : 'Thấp'})</span>
-        </button>
-        <div role="separator" className="my-1 h-px bg-page-line" />
-        <button
-          role="menuitem"
-          type="button"
-          className={ITEM}
-          onClick={() => {
-            close(false)
-            onLogout()
-          }}
-        >
-          Đăng xuất
-        </button>
+        <AccountActions {...actions} close={close} menuRole="menuitem" />
       </div>
     </div>
   )

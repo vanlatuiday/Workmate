@@ -1573,3 +1573,11 @@ html[data-page='home']:not([data-role='seeker']) :is(.home-secondary-action, .st
 [data-home-light] :is(.home-bg-glow, .hero-art-float, .hero-tick, .hero-star, .hero-light, .hero-shimmer, .hero-streak) {
   animation: none;
 }
+
+.site-header[data-tone='light'] .hd-compact-menu {
+  background: var(--nav-bg);
+  border-color: var(--nav-border);
+  box-shadow: var(--nav-shadow);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+}
