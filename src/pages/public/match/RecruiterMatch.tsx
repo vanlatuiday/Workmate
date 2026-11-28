@@ -1,3 +1,4 @@
+import { matchesCandidateName } from '@utils/text'
 import { useEffect, useMemo, useState } from 'react'
 import PopIcon from '@components/common/PopIcon'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -120,7 +121,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
     connected: scored.filter((x) => statusOf(position.id, x.c.id) === 'connected'),
   }
   // Ô tìm theo tên ứng viên + kỹ năng, áp lên tab đang chọn (cả hai chế độ xem)
-  const current = lists[tab].filter((x) => foldMatches([x.c.name, ...x.c.criteria.skills], query))
+  const current = lists[tab].filter((x) => foldMatches([x.c.name, ...x.c.criteria.skills], query) || matchesCandidateName(x.c.name, query))
   // Lọc theo mức phù hợp áp cho cả danh sách lẫn bộ sưu tập
   const shown = filterByLevel(current, level, (x) => x.outcome.score)
   // Danh sách thẻ sắp xếp lại mượt khi đổi tab / lọc

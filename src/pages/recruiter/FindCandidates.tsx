@@ -14,7 +14,7 @@ import { FOCUS } from '@utils/focus'
 import { BTN_PRIMARY, BTN_SECONDARY, BTN_SM, CHIP, CHIP_OFF, CHIP_ON } from '@utils/ui'
 import { candidateHref } from '@pages/public/personal/links'
 import { Link } from 'react-router-dom'
-import { foldVi, initialsOf } from '@utils/text'
+import { foldVi, initialsOf, matchesCandidateName } from '@utils/text'
 
 const FIELD = `h-10 rounded-control border border-page-edge bg-page-surface px-3 text-sm text-page-fg ${FOCUS}`
 
@@ -176,7 +176,7 @@ export default function FindCandidates() {
     const nq = norm(q)
     return ALL_CANDIDATES.filter(
       (c) =>
-        (!nq || norm(c.name).includes(nq) || c.criteria.skills.some((s) => norm(s).includes(nq)) || norm(c.summary).includes(nq)) &&
+        (!nq || norm(c.name).includes(nq) || matchesCandidateName(c.name, q) || c.criteria.skills.some((s) => norm(s).includes(nq)) || norm(c.summary).includes(nq)) &&
         (!area || c.area === area) &&
         skills.every((s) => c.criteria.skills.includes(s)) &&
         sessions.every((s) => freeIn(c, s)) &&
