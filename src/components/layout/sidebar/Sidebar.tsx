@@ -339,8 +339,8 @@ export default function Sidebar({ role, variant, onClose, glass = false }: Props
         {glass && !isDrawer ? <div aria-hidden="true" className="h-4 flex-shrink-0" /> : (
         <div className="flex h-[76px] flex-shrink-0 items-center px-4">
           <Link
-            to="/"
-            aria-label="Về trang chủ Workmate"
+            to={role === 'admin' ? config.homeHref : '/'}
+            aria-label={role === 'admin' ? 'Về tổng quan quản trị' : 'Về trang chủ Workmate'}
             onClick={finish}
             {...tip.bind('Workmate')}
             className={cn('flex min-w-0 items-center rounded-full', FOCUS)}

@@ -15,8 +15,8 @@ function roleOfPath(path: string): UserRole | null {
   return entry ? entry[0] : null
 }
 
-/** Vai trò này có được vào đường dẫn không (trang công khai hoặc khu của chính mình). */
+/** Admin chỉ vào khu quản trị. Các vai trò khác vào khu riêng và trang công khai. */
 export function canVisit(role: UserRole, path: string) {
   const owner = roleOfPath(path)
-  return owner === null || owner === role
+  return role === 'admin' ? owner === 'admin' : owner === null || owner === role
 }

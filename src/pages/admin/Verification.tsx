@@ -95,7 +95,7 @@ function RequestCard({ v, onReviewed, onNotice }: { v: AdminVerification; onRevi
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h2 className="font-display text-lg font-medium text-page-fg">
-            <Link to={`/cong-ty/${v.company.id}`} className={`rounded-control underline-offset-4 hover:underline ${FOCUS}`}>{v.company.name}</Link>
+            <Link to={`/admin/nha-tuyen-dung?cong-ty=${encodeURIComponent(v.company.id)}`} className={`rounded-control underline-offset-4 hover:underline ${FOCUS}`}>{v.company.name}</Link>
           </h2>
           <p className="mt-1 text-sm text-page-muted">{[v.company.industry, v.company.district].filter(Boolean).join(' · ')}</p>
           <p className="mt-1 text-xs text-page-muted">Gửi ngày <span className="tnum">{dateLabel(v.submittedAt)}</span>{v.reviewedAt && <> · xử lý ngày <span className="tnum">{dateLabel(v.reviewedAt)}</span></>}</p>

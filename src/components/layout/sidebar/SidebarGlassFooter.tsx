@@ -28,7 +28,7 @@ export default function SidebarGlassFooter({ role, collapsed, onNavigate, tip }:
   const recruiter = role === 'recruiter'
   return (
     <div className="flex-shrink-0 p-3">
-      <div
+      {role !== 'admin' && <div
         aria-hidden={collapsed}
         className={cn(
           'jd-promo mb-3 rounded-card border border-page-line px-4 pb-4 pt-3 text-center',
@@ -51,7 +51,7 @@ export default function SidebarGlassFooter({ role, collapsed, onNavigate, tip }:
         >
           {recruiter ? 'Đăng tin' : 'Cập nhật ngay'} <span aria-hidden="true" className="ml-1">→</span>
         </Link>
-      </div>
+      </div>}
       <button
         type="button"
         onClick={() => {

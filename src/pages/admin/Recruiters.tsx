@@ -1,11 +1,12 @@
 import { notifySuccess } from '@utils/feedback'
 import { useId, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import CompanyLogo from '@components/common/CompanyLogo'
 import { Building2, Lock, LockOpen, Search, ShieldCheck } from 'lucide-react'
 import { EmptyState, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import DetailDrawer from '@components/admin/DetailDrawer'
 import { ConfirmDialog, FIELD, norm, STATUS_LABEL } from '@components/admin/parts'
-import type { DiscoverCompany } from '@pages/public/jobs/data'
-import { useCatalogStore } from '@context/catalogStore'
+import { useCatalogStore, type CatalogCompany } from '@context/catalogStore'
 import { setCompanyLocked, setCompanyVerified, useAdminJobs, useCompanyFlags } from '@services/adminService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -25,11 +26,21 @@ export default function Recruiters() {
   const { verified, locked } = useCompanyFlags()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
-  const [openId, setOpenId] = useState<string | null>(null)
+  const [params, setParams] = useSearchParams()
+  const openId = params.get('cong-ty')
+  const setOpenId = (id: string | null) => {
+    setConfirmLock(false)
+    setParams((current) => {
+      const next = new URLSearchParams(current)
+      if (id) next.set('cong-ty', id)
+      else next.delete('cong-ty')
+      return next
+    }, { replace: true })
+  }
   const [confirmLock, setConfirmLock] = useState(false)
   const uid = useId()
 
-  const companies: DiscoverCompany[] = useCatalogStore((s) => s.companies)
+  const companies: CatalogCompany[] = useCatalogStore((s) => s.companies)
 
   const stats = (id: string) => {
     const mine = jobRows.filter((r) => r.job.companyId === id)
@@ -50,16 +61,16 @@ export default function Recruiters() {
 
   const open = openId ? companies.find((c) => c.id === openId) : undefined
 
-  const toggleVerified = (c: DiscoverCompany) => {
+  const toggleVerified = (c: CatalogCompany) => {
     const next = !verified[c.id]
     setCompanyVerified(c.id, next)
     notifySuccess(next ? `Đã gắn nhãn xác minh cho ${c.name}` : `Đã bỏ nhãn xác minh của ${c.name}`)
   }
-  const unlock = (c: DiscoverCompany) => {
+  const unlock = (c: CatalogCompany) => {
     setCompanyLocked(c.id, false)
     notifySuccess(`Đã mở khóa ${c.name}`)
   }
-  const lock = (c: DiscoverCompany) => {
+  const lock = (c: CatalogCompany) => {
     setCompanyLocked(c.id, true)
     setConfirmLock(false)
     notifySuccess(`Đã khóa ${c.name}`)
@@ -169,6 +180,7 @@ export default function Recruiters() {
           }
         >
           <div className="space-y-6">
+            <CompanyLogo name={open.name} logoUrl={open.logoUrl} decorative className="h-16 w-16 rounded-full p-1.5" />
             <span className="inline-flex flex-wrap gap-1.5">
               {verified[open.id] && <StatusBadge tone="soft">Đã xác minh</StatusBadge>}
               {locked[open.id] && <StatusBadge tone="danger">Bị khóa</StatusBadge>}
@@ -178,11 +190,30 @@ export default function Recruiters() {
               <div><dt className="text-xs text-page-muted">Ngành</dt><dd className="mt-0.5 text-sm text-page-fg">{open.industry}</dd></div>
               <div><dt className="text-xs text-page-muted">Quận</dt><dd className="mt-0.5 text-sm text-page-fg">{open.district}</dd></div>
               <div><dt className="text-xs text-page-muted">Quy mô</dt><dd className="tnum mt-0.5 text-sm text-page-fg">{open.size} người</dd></div>
+              {[
+                ['Địa chỉ', open.address],
+                ['Năm thành lập', open.foundedYear],
+                ['Email liên hệ', open.email],
+                ['Điện thoại', open.phone],
+              ].filter(([, value]) => value).map(([label, value]) => (
+                <div key={label}><dt className="text-xs text-page-muted">{label}</dt><dd className="mt-0.5 break-words text-sm text-page-fg">{value}</dd></div>
+              ))}
             </dl>
             <div>
               <h3 className="text-sm font-medium text-page-fg">Giới thiệu</h3>
               <p className="mt-1 text-sm leading-relaxed text-page-muted">{open.about}</p>
             </div>
+            {[
+              { title: 'Văn hóa', content: open.culture },
+              { title: 'Giá trị cốt lõi', content: open.values?.join('\n') },
+              { title: 'Môi trường làm việc', content: open.environment.join('\n') },
+              { title: 'Phúc lợi', content: open.policies?.join('\n') },
+            ].filter(({ content }) => content?.trim()).map(({ title, content }) => (
+              <div key={title}>
+                <h3 className="text-sm font-medium text-page-fg">{title}</h3>
+                <p className="mt-1 whitespace-pre-line break-words text-sm leading-relaxed text-page-muted">{content}</p>
+              </div>
+            ))}
             <div>
               <h3 className="text-sm font-medium text-page-fg">Tin tuyển dụng ({stats(open.id).total})</h3>
               {stats(open.id).rows.length === 0 ? (

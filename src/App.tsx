@@ -3,6 +3,7 @@ import { Suspense, lazy, useEffect, useLayoutEffect } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { jobDetailHref } from '@components/jobs/jobDetailHref'
 import { useAuthStore } from '@context/authStore'
+import { canVisit, ROLE_AREAS } from '@constants/roles'
 import { authService } from '@services/authService'
 import { loadCatalog } from '@services/catalogService'
 import { loadProfile } from '@services/profileService'
@@ -165,6 +166,10 @@ export default function App() {
     }
   }, [])
 
+  const admin = role === 'admin'
+  const adminHome = ROLE_AREAS.admin.home
+  if (admin && !canVisit(role, location.pathname)) return <Navigate to={adminHome} replace />
+
   return (
     <>
     <Routes>
@@ -270,12 +275,16 @@ export default function App() {
         </Route>
       </Route>
 
-      <Route element={<PublicLayout />}>
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
+      {admin ? (
+        <Route path="*" element={<Navigate to={adminHome} replace />} />
+      ) : (
+        <Route element={<PublicLayout />}>
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      )}
     </Routes>
     <EffectsPreferenceDialog />
-    {requestedJob && (userId ? (
+    {!admin && requestedJob && (userId ? (
       <Suspense fallback={null}>
         <JobDetailDialog key={userId} jobId={requestedJob} onClose={closeJobDetail} />
       </Suspense>

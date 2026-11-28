@@ -8,7 +8,6 @@ import { cn } from '@utils/cn'
 import RouteScroll from '@components/common/RouteScroll'
 import { FOCUS } from '@utils/focus'
 import { BTN_ICON } from '@utils/ui'
-import LeaveDashboardDialog from './LeaveDashboardDialog'
 import Sidebar from './sidebar/Sidebar'
 import MobileDrawer from './sidebar/MobileDrawer'
 import { SIDEBAR_CONFIG, type SidebarRole } from './sidebar/config'
@@ -198,7 +197,6 @@ export default function DashboardShell({ sidebarRole, roleLabel, searchHref, sea
           </Suspense>
         </main>
       </div>
-      <LeaveDashboardDialog tone="abyss" />
     </div>
   )
 }
