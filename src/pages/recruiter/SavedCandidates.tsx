@@ -5,6 +5,7 @@ import { notifySuccess } from '@utils/feedback'
 import { Bookmark } from 'lucide-react'
 import { EmptyState, MatchScore, PageHeader, Panel, StatusBadge } from '@components/dashboard'
 import { useMatchStore } from '@context/matchStore'
+import { useMatchConfirmation } from '@pages/public/match/useMatchConfirmation'
 import { useCandidates, usePositions } from '@pages/public/match/data'
 import { useCandidateMatches } from '@services/matchingService'
 import { CONNECTED_MESSAGE, expressInterest, useOnNewConnection, usePairStatuses } from '@services/connectionService'
@@ -28,6 +29,7 @@ export default function SavedCandidates() {
   const savedCandidates = useMatchStore((s) => s.savedCandidates)
   const toggleSaved = useMatchStore((s) => s.toggleSavedCandidate)
   const statusOf = usePairStatuses('recruiter')
+  const { request, dialog } = useMatchConfirmation()
   const positions = usePositions()
   const candidates = useCandidates()
   // Điểm do máy chủ tính theo từng tin; chưa có điểm thì không hiện phần trăm
@@ -48,6 +50,7 @@ export default function SavedCandidates() {
 
   return (
     <div>
+      {dialog}
       <PageHeader title="Ứng viên đã lưu" description="Những ứng viên bạn đánh dấu để cân nhắc, nhóm theo tin tuyển dụng." />
 
       {groups.length === 0 ? (
@@ -84,9 +87,12 @@ export default function SavedCandidates() {
                             <button
                               type="button"
                               className={cn(BTN_PRIMARY, BTN_SM)}
-                              onClick={() => {
-                                expressInterest('recruiter', position.id, cand.id)
-                              }}
+                              onClick={() => request({
+                                name: cand.name,
+                                label: 'Tiếp tục quan tâm',
+                                working: cand.availability.kind === 'working',
+                                run: () => expressInterest('recruiter', position.id, cand.id),
+                              })}
                             >
                               Quan tâm
                             </button>

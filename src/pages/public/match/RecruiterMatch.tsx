@@ -144,6 +144,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
     confirmation.request({
       name: c.name,
       score,
+      working: statusOf(position.id, c.id) === 'none' && c.availability.kind === 'working',
       label: statusOf(position.id, c.id) === 'received' ? 'Đồng ý kết nối' : 'Tiếp tục quan tâm',
       run: () => {
         expressInterest('recruiter', position.id, c.id)

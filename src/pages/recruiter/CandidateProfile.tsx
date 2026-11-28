@@ -40,13 +40,10 @@ function JobActions({ job, profile, score, compact }: { job: CatalogJob; profile
   const { request, dialog } = useMatchConfirmation()
   const connect = () => {
     const run = () => expressInterest('recruiter', job.id, profile.id)
-    if (score === undefined) {
-      run()
-      return
-    }
     request({
       name: profile.name,
       score,
+      working: status === 'none' && profile.working,
       label: status === 'received' ? 'Đồng ý kết nối' : 'Tiếp tục quan tâm',
       run,
     })

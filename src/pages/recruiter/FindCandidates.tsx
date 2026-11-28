@@ -3,6 +3,7 @@ import { notifySuccess } from '@utils/feedback'
 import { Bookmark, BookmarkCheck, MapPin, Search, UserSearch } from 'lucide-react'
 import { EmptyState, FilterToggle, PageHeader, Panel, SkeletonCards, StatusBadge } from '@components/dashboard'
 import { candidateKey, useMatchStore } from '@context/matchStore'
+import { useMatchConfirmation } from '@pages/public/match/useMatchConfirmation'
 import { availabilityLabel, useCandidates, usePositions, type MatchCandidate, type MatchPosition } from '@pages/public/match/data'
 import { useCandidateMatches } from '@services/matchingService'
 import { CONNECTED_MESSAGE, expressInterest, useOnNewConnection, usePairStatuses, type PairStatus } from '@services/connectionService'
@@ -40,6 +41,7 @@ const STATUS_LABEL: Record<Exclude<PairStatus, 'none'>, string> = {
 
 function CandidateCard({ c, positions, outcomeOf }: { c: MatchCandidate; positions: MatchPosition[]; outcomeOf: (jobId: string, seekerId: string) => { score: number; distanceKm: number } | undefined }) {
   const statusOf = usePairStatuses('recruiter')
+  const { request, dialog } = useMatchConfirmation()
   const savedCandidates = useMatchStore((s) => s.savedCandidates)
   const toggleSaved = useMatchStore((s) => s.toggleSavedCandidate)
   const [open, setOpen] = useState(false)
@@ -62,8 +64,15 @@ function CandidateCard({ c, positions, outcomeOf }: { c: MatchCandidate; positio
   const send = () => {
     if (!pickedId) return
     // Phản hồi thành công do expressInterest (connectionService) báo
-    expressInterest('recruiter', pickedId, c.id)
-    setOpen(false)
+    request({
+      name: c.name,
+      label: 'Tiếp tục quan tâm',
+      working: statusOf(pickedId, c.id) === 'none' && !ready,
+      run: () => {
+        expressInterest('recruiter', pickedId, c.id)
+        setOpen(false)
+      },
+    })
   }
 
   return (
@@ -145,6 +154,7 @@ function CandidateCard({ c, positions, outcomeOf }: { c: MatchCandidate; positio
           </button>
         </div>
       </div>
+      {dialog}
     </li>
   )
 }
