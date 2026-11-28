@@ -335,7 +335,7 @@ html[data-onboarding] [data-floating] {
 }
 
 /* Header trang chủ (useHomeHeader đặt data-header lên <html>):
-   - Đang ở banner ('hero'): chỉ còn logo + nút menu, không nền, chữ ngà trên ảnh tối.
+   - Đang ở banner ('hero'): chữ sáng trên ảnh tối.
    - Qua banner ('full'): đủ header; header không còn ẩn — cuộn xuống thì thu nhỏ (html[data-header-compact],
      xem khối "Header mới" phía dưới). Chỉ transform/opacity. */
 html[data-header='hero'] [data-site-header] {
@@ -349,15 +349,10 @@ html[data-header='hero'] [data-site-header] {
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     visibility 0.35s;
 }
-html[data-header='hero'] [data-header-item]:not([data-header-menu]),
 html[data-intro] [data-header-item] {
   opacity: 0;
   transform: translateY(-12px);
   visibility: hidden;
-}
-/* Ở banner nút menu là lối điều hướng duy nhất → hiện cả trên màn rộng (ghi đè lg:hidden) */
-html[data-header='hero'] [data-header-menu] {
-  display: block;
 }
 
 /* Hạt nhiễu rất mờ màu than chì phủ trang chủ — cảm giác giấy in trên các nền
@@ -771,8 +766,9 @@ html[data-header='hero'] .hd-logo::before { opacity: 0; }
 }
 
 /* Tablet (768–1023px): menu giữa hơi sát hơn để chừa chỗ cho cụm Đăng ký / Đăng nhập bên phải */
-@media (max-width: 1023px) {
-  .hd-link { padding-inline: 12px; }
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hd-link, .hd-btn, .hd-quiet { font-size: 14px; }
+  .hd-link { padding-inline: 10px; }
 }
 
 /* ─── Thanh bên dashboard: kính sáng nổi (components/layout/sidebar) ─── */

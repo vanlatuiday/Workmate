@@ -30,9 +30,9 @@ type Props = {
 /**
  * Header công khai: cố định, cao 72px, trong suốt ở đầu trang.
  *   trái: chấm xanh + Workmate · giữa: menu trong viên kính · phải: Đăng nhập / tài khoản
- * Dưới 1024px: logo và nút hamburger mở menu điều hướng.
+ * Dưới 768px: logo và nút hamburger mở menu điều hướng.
  * Trang chủ giữ các data-attribute mà index.css / IntroHero / useHomeHeader dựa vào:
- *   data-site-header, data-brand-logo, data-header-item, data-header-menu.
+ *   data-site-header, data-brand-logo, data-header-item.
  * Ba cụm kính nổi (logo / menu / tài khoản) tự co lại khi cuộn xuống (useHeaderScroll); không có nền toàn chiều rộng.
  */
 export default function SiteHeader({ home, surface }: Props) {
@@ -133,29 +133,28 @@ export default function SiteHeader({ home, surface }: Props) {
       )}
     >
       <div className="hd-inner absolute inset-0">
-        <div className="hd-bar relative grid h-[72px] grid-cols-[1fr_auto_1fr] items-center gap-x-4 px-6 md:px-10 lg:px-14">
+        <div className="hd-bar relative grid h-[72px] grid-cols-[1fr_auto_1fr] items-center gap-x-4 px-6 md:grid-cols-[auto_1fr_auto] md:gap-x-3 md:px-5 lg:grid-cols-[1fr_auto_1fr] lg:gap-x-4 lg:px-14">
           {/* Viên kính riêng của logo (hiện khi cuộn); lề âm bù padding để logo không lệch chỗ */}
           <div className="hd-logo hd-cluster justify-self-start">
             <Wordmark home={home} />
           </div>
 
-          <div data-header-item={item} className="hidden lg:block">
+          <div data-header-item={item} className="hidden justify-self-center md:block">
             <HeaderNav links={navLinks} className="hd-cluster hd-cluster-c flex" />
           </div>
 
           <div className="hd-cluster hd-cluster-r col-start-3 flex items-center justify-self-end gap-3">
-            <div data-header-item={item} className="hidden items-center gap-3 whitespace-nowrap lg:flex">
+            <div data-header-item={item} className="hidden items-center gap-3 whitespace-nowrap md:flex">
               {user && actions ? (
                 <AccountMenu {...actions} initial={initial} avatarUrl={accountAvatar} magnetic={home} />
               ) : guestLinks}
             </div>
 
-            {/* Dưới lg (1024px): hamburger 2 gạch — chữ menu 16px không đủ chỗ ở máy tính bảng dọc. Trang chủ: ở banner nút này hiện cả trên màn rộng (index.css → data-header-menu) */}
+            {/* Dưới md (768px): gom điều hướng vào menu hai gạch. */}
             <div
               ref={compactMenuRef}
               data-header-item={item}
-              data-header-menu={item}
-              className="relative lg:hidden"
+              className="relative md:hidden"
               onKeyDown={(event) => {
                 if (compactOpen && event.key === 'Escape') {
                   event.preventDefault()
