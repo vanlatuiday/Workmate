@@ -1,5 +1,5 @@
 import EffectsPreferenceDialog from '@components/layout/EffectsPreferenceDialog'
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy, useEffect, useLayoutEffect } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { jobDetailHref } from '@components/jobs/jobDetailHref'
 import { useAuthStore } from '@context/authStore'
@@ -111,6 +111,11 @@ function LegacyJobDetailRedirect() {
 export default function App() {
   const location = useLocation()
   const navigate = useNavigate()
+  useLayoutEffect(() => {
+    const path = location.pathname.replace(/\/+$/, '') || '/'
+    const dark = path === '/' || /^\/(dang-nhap|dang-ky|quen-mat-khau|tim-viec|tuyen-dung)(\/|$)/.test(path)
+    document.documentElement.dataset.initialSurface = dark ? 'dark' : 'light'
+  }, [location.pathname])
   const requestedJob = new URLSearchParams(location.search).get('tin')
   const closeJobDetail = () => {
     const background = jobDetailHref(null, location)

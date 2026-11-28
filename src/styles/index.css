@@ -8,12 +8,10 @@
   }
 
   body {
-    @apply bg-wm-ivory text-wm-charcoal font-sans antialiased;
+    @apply text-wm-charcoal font-sans antialiased;
     /* Dấu tiếng Việt cần khoảng dòng rộng; tiêu đề tự đặt leading riêng */
     line-height: 1.6;
   }
-
-  body:has(#root:empty) { background-color: var(--boot-bg, var(--wm-day)); }
   h1, h2, h3 { line-height: 1.2; }
   /* Số liệu (lương, km, giờ ca) thẳng hàng: thêm class tnum (đã có) hoặc tabular-nums */
 
