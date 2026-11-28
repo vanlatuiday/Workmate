@@ -218,7 +218,7 @@ function MessengerInner({ viewer }: { viewer: Side }) {
           {unread > 0 && (
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border border-page-fg bg-page-bg px-1 text-xs font-medium text-page-fg"
+              className="pointer-events-none absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border border-page-fg bg-page-bg px-1 text-xs font-medium text-danger"
             >
               {unread > 99 ? '99+' : unread}
             </span>

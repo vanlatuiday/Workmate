@@ -166,7 +166,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
           {unread > 0 && (
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border border-page-fg bg-page-bg px-1 text-xs font-medium text-page-fg"
+              className="pointer-events-none absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border border-page-fg bg-page-bg px-1 text-xs font-medium text-danger"
             >
               {unread > 99 ? '99+' : unread}
             </span>
@@ -219,7 +219,7 @@ function CenterInner({ viewer }: { viewer: Side }) {
               </button>
             </div>
             <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-page-line px-4 py-3 sm:px-5">
-              <p className="text-sm text-page-muted">{unread > 0 ? <><strong className="font-semibold text-page-fg">{unread}</strong> thông báo chưa đọc</> : 'Cập nhật hoạt động của bạn'}</p>
+              <p className="text-sm text-page-muted">{unread > 0 ? <><strong className="font-semibold text-danger">{unread}</strong> thông báo chưa đọc</> : 'Cập nhật hoạt động của bạn'}</p>
               <MarkAllReadButton viewer={viewer} compact className="min-h-11" />
             </div>
             {open && <NotificationBoard viewer={viewer} open={open} onNavigate={closeCenter} />}

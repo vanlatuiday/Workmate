@@ -79,7 +79,7 @@ export default function ConversationList({ viewer, conversations, activeKey, onS
                     <span className="flex items-start justify-between gap-2">
                       <span className={cn('line-clamp-2 text-sm leading-5 text-page-fg', c.unread > 0 ? 'font-semibold' : 'font-medium')}>{info.name}</span>
                       {c.unread > 0 && (
-                        <span className="shrink-0 rounded-full bg-page-fg px-2 text-xs font-medium text-page-bg">
+                        <span className="shrink-0 rounded-full bg-danger-soft px-2 text-xs font-medium text-danger">
                           {c.unread}
                           <span className="sr-only"> tin chưa đọc</span>
                         </span>

@@ -40,7 +40,7 @@ export default function AccountActions({ area, profileHref, unreadMessages, unre
       >
         Tin nhắn
         {unreadMessages > 0 && (
-          <span className="rounded-full bg-page-fg px-2 text-xs font-medium text-page-bg">{unreadMessages}</span>
+          <span className="rounded-full bg-danger-soft px-2 text-xs font-medium text-danger">{unreadMessages}</span>
         )}
       </button>
       <button
@@ -55,7 +55,7 @@ export default function AccountActions({ area, profileHref, unreadMessages, unre
       >
         Thông báo
         {unreadNotifications > 0 && (
-          <span className="rounded-full bg-page-fg px-2 text-xs font-medium text-page-bg">{unreadNotifications}</span>
+          <span className="rounded-full bg-danger-soft px-2 text-xs font-medium text-danger">{unreadNotifications}</span>
         )}
       </button>
       <Link role={menuRole} to="/lich-phong-van" className={ITEM} onClick={() => close(false)}>
