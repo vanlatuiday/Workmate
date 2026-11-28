@@ -11,7 +11,7 @@
       // Set the canvas color before CSS or the React bundle is available.
       (() => {
         const path = location.pathname.replace(/\/+$/, '') || '/'
-        const dark = path === '/' || /^\/(dang-nhap|dang-ky|quen-mat-khau|tim-viec|tuyen-dung)(\/|$)/.test(path)
+        const dark = path === '/' || /^\/(dang-nhap|dang-ky|quen-mat-khau|tim-viec|tuyen-dung|admin)(\/|$)/.test(path)
         document.documentElement.dataset.initialSurface = dark ? 'dark' : 'light'
       })()
     </script>

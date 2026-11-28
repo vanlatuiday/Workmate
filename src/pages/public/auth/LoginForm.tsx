@@ -62,7 +62,7 @@ export default function LoginForm({ delay, focus, shake, leave }: AuthFormProps)
     setUser(res.user, res.token)
     // Quay lại trang đang xem dở nếu vai trò này được vào; còn lại: người tìm việc / nhà tuyển dụng vào thẳng
     // trang Kết nối (/match — chủ dự án 2026-11-22), quản trị về trang chủ
-    navigate(from && canVisit(res.user.role, from) ? from : loginHome(res.user.role), { replace: true })
+    navigate(res.user.role !== 'admin' && from && canVisit(res.user.role, from) ? from : loginHome(res.user.role), { replace: true })
   }
 
   const handleSubmit = (e: React.FormEvent) => {

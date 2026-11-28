@@ -71,6 +71,7 @@ export default function AuthPage() {
   const token = useAuthStore((s) => s.token)
   const { pathname, state } = useLocation()
   if (user && token && (pathname === AUTH_PATHS.login || pathname === AUTH_PATHS.register)) {
+    if (user.role === 'admin') return <Navigate to={loginHome(user.role)} replace />
     const from = (state as { from?: string } | null)?.from
     if (pathname === AUTH_PATHS.register && user.role === 'jobseeker') {
       return <Navigate to={jobseekerRegistrationHome()} replace />

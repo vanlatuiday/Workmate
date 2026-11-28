@@ -96,6 +96,7 @@ export function useFieldTouch(root: RefObject<HTMLElement>) {
 
 /** Trang vào sau khi đăng nhập (khi không có trang đang xem dở): người tìm việc / nhà tuyển dụng → Kết nối, còn lại → trang chủ */
 export function loginHome(role: string): string {
+  if (role === 'admin') return '/admin'
   return role === 'jobseeker' || role === 'recruiter' ? '/match' : '/'
 }
 

@@ -28,7 +28,7 @@ type ShellProps = {
 function LoadingBar() {
   return (
     <div role="progressbar" aria-label="Đang tải trang" className="fixed inset-x-0 top-0 z-[60] h-0.5 overflow-hidden">
-      <div className="dash-loading h-full w-1/3 bg-page-fg" />
+      <div className="dash-loading h-full w-1/3 bg-wm-cyan" />
     </div>
   )
 }
@@ -85,7 +85,10 @@ export default function DashboardShell({ sidebarRole, roleLabel, searchHref, sea
   const closeDrawer = useCallback(() => setDrawerOpen(false), [])
 
   return (
-    <div className="theme-ivory dash-bg relative isolate flex h-screen overflow-hidden">
+    <div className="jd-root theme-abyss relative isolate flex h-screen overflow-hidden">
+      <div aria-hidden="true" className="jd-backdrop pointer-events-none fixed inset-0 -z-10">
+        <div className="home-stars absolute inset-0" />
+      </div>
       <a
         href="#dashboard-main"
         className={cn(
@@ -99,12 +102,12 @@ export default function DashboardShell({ sidebarRole, roleLabel, searchHref, sea
 
       {/* Thanh bên kính nổi (md+): bề rộng 260/72px, nội dung bên cạnh co giãn theo */}
       <div className="hidden flex-shrink-0 p-4 pr-0 md:block">
-        <Sidebar role={sidebarRole} variant="desktop" />
+        <Sidebar role={sidebarRole} variant="desktop" glass />
       </div>
 
       {/* Ngăn kéo mobile (<768px) */}
       <MobileDrawer open={drawerOpen} onClose={closeDrawer} returnFocusRef={menuBtnRef}>
-        <Sidebar role={sidebarRole} variant="drawer" onClose={closeDrawer} />
+        <Sidebar role={sidebarRole} variant="drawer" onClose={closeDrawer} glass />
       </MobileDrawer>
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
@@ -195,7 +198,7 @@ export default function DashboardShell({ sidebarRole, roleLabel, searchHref, sea
           </Suspense>
         </main>
       </div>
-      <LeaveDashboardDialog />
+      <LeaveDashboardDialog tone="abyss" />
     </div>
   )
 }

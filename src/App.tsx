@@ -20,9 +20,9 @@ const JobseekerLayout = lazy(() => import('@components/layout/JobseekerLayout'))
 const RecruiterLayout = lazy(() => import('@components/layout/RecruiterLayout'))
 const AdminLayout = lazy(() => import('@components/layout/AdminLayout'))
 /** Nền chờ khi khung dashboard đang tải: cùng màu nền dashboard, không nháy trắng */
-function DashboardLoading({ admin = false }: { admin?: boolean }) {
+function DashboardLoading() {
   return (
-    <div role="status" aria-live="polite" className={admin ? 'min-h-screen bg-wm-day' : 'min-h-screen bg-wm-abyss'}>
+    <div role="status" aria-live="polite" className="min-h-screen bg-wm-abyss">
       <span className="sr-only">Đang tải…</span>
     </div>
   )
@@ -113,7 +113,7 @@ export default function App() {
   const navigate = useNavigate()
   useLayoutEffect(() => {
     const path = location.pathname.replace(/\/+$/, '') || '/'
-    const dark = path === '/' || /^\/(dang-nhap|dang-ky|quen-mat-khau|tim-viec|tuyen-dung)(\/|$)/.test(path)
+    const dark = path === '/' || /^\/(dang-nhap|dang-ky|quen-mat-khau|tim-viec|tuyen-dung|admin)(\/|$)/.test(path)
     document.documentElement.dataset.initialSurface = dark ? 'dark' : 'light'
   }, [location.pathname])
   const requestedJob = new URLSearchParams(location.search).get('tin')
@@ -256,7 +256,7 @@ export default function App() {
 
       {/* Admin routes */}
       <Route element={<ProtectedRoute role="admin" />}>
-        <Route element={<Suspense fallback={<DashboardLoading admin />}><AdminLayout /></Suspense>}>
+        <Route element={<Suspense fallback={<DashboardLoading />}><AdminLayout /></Suspense>}>
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/nguoi-dung" element={<AdminUsers />} />
           <Route path="/admin/nha-tuyen-dung" element={<AdminRecruiters />} />
