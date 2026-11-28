@@ -1,3 +1,4 @@
+import AccountAvatar from '@components/layout/AccountAvatar'
 import { matchesCandidateName } from '@utils/text'
 import { useEffect, useMemo, useState } from 'react'
 import PopIcon from '@components/common/PopIcon'
@@ -21,7 +22,7 @@ import MatchSearchBar, { BarSelect, ChipReset, LevelMenu } from './MatchSearchBa
 import ReportButton from '@components/report/ReportButton'
 import CandidateCvDialog from './CandidateCvDialog'
 import {
-  Avatar, CheckList, filterByLevel, foldMatches, GalleryAction, GalleryCaption, MatchFrame, okReasons, personInitials, Tabs, ViewToggle,
+  CheckList, filterByLevel, foldMatches, GalleryAction, GalleryCaption, MatchFrame, okReasons, personInitials, Tabs, ViewToggle,
   type LevelKey,
 } from './parts'
 import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, BTN_SM } from '@utils/ui'
@@ -373,7 +374,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
                   <li key={key} data-flip-key={key} className="min-w-0">
                     <article className={cn('flex h-full flex-col rounded-card p-5 md:p-6', COVER_GLASS)}>
                       <div className="grid grid-cols-[auto_1fr] items-start gap-x-4 gap-y-3 sm:grid-cols-[auto_1fr_auto]">
-                        <Avatar text={personInitials(c.name)} />
+                        <AccountAvatar initial={personInitials(c.name)} url={c.avatarUrl} />
                         <div className="min-w-0">
                           <h3 className="font-display text-lg font-medium text-page-fg">{c.name}</h3>
                           <p className="mt-1 text-sm text-page-muted">{c.summary}</p>
