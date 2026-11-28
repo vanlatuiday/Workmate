@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ArrowRight, ChevronDown, X } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
@@ -22,9 +22,6 @@ type Props = {
   home: boolean
   /** Bề mặt phía dưới header (useHeaderSurface) — chỉ dùng ngoài trang chủ */
   surface: 'light' | 'dark' | 'day'
-  menuOpen: boolean
-  menuId: string
-  onOpenMenu: () => void
 }
 
 /**
@@ -35,12 +32,13 @@ type Props = {
  *   data-site-header, data-brand-logo, data-header-item, data-header-menu.
  * Ba cụm kính nổi (logo / menu / tài khoản) tự co lại khi cuộn xuống (useHeaderScroll); không có nền toàn chiều rộng.
  */
-export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu }: Props) {
+export default function SiteHeader({ home, surface }: Props) {
   const { user, logout } = useAuthStore()
   const headerRef = useRef<HTMLElement>(null)
   const compactMenuRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const [compactOpen, setCompactOpen] = useState(false)
+  const menuId = useId()
   const { quality, setQuality } = useExperienceStore()
   const closeCompact = (refocus = true) => {
     setCompactOpen(false)
@@ -92,7 +90,6 @@ export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu
     onOpenProfile: openProfile,
     onLogout: logout,
   } : null
-  const isOpen = home ? compactOpen : menuOpen
   const row = cn('flex min-h-11 items-center justify-between rounded-control px-3 py-2 text-sm font-medium hover:bg-page-surface aria-[current=page]:bg-page-surface', FOCUS)
   const mobileLink = ({ href, label }: { href: string; label: string }) => (
     <Link key={href} to={href} className={row} aria-current={pathname === href ? 'page' : undefined} onClick={() => closeCompact(false)}>
@@ -153,33 +150,32 @@ export default function SiteHeader({ home, surface, menuOpen, menuId, onOpenMenu
               data-header-menu={item}
               className="relative lg:hidden"
               onKeyDown={(event) => {
-                if (home && compactOpen && event.key === 'Escape') {
+                if (compactOpen && event.key === 'Escape') {
                   event.preventDefault()
                   closeCompact()
                 }
               }}
               onBlur={(event) => {
-                if (home && !event.currentTarget.contains(event.relatedTarget)) closeCompact(false)
+                if (compactOpen && !event.currentTarget.contains(event.relatedTarget)) closeCompact(false)
               }}
             >
               <button
                 ref={triggerRef}
                 type="button"
-                onClick={home ? () => setCompactOpen((open) => !open) : onOpenMenu}
-                aria-expanded={isOpen}
+                onClick={() => setCompactOpen((open) => !open)}
+                aria-expanded={compactOpen}
                 aria-controls={menuId}
-                aria-haspopup={home ? undefined : 'dialog'}
-                aria-label={isOpen ? 'Đóng menu' : 'Mở menu'}
+                aria-label={compactOpen ? 'Đóng menu' : 'Mở menu'}
                 className={cn('hd-burger', FOCUS)}
               >
-                {home && isOpen ? <X aria-hidden="true" className="h-5 w-5" /> : (
+                {compactOpen ? <X aria-hidden="true" className="h-5 w-5" /> : (
                   <>
                     <i aria-hidden="true" />
                     <i aria-hidden="true" />
                   </>
                 )}
               </button>
-              {home && compactOpen && (
+              {compactOpen && (
                 <nav
                   id={menuId}
                   aria-label="Menu chính"

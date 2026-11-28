@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
-import type { MenuItem } from '@components/layout/MenuOverlay'
+import type { MenuItem } from './navLinks'
 
 /** Các trang thông tin chung — gom vào mục "Khám phá" để menu chính trên header vẫn gọn */
 export const EXPLORE_ITEMS: MenuItem[] = [

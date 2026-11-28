@@ -1,19 +1,13 @@
 import { Link, useLocation, useOutlet } from 'react-router-dom'
-import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Suspense, useRef, useState, type ReactNode } from 'react'
 import { Briefcase } from 'lucide-react'
 import { AnimatePresence } from 'motion/react'
-import { useAuthStore } from '@context/authStore'
-import { ROLE_AREAS } from '@constants/roles'
 import { cn } from '@utils/cn'
-import MenuOverlay from '@components/layout/MenuOverlay'
-import { EXPLORE_ITEMS } from '@components/layout/ExploreMenu'
 import SiteHeader from '@components/layout/SiteHeader'
 import Wordmark from '@components/layout/Wordmark'
-import { NAV } from '@components/layout/navLinks'
 import RouteScroll from '@components/common/RouteScroll'
 import PageCurtain from '@components/motion/PageCurtain'
 import PageTransition from '@components/motion/PageTransition'
-import { PERSONAL_HREF } from '@pages/public/personal/links'
 import { FOCUS } from '@utils/focus'
 import { useHeaderSurface } from '@hooks/useHeaderSurface'
 import { isAuthPath } from '@pages/public/auth/authShared'
@@ -64,12 +58,7 @@ function AuthOutlet() {
  */
 // DAY_PATHS / NON_DAY_PATHS / matchesAny: dayContext.ts (dùng chung với màn chuyển trang)
 
-/** id của menu phủ — nút hamburger trong header trỏ tới bằng aria-controls */
-const MENU_ID = 'site-menu'
-
 export default function PublicLayout() {
-  const [overlayOpen, setOverlayOpen] = useState(false)
-  const { user, logout } = useAuthStore()
   const location = useLocation()
   // Trang chủ dùng nền tối (page-* do useSectionThemes điều khiển); các trang còn lại dùng theme ngà.
   // `dark` phải đổi ngay khi đổi route: IntroHero tìm data-brand-logo… lúc mount.
@@ -88,16 +77,6 @@ export default function PublicLayout() {
   // Trang chủ có header riêng (useHomeHeader). Trang khác: header tự sáng/tối theo khối đang nằm dưới nó
   // (khối đánh dấu data-surface="dark|light" — hook useHeaderSurface); không có khối đánh dấu thì ngà như cũ.
   const headerSurface = useHeaderSurface(!dark && !bare, day)
-  // Đóng menu phủ khi chuyển trang
-  useEffect(() => {
-    setOverlayOpen(false)
-  }, [location.pathname])
-
-  // Đã đăng nhập: nút dẫn vào đúng khu làm việc của vai trò
-  const area = user ? ROLE_AREAS[user.role] : null
-  const dashboardHref = area?.home ?? '/tim-viec'
-  const navLinks = NAV[user?.role ?? 'guest']
-  const profileTo = user ? PERSONAL_HREF : '/dang-nhap'
 
   return (
     // Nền khung theo loại trang: trang chủ abyss, trang ban ngày day, trang ngà (cá nhân, tin nhắn…) ivory.
@@ -113,26 +92,8 @@ export default function PublicLayout() {
       ) : (
         // Header cố định 72px (SiteHeader). Trang chủ: do IntroHero + useHomeHeader điều khiển qua data-attribute,
         // màu theo section; trang khác: tự sáng/tối theo khối nằm dưới (data-surface) và ẩn khi cuộn xuống.
-        <SiteHeader home={dark} surface={headerSurface} menuOpen={overlayOpen} menuId={MENU_ID} onOpenMenu={() => setOverlayOpen(true)} />
+        <SiteHeader home={dark} surface={headerSurface} />
       )}
-
-      {!dark && <MenuOverlay
-        id={MENU_ID}
-        open={overlayOpen}
-        onClose={() => setOverlayOpen(false)}
-        items={[...navLinks, ...EXPLORE_ITEMS, { label: 'Trang cá nhân', href: profileTo }]}
-        actions={
-          user
-            ? [
-                { label: 'Đăng xuất', onClick: logout },
-                { label: area?.label ?? '', href: dashboardHref },
-              ]
-            : [
-                { label: 'Đăng nhập', href: '/dang-nhap' },
-                { label: 'Đăng ký', href: '/dang-ky' },
-              ]
-        }
-      />}
 
       {/* Page content — đổi route: trang cũ mờ đi nhanh, trang mới trượt từ trên xuống vào chỗ */}
       {/* pt-[72px]: header cố định không còn chiếm chỗ trong luồng. Trang chủ và trang đăng nhập (bare) tự nằm dưới header */}

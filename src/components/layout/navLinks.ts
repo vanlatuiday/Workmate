@@ -1,5 +1,6 @@
 import type { UserRole } from '@/types'
-import type { MenuItem } from '@components/layout/MenuOverlay'
+
+export type MenuItem = { label: string; href: string }
 
 /** Mục điều hướng theo người đang xem. Khách thấy lời mời trung lập cho cả hai phía;
     đã đăng nhập thì chỉ thấy lối tắt tới việc của vai trò mình. */

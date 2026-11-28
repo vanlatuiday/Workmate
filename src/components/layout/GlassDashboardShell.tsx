@@ -1,24 +1,16 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { PanelLeft } from 'lucide-react'
-import { useAuthStore } from '@context/authStore'
 import { useNotificationCenterStore } from '@context/notificationCenterStore'
-import { ROLE_AREAS } from '@constants/roles'
-import { PERSONAL_HREF } from '@pages/public/personal/links'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import RouteScroll from '@components/common/RouteScroll'
 import Skeleton, { SkeletonStats } from '@components/dashboard/Skeleton'
-import MenuOverlay from './MenuOverlay'
-import { EXPLORE_ITEMS } from './ExploreMenu'
 import LeaveDashboardDialog from './LeaveDashboardDialog'
 import SiteHeader from './SiteHeader'
-import { NAV } from './navLinks'
 import Sidebar from './sidebar/Sidebar'
 import MobileDrawer from './sidebar/MobileDrawer'
 import type { SidebarRole } from './sidebar/config'
-
-const MENU_ID = 'site-menu'
 
 /** Khung chờ khi chunk trang đang tải (cùng ý với DashboardShell, màu kính xanh) */
 function PageFallback() {
@@ -43,9 +35,7 @@ function PageFallback() {
  */
 export default function GlassDashboardShell({ sidebarRole, menuLabel = 'Menu khu tìm việc' }: { sidebarRole: SidebarRole; menuLabel?: string }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
-  const { user, logout } = useAuthStore()
   const menuBtnRef = useRef<HTMLButtonElement>(null)
   const setInShell = useNotificationCenterStore((s) => s.setInShell)
   useEffect(() => {
@@ -53,15 +43,11 @@ export default function GlassDashboardShell({ sidebarRole, menuLabel = 'Menu khu
     return () => setInShell(false)
   }, [setInShell])
 
-  // Đổi route thì đóng ngăn kéo và menu phủ
+  // Đổi route thì đóng ngăn kéo
   useEffect(() => {
     setDrawerOpen(false)
-    setMenuOpen(false)
   }, [location.pathname])
   const closeDrawer = useCallback(() => setDrawerOpen(false), [])
-
-  const area = user ? ROLE_AREAS[user.role] : null
-  const navLinks = NAV[user?.role ?? 'guest']
 
   return (
     <div className="jd-root theme-abyss relative isolate min-h-screen">
@@ -79,17 +65,7 @@ export default function GlassDashboardShell({ sidebarRole, menuLabel = 'Menu khu
         Bỏ qua tới nội dung
       </a>
 
-      <SiteHeader home={false} surface="dark" menuOpen={menuOpen} menuId={MENU_ID} onOpenMenu={() => setMenuOpen(true)} />
-      <MenuOverlay
-        id={MENU_ID}
-        open={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        items={[...navLinks, ...EXPLORE_ITEMS, { label: 'Trang cá nhân', href: PERSONAL_HREF }]}
-        actions={[
-          { label: 'Đăng xuất', onClick: logout },
-          { label: area?.label ?? '', href: area?.home ?? '/tim-viec' },
-        ]}
-      />
+      <SiteHeader home={false} surface="dark" />
 
       {/* Ngăn kéo mobile (<768px) */}
       <MobileDrawer open={drawerOpen} onClose={closeDrawer} returnFocusRef={menuBtnRef}>

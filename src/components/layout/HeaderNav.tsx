@@ -3,7 +3,7 @@ import { m } from 'motion/react'
 import { useReducedMotion } from '@hooks/useReducedMotion'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
-import type { MenuItem } from '@components/layout/MenuOverlay'
+import type { MenuItem } from './navLinks'
 import ExploreMenu, { EXPLORE_ITEMS } from '@components/layout/ExploreMenu'
 
 const EXPLORE_KEY = '__explore'
