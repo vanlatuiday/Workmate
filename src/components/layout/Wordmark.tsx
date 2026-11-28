@@ -1,5 +1,4 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Briefcase } from 'lucide-react'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 import { scrollToHomeBanner } from '@components/home/IntroHero'
@@ -11,9 +10,7 @@ type Props = {
 }
 
 /**
- * Logo Workmate (chủ dự án giữ logo cũ, 2026-11-15): icon cặp 20px + chữ "Workmate" 20px/600, cách 8px.
- * Đúng kích thước này mà ParticleField.sampleLogo vẽ logo hạt ở màn mở đầu trang chủ — đổi thì đổi cả hai.
- * Không nền, không viền: "chìm" vào nền phía sau.
+ * Biểu tượng và chữ Workmate. Màu chữ đi theo tông sáng/tối của header.
  */
 export default function Wordmark({ home = false, className }: Props) {
   const { pathname } = useLocation()
@@ -28,7 +25,7 @@ export default function Wordmark({ home = false, className }: Props) {
       className={cn('hd-wordmark flex items-center gap-2 rounded-control font-display text-xl font-semibold tracking-tight', FOCUS, className)}
     >
       <span className={cn('flex items-center gap-2', home && 'animate-logo-in')}>
-        <Briefcase className="h-5 w-5" aria-hidden="true" />
+        <img src="/workmate-mark.png" alt="" width={28} height={28} className="h-7 w-7 shrink-0" />
         Workmate
       </span>
     </Link>
