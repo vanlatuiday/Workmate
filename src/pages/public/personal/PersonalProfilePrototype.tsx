@@ -5,6 +5,7 @@ import { useAuthStore } from '@context/authStore'
 import { useProfileStore } from '@context/profileStore'
 import { useCompanyStore } from '@context/companyStore'
 import { GateError, GateSkeleton } from '@components/common/OnboardingGate'
+import AccountDeletion from '@components/settings/AccountDeletion'
 import { photoUrl } from '@components/discover/types'
 import { BTN_ICON, BTN_SECONDARY, BTN_SM } from '@utils/ui'
 import { cn } from '@utils/cn'
@@ -102,6 +103,12 @@ export default function PersonalProfilePrototype() {
           {recruiter ? <RecruiterProfileSections onEdit={openCompanyEditor} /> : <SeekerProfileSections key={user?.id ?? 'guest'} />}
         </div>
         {!recruiter && <p className="mt-5 text-center text-xs leading-relaxed text-page-muted">Thông tin hồ sơ, xác nhận nhận việc và đánh giá trên Workmate.</p>}
+        {(owner || recruiter) && (
+          <section aria-labelledby="personal-account-heading" className="mt-6 rounded-card border border-page-line bg-page-surface p-5">
+            <h2 id="personal-account-heading" className="mb-2 font-display text-lg font-semibold">Tài khoản</h2>
+            <AccountDeletion key={user.id} side={recruiter ? 'recruiter' : 'seeker'} />
+          </section>
+        )}
       </div>
       {owner && coverEditor === user.id && <CoverEditor key={user.id} currentUrl={coverUrl} onClose={() => setCoverEditor(null)} />}
       {recruiter && companyEditor?.companyId === companyId && <CompanyProfileEditor key={`${user.id}-${companyId}-${companyEditor.section}`} section={companyEditor.section} onClose={() => setCompanyEditor(null)} />}

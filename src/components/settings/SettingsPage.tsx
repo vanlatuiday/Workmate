@@ -1,8 +1,6 @@
 import FadeIn from '@components/motion/FadeIn'
 import { notifySuccess } from '@utils/feedback'
 import { useId, useState, type FormEvent, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { AlertCircle } from 'lucide-react'
 import { PageHeader, Panel } from '@components/dashboard'
 import { useAuthStore } from '@context/authStore'
 import { usePublicProfile } from '@hooks/usePublicProfile'
@@ -12,9 +10,10 @@ import { apiErrorMessage, authService } from '@services/authService'
 import { setNotifyPref, startConnections } from '@services/connectionService'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
-import { BTN_ACCENT, BTN_DANGER, BTN_GHOST, BTN_SM } from '@utils/ui'
+import { BTN_ACCENT } from '@utils/ui'
+import AccountDeletion from './AccountDeletion'
+import PasswordField from './PasswordField'
 
-const FIELD = `w-full rounded-control border border-page-edge bg-page-surface px-3 py-2 text-sm text-page-fg ${FOCUS}`
 
 /** Các loại thông báo theo phía (nhãn khác nhau vì nhìn từ hai phía) */
 const NOTIFY: Record<Side, { kind: NotificationKind; label: string }[]> = {
@@ -87,32 +86,13 @@ function RadioGroup<T extends string>({ legend, options, value, onChange }: { le
   )
 }
 
-/** Ô mật khẩu có nhãn và lỗi gắn aria-describedby */
-function PasswordField({ label, value, onChange, error, autoComplete }: { label: string; value: string; onChange: (v: string) => void; error?: string; autoComplete: string }) {
-  const id = useId()
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm text-page-muted">{label}</label>
-      <input id={id} type="password" value={value} autoComplete={autoComplete} onChange={(e) => onChange(e.target.value)}
-        aria-invalid={error ? true : undefined} aria-describedby={error ? `${id}-err` : undefined} className={FIELD} />
-      {error && (
-        <p id={`${id}-err`} role="alert" className="flex items-center gap-1.5 text-sm font-medium text-page-fg">
-          <AlertCircle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />{error}
-        </p>
-      )}
-    </div>
-  )
-}
-
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return <Panel title={title}>{children}</Panel>
 }
 
 /** Cài đặt dùng chung hai phía: tài khoản, thông báo, riêng tư (lưu trên máy chủ), xóa tài khoản. */
 export default function SettingsPage({ side }: { side: Side }) {
-  const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
-  const logout = useAuthStore((s) => s.logout)
   const settings = useSettingsStore((s) => s.bySide[side])
   const update = useSettingsStore((s) => s.update)
   const { isPublic, setPublic } = usePublicProfile()
@@ -121,12 +101,6 @@ export default function SettingsPage({ side }: { side: Side }) {
   const [next, setNext] = useState('')
   const [again, setAgain] = useState('')
   const [errs, setErrs] = useState<{ cur?: string; next?: string; again?: string }>({})
-  const [deleting, setDeleting] = useState(false)
-  const [confirmText, setConfirmText] = useState('')
-  const [deletePassword, setDeletePassword] = useState('')
-  const [deleteError, setDeleteError] = useState('')
-  const [deleteBusy, setDeleteBusy] = useState(false)
-
   const saved = () => notifySuccess('Đã lưu')
 
   const changePassword = async (e: FormEvent) => {
@@ -151,21 +125,6 @@ export default function SettingsPage({ side }: { side: Side }) {
     }
     setCur(''); setNext(''); setAgain('')
     notifySuccess('Đã đổi mật khẩu. Các thiết bị khác đã được đăng xuất.')
-  }
-
-  const deleteAccount = async () => {
-    setDeleteError('')
-    setDeleteBusy(true)
-    try {
-      await authService.deleteAccount(deletePassword)
-    } catch (err) {
-      setDeleteError(apiErrorMessage(err, 'Chưa xóa được tài khoản, vui lòng thử lại.'))
-      setDeleteBusy(false)
-      return
-    }
-    logout()
-    navigate('/')
-    notifySuccess('Đã xóa tài khoản và dữ liệu của bạn')
   }
 
   return (
@@ -230,33 +189,7 @@ export default function SettingsPage({ side }: { side: Side }) {
 
         <FadeIn>
         <Section title="Vùng nguy hiểm">
-          <p className="mb-4 text-sm text-page-muted">
-            {side === 'seeker'
-              ? 'Xóa vĩnh viễn hồ sơ, CV, ảnh đại diện, đơn ứng tuyển, kết nối, tin nhắn, lịch phỏng vấn và đánh giá của bạn. Không thể khôi phục.'
-              : 'Xóa vĩnh viễn tài khoản của bạn. Nếu bạn là người quản lý duy nhất, công ty cùng mọi tin tuyển dụng, kết nối và tin nhắn với ứng viên cũng bị xóa. Không thể khôi phục.'}
-          </p>
-          {!deleting ? (
-            <button type="button" className={cn(BTN_DANGER, BTN_SM)} onClick={() => setDeleting(true)}>Xóa tài khoản</button>
-          ) : (
-            <form
-              role="alertdialog"
-              aria-label="Xác nhận xóa tài khoản"
-              className="flex flex-col gap-4 rounded-card border border-page-fg p-4"
-              onSubmit={(e) => { e.preventDefault(); if (confirmText.trim() === 'XÓA' && deletePassword && !deleteBusy) void deleteAccount() }}
-            >
-              <PasswordField label="Mật khẩu của bạn" value={deletePassword} onChange={setDeletePassword} error={deleteError} autoComplete="current-password" />
-              <div>
-                <label htmlFor="delete-confirm" className="text-sm text-page-fg">Gõ <strong>XÓA</strong> để xác nhận.</label>
-                <input id="delete-confirm" value={confirmText} onChange={(e) => setConfirmText(e.target.value)} autoComplete="off" className={`${FIELD} mt-2`} />
-              </div>
-              <div className="flex gap-2">
-                <button type="submit" disabled={confirmText.trim() !== 'XÓA' || !deletePassword || deleteBusy} className={cn(BTN_DANGER, BTN_SM)}>
-                  {deleteBusy ? 'Đang xóa…' : 'Xóa vĩnh viễn'}
-                </button>
-                <button type="button" className={cn(BTN_GHOST, BTN_SM)} onClick={() => { setDeleting(false); setConfirmText(''); setDeletePassword(''); setDeleteError('') }}>Hủy</button>
-              </div>
-            </form>
-          )}
+          <AccountDeletion side={side} />
         </Section>
         </FadeIn>
         </div>
