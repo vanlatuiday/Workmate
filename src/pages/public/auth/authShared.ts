@@ -98,3 +98,7 @@ export function useFieldTouch(root: RefObject<HTMLElement>) {
 export function loginHome(role: string): string {
   return role === 'jobseeker' || role === 'recruiter' ? '/match' : '/'
 }
+
+export function jobseekerRegistrationHome(): string {
+  return '/ho-so?bat-dau=cv'
+}

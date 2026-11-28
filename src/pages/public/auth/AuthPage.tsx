@@ -16,7 +16,7 @@ import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
 import ForgotForm from './ForgotForm'
 import { OutlinePill } from './shared'
-import { AUTH_PATHS, EASE, loginHome, MODE_ORDER, modeOfPath, type AuthFormProps, type AuthMode } from './authShared'
+import { AUTH_PATHS, EASE, jobseekerRegistrationHome, loginHome, MODE_ORDER, modeOfPath, type AuthFormProps, type AuthMode } from './authShared'
 
 /*
  * Đăng nhập / Đăng ký / Quên mật khẩu — MỘT thẻ kính TỐI chia hai nửa (bố cục theo references/p11.mp4),
@@ -72,11 +72,14 @@ export default function AuthPage() {
   const { pathname, state } = useLocation()
   if (user && token && (pathname === AUTH_PATHS.login || pathname === AUTH_PATHS.register)) {
     const from = (state as { from?: string } | null)?.from
-    // Người dùng mới vừa xác nhận email ở /dang-ky: nhà tuyển dụng vào form bắt đầu, người tìm việc vào trình viết CV. Phải xử lý ở đây vì
+    if (pathname === AUTH_PATHS.register && user.role === 'jobseeker') {
+      return <Navigate to={jobseekerRegistrationHome()} replace />
+    }
+    // Người dùng mới vừa xác nhận email ở /dang-ky: nhà tuyển dụng vào form bắt đầu. Phải xử lý ở đây vì
     // setUser làm trang này render lại và chuyển hướng TRƯỚC lệnh navigate() trong RegisterForm
     const fallback = pathname !== AUTH_PATHS.register ? loginHome(user.role)
       : user.role === 'recruiter' ? '/tuyen-dung/bat-dau'
-      : user.role === 'jobseeker' ? '/ho-so' : '/'
+      : '/'
     return <Navigate to={from && canVisit(user.role, from) ? from : fallback} replace />
   }
   return <AuthCard />

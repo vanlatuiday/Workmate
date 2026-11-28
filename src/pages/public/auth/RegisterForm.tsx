@@ -6,7 +6,7 @@ import { useAuthStore } from '@context/authStore'
 import { useCatalogStore } from '@context/catalogStore'
 import { apiErrorMessage, authService } from '@services/authService'
 import { AuthField, ErrorBox, Item, LINK_BTN, PasswordStrength, RoleSwitch, ShowPassButton, Stagger, SubmitButton, TEXT_LINK, type AuthRole } from './shared'
-import { AUTH_PATHS, confirmError, passwordMinError, registerEmailError, useFieldTouch, useFocusFirst, type AuthFormProps } from './authShared'
+import { AUTH_PATHS, confirmError, jobseekerRegistrationHome, passwordMinError, registerEmailError, useFieldTouch, useFocusFirst, type AuthFormProps } from './authShared'
 
 /*
  * Đăng ký 2 bước: điền thông tin → nhập mã gửi về email. Đúng mã máy chủ mới tạo tài khoản và đăng nhập luôn.
@@ -104,8 +104,8 @@ export default function RegisterForm({ delay, focus, shake, leave }: AuthFormPro
     // Thẻ mờ đi xong mới đổi trang
     await leave()
     setUser(res.user, res.token)
-    // Nhà tuyển dụng mới: vào thẳng form bắt đầu (mã số, tên, logo…); người tìm việc mới: hướng dẫn 3 bước (không bắt buộc)
-    navigate(res.user.role === 'recruiter' ? '/tuyen-dung/bat-dau' : res.user.role === 'jobseeker' ? '/ho-so' : '/')
+    // Nhà tuyển dụng mới: vào thẳng form bắt đầu (mã số, tên, logo…); người tìm việc mới: mở hồ sơ kèm gợi ý điền CV
+    navigate(res.user.role === 'recruiter' ? '/tuyen-dung/bat-dau' : res.user.role === 'jobseeker' ? jobseekerRegistrationHome() : '/', { replace: true })
   }
 
   const resend = async () => {

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { gsap, useGSAP } from '@utils/gsap'
 import { usePageEnterDelay } from '@components/motion/PageTransition'
 import { useReducedMotion } from '@hooks/useReducedMotion'
@@ -12,6 +12,7 @@ import PublicStatusBar from './profile/PublicStatusBar'
 import SectionIndex from './profile/SectionIndex'
 import { AboutChapter, AvailabilityChapter, ExperienceChapter, HobbiesChapter, SkillsChapter, WantsChapter } from './profile/Sections'
 import { useProfileDraft } from './profile/useProfileDraft'
+import { BTN_ACCENT, BTN_SECONDARY } from '@utils/ui'
 
 /**
  * Hồ sơ người tìm việc — trình sửa DUY NHẤT (/tim-viec/ho-so chuyển về đây): mục lục dính bên trái (từ xl), biểu mẫu ở giữa, tờ CV xem trước thu nhỏ bên phải, bấm để phóng to (từ lg; nhỏ hơn thì nút "Xem CV" mở khung).
@@ -24,6 +25,7 @@ export default function ProfilePage() {
   const formRef = useRef<HTMLDivElement>(null)
   const { percent, suggestions, sections } = api
   const { hash } = useLocation()
+  const [searchParams] = useSearchParams()
   const email = useAuthStore((st) => st.user?.email)
 
   // Vào trang: các nhóm lần lượt nổi lên (chỉ transform/opacity)
@@ -54,6 +56,16 @@ export default function ProfilePage() {
     <div className="min-h-[calc(100svh-4.5rem)] overflow-x-clip text-page-fg">
       <div className="shell py-section-sm">
         <h1 className="sr-only">Hồ sơ của bạn</h1>
+        {searchParams.get('bat-dau') === 'cv' && (
+          <section aria-labelledby="cv-welcome" className="mb-6 rounded-2xl border border-page-line p-5">
+            <h2 id="cv-welcome" className="font-display text-xl font-semibold">Bắt đầu điền CV của bạn</h2>
+            <p className="mt-2 text-sm text-page-muted">Thêm thông tin cá nhân, kỹ năng và kinh nghiệm để nhà tuyển dụng hiểu hơn về bạn.</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link to="/ho-so#thong-tin" replace className={BTN_ACCENT}>Điền CV</Link>
+              <Link to="/match" replace className={BTN_SECONDARY}>Để sau</Link>
+            </div>
+          </section>
+        )}
         <PublicStatusBar api={api} />
         <div className="relative isolate mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] xl:grid-cols-[10rem_minmax(0,1fr)_minmax(0,20rem)]">
           <SectionIndex sections={sections} reduced={reduced} />
