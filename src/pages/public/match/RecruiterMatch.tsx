@@ -31,6 +31,7 @@ import { useFlip } from '@hooks/useFlip'
 import { useCandidateMatches } from '@services/matchingService'
 import { type CriterionResult } from './score'
 import MessageLink from '@components/messenger/MessageLink'
+import { useMatchConfirmation } from './useMatchConfirmation'
 import UnconnectButton from '@components/connections/UnconnectButton'
 
 type TabKey = 'fit' | 'saved' | 'interested' | 'connected'
@@ -73,6 +74,7 @@ export default function RecruiterMatch() {
 function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
   const { savedCandidates, skippedCandidates, toggleSavedCandidate, skipCandidate, unskipCandidates } = useMatchStore()
   const statusOf = usePairStatuses('recruiter')
+  const confirmation = useMatchConfirmation()
   const candidates = useCandidates()
   const view = useMatchStore((s) => s.view)
   const setView = useMatchStore((s) => s.setView)
@@ -137,20 +139,27 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
 
   const jobTypeLabel = JOB_TYPES.find((t) => t.value === req.jobType)?.label ?? req.jobType
 
-  const invite = (c: MatchCandidate) => {
-    // Phản hồi thành công (quan tâm / đã kết nối) do connectionService báo; ở lại tab hiện tại để quan tâm tiếp
-    expressInterest('recruiter', position.id, c.id)
+  const invite = (c: MatchCandidate, score: number, close?: (quick?: boolean) => void) => {
+    confirmation.request({
+      name: c.name,
+      score,
+      label: statusOf(position.id, c.id) === 'received' ? 'Đồng ý kết nối' : 'Tiếp tục quan tâm',
+      run: () => {
+        expressInterest('recruiter', position.id, c.id)
+        close?.(true)
+      },
+    })
   }
 
   // Hàng nút của một ứng viên — dùng chung cho thẻ danh sách và khung chi tiết.
   // `close` chỉ có ở khung chi tiết: đổi trạng thái / bỏ qua làm thẻ rời tab nên đóng khung (mờ dần) sau khi bấm.
-  const candActions = (c: MatchCandidate, key: string, close?: (quick?: boolean) => void) => {
+  const candActions = (c: MatchCandidate, key: string, score: number, close?: (quick?: boolean) => void) => {
     const saved = savedCandidates.includes(key)
     const status = statusOf(position.id, c.id)
     return (
       <>
         {status === 'none' && (
-          <button type="button" onClick={() => { invite(c); close?.(true) }} className={cn(BTN_PRIMARY, BTN_SM)}>
+          <button type="button" onClick={() => invite(c, score, close)} className={cn(BTN_PRIMARY, BTN_SM)}>
             Quan tâm<span className="sr-only"> {c.name}</span>
           </button>
         )}
@@ -159,7 +168,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
             <span className="inline-flex items-center rounded-full border border-page-line px-3 py-1 text-xs text-page-muted">
               Ứng viên đã ứng tuyển
             </span>
-            <button type="button" onClick={() => { invite(c); close?.(true) }} className={cn(BTN_PRIMARY, BTN_SM)}>
+            <button type="button" onClick={() => invite(c, score, close)} className={cn(BTN_PRIMARY, BTN_SM)}>
               Đồng ý kết nối<span className="sr-only"> {c.name}</span>
             </button>
             <ConsiderButton jobId={position.id} seekerId={c.id} className={cn(BTN_SECONDARY, BTN_SM)} srLabel={c.name} />
@@ -336,13 +345,13 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
                 />
               )}
               onOpen={(item, origin) => setOpen({ id: item.id, origin })}
-              action={({ c }) => (
+              action={({ c, outcome }) => (
                 <GalleryAction
                   status={statusOf(position.id, c.id)}
                   name={c.name}
                   convKey={`${position.id}|${c.id}`}
                   unconnect={{ viewer: 'recruiter', jobId: position.id, seekerId: c.id, name: c.name }}
-                  onPrimary={() => invite(c)}
+                  onPrimary={() => invite(c, outcome.score)}
                   labels={{ none: 'Quan tâm ứng viên', sent: 'Đã quan tâm' }}
                 />
               )}
@@ -376,7 +385,7 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
                       </div>
                       <div className="mt-3">{availabilityBadge(c)}</div>
                       <CheckList results={outcome.results} missingSkills={outcome.missingSkills} noteOf={recruiterNote} />
-                      <div className="mt-auto flex flex-wrap gap-2 pt-5">{candActions(c, key)}</div>
+                      <div className="mt-auto flex flex-wrap gap-2 pt-5">{candActions(c, key, outcome.score)}</div>
                     </article>
                   </li>
                 )
@@ -409,10 +418,11 @@ function RecruiterMatchBoard({ positions }: { positions: MatchPosition[] }) {
         score={detail.outcome.score}
         origin={open.origin}
         onClosed={() => setOpen(null)}
-        actions={(close) => candActions(detail.c, detail.key, close)}
+        actions={(close) => candActions(detail.c, detail.key, detail.outcome.score, close)}
         extra={<ReportButton target="seeker" targetId={detail.c.id} name={detail.c.name} />}
       />
     )}
+    {confirmation.dialog}
     </>
   )
 }

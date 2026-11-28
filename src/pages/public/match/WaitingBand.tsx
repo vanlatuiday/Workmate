@@ -12,7 +12,7 @@ export default function WaitingBand({
   onView,
 }: {
   items: { job: MatchJob; score: number }[]
-  onAccept: (job: MatchJob) => void
+  onAccept: (job: MatchJob, score: number) => void
   onView: (job: MatchJob, button: HTMLElement) => void
 }) {
   if (items.length === 0) return null
@@ -52,7 +52,7 @@ export default function WaitingBand({
                 {v}%
               </span>
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => onAccept(job)} className={cn(BTN_PRIMARY, BTN_SM)}>
+                <button type="button" onClick={() => onAccept(job, score)} className={cn(BTN_PRIMARY, BTN_SM)}>
                   Đồng ý kết nối<span className="sr-only"> {job.title}</span>
                 </button>
                 <button type="button" onClick={(e) => onView(job, e.currentTarget)} className={cn(BTN_SECONDARY, BTN_SM)}>

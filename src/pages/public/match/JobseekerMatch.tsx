@@ -16,7 +16,9 @@ import { formatHourlyFromK } from '@utils/format'
 import type { JobType } from '@/types'
 import { companyOf, SEEKER_JOBS, type MatchJob } from './data'
 import { useCatalogStore } from '@context/catalogStore'
-import { useSeekerCriteria } from '@context/profileStore'
+import { useProfileStore, useSeekerCriteria } from '@context/profileStore'
+import { completeness } from '@pages/public/profile/useProfileDraft'
+import { useMatchConfirmation } from './useMatchConfirmation'
 import { useAllJobs } from '@pages/public/jobs/catalog'
 import { reweight, useSeekerMatches } from '@services/matchingService'
 import { findAnyJob } from '@pages/public/jobs/lookup'
@@ -71,6 +73,8 @@ export default function JobseekerMatch() {
   const { savedJobs, toggleSavedJob, view, setView } = useMatchStore()
   const statusOf = usePairStatuses('seeker')
   const stageOf = useApplicationStages()
+  const profileIncomplete = useProfileStore((s) => completeness({ ...s.profile, avatarUrl: s.avatarUrl }) < 100)
+  const confirmation = useMatchConfirmation(profileIncomplete)
   // Kết nối mới (kể cả do doanh nghiệp đáp lại sau vài giây) → báo thành công
   useOnNewConnection((c) => {
     if (c.seekerId !== ME) return
@@ -189,27 +193,34 @@ export default function JobseekerMatch() {
   const toggleType = (t: JobType) =>
     setJobTypes((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]))
 
-  const apply = (job: MatchJob) => {
-    // Phản hồi thành công (ứng tuyển / đã kết nối) do connectionService báo
-    expressInterest('seeker', job.id, ME)
+  const apply = (job: MatchJob, score: number, close?: (quick?: boolean) => void) => {
+    confirmation.request({
+      name: job.title,
+      score,
+      label: statusOf(job.id, ME) === 'received' ? 'Đồng ý kết nối' : 'Tiếp tục ứng tuyển',
+      run: () => {
+        expressInterest('seeker', job.id, ME)
+        close?.(true)
+      },
+    })
   }
 
   // Hàng nút của một vị trí — dùng chung cho thẻ danh sách và khung chi tiết.
   // `close` chỉ có ở khung chi tiết: đổi trạng thái làm thẻ rời tab "Phù hợp" nên đóng khung (mờ dần) sau khi bấm.
-  const jobActions = (job: MatchJob, close?: (quick?: boolean) => void) => {
+  const jobActions = (job: MatchJob, score: number, close?: (quick?: boolean) => void) => {
     const saved = savedJobs.includes(job.id)
     const status = statusOf(job.id, ME)
     return (
       <>
         {status === 'none' && (
-          <button type="button" onClick={() => { apply(job); close?.(true) }} className={cn(BTN_PRIMARY, BTN_SM)}>
+          <button type="button" onClick={() => apply(job, score, close)} className={cn(BTN_PRIMARY, BTN_SM)}>
             Ứng tuyển<span className="sr-only"> {job.title}</span>
           </button>
         )}
         {status === 'received' && (
           <>
             <span className="inline-flex items-center px-1 text-xs text-page-muted">Nhà tuyển dụng đã quan tâm bạn</span>
-            <button type="button" onClick={() => { apply(job); close?.(true) }} className={cn(BTN_PRIMARY, BTN_SM)}>
+            <button type="button" onClick={() => apply(job, score, close)} className={cn(BTN_PRIMARY, BTN_SM)}>
               Đồng ý kết nối<span className="sr-only"> {job.title}</span>
             </button>
           </>
@@ -303,13 +314,13 @@ export default function JobseekerMatch() {
           )
         }}
         onOpen={(item, origin) => setOpen({ id: item.id, origin })}
-        action={({ job }) => (
+        action={({ job, outcome }) => (
           <GalleryAction
             status={statusOf(job.id, ME)}
             name={job.title}
             convKey={`${job.id}|${ME}`}
             unconnect={{ viewer: 'seeker', jobId: job.id, seekerId: ME, name: companyOf(job.companyId).name }}
-            onPrimary={() => apply(job)}
+            onPrimary={() => apply(job, outcome.score)}
             labels={{ none: 'Ứng tuyển ngay', sent: 'Đã ứng tuyển' }}
           />
         )}
@@ -325,7 +336,7 @@ export default function JobseekerMatch() {
       <ul ref={flip} className="grid gap-4 md:grid-cols-2">
         {items.map(({ job, outcome }) => (
           <li key={job.id} data-flip-key={job.id} className="min-w-0">
-            <JobCard job={job} outcome={outcome} actions={jobActions(job)} />
+            <JobCard job={job} outcome={outcome} actions={jobActions(job, outcome.score)} />
           </li>
         ))}
       </ul>
@@ -652,7 +663,7 @@ export default function JobseekerMatch() {
           score={outcome.score}
           origin={open.origin}
           onClosed={() => setOpen(null)}
-          actions={(close) => jobActions(job, close)}
+          actions={(close) => jobActions(job, outcome.score, close)}
         >
           <div className="mt-6">
             <FactTiles
@@ -681,6 +692,7 @@ export default function JobseekerMatch() {
         </MatchDetail>
       )
     })()}
+    {confirmation.dialog}
     </>
   )
 }
