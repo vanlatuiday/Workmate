@@ -15,6 +15,7 @@ import { useCompanyStore } from '@context/companyStore'
 import { useConnectionStore } from '@context/connectionStore'
 import { ScoreRing } from '@pages/public/match/parts'
 import CandidateCvDialog from '@pages/public/match/CandidateCvDialog'
+import { useMatchConfirmation } from '@pages/public/match/useMatchConfirmation'
 import { useCandidateMatches } from '@services/matchingService'
 import { EmptyNote } from '@pages/public/personal/parts'
 import { Card } from '@pages/public/personal/personalPrototypeParts'
@@ -34,18 +35,32 @@ import avatarDefault from '@assets/images/avatar-default.webp'
  * Nút hành động theo trạng thái giữa doanh nghiệp và ứng viên ở một tin.
  * `compact` (khu đầu trang, khung CV): nhãn ngắn, kết nối rồi chỉ còn "Nhắn tin".
  */
-function JobActions({ job, profile, compact }: { job: CatalogJob; profile: Profile; compact?: boolean }) {
+function JobActions({ job, profile, score, compact }: { job: CatalogJob; profile: Profile; score?: number; compact?: boolean }) {
   const status = usePairStatuses('recruiter')(job.id, profile.id)
+  const { request, dialog } = useMatchConfirmation()
+  const connect = () => {
+    const run = () => expressInterest('recruiter', job.id, profile.id)
+    if (score === undefined) {
+      run()
+      return
+    }
+    request({
+      name: profile.name,
+      score,
+      label: status === 'received' ? 'Đồng ý kết nối' : 'Tiếp tục quan tâm',
+      run,
+    })
+  }
   return (
     <>
       {status === 'none' && (
-        <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={() => expressInterest('recruiter', job.id, profile.id)}>
+        <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={connect}>
           {compact ? 'Quan tâm ứng viên' : 'Quan tâm'}<span className="sr-only"> cho vị trí {job.title}</span>
         </button>
       )}
       {status === 'received' && (job.visible ? (
         <>
-          <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={() => expressInterest('recruiter', job.id, profile.id)}>
+          <button type="button" className={cn(BTN_PRIMARY, BTN_SM)} onClick={connect}>
             Đồng ý kết nối<span className="sr-only"> cho vị trí {job.title}</span>
           </button>
           <ConsiderButton jobId={job.id} seekerId={profile.id} className={cn(BTN_SECONDARY, BTN_SM)} srLabel={`cho vị trí ${job.title}`} />
@@ -85,6 +100,7 @@ function JobActions({ job, profile, compact }: { job: CatalogJob; profile: Profi
           )}
         </>
       )}
+      {dialog}
     </>
   )
 }
@@ -106,7 +122,7 @@ function JobRow({ job, profile, score }: { job: CatalogJob; profile: Profile; sc
         {score !== undefined && <MatchScore score={score} />}
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <JobActions job={job} profile={profile} />
+        <JobActions job={job} profile={profile} score={score} />
       </div>
     </li>
   )
@@ -212,7 +228,7 @@ export default function CandidateProfile() {
                 </div>
               )}
               <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                {best && <JobActions job={best.job} profile={profile} compact />}
+                {best && <JobActions job={best.job} profile={profile} score={best.score} compact />}
                 <button type="button" className={cn(BTN_SECONDARY, BTN_SM, quiet)} onClick={(e) => setCvOpen({ origin: e.currentTarget })}>
                   <FileText aria-hidden className="h-3.5 w-3.5" />Xem CV
                 </button>
@@ -256,7 +272,7 @@ export default function CandidateProfile() {
           score={best?.score}
           origin={cvOpen.origin}
           onClosed={() => setCvOpen(null)}
-          actions={() => best && <JobActions job={best.job} profile={profile} compact />}
+          actions={() => best && <JobActions job={best.job} profile={profile} score={best.score} compact />}
         />
       )}
     </div>
