@@ -128,7 +128,7 @@ export class AuthService {
           // slug từ tên; trùng hoặc rỗng thì dùng mã ngẫu nhiên
           let slug = slugify(pending.name)
           if (!slug || (await tx.company.findUnique({ where: { slug }, select: { id: true } }))) slug = `cty-${u.id}`
-          const company = await tx.company.create({ data: { slug, name: pending.name } })
+          const company = await tx.company.create({ data: { slug, name: pending.name, demoTaxOnboarding: true } })
           await tx.companyMember.create({ data: { companyId: company.id, userId: u.id, role: 'owner' } })
         }
         await tx.userSettings.create({ data: { userId: u.id } })

@@ -44,7 +44,7 @@ export class VerificationService {
   constructor(private prisma: PrismaService, private storage: StorageService, private mail: MailService, private tax: TaxLookupService) {}
 
   private async ownCompany(user: AuthUser) {
-    const company = await this.prisma.company.findFirst({ where: { members: { some: { userId: user.id } } }, select: { id: true, verified: true, locked: true, taxCode: true } })
+    const company = await this.prisma.company.findFirst({ where: { members: { some: { userId: user.id } } }, select: { id: true, verified: true, locked: true, taxCode: true, taxLookup: true, demoTaxOnboarding: true } })
     if (!company) throw new ForbiddenException('Tài khoản chưa thuộc doanh nghiệp nào')
     return company
   }
@@ -62,6 +62,9 @@ export class VerificationService {
     const company = await this.ownCompany(user)
     if (company.locked) throw new ForbiddenException('Doanh nghiệp đang bị khóa')
     if (company.verified) throw new ConflictException('Doanh nghiệp đã được xác minh')
+    if (company.demoTaxOnboarding && taxLookupOf(company)?.source === 'mock') {
+      throw new BadRequestException('Hãy cập nhật mã số doanh nghiệp thật trong hồ sơ trước khi gửi xác minh.')
+    }
     await this.assertTaxCodeUsable(company.id, company.taxCode)
     if (!files?.length) throw new BadRequestException('Chưa chọn giấy tờ nào')
     if (files.length > DOC_MAX_COUNT) throw new BadRequestException(`Tối đa ${DOC_MAX_COUNT} file`)

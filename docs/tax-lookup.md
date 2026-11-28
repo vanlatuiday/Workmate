@@ -14,7 +14,8 @@ Tra mã **không** chứng minh người đăng ký là người của công ty 
 ## Nguồn tra
 
 - Mặc định: `api.vietqr.io/v2/business/{mã}` — miễn phí, không cần khóa, dữ liệu tổng hợp từ trang Cục Thuế (có thể chậm vài ngày). Dịch vụ của bên thứ ba: lỗi thì kết quả là `unavailable`, web vẫn chạy. Kết quả lưu đệm 6 giờ (không tồn tại: 10 phút).
-- `TAX_LOOKUP_MODE="mock"`: bảng giả lập để demo trên máy. Production không cho dùng (`common/production-check.ts`).
+- Tài khoản Nhà tuyển dụng đăng ký mới dùng bảng giả lập trong form bắt đầu. Sau khi hoàn thành form, việc đổi mã dùng nguồn tra thật. Mã giả lập không cấp huy hiệu công khai, không tự duyệt tin và phải được thay bằng mã thật trước khi gửi giấy tờ xác minh.
+- `TAX_LOOKUP_MODE="mock"` bật giả lập toàn hệ thống trên máy. Production không cho dùng cấu hình này (`common/production-check.ts`).
 
 ## Bảng giả lập (`MOCK_TAX_CODES`)
 

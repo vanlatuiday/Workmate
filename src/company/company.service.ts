@@ -133,7 +133,7 @@ export class CompanyService {
       if (company.onboardedAt) throw new BadRequestException('Mã số doanh nghiệp là thông tin bắt buộc, không xóa được. Hãy nhập mã khác để thay.')
       return { taxCode: null, taxLookup: Prisma.DbNull }
     }
-    const lookup = await this.tax.lookup(code)
+    const lookup = await this.tax.lookup(code, company.demoTaxOnboarding && !company.onboardedAt ? 'mock' : undefined)
     if (lookup.result === 'not_found') throw new BadRequestException('Không tìm thấy mã số này trên dữ liệu thuế')
     if (lookup.result === 'inactive') throw new BadRequestException(`Mã số này không còn hoạt động (${lookup.statusText ?? 'ngừng hoạt động'})`)
     return { taxCode: code, taxLookup: { ...lookup } }
@@ -143,7 +143,7 @@ export class CompanyService {
   async previewTaxCode(user: AuthUser, raw: string) {
     const company = await this.own(user)
     const code = parseTaxCode(raw)
-    const lookup = await this.tax.lookup(code)
+    const lookup = await this.tax.lookup(code, company.demoTaxOnboarding && !company.onboardedAt ? 'mock' : undefined)
     return {
       taxCode: code,
       lookup,

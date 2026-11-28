@@ -64,13 +64,14 @@ export class JobsService {
   private async autoModerate(job: Parameters<CatalogService['toJob']>[0], user: AuthUser, manualHold = false): Promise<JobWithReview> {
     const [cfg, company] = await Promise.all([
       this.config.get(),
-      this.prisma.company.findUnique({ where: { id: job.companyId }, select: { taxLookup: true, locked: true, name: true } }),
+      this.prisma.company.findUnique({ where: { id: job.companyId }, select: { taxLookup: true, demoTaxOnboarding: true, locked: true, name: true } }),
     ])
     const { banned: inJob, signals } = reviewJob(job, cfg)
     // Tên công ty chứa cụm cấm tuyệt đối → mọi tin của công ty bị từ chối (tên hiện trên từng tin)
     const inName = phraseHits(company?.name ?? '', cfg.bannedWords).hits.filter((w) => !inJob.includes(w))
     const banned = [...inJob, ...inName]
     const taxActive = (company?.taxLookup as { result?: string } | null)?.result === 'active'
+      && !(company?.demoTaxOnboarding && (company.taxLookup as { source?: string } | null)?.source === 'mock')
     const decision: JobReviewResult['decision'] = banned.length
       ? 'rejected'
       : !signals.length && taxActive && !company?.locked && !manualHold ? 'approved' : 'pending'

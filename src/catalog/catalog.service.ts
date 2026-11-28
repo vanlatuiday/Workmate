@@ -36,7 +36,8 @@ export class CatalogService {
       cover: (c.coverPhoto as unknown as CatalogPhoto | null) ?? { alt: c.name },
       tagline: c.tagline, why: '', about: c.about, environment: c.environment,
       verified: c.verified, locked: c.locked, logoUrl: c.logoUrl,
-      taxValid: (c.taxLookup as { result?: string } | null)?.result === 'active',
+      taxValid: (c.taxLookup as { result?: string } | null)?.result === 'active'
+        && !(c.demoTaxOnboarding && (c.taxLookup as { source?: string } | null)?.source === 'mock'),
       ...(includeProfile && { foundedYear: c.foundedYear, address: c.address, values: c.values, policies: c.policies, culture: c.culture, email: c.email, phone: c.phone }),
     }
   }

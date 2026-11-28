@@ -52,16 +52,16 @@ export class TaxLookupService {
   }
 
   /** `code` phải đã qua isValidTaxCode. Không bao giờ ném lỗi: tra hỏng → result 'unavailable' */
-  async lookup(code: string): Promise<TaxLookup> {
+  async lookup(code: string, source = this.mode): Promise<TaxLookup> {
+    const key = source + ":" + code
     const now = Date.now()
-    const hit = this.cache.get(code)
+    const hit = this.cache.get(key)
     if (hit && hit.until > now) return hit.value
 
-    const source = this.mode
     const found = source === 'mock' ? (MOCK_TAX_CODES[code] ?? { result: 'not_found' as const }) : await this.viaVietQr(code)
     const value: TaxLookup = { ...found, checkedAt: new Date().toISOString(), source }
     if (value.result !== 'unavailable') {
-      this.cache.set(code, { value, until: now + (value.result === 'not_found' ? NOT_FOUND_TTL_MS : FOUND_TTL_MS) })
+      this.cache.set(key, { value, until: now + (value.result === 'not_found' ? NOT_FOUND_TTL_MS : FOUND_TTL_MS) })
       if (this.cache.size > 5000) this.cache.delete(this.cache.keys().next().value!)
     }
     return value
