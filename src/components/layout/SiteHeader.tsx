@@ -162,7 +162,10 @@ export default function SiteHeader({ home, surface }: Props) {
                 }
               }}
               onBlur={(event) => {
-                if (compactOpen && !event.currentTarget.contains(event.relatedTarget)) closeCompact(false)
+                // Một số trình duyệt di động bỏ focus khi chạm link và không báo phần tử nhận focus.
+                // Để click trên link chạy; pointerdown bên ngoài đã xử lý việc đóng menu.
+                const next = event.relatedTarget
+                if (compactOpen && next && !event.currentTarget.contains(next)) closeCompact(false)
               }}
             >
               <button
