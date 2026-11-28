@@ -3,21 +3,23 @@ import { useLocation } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 import Magnetic from '@components/motion/Magnetic'
 import RollText from '@components/motion/RollText'
+import AccountAvatar from './AccountAvatar'
 import AccountActions, { type AccountActions as AccountActionsProps } from './AccountActions'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
 
 type Props = AccountActionsProps & {
   initial: string
+  avatarUrl?: string | null
   magnetic: boolean
 }
 
 /**
- * Nút tài khoản ở header (đã đăng nhập): vòng chữ tắt + "Trang cá nhân ▾",
+ * Nút tài khoản ở header (đã đăng nhập): ảnh đại diện hoặc chữ tắt + "Trang cá nhân ▾",
  * bấm mở menu nhỏ gồm khu làm việc, trang cá nhân, đăng xuất.
  * Theo mẫu menu button của WAI-ARIA: mũi tên lên/xuống chuyển mục, Esc đóng và trả focus về nút.
  */
-export default function AccountMenu({ initial, magnetic, ...actions }: Props) {
+export default function AccountMenu({ initial, avatarUrl, magnetic, ...actions }: Props) {
   const [open, setOpen] = useState(false)
   const { unreadMessages, unreadNotifications } = actions
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -94,18 +96,15 @@ export default function AccountMenu({ initial, magnetic, ...actions }: Props) {
             FOCUS,
           )}
         >
-          <span
-            aria-hidden="true"
-            className="relative flex h-7 w-7 items-center justify-center rounded-full border border-current text-xs font-medium"
-          >
-            {initial}
+          <span aria-hidden="true" className="relative">
+            <AccountAvatar initial={initial} url={avatarUrl} />
             {unreadMessages + unreadNotifications > 0 && (
               <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-page-bg bg-page-fg" />
             )}
           </span>
           {unreadMessages > 0 && <span className="sr-only">{`, ${unreadMessages} tin nhắn chưa đọc`}</span>}
           {unreadNotifications > 0 && <span className="sr-only">{`, ${unreadNotifications} thông báo chưa đọc`}</span>}
-          {/* Dưới lg: chỉ còn vòng chữ tắt + mũi tên cho vừa chỗ cạnh menu giữa */}
+          {/* Dưới lg: chỉ còn ảnh đại diện hoặc chữ tắt + mũi tên cho vừa chỗ cạnh menu giữa */}
           <span className="max-lg:sr-only">
             <RollText>Trang cá nhân</RollText>
           </span>

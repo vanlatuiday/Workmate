@@ -2,6 +2,9 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ArrowRight, ChevronDown, X } from 'lucide-react'
 import { useAuthStore } from '@context/authStore'
+import { useProfileStore } from '@context/profileStore'
+import { useCompanyStore } from '@context/companyStore'
+import AccountAvatar from './AccountAvatar'
 import { ROLE_AREAS } from '@constants/roles'
 import { cn } from '@utils/cn'
 import { FOCUS } from '@utils/focus'
@@ -34,6 +37,10 @@ type Props = {
  */
 export default function SiteHeader({ home, surface }: Props) {
   const { user, logout } = useAuthStore()
+  const avatarUrl = useProfileStore((s) => user?.role === 'jobseeker' ? s.avatarUrl : null)
+  const logoUrl = useCompanyStore((s) => user?.role === 'recruiter' ? s.logoUrl : null)
+  const accountAvatar = avatarUrl || logoUrl
+  const initial = user?.email?.[0]?.toUpperCase() ?? 'U'
   const headerRef = useRef<HTMLElement>(null)
   const compactMenuRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -139,7 +146,7 @@ export default function SiteHeader({ home, surface }: Props) {
           <div className="hd-cluster hd-cluster-r col-start-3 flex items-center justify-self-end gap-3">
             <div data-header-item={item} className="hidden items-center gap-3 whitespace-nowrap lg:flex">
               {user && actions ? (
-                <AccountMenu {...actions} initial={user.email?.[0]?.toUpperCase() ?? 'U'} magnetic={home} />
+                <AccountMenu {...actions} initial={initial} avatarUrl={accountAvatar} magnetic={home} />
               ) : guestLinks}
             </div>
 
@@ -193,7 +200,10 @@ export default function SiteHeader({ home, surface }: Props) {
                   {actions ? (
                     <details className="group">
                       <summary className={cn(row, 'cursor-pointer list-none [&::-webkit-details-marker]:hidden')}>
-                        Trang cá nhân
+                        <span className="flex items-center gap-2">
+                          <AccountAvatar initial={initial} url={accountAvatar} />
+                          Trang cá nhân
+                        </span>
                         <ChevronDown aria-hidden="true" className="h-4 w-4 group-open:rotate-180" />
                       </summary>
                       <div className="pl-3"><AccountActions {...actions} close={closeCompact} /></div>
